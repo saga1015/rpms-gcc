@@ -17,10 +17,13 @@ int main(void)
   pid_t pid;
   int status;
   char initpath[256];
+  const char *argv[2];
 
   if (access ("/sbin/ldconfig", X_OK))
     _exit (0);
-  execl ("/sbin/ldconfig", "/sbin/ldconfig", NULL);
+  argv[0] = "/sbin/ldconfig";
+  argv[1] = NULL;
+  execv ("/sbin/ldconfig", argv);
   _exit (110);
 }
 
