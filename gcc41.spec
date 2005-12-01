@@ -1,6 +1,6 @@
-%define DATE 20051128
+%define DATE 20051201
 %define gcc_version 4.1.0
-%define gcc_release 0.3
+%define gcc_release 0.4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -30,7 +30,7 @@ Group: Development/Languages
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
 URL: http://gcc.gnu.org
-BuildRoot: /var/tmp/gcc-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils with -pie support >= 2.14.90.0.4-4
 # Need binutils which can omit dot symbols and overlap .opd on ppc64 >= 2.15.91.0.2-4
 # Need binutils which handle -msecure-plt on ppc >= 2.16.91.0.2-2
@@ -61,6 +61,7 @@ Requires: binutils >= 2.16.91.0.3-1
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
 Requires: libgcc >= %{version}-%{release}
+Requires: libgomp = %{version}-%{release}
 Obsoletes: gcc3
 Obsoletes: egcs
 Obsoletes: gcc-chill
@@ -98,10 +99,8 @@ Patch17: gcc41-test-pr19317.patch
 Patch18: gcc41-fortran-finclude.patch
 Patch19: gcc41-ppc64-sync.patch
 Patch20: gcc41-ppc32-retaddr.patch
-Patch21: gcc41-gomp-atomic.patch
-Patch22: gcc41-libgfortran-host_subdir.patch
-Patch23: gcc41-ia64-fetchadd.patch
-Patch24: gcc41-ia64-tls-le.patch
+Patch21: gcc41-libgfortran-host_subdir.patch
+Patch22: gcc41-gomp-nestedfn.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -450,10 +449,8 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .fortran-finclude~
 %patch19 -p0 -b .ppc64-sync~
 %patch20 -p0 -b .ppc32-retaddr~
-%patch21 -p0 -b .gomp-atomic~
-%patch22 -p0 -b .libgfortran-host_subdir~
-%patch23 -p0 -b .ia64-fetchadd~
-%patch24 -p0 -b .ia64-tls-le~
+%patch21 -p0 -b .libgfortran-host_subdir~
+%patch22 -p0 -b .gomp-nestedfn~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -806,11 +803,11 @@ ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../libgcj.so.6.* libgcj.so
-ln -sf ../../../lib-gnu-java-awt-peer-gtk.so.6.* lib-gnu-java-awt-peer-gtk.so
-ln -sf ../../../libgjsmalsa.so.6.* libgjsmalsa.so
-ln -sf ../../../libgij.so.6.* libgij.so
-ln -sf ../../../libgcjawt.so.6.* libgcjawt.so
+ln -sf ../../../libgcj.so.7.* libgcj.so
+ln -sf ../../../lib-gnu-java-awt-peer-gtk.so.7.* lib-gnu-java-awt-peer-gtk.so
+ln -sf ../../../libgjsmalsa.so.0.* libgjsmalsa.so
+ln -sf ../../../libgij.so.7.* libgij.so
+ln -sf ../../../libgcjawt.so.7.* libgcjawt.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -828,11 +825,11 @@ ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../../%{_lib}/libgcj.so.6.* libgcj.so
-ln -sf ../../../../%{_lib}/lib-gnu-java-awt-peer-gtk.so.6.* lib-gnu-java-awt-peer-gtk.so
-ln -sf ../../../../%{_lib}/libgjsmalsa.so.6.* libgjsmalsa.so
-ln -sf ../../../../%{_lib}/libgij.so.6.* libgij.so
-ln -sf ../../../../%{_lib}/libgcjawt.so.6.* libgcjawt.so
+ln -sf ../../../../%{_lib}/libgcj.so.7.* libgcj.so
+ln -sf ../../../../%{_lib}/lib-gnu-java-awt-peer-gtk.so.7.* lib-gnu-java-awt-peer-gtk.so
+ln -sf ../../../../%{_lib}/libgjsmalsa.so.0.* libgjsmalsa.so
+ln -sf ../../../../%{_lib}/libgij.so.7.* libgij.so
+ln -sf ../../../../%{_lib}/libgcjawt.so.7.* libgcjawt.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -860,11 +857,11 @@ ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgom
 ln -sf ../`echo ../../../../lib/libmudflap.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflap.so
 ln -sf ../`echo ../../../../lib/libmudflapth.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflapth.so
 if [ "%{build_java}" -gt 0 ]; then
-ln -sf ../`echo ../../../../lib/libgcj.so.6.* | sed s~/lib/~/lib64/~` 64/libgcj.so
-ln -sf ../`echo ../../../../lib/lib-gnu-java-awt-peer-gtk.so.6.* | sed s~/lib/~/lib64/~` 64/lib-gnu-java-awt-peer-gtk.so
-ln -sf ../`echo ../../../../lib/libgjsmalsa.so.6.* | sed s~/lib/~/lib64/~` 64/libgjsmalsa.so
-ln -sf ../`echo ../../../../lib/libgij.so.6.* | sed s~/lib/~/lib64/~` 64/libgij.so
-ln -sf ../`echo ../../../../lib/libgcjawt.so.6.* | sed s~/lib/~/lib64/~` 64/libgcjawt.so
+ln -sf ../`echo ../../../../lib/libgcj.so.7.* | sed s~/lib/~/lib64/~` 64/libgcj.so
+ln -sf ../`echo ../../../../lib/lib-gnu-java-awt-peer-gtk.so.7.* | sed s~/lib/~/lib64/~` 64/lib-gnu-java-awt-peer-gtk.so
+ln -sf ../`echo ../../../../lib/libgjsmalsa.so.0.* | sed s~/lib/~/lib64/~` 64/libgjsmalsa.so
+ln -sf ../`echo ../../../../lib/libgij.so.7.* | sed s~/lib/~/lib64/~` 64/libgij.so
+ln -sf ../`echo ../../../../lib/libgcjawt.so.7.* | sed s~/lib/~/lib64/~` 64/libgcjawt.so
 fi
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libsupc++.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgfortran.*a 64/
@@ -884,11 +881,11 @@ ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgo
 ln -sf ../`echo ../../../../lib64/libmudflap.so.0.* | sed s~/../lib64/~/~` 32/libmudflap.so
 ln -sf ../`echo ../../../../lib64/libmudflapth.so.0.* | sed s~/../lib64/~/~` 32/libmudflapth.so
 if [ "%{build_java}" -gt 0 ]; then
-ln -sf ../`echo ../../../../lib64/libgcj.so.6.* | sed s~/../lib64/~/~` 32/libgcj.so
-ln -sf ../`echo ../../../../lib64/lib-gnu-java-awt-peer-gtk.so.6.* | sed s~/../lib64/~/~` 32/lib-gnu-java-awt-peer-gtk.so
-ln -sf ../`echo ../../../../lib64/libgjsmalsa.so.6.* | sed s~/../lib64/~/~` 32/libgjsmalsa.so
-ln -sf ../`echo ../../../../lib64/libgij.so.6.* | sed s~/../lib64/~/~` 32/libgij.so
-ln -sf ../`echo ../../../../lib64/libgcjawt.so.6.* | sed s~/../lib64/~/~` 32/libgcjawt.so
+ln -sf ../`echo ../../../../lib64/libgcj.so.7.* | sed s~/../lib64/~/~` 32/libgcj.so
+ln -sf ../`echo ../../../../lib64/lib-gnu-java-awt-peer-gtk.so.7.* | sed s~/../lib64/~/~` 32/lib-gnu-java-awt-peer-gtk.so
+ln -sf ../`echo ../../../../lib64/libgjsmalsa.so.0.* | sed s~/../lib64/~/~` 32/libgjsmalsa.so
+ln -sf ../`echo ../../../../lib64/libgij.so.7.* | sed s~/../lib64/~/~` 32/libgij.so
+ln -sf ../`echo ../../../../lib64/libgcjawt.so.7.* | sed s~/../lib64/~/~` 32/libgcjawt.so
 fi
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libsupc++.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortran.*a 32/
@@ -1533,6 +1530,15 @@ fi
 %endif
 
 %changelog
+* Thu Dec  1 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.4
+- update from gcc-4_1-branch (-r107618:107810)
+  - PRs c++/21123, c++/21166, fortran/24223, fortran/24705, java/18278,
+	libgfortran/25109, middle-end/20109, middle-end/25120,
+	middle-end/25158, rtl-opt/24930
+- use %%{_tmppath} in BuildRoot (#174594)
+- require libgomp in gcc subpackage
+- fix Java .so symlinks
+
 * Tue Nov 29 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.3
 - fix IA-64 local-exec TLS handling
 - fix IA-64 __sync_fetch_and_{sub,xor,...}
