@@ -1,6 +1,6 @@
 %define DATE 20051207
 %define gcc_version 4.1.0
-%define gcc_release 0.5
+%define gcc_release 0.6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -109,6 +109,9 @@ Patch27: gcc41-pr25268.patch
 Patch28: gcc41-s390-atomic1.patch
 Patch29: gcc41-s390-atomic2.patch
 Patch30: gcc41-s390-atomic3.patch
+Patch31: gcc41-gomp-tests1.patch
+Patch32: gcc41-gomp-tests2.patch
+Patch33: gcc41-gomp-pr25246.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -467,6 +470,9 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .s390-atomic1~
 %patch29 -p0 -b .s390-atomic2~
 %patch30 -p0 -b .s390-atomic3~
+%patch31 -p0 -b .gomp-tests1~
+%patch32 -p0 -b .gomp-tests2~
+%patch33 -p0 -b .gomp-pr25246~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1546,6 +1552,11 @@ fi
 %endif
 
 %changelog
+* Wed Dec  7 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.6
+- allow #pragmas at C struct scope as well as ObjC class scope
+  (PR c/25246)
+- some gomp testcase fixes
+
 * Wed Dec  7 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.5
 - update from gcc-4_1-branch (-r107810:108157)
   - PRs bootstrap/25207, c++/24103, c++/24138, c++/24173, fortran/15809,
