@@ -1,6 +1,6 @@
-%define DATE 20051201
+%define DATE 20051207
 %define gcc_version 4.1.0
-%define gcc_release 0.4
+%define gcc_release 0.5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -100,7 +100,15 @@ Patch18: gcc41-fortran-finclude.patch
 Patch19: gcc41-ppc64-sync.patch
 Patch20: gcc41-ppc32-retaddr.patch
 Patch21: gcc41-libgfortran-host_subdir.patch
-Patch22: gcc41-gomp-nestedfn.patch
+Patch22: gcc41-pr14024.patch
+Patch23: gcc41-pr24823.patch
+Patch24: gcc41-pr24975.patch
+Patch25: gcc41-pr24982.patch
+Patch26: gcc41-pr25180.patch
+Patch27: gcc41-pr25268.patch
+Patch28: gcc41-s390-atomic1.patch
+Patch29: gcc41-s390-atomic2.patch
+Patch30: gcc41-s390-atomic3.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -450,7 +458,15 @@ which are required to run programs compiled with the GNAT.
 %patch19 -p0 -b .ppc64-sync~
 %patch20 -p0 -b .ppc32-retaddr~
 %patch21 -p0 -b .libgfortran-host_subdir~
-%patch22 -p0 -b .gomp-nestedfn~
+%patch22 -p0 -b .pr14024~
+%patch23 -p0 -b .pr24823~
+%patch24 -p0 -b .pr24975~
+%patch25 -p0 -b .pr24982~
+%patch26 -p0 -b .pr25180~
+%patch27 -p0 -b .pr25268~
+%patch28 -p0 -b .s390-atomic1~
+%patch29 -p0 -b .s390-atomic2~
+%patch30 -p0 -b .s390-atomic3~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1530,6 +1546,23 @@ fi
 %endif
 
 %changelog
+* Wed Dec  7 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.5
+- update from gcc-4_1-branch (-r107810:108157)
+  - PRs bootstrap/25207, c++/24103, c++/24138, c++/24173, fortran/15809,
+	fortran/21302, fortran/23912, java/25283, libfortran/24919,
+	libgfortran/25149, middle-end/25176, other/13873, target/18580,
+	target/24108, target/24475, target/24934, target/25199,
+	testsuite/25247, tree-optimization/24963
+- update from gomp-20050608-branch (up to -r108105)
+- -Wstrict-aliasing C++ support (Richard Guenther, Dirk Mueller,
+  Paolo Carlini, PRs c++/14024, libstdc++/24975)
+- fix mark_used_regs regression (Andreas Krebbel, PR rtl-optimization/24823)
+- fix reload ICE (Kaz Kojima, PR target/24982)
+- fix PPC ICE on Linux kernel (Paolo Bonzini, PR target/24982)
+- fix s390{,x} shifts with shift count ANDed with constant mask
+  (Andreas Krebbel, PR target/25268)
+- s390{,x} atomic builtins enhancements (Adrian Straetling)
+
 * Thu Dec  1 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.4
 - update from gcc-4_1-branch (-r107618:107810)
   - PRs c++/21123, c++/21166, fortran/24223, fortran/24705, java/18278,
