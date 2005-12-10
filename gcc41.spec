@@ -297,6 +297,7 @@ Requires: glib2 >= 2.4.0
 BuildRequires: glib2-devel >= 2.4.0
 Requires: libart_lgpl >= 2.1.0
 BuildRequires: libart_lgpl-devel >= 2.1.0
+Requires: alsa-lib-devel
 Obsoletes: gcc-libgcj
 Obsoletes: libgcj3
 Obsoletes: libgcj34
@@ -559,7 +560,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %if !%{build_java}
 	--disable-libgcj \
 %else
-	--enable-java-awt=gtk \
+	--enable-java-awt=gtk --disable-dssi \
 	--with-java-home=%{_prefix}/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre \
 %endif
 %ifarch ppc ppc64
@@ -1552,6 +1553,8 @@ fi
 %endif
 
 %changelog
+- add BuildReq for alsa-lib-devel and configure with --disable-dssi
+
 * Wed Dec  7 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.6
 - allow #pragmas at C struct scope as well as ObjC class scope
   (PR c/25246)
