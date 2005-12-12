@@ -1,6 +1,6 @@
-%define DATE 20051207
+%define DATE 20051212
 %define gcc_version 4.1.0
-%define gcc_release 0.6
+%define gcc_release 0.7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -91,27 +91,22 @@ Patch9: gcc41-ada-tweaks.patch
 Patch10: gcc41-java-rmic.patch
 Patch11: gcc41-java-slow_pthread_self.patch
 Patch12: gcc41-libjava-libltdl.patch
-Patch13: gcc41-test-20050330-2.patch
-Patch14: gcc41-test-c++-struct_layout.patch
-Patch15: gcc41-test-pr17828.patch
-Patch16: gcc41-test-pr19005.patch
-Patch17: gcc41-test-pr19317.patch
-Patch18: gcc41-fortran-finclude.patch
-Patch19: gcc41-ppc64-sync.patch
-Patch20: gcc41-ppc32-retaddr.patch
-Patch21: gcc41-libgfortran-host_subdir.patch
-Patch22: gcc41-pr14024.patch
-Patch23: gcc41-pr24823.patch
-Patch24: gcc41-pr24975.patch
-Patch25: gcc41-pr24982.patch
-Patch26: gcc41-pr25180.patch
-Patch27: gcc41-pr25268.patch
-Patch28: gcc41-s390-atomic1.patch
-Patch29: gcc41-s390-atomic2.patch
-Patch30: gcc41-s390-atomic3.patch
-Patch31: gcc41-gomp-tests1.patch
-Patch32: gcc41-gomp-tests2.patch
-Patch33: gcc41-gomp-pr25246.patch
+Patch13: gcc41-fortran-finclude.patch
+Patch14: gcc41-ppc64-sync.patch
+Patch15: gcc41-ppc32-retaddr.patch
+Patch16: gcc41-libgfortran-host_subdir.patch
+Patch17: gcc41-pr24823.patch
+Patch18: gcc41-pr24982.patch
+Patch19: gcc41-pr25180.patch
+Patch20: gcc41-s390-atomic1.patch
+Patch21: gcc41-java-jarsort.patch
+Patch22: gcc41-java-src-filename.patch
+Patch23: gcc41-pr24188.patch
+Patch24: gcc41-pr24907.patch
+Patch25: gcc41-pr25023.patch
+Patch26: gcc41-pr25366.patch
+Patch27: gcc41-test-pr25331.patch
+Patch28: gcc41-test-generate-noliberty.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -453,27 +448,22 @@ which are required to run programs compiled with the GNAT.
 %patch10 -p0 -b .java-rmic~
 %patch11 -p0 -b .java-slow_pthread_self~
 %patch12 -p0 -b .libjava-libltdl~
-%patch13 -p0 -b .test-20050330-2~
-%patch14 -p0 -b .test-c++-struct_layout~
-%patch15 -p0 -b .test-pr17828~
-%patch16 -p0 -b .test-pr19005~
-%patch17 -p0 -b .test-pr19317~
-%patch18 -p0 -b .fortran-finclude~
-%patch19 -p0 -b .ppc64-sync~
-%patch20 -p0 -b .ppc32-retaddr~
-%patch21 -p0 -b .libgfortran-host_subdir~
-%patch22 -p0 -b .pr14024~
-%patch23 -p0 -b .pr24823~
-%patch24 -p0 -b .pr24975~
-%patch25 -p0 -b .pr24982~
-%patch26 -p0 -b .pr25180~
-%patch27 -p0 -b .pr25268~
-%patch28 -p0 -b .s390-atomic1~
-%patch29 -p0 -b .s390-atomic2~
-%patch30 -p0 -b .s390-atomic3~
-%patch31 -p0 -b .gomp-tests1~
-%patch32 -p0 -b .gomp-tests2~
-%patch33 -p0 -b .gomp-pr25246~
+%patch13 -p0 -b .fortran-finclude~
+%patch14 -p0 -b .ppc64-sync~
+%patch15 -p0 -b .ppc32-retaddr~
+%patch16 -p0 -b .libgfortran-host_subdir~
+%patch17 -p0 -b .pr24823~
+%patch18 -p0 -b .pr24982~
+%patch19 -p0 -b .pr25180~
+%patch20 -p0 -b .s390-atomic1~
+%patch21 -p0 -b .java-jarsort~
+%patch22 -p0 -b .java-src-filename~
+%patch23 -p0 -b .pr24188~
+%patch24 -p0 -b .pr24907~
+%patch25 -p0 -b .pr25023~
+%patch26 -p0 -b .pr25366~
+%patch27 -p0 -b .test-pr25331~
+%patch28 -p0 -b .test-generate-noliberty~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1553,7 +1543,30 @@ fi
 %endif
 
 %changelog
+* Mon Dec 12 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.7
+- update from gcc-4_1-branch (-r108157:108414)
+  - PRs c++/19317, c++/19397, c++/19762, c++/19764, c++/25010, c++/25300,
+	c++/25337, debug/24908, fortran/25292, libfortran/25116,
+	libgcj/25265, target/17828, target/19005, target/23424,
+	target/25212, target/25258, target/25311, testsuite/20772,
+	testsuite/24478, testsuite/25167, tree-optimization/25248
+- update from gomp-20050608-branch (up to -r108424)
 - add BuildReq for alsa-lib-devel and configure with --disable-dssi
+- sort files in libgcj-*.jar and touch them to latest ChangeLog
+  timestamp, so that libgcj-*.jar is identical across multilib arches
+- don't use pushw instruction on i?86, as that leads to ICEs
+  in def_cfa_1, because negative CFA offsets not multiple of 4
+  aren't representable in the unwind and debug info (PR debug/25023,
+  PR target/25293)
+- fix ICEs with x86_64 -mlarge-data-threshold=N and STRING_CSTs
+  (Jan Hubicka, PR target/24188)
+- fix Java ICE with input_filename being unset (Alexandre Oliva, #174912)
+- don't accept invalid int x,; in C++ (Petr Machata, PR c++/24907)
+- fix Java ICE in do_resolve_class (Andrew Haley, PR java/25366,
+  PR java/25368)
+- make sure g*.dg/compat/struct-layout-1.exp generated tests
+  don't use arrays with entries aligned more than their size (PR c++/25331)
+- don't use -liberty in g++.dg/compat/struct-layout-1.exp tests
 
 * Wed Dec  7 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.6
 - allow #pragmas at C struct scope as well as ObjC class scope
