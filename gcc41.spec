@@ -102,6 +102,7 @@ Patch20: gcc41-s390-atomic1.patch
 Patch21: gcc41-rh175569.patch
 Patch22: gcc41-java-src-filename.patch
 Patch23: gcc41-unwind-dw2-glibc.patch
+Patch24: gcc41-cxx-relro.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -454,6 +455,7 @@ which are required to run programs compiled with the GNAT.
 %patch21 -p0 -b .rh175569~
 %patch22 -p0 -b .java-src-filename~
 %patch23 -p0 -b .unwind-dw2-glibc~
+%patch24 -p0 -b .cxx-relro~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1541,6 +1543,8 @@ fi
 - fix crash in _Unwind_IteratePhdrCallback (Andrew Haley)
 - don't Require alsa-lib-devel, just BuildRequire it
   (#175627)
+- use .gnu.linkonce.d.rel.ro.* sections for objects that
+  are constant after relocation processing
 
 * Mon Dec 12 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.7
 - update from gcc-4_1-branch (-r108157:108414)
