@@ -1,6 +1,6 @@
-%define DATE 20051212
+%define DATE 20051214
 %define gcc_version 4.1.0
-%define gcc_release 0.7
+%define gcc_release 0.8
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -99,14 +99,9 @@ Patch17: gcc41-pr24823.patch
 Patch18: gcc41-pr24982.patch
 Patch19: gcc41-pr25180.patch
 Patch20: gcc41-s390-atomic1.patch
-Patch21: gcc41-java-jarsort.patch
+Patch21: gcc41-rh175569.patch
 Patch22: gcc41-java-src-filename.patch
-Patch23: gcc41-pr24188.patch
-Patch24: gcc41-pr24907.patch
-Patch25: gcc41-pr25023.patch
-Patch26: gcc41-pr25366.patch
-Patch27: gcc41-test-pr25331.patch
-Patch28: gcc41-test-generate-noliberty.patch
+Patch23: gcc41-unwind-dw2-glibc.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -292,7 +287,7 @@ Requires: glib2 >= 2.4.0
 BuildRequires: glib2-devel >= 2.4.0
 Requires: libart_lgpl >= 2.1.0
 BuildRequires: libart_lgpl-devel >= 2.1.0
-Requires: alsa-lib-devel
+BuildRequires: alsa-lib-devel
 Obsoletes: gcc-libgcj
 Obsoletes: libgcj3
 Obsoletes: libgcj34
@@ -456,14 +451,9 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .pr24982~
 %patch19 -p0 -b .pr25180~
 %patch20 -p0 -b .s390-atomic1~
-%patch21 -p0 -b .java-jarsort~
+%patch21 -p0 -b .rh175569~
 %patch22 -p0 -b .java-src-filename~
-%patch23 -p0 -b .pr24188~
-%patch24 -p0 -b .pr24907~
-%patch25 -p0 -b .pr25023~
-%patch26 -p0 -b .pr25366~
-%patch27 -p0 -b .test-pr25331~
-%patch28 -p0 -b .test-generate-noliberty~
+%patch23 -p0 -b .unwind-dw2-glibc~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1543,6 +1533,15 @@ fi
 %endif
 
 %changelog
+* Wed Dec 12 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.8
+- update from gcc-4_1-branch (-r108414:108539)
+  - PRs classpath/25389, fortran/23815, fortran/25078, target/25254
+- fix Java ICE on initialized static final var used in case
+  (Andrew Haley, #175569)
+- fix crash in _Unwind_IteratePhdrCallback (Andrew Haley)
+- don't Require alsa-lib-devel, just BuildRequire it
+  (#175627)
+
 * Mon Dec 12 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.7
 - update from gcc-4_1-branch (-r108157:108414)
   - PRs c++/19317, c++/19397, c++/19762, c++/19764, c++/25010, c++/25300,
