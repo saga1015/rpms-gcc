@@ -94,7 +94,6 @@ Patch12: gcc41-libjava-libltdl.patch
 Patch13: gcc41-fortran-finclude.patch
 Patch14: gcc41-ppc64-sync.patch
 Patch15: gcc41-ppc32-retaddr.patch
-Patch16: gcc41-libgfortran-host_subdir.patch
 Patch17: gcc41-pr24823.patch
 Patch18: gcc41-pr24982.patch
 Patch19: gcc41-pr25180.patch
@@ -447,7 +446,6 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .fortran-finclude~
 %patch14 -p0 -b .ppc64-sync~
 %patch15 -p0 -b .ppc32-retaddr~
-%patch16 -p0 -b .libgfortran-host_subdir~
 %patch17 -p0 -b .pr24823~
 %patch18 -p0 -b .pr24982~
 %patch19 -p0 -b .pr25180~
