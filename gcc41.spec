@@ -1,6 +1,6 @@
 %define DATE 20051214
 %define gcc_version 4.1.0
-%define gcc_release 0.8
+%define gcc_release 0.9
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -102,6 +102,10 @@ Patch21: gcc41-rh175569.patch
 Patch22: gcc41-java-src-filename.patch
 Patch23: gcc41-unwind-dw2-glibc.patch
 Patch24: gcc41-cxx-relro.patch
+Patch25: gcc41-gomp-lastprivate-static.patch
+Patch26: gcc41-java-jarsort.patch
+Patch27: gcc41-java-pr25426.patch
+Patch28: gcc41-pr24899.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -454,6 +458,10 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .java-src-filename~
 %patch23 -p0 -b .unwind-dw2-glibc~
 %patch24 -p0 -b .cxx-relro~
+%patch25 -p0 -b .gomp-lastprivate-static~
+%patch26 -p0 -b .java-jarsort~
+%patch27 -p0 -b .java-pr25426~
+%patch28 -p0 -b .pr24899~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1533,7 +1541,17 @@ fi
 %endif
 
 %changelog
-* Wed Dec 12 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.8
+* Thu Dec 14 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.9
+- fix OpenMP lastprivate handling for global vars (Aldy Hernandez)
+- fix gnu.xml.dom.DomNode's detach method (Caolan McNamara,
+  PR classpath/25426)
+- fix up the #175569 fix (Tom Tromey, #175833)
+- fix strength reduction miscompilation of libgnomecanvas
+  (#175669, PR rtl-optimization/24899)
+- create libgcj-*.jar with -@E options and feed a sorted list to
+  it rather than relying on filesystem sorting
+
+* Wed Dec 13 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.8
 - update from gcc-4_1-branch (-r108414:108539)
   - PRs classpath/25389, fortran/23815, fortran/25078, target/25254
 - fix Java ICE on initialized static final var used in case
