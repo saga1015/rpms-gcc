@@ -1,6 +1,6 @@
-%define DATE 20051214
+%define DATE 20051221
 %define gcc_version 4.1.0
-%define gcc_release 0.9
+%define gcc_release 0.10
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -94,18 +94,10 @@ Patch12: gcc41-libjava-libltdl.patch
 Patch13: gcc41-fortran-finclude.patch
 Patch14: gcc41-ppc64-sync.patch
 Patch15: gcc41-ppc32-retaddr.patch
-Patch17: gcc41-pr24823.patch
-Patch18: gcc41-pr24982.patch
-Patch19: gcc41-pr25180.patch
-Patch20: gcc41-s390-atomic1.patch
-Patch21: gcc41-rh175569.patch
-Patch22: gcc41-java-src-filename.patch
-Patch23: gcc41-unwind-dw2-glibc.patch
-Patch24: gcc41-cxx-relro.patch
-Patch25: gcc41-gomp-lastprivate-static.patch
-Patch26: gcc41-java-jarsort.patch
-Patch27: gcc41-java-pr25426.patch
-Patch28: gcc41-pr24899.patch
+Patch16: gcc41-s390-atomic1.patch
+Patch17: gcc41-gomp-lastprivate-static.patch
+Patch18: gcc41-pr25432.patch
+Patch19: gcc41-pr25121.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -450,18 +442,10 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .fortran-finclude~
 %patch14 -p0 -b .ppc64-sync~
 %patch15 -p0 -b .ppc32-retaddr~
-%patch17 -p0 -b .pr24823~
-%patch18 -p0 -b .pr24982~
-%patch19 -p0 -b .pr25180~
-%patch20 -p0 -b .s390-atomic1~
-%patch21 -p0 -b .rh175569~
-%patch22 -p0 -b .java-src-filename~
-%patch23 -p0 -b .unwind-dw2-glibc~
-%patch24 -p0 -b .cxx-relro~
-%patch25 -p0 -b .gomp-lastprivate-static~
-%patch26 -p0 -b .java-jarsort~
-%patch27 -p0 -b .java-pr25426~
-%patch28 -p0 -b .pr24899~
+%patch16 -p0 -b .s390-atomic1~
+%patch17 -p0 -b .gomp-lastprivate-static~
+%patch18 -p0 -b .pr25432~
+%patch19 -p0 -b .pr25121~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1541,21 +1525,35 @@ fi
 %endif
 
 %changelog
-* Thu Dec 14 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.9
+* Wed Dec 21 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.10
+- update from gcc-4_1-branch (-r108539:108861)
+  - PRs ada/18659, ada/18819, c++/20552, c++/21228, c++/24278, c++/24915,
+	fortran/18197, fortran/25458, libgfortran/25039, libgfortran/25264,
+	libgfortran/25349, libobjc/14382, libstdc++/25421, middle-end/22313,
+	middle-end/24306, rtl-optimization/23837, rtl-optimization/25224,
+	rtl-optimization/25310, target/24969, testsuite/25215,
+	tree-optimization/23838, tree-optimization/24378
+- update from gomp-20050608-branch (up to -r108859)
+  - fix _Pragma handling (Richard Henderson, PR preprocessor/25240)
+- fix reload re-recognition of insns (Alan Modra, PR rtl-optimization/25432)
+- don't peephole RTX_FRAME_RELATED_P insns (Andrew Haley, PR
+  middle-end/25121)
+
+* Thu Dec 15 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.9
 - fix OpenMP lastprivate handling for global vars (Aldy Hernandez)
 - fix gnu.xml.dom.DomNode's detach method (Caolan McNamara,
   PR classpath/25426)
-- fix up the #175569 fix (Tom Tromey, #175833)
+- fix up the #175569 fix (Tom Tromey, #175833, PR java/25429)
 - fix strength reduction miscompilation of libgnomecanvas
   (#175669, PR rtl-optimization/24899)
 - create libgcj-*.jar with -@E options and feed a sorted list to
   it rather than relying on filesystem sorting
 
-* Wed Dec 13 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.8
+* Wed Dec 14 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.8
 - update from gcc-4_1-branch (-r108414:108539)
   - PRs classpath/25389, fortran/23815, fortran/25078, target/25254
 - fix Java ICE on initialized static final var used in case
-  (Andrew Haley, #175569)
+  (Andrew Haley, #175569, PR java/25429)
 - fix crash in _Unwind_IteratePhdrCallback (Andrew Haley)
 - don't Require alsa-lib-devel, just BuildRequire it
   (#175627)
