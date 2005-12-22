@@ -1,6 +1,6 @@
-%define DATE 20051221
+%define DATE 20051222
 %define gcc_version 4.1.0
-%define gcc_release 0.10
+%define gcc_release 0.11
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -97,7 +97,10 @@ Patch15: gcc41-ppc32-retaddr.patch
 Patch16: gcc41-s390-atomic1.patch
 Patch17: gcc41-gomp-lastprivate-static.patch
 Patch18: gcc41-pr25432.patch
-Patch19: gcc41-pr25121.patch
+Patch19: gcc41-pr25005.patch
+Patch20: gcc41-pr25328-test.patch
+Patch21: gcc41-pr25535.patch
+Patch22: gcc41-pr25364.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -445,7 +448,10 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -b .s390-atomic1~
 %patch17 -p0 -b .gomp-lastprivate-static~
 %patch18 -p0 -b .pr25432~
-%patch19 -p0 -b .pr25121~
+%patch19 -p0 -b .pr25005~
+%patch20 -p0 -b .pr25328-test~
+%patch21 -p0 -b .pr25535~
+%patch22 -p0 -b .pr25364~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1525,6 +1531,15 @@ fi
 %endif
 
 %changelog
+* Thu Dec 22 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.11
+- update from gcc-4_1-branch (-r108861:108957)
+  - PRs debug/25518, fortran/24268, fortran/25423, libgfortran/25463,
+	rtl-optimization/25196, tree-optimization/24793
+- validate changes in forward copy propagation (PR target/25005)
+- fix Java constants constructors on 64-bit big endian arches
+  (Andrew Haley, PR java/25535)
+- fix PR c++/25364 (Mark Mitchell)
+
 * Wed Dec 21 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.10
 - update from gcc-4_1-branch (-r108539:108861)
   - PRs ada/18659, ada/18819, c++/20552, c++/21228, c++/24278, c++/24915,
@@ -1536,8 +1551,8 @@ fi
 - update from gomp-20050608-branch (up to -r108859)
   - fix _Pragma handling (Richard Henderson, PR preprocessor/25240)
 - fix reload re-recognition of insns (Alan Modra, PR rtl-optimization/25432)
-- don't peephole RTX_FRAME_RELATED_P insns (Andrew Haley, PR
-  middle-end/25121)
+- don't peephole RTX_FRAME_RELATED_P insns (Andrew Haley,
+  PR middle-end/25121)
 
 * Thu Dec 15 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.9
 - fix OpenMP lastprivate handling for global vars (Aldy Hernandez)
