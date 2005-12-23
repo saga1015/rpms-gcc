@@ -1,6 +1,6 @@
 %define DATE 20051222
 %define gcc_version 4.1.0
-%define gcc_release 0.11
+%define gcc_release 0.12
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -101,6 +101,8 @@ Patch19: gcc41-pr25005.patch
 Patch20: gcc41-pr25328-test.patch
 Patch21: gcc41-pr25535.patch
 Patch22: gcc41-pr25364.patch
+Patch23: gcc41-pr25307.patch
+Patch24: gcc41-pr25369.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -452,6 +454,8 @@ which are required to run programs compiled with the GNAT.
 %patch20 -p0 -b .pr25328-test~
 %patch21 -p0 -b .pr25535~
 %patch22 -p0 -b .pr25364~
+%patch23 -p0 -b .pr25307~
+%patch24 -p0 -b .pr25369~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -524,6 +528,12 @@ EOF
 fi
 %endif
 OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
+case "$OPT_FLAGS" in
+  *-fasynchronous-unwind-tables*)
+    sed -i -e 's/-fno-exceptions /-fno-exceptions -fno-asynchronous-unwind-tables/' \
+      ../gcc/Makefile.in
+    ;;
+esac
 CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" \
 	GCJFLAGS="$OPT_FLAGS" \
 	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
@@ -554,11 +564,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--host=%{gcc_target_platform}
 %endif
 
-make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 #%ifarch %{ix86} x86_64
-#make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
 #%else
-#make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap-lean
+#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap-lean
 #%endif
 
 # run the tests.
@@ -1531,6 +1541,13 @@ fi
 %endif
 
 %changelog
+* Fri Dec 22 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.12
+- make sure GCJFLAGS are propagated down to libjava's configure
+- build crt{begin,end}*.o with -fno-asynchronous-unwind-tables
+  if RPM_OPT_FLAGS include -fasynchronous-unwind-tables
+- fix PR c++/25369 (Mark Mitchell)
+- fix PR libgfortran/25307 (Jerry DeLisle)
+
 * Thu Dec 22 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.11
 - update from gcc-4_1-branch (-r108861:108957)
   - PRs debug/25518, fortran/24268, fortran/25423, libgfortran/25463,
