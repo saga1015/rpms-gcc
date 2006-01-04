@@ -289,6 +289,7 @@ BuildRequires: glib2-devel >= 2.4.0
 Requires: libart_lgpl >= 2.1.0
 BuildRequires: libart_lgpl-devel >= 2.1.0
 BuildRequires: alsa-lib-devel
+BuildRequires: libXtst-devel
 Obsoletes: gcc-libgcj
 Obsoletes: libgcj3
 Obsoletes: libgcj34
@@ -1541,6 +1542,8 @@ fi
 %endif
 
 %changelog
+- buildrequire libXtst-devel (#176898)
+
 * Fri Dec 22 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.12
 - make sure GCJFLAGS are propagated down to libjava's configure
 - build crt{begin,end}*.o with -fno-asynchronous-unwind-tables
