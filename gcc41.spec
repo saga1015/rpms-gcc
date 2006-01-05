@@ -1,6 +1,6 @@
-%define DATE 20051222
+%define DATE 20060105
 %define gcc_version 4.1.0
-%define gcc_release 0.12
+%define gcc_release 0.13
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -96,13 +96,9 @@ Patch14: gcc41-ppc64-sync.patch
 Patch15: gcc41-ppc32-retaddr.patch
 Patch16: gcc41-s390-atomic1.patch
 Patch17: gcc41-gomp-lastprivate-static.patch
-Patch18: gcc41-pr25432.patch
-Patch19: gcc41-pr25005.patch
-Patch20: gcc41-pr25328-test.patch
-Patch21: gcc41-pr25535.patch
-Patch22: gcc41-pr25364.patch
-Patch23: gcc41-pr25307.patch
-Patch24: gcc41-pr25369.patch
+Patch18: gcc41-pr25535.patch
+Patch19: gcc41-pr25324.patch
+Patch20: gcc41-rh176562.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -450,13 +446,9 @@ which are required to run programs compiled with the GNAT.
 %patch15 -p0 -b .ppc32-retaddr~
 %patch16 -p0 -b .s390-atomic1~
 %patch17 -p0 -b .gomp-lastprivate-static~
-%patch18 -p0 -b .pr25432~
-%patch19 -p0 -b .pr25005~
-%patch20 -p0 -b .pr25328-test~
-%patch21 -p0 -b .pr25535~
-%patch22 -p0 -b .pr25364~
-%patch23 -p0 -b .pr25307~
-%patch24 -p0 -b .pr25369~
+%patch18 -p0 -b .pr25535~
+%patch19 -p0 -b .pr25324~
+%patch20 -p0 -b .rh176562~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1542,7 +1534,29 @@ fi
 %endif
 
 %changelog
+* Thu Jan  5 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.13
+- update from gcc-4_1-branch (-r108957:109369)
+  - PRs c++/23171, c++/23172, c++/24671, c++/24782, c++/25294, c++/25417,
+	c++/25439, c++/25492, c++/25625, c++/25632, c++/25633, c++/25634,
+	c++/25635, c++/25637, c++/25638, c/25183, c/25559, debug/25562,
+	fortran/18990, fortran/19362, fortran/20244, fortran/20862,
+	fortran/20864, fortran/20889, fortran/22607, fortran/23152,
+	fortran/25018, fortran/25053, fortran/25055, fortran/25063,
+	fortran/25064, fortran/25066, fortran/25067, fortran/25068,
+	fortran/25069, fortran/25106, fortran/25391, fortran/25532,
+	fortran/25586, fortran/25587, libgcj/9715, libgcj/19132,
+	libgfortran/25139, libgfortran/25419, libgfortran/25510,
+	libgfortran/25550, libgfortran/25594, middle-end/24827, objc/25328,
+	rtl-optimization/21041, rtl-optimization/25130, target/24342,
+	target/25554, target/25572, testsuite/25214, testsuite/25441,
+	testsuite/25442, testsuite/25444, tree-opt/25513
+  - create java Package for compiled classes which are linked in but
+    loaded by the system class loader (#176956)
+  - fix posix_memalign prototype in <mm_malloc.h> (#176461)
+- update from gomp-20050608-branch (up to -r109349)
 - buildrequire libXtst-devel (#176898)
+- fix built in path to classmap.db on x86_64, s390x and ppc64 (#176562)
+- fix debug info for preprocessed Fortran code (#175071, PR fortran/25324)
 
 * Fri Dec 22 2005 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.12
 - make sure GCJFLAGS are propagated down to libjava's configure
