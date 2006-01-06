@@ -1,6 +1,6 @@
-%define DATE 20060105
+%define DATE 20060106
 %define gcc_version 4.1.0
-%define gcc_release 0.13
+%define gcc_release 0.14
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -99,6 +99,7 @@ Patch17: gcc41-gomp-lastprivate-static.patch
 Patch18: gcc41-pr25535.patch
 Patch19: gcc41-pr25324.patch
 Patch20: gcc41-rh176562.patch
+Patch21: gcc41-pr24940.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -449,6 +450,7 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .pr25535~
 %patch19 -p0 -b .pr25324~
 %patch20 -p0 -b .rh176562~
+%patch21 -p0 -b .pr24940~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1534,6 +1536,12 @@ fi
 %endif
 
 %changelog
+* Fri Jan  6 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.14
+- update from gcc-4_1-branch (-r109369:109401)
+  - PR fortran/23675
+  - fix Java shutdown hook (Tom Tromey, #165136)
+- fix libjava/shlibpath.m4 (PR libgcj/24940)
+
 * Thu Jan  5 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.13
 - update from gcc-4_1-branch (-r108957:109369)
   - PRs c++/23171, c++/23172, c++/24671, c++/24782, c++/25294, c++/25417,
@@ -1551,7 +1559,7 @@ fi
 	target/25554, target/25572, testsuite/25214, testsuite/25441,
 	testsuite/25442, testsuite/25444, tree-opt/25513
   - create java Package for compiled classes which are linked in but
-    loaded by the system class loader (#176956)
+    loaded by the system class loader (Tom Tromey, #176956)
   - fix posix_memalign prototype in <mm_malloc.h> (#176461)
 - update from gomp-20050608-branch (up to -r109349)
 - buildrequire libXtst-devel (#176898)
