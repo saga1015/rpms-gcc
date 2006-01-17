@@ -1,6 +1,6 @@
-%define DATE 20060106
+%define DATE 20060117
 %define gcc_version 4.1.0
-%define gcc_release 0.14
+%define gcc_release 0.15
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -95,11 +95,10 @@ Patch13: gcc41-fortran-finclude.patch
 Patch14: gcc41-ppc64-sync.patch
 Patch15: gcc41-ppc32-retaddr.patch
 Patch16: gcc41-s390-atomic1.patch
-Patch17: gcc41-gomp-lastprivate-static.patch
-Patch18: gcc41-pr25535.patch
+Patch17: gcc41-ppc-libffi.patch
+Patch18: gcc41-pr25717.patch
 Patch19: gcc41-pr25324.patch
-Patch20: gcc41-rh176562.patch
-Patch21: gcc41-pr24940.patch
+Patch20: gcc41-rh177918.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -446,11 +445,10 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .ppc64-sync~
 %patch15 -p0 -b .ppc32-retaddr~
 %patch16 -p0 -b .s390-atomic1~
-%patch17 -p0 -b .gomp-lastprivate-static~
-%patch18 -p0 -b .pr25535~
+%patch17 -p0 -b .ppc-libffi~
+%patch18 -p0 -b .pr25717~
 %patch19 -p0 -b .pr25324~
-%patch20 -p0 -b .rh176562~
-%patch21 -p0 -b .pr24940~
+%patch20 -p0 -b .rh177918~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1536,6 +1534,25 @@ fi
 %endif
 
 %changelog
+* Tue Jan 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.15
+- update from gcc-4_1-branch (-r109401:109815)
+  - PRs c++/24824, c++/25386, c++/25663, c/25682, classpath/25803,
+	fortran/12456, fortran/20868, fortran/20870, fortran/21256,
+	fortran/21977, fortran/22146, fortran/24640, fortran/25029,
+	fortran/25093, fortran/25101, fortran/25486, fortran/25598,
+	fortran/25730, libgcj/21637, libgcj/23499, libgfortran/25598,
+	libstdc++/23591, libstdc++/25472, rtl-optimization/24257,
+	rtl-optimization/25367, rtl-optimization/25662, target/20754,
+	target/25042, target/25168, testsuite/25728, testsuite/25777,
+	tree-opt/24365, tree-optimization/23109, tree-optimization/23948,
+	tree-optimization/24123, tree-optimization/25125
+- update from gomp-20050608-branch (up to -r109816)
+- fix ppc32 libffi (#177655)
+- fix lookup_conversions_r (#177918)
+- define __STDC__ as a normal macro rather than a preprocessor builtin
+  unless it needs to change its value between system and non-system
+  headers (PR preprocessor/25717)
+
 * Fri Jan  6 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.14
 - update from gcc-4_1-branch (-r109369:109401)
   - PR fortran/23675
