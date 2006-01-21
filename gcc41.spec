@@ -1,6 +1,6 @@
-%define DATE 20060117
+%define DATE 20060121
 %define gcc_version 4.1.0
-%define gcc_release 0.15
+%define gcc_release 0.16
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -95,10 +95,8 @@ Patch13: gcc41-fortran-finclude.patch
 Patch14: gcc41-ppc64-sync.patch
 Patch15: gcc41-ppc32-retaddr.patch
 Patch16: gcc41-s390-atomic1.patch
-Patch17: gcc41-ppc-libffi.patch
-Patch18: gcc41-pr25717.patch
-Patch19: gcc41-pr25324.patch
-Patch20: gcc41-rh177918.patch
+Patch17: gcc41-pr25717.patch
+Patch18: gcc41-pr25324.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -445,10 +443,8 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .ppc64-sync~
 %patch15 -p0 -b .ppc32-retaddr~
 %patch16 -p0 -b .s390-atomic1~
-%patch17 -p0 -b .ppc-libffi~
-%patch18 -p0 -b .pr25717~
-%patch19 -p0 -b .pr25324~
-%patch20 -p0 -b .rh177918~
+%patch17 -p0 -b .pr25717~
+%patch18 -p0 -b .pr25324~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1534,6 +1530,15 @@ fi
 %endif
 
 %changelog
+* Sat Jan 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.16
+- update from gcc-4_1-branch (-r109815:110062)
+  - PRs ada/24533, c++/16829, c++/22136, c++/25836, c++/25854, c/25805,
+	classpath/20198, fortran/20869, fortran/20875, fortran/25024,
+	fortran/25631, fortran/25697, fortran/25785, libgcj/25840,
+	libgfortran/25631, libgfortran/25697, libstdc++/25823,
+	libstdc++/25824, target/25731, testsuite/25171
+  - fix X509Certificate.java (#174708, #177733)
+
 * Tue Jan 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.15
 - update from gcc-4_1-branch (-r109401:109815)
   - PRs c++/24824, c++/25386, c++/25663, c/25682, classpath/25803,
