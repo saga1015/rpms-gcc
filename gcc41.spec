@@ -1,6 +1,6 @@
-%define DATE 20060121
+%define DATE 20060128
 %define gcc_version 4.1.0
-%define gcc_release 0.16
+%define gcc_release 0.17
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -92,11 +92,10 @@ Patch10: gcc41-java-rmic.patch
 Patch11: gcc41-java-slow_pthread_self.patch
 Patch12: gcc41-libjava-libltdl.patch
 Patch13: gcc41-fortran-finclude.patch
-Patch14: gcc41-ppc64-sync.patch
+Patch14: gcc41-atomic-builtins.patch
 Patch15: gcc41-ppc32-retaddr.patch
-Patch16: gcc41-s390-atomic1.patch
-Patch17: gcc41-pr25717.patch
-Patch18: gcc41-pr25324.patch
+Patch16: gcc41-ppc32-ldbl.patch
+Patch17: gcc41-s390-ldbl.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -440,11 +439,10 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .java-slow_pthread_self~
 %patch12 -p0 -b .libjava-libltdl~
 %patch13 -p0 -b .fortran-finclude~
-%patch14 -p0 -b .ppc64-sync~
+%patch14 -p0 -b .atomic-builtins~
 %patch15 -p0 -b .ppc32-retaddr~
-%patch16 -p0 -b .s390-atomic1~
-%patch17 -p0 -b .pr25717~
-%patch18 -p0 -b .pr25324~
+%patch16 -p0 -b .ppc32-ldbl~
+%patch17 -p0 -b .s390-ldbl~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1530,6 +1528,21 @@ fi
 %endif
 
 %changelog
+* Sat Jan 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.17
+- update from gcc-4_1-branch (-r110062:110317)
+  - PRs ada/20548, ada/21317, bootstrap/25859, c++/25552, c++/25856,
+	c++/25858, c++/25895, c/25892, fortran/18540, fortran/20852,
+	fortran/20881, fortran/23308, fortran/24276, fortran/25084,
+	fortran/25085, fortran/25086, fortran/25124, fortran/25416,
+	fortran/25538, fortran/25625, fortran/25710, fortran/25716,
+	fortran/25901, fortran/25964, java/25816, other/24829,
+	rtl-optimization/24626, rtl-optimization/25654, target/24831,
+	testsuite/24962, testsuite/25590
+- atomic builtin fixes (Richard Henderson)
+- -mlong-double-128 support on ppc32 (David Edelsohn, Alan Modra)
+- -mlong-double-128 support on s390 and s390x (Andreas Krebbel,
+  Ulrich Weigand)
+
 * Sat Jan 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.16
 - update from gcc-4_1-branch (-r109815:110062)
   - PRs ada/24533, c++/16829, c++/22136, c++/25836, c++/25854, c/25805,
