@@ -1,6 +1,6 @@
-%define DATE 20060128
+%define DATE 20060131
 %define gcc_version 4.1.0
-%define gcc_release 0.17
+%define gcc_release 0.18
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -96,6 +96,9 @@ Patch14: gcc41-atomic-builtins.patch
 Patch15: gcc41-ppc32-retaddr.patch
 Patch16: gcc41-ppc32-ldbl.patch
 Patch17: gcc41-s390-ldbl.patch
+Patch18: gcc41-x86-mtune-generic1.patch
+Patch19: gcc41-x86-mtune-generic2.patch
+Patch20: gcc41-x86-mtune-generic3.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -443,6 +446,9 @@ which are required to run programs compiled with the GNAT.
 %patch15 -p0 -b .ppc32-retaddr~
 %patch16 -p0 -b .ppc32-ldbl~
 %patch17 -p0 -b .s390-ldbl~
+%patch18 -p0 -b .x86-mtune-generic1~
+%patch19 -p0 -b .x86-mtune-generic2~
+%patch20 -p0 -b .x86-mtune-generic3~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -546,6 +552,9 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %endif
 %ifarch ppc
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=default32
+%endif
+%ifarch %{ix86} x86_64
+	--with-cpu=generic \
 %endif
 %ifnarch sparc ppc
 	--host=%{gcc_target_platform}
@@ -1528,6 +1537,20 @@ fi
 %endif
 
 %changelog
+* Tue Jan 31 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.18
+- update from gcc-4_1-branch (-r110317:110433)
+  - PRs c++/25855, c++/25999, fortran/17911, fortran/18578, fortran/18579,
+	fortran/20857, fortran/20885, fortran/20895, fortran/25030,
+	fortran/25835, fortran/25951, java/21428, libgfortran/25835,
+	target/14798, target/25706, target/25718, target/25947,
+	target/26018, testsuite/25318
+- add -mtune=generic support for i?86 and x86_64 (Jan Hubicka, H.J. Lu,
+  Evandro Menezes)
+- use -mtune=generic by default if neither -march= nor -mtune= is specified
+  on command line on i?86 or x86_64
+- updated s390{,x} long double patch, fixing ICEs on s390x glibc build
+  (Andreas Krebbel, Ulrich Weigand)
+
 * Sat Jan 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.17
 - update from gcc-4_1-branch (-r110062:110317)
   - PRs ada/20548, ada/21317, bootstrap/25859, c++/25552, c++/25856,
