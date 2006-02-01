@@ -1,6 +1,6 @@
 %define DATE 20060131
 %define gcc_version 4.1.0
-%define gcc_release 0.18
+%define gcc_release 0.19
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -1537,6 +1537,10 @@ fi
 %endif
 
 %changelog
+* Wed Feb  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.19
+- s390{,x} long double patch fix for s390x ICEs on test-ldouble
+  and tst-align2 (Andreas Krebbel)
+
 * Tue Jan 31 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.18
 - update from gcc-4_1-branch (-r110317:110433)
   - PRs c++/25855, c++/25999, fortran/17911, fortran/18578, fortran/18579,
