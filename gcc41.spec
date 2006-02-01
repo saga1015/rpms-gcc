@@ -1,6 +1,6 @@
 %define DATE 20060131
 %define gcc_version 4.1.0
-%define gcc_release 0.19
+%define gcc_release 0.20
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -99,6 +99,12 @@ Patch17: gcc41-s390-ldbl.patch
 Patch18: gcc41-x86-mtune-generic1.patch
 Patch19: gcc41-x86-mtune-generic2.patch
 Patch20: gcc41-x86-mtune-generic3.patch
+Patch21: gcc41-gomp-20060128-merge1.patch
+Patch22: gcc41-gomp-20060128-merge2.patch
+Patch23: gcc41-gomp-20060128-merge3.patch
+Patch24: gcc41-gomp-20060128-merge4.patch
+Patch25: gcc41-gomp-20060128-merge5.patch
+Patch26: gcc41-gomp-20060128-merge6.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -449,6 +455,12 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .x86-mtune-generic1~
 %patch19 -p0 -b .x86-mtune-generic2~
 %patch20 -p0 -b .x86-mtune-generic3~
+%patch21 -p0 -b .gomp-20060128-merge1~
+%patch22 -p0 -b .gomp-20060128-merge2~
+%patch23 -p0 -b .gomp-20060128-merge3~
+%patch24 -p0 -b .gomp-20060128-merge4~
+%patch25 -p0 -b .gomp-20060128-merge5~
+%patch26 -p0 -b .gomp-20060128-merge6~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1537,6 +1549,10 @@ fi
 %endif
 
 %changelog
+* Wed Feb  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.20
+- merge from gomp-20050808-branch (up to -r110392)
+  - fix PR c++/25874 (Diego Novillo)
+
 * Wed Feb  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.19
 - s390{,x} long double patch fix for s390x ICEs on test-ldouble
   and tst-align2 (Andreas Krebbel)
