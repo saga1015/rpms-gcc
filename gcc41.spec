@@ -97,6 +97,7 @@ Patch15: gcc41-ldbl-mangle-as-g.patch
 Patch16: gcc41-ldbl-default.patch
 Patch17: gcc41-ldbl-default-libstdc++.patch
 Patch18: gcc41-sparc64-g7.patch
+Patch19: gcc41-java-rh179070.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -445,6 +446,7 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -b .ldbl-default~
 %patch17 -p0 -b .ldbl-default-libstdc++~
 %patch18 -p0 -b .sparc64-g7~
+%patch19 -p0 -b .java-rh179070~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1550,6 +1552,7 @@ fi
 - fix ia64 debug info coverage of epilogues (Alexandre Oliva, PR debug/24444)
 - export pthread_create from libgcj.so.7 as a wrapper around
   libpthread.so.0's pthread_create that handles GC (Anthony Green, Tom Tromey)
+- BC-ABI java lookup fix (Andrew Haley, #179070, #178156)
 - on sparc64 emit .register %g7,#ignore instead of .register %g7,#scratch
   to avoid problems with TLS or -fstack-protector
 - switch to IBM extended format long double by default on ppc and ppc64
