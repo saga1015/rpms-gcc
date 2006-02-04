@@ -96,6 +96,7 @@ Patch14: gcc41-ppc32-ldbl.patch
 Patch15: gcc41-ldbl-mangle-as-g.patch
 Patch16: gcc41-ldbl-default.patch
 Patch17: gcc41-ldbl-default-libstdc++.patch
+Patch18: gcc41-sparc64-g7.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -443,6 +444,7 @@ which are required to run programs compiled with the GNAT.
 %patch15 -p0 -b .ldbl-mangle-as-g~
 %patch16 -p0 -b .ldbl-default~
 %patch17 -p0 -b .ldbl-default-libstdc++~
+%patch18 -p0 -b .sparc64-g7~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
