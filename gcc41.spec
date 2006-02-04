@@ -1548,6 +1548,8 @@ fi
 - fix ia64 debug info coverage of epilogues (Alexandre Oliva, PR debug/24444)
 - export pthread_create from libgcj.so.7 as a wrapper around
   libpthread.so.0's pthread_create that handles GC (Anthony Green, Tom Tromey)
+- on sparc64 emit .register %g7,#ignore instead of .register %g7,#scratch
+  to avoid problems with TLS or -fstack-protector
 - switch to IBM extended format long double by default on ppc and ppc64
 - switch to IEEE 754 quad format long double by default on s390, s390x,
   sparc32 and alpha
