@@ -1,6 +1,6 @@
-%define DATE 20060131
+%define DATE 20060204
 %define gcc_version 4.1.0
-%define gcc_release 0.20
+%define gcc_release 0.21
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -85,26 +85,17 @@ Patch3: gcc41-ia64-libunwind.patch
 Patch4: gcc41-gnuc-rh-release.patch
 Patch5: gcc41-java-nomulti.patch
 Patch6: gcc41-multi32-hack.patch
-Patch7: gcc41-ia64-stack-protector.patch
+Patch7: gcc41-gc-pthread_create.patch
 Patch8: gcc41-ada-pr18302.patch
 Patch9: gcc41-ada-tweaks.patch
-Patch10: gcc41-java-rmic.patch
+Patch10: gcc41-ia64-frame-base-loclist.patch
 Patch11: gcc41-java-slow_pthread_self.patch
-Patch12: gcc41-libjava-libltdl.patch
-Patch13: gcc41-fortran-finclude.patch
-Patch14: gcc41-atomic-builtins.patch
-Patch15: gcc41-ppc32-retaddr.patch
-Patch16: gcc41-ppc32-ldbl.patch
-Patch17: gcc41-s390-ldbl.patch
-Patch18: gcc41-x86-mtune-generic1.patch
-Patch19: gcc41-x86-mtune-generic2.patch
-Patch20: gcc41-x86-mtune-generic3.patch
-Patch21: gcc41-gomp-20060128-merge1.patch
-Patch22: gcc41-gomp-20060128-merge2.patch
-Patch23: gcc41-gomp-20060128-merge3.patch
-Patch24: gcc41-gomp-20060128-merge4.patch
-Patch25: gcc41-gomp-20060128-merge5.patch
-Patch26: gcc41-gomp-20060128-merge6.patch
+Patch12: gcc41-fortran-finclude.patch
+Patch13: gcc41-ppc32-retaddr.patch
+Patch14: gcc41-ppc32-ldbl.patch
+Patch15: gcc41-ldbl-mangle-as-g.patch
+Patch16: gcc41-ldbl-default.patch
+Patch17: gcc41-ldbl-default-libstdc++.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -441,26 +432,17 @@ which are required to run programs compiled with the GNAT.
 %ifarch ppc sparc
 %patch6 -p0 -b .multi32-hack~
 %endif
-%patch7 -p0 -b .ia64-stack-protector~
+%patch7 -p0 -b .gc-pthread_create~
 %patch8 -p0 -b .ada-pr18302~
 %patch9 -p0 -b .ada-tweaks~
-%patch10 -p0 -b .java-rmic~
+%patch10 -p0 -b .ia64-frame-base-loclist~
 %patch11 -p0 -b .java-slow_pthread_self~
-%patch12 -p0 -b .libjava-libltdl~
-%patch13 -p0 -b .fortran-finclude~
-%patch14 -p0 -b .atomic-builtins~
-%patch15 -p0 -b .ppc32-retaddr~
-%patch16 -p0 -b .ppc32-ldbl~
-%patch17 -p0 -b .s390-ldbl~
-%patch18 -p0 -b .x86-mtune-generic1~
-%patch19 -p0 -b .x86-mtune-generic2~
-%patch20 -p0 -b .x86-mtune-generic3~
-%patch21 -p0 -b .gomp-20060128-merge1~
-%patch22 -p0 -b .gomp-20060128-merge2~
-%patch23 -p0 -b .gomp-20060128-merge3~
-%patch24 -p0 -b .gomp-20060128-merge4~
-%patch25 -p0 -b .gomp-20060128-merge5~
-%patch26 -p0 -b .gomp-20060128-merge6~
+%patch12 -p0 -b .fortran-finclude~
+%patch13 -p0 -b .ppc32-retaddr~
+%patch14 -p0 -b .ppc32-ldbl~
+%patch15 -p0 -b .ldbl-mangle-as-g~
+%patch16 -p0 -b .ldbl-default~
+%patch17 -p0 -b .ldbl-default-libstdc++~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -564,6 +546,9 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %endif
 %ifarch ppc
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=default32
+%endif
+%ifarch sparc ppc ppc64 s390 s390x alpha
+	--with-long-double-128 \
 %endif
 %ifarch %{ix86} x86_64
 	--with-cpu=generic \
@@ -1549,6 +1534,24 @@ fi
 %endif
 
 %changelog
+* Sat Feb  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.21
+- update from gcc-4_1-branch (-r110433:110582)
+  - PRs c++/25342, c++/25979, fortran/20845, fortran/24266,
+	fortran/24958, fortran/25072, libstdc++/21554, middle-end/24901,
+	middle-end/25977, middle-end/26001, target/25864, target/25926,
+	target/25960
+  - put ia64 read-only sections that require runtime relocations
+    even in -fno-pic code into .data.rel.ro etc. sections
+    rather than .rodata to avoid DT_TEXTREL binaries
+    (Richard Henderson, PR target/26090)
+- merge gomp changes from trunk (-r110511:110512 and -r110549:110552)
+- fix ia64 debug info coverage of epilogues (Alexandre Oliva, PR debug/24444)
+- export pthread_create from libgcj.so.7 as a wrapper around
+  libpthread.so.0's pthread_create that handles GC (Anthony Green, Tom Tromey)
+- switch to IBM extended format long double by default on ppc and ppc64
+- switch to IEEE 754 quad format long double by default on s390, s390x,
+  sparc32 and alpha
+
 * Wed Feb  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.20
 - merge from gomp-20050808-branch (up to -r110392)
   - fix PR c++/25874 (Diego Novillo)
