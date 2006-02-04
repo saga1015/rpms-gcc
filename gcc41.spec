@@ -1,6 +1,6 @@
 %define DATE 20060204
 %define gcc_version 4.1.0
-%define gcc_release 0.21
+%define gcc_release 0.22
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -1538,6 +1538,10 @@ fi
 %endif
 
 %changelog
+* Sat Feb  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.22
+- fix ia64 debug info patch
+- fix libjava pthread_create wrapper patch
+
 * Sat Feb  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.21
 - update from gcc-4_1-branch (-r110433:110582)
   - PRs c++/25342, c++/25979, fortran/20845, fortran/24266,
