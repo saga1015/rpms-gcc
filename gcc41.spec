@@ -545,14 +545,14 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %ifarch ppc ppc64
 	--enable-secureplt \
 %endif
+%ifarch sparc ppc ppc64 s390 s390x alpha
+	--with-long-double-128 \
+%endif
 %ifarch sparc
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=v7
 %endif
 %ifarch ppc
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=default32
-%endif
-%ifarch sparc ppc ppc64 s390 s390x alpha
-	--with-long-double-128 \
 %endif
 %ifarch %{ix86} x86_64
 	--with-cpu=generic \
