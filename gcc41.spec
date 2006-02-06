@@ -1,6 +1,6 @@
-%define DATE 20060204
+%define DATE 20060206
 %define gcc_version 4.1.0
-%define gcc_release 0.22
+%define gcc_release 0.23
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -40,6 +40,10 @@ BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
 BuildRequires: glibc-devel >= 2.3.90-2
+%ifarch ppc ppc64 s390 s390x sparc sparcv9 alpha
+# Make sure glibc supports TFmode long double
+BuildRequires: glibc >= 2.3.90-35
+%endif
 %ifarch %{multilib_64_archs} sparc ppc
 # Ensure glibc{,-devel} is installed for both multilib arches
 BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.so
@@ -60,6 +64,10 @@ Requires: binutils >= 2.16.91.0.3-1
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
+%ifarch ppc ppc64 s390 s390x sparc sparcv9 alpha
+# Make sure glibc supports TFmode long double
+Requires: glibc >= 2.3.90-35
+%endif
 Requires: libgcc >= %{version}-%{release}
 Requires: libgomp = %{version}-%{release}
 Obsoletes: gcc3
@@ -98,6 +106,7 @@ Patch16: gcc41-ldbl-default.patch
 Patch17: gcc41-ldbl-default-libstdc++.patch
 Patch18: gcc41-sparc64-g7.patch
 Patch19: gcc41-java-rh179070.patch
+Patch20: gcc41-fortran-where.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -285,6 +294,7 @@ Requires: libart_lgpl >= 2.1.0
 BuildRequires: libart_lgpl-devel >= 2.1.0
 BuildRequires: alsa-lib-devel
 BuildRequires: libXtst-devel
+BuildRequires: libXt-devel
 Obsoletes: gcc-libgcj
 Obsoletes: libgcj3
 Obsoletes: libgcj34
@@ -447,6 +457,7 @@ which are required to run programs compiled with the GNAT.
 %patch17 -p0 -b .ldbl-default-libstdc++~
 %patch18 -p0 -b .sparc64-g7~
 %patch19 -p0 -b .java-rh179070~
+%patch20 -p0 -b .fortran-where~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1538,6 +1549,18 @@ fi
 %endif
 
 %changelog
+* Mon Feb  6 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.23
+- update from gcc-4_1-branch (-r110582:110632)
+  - PRs classpath/24618, classpath/25141, classpath/25727, fortran/25046,
+	fortran/26039
+- use LOGICAL*1 instead of LOGICAL*4 for Fortran where temporary masks
+  (Roger Sayle)
+- fix symbol versions in s390 libgcc_s.so.1
+- sparc32 and alpha long double fixes
+- BuildRequires libXt-devel
+- BuildRequires and Requires glibc-devel >= 2.3.90-35 on arches
+  that are switching long double
+
 * Sat Feb  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.22
 - fix ia64 debug info patch
 - fix libjava pthread_create wrapper patch
