@@ -70,6 +70,6 @@ testsuite/
  	test -d $(ACATSDIR) || mkdir -p $(ACATSDIR)
  	testdir=`cd ${srcdir}/${ACATSDIR}; ${PWD_COMMAND}`; \
 +	EXPECT=${EXPECT} ; export EXPECT ; \
- 	export testdir; cd $(ACATSDIR); $${testdir}/run_acats $(CHAPTERS)
+ 	export testdir; cd $(ACATSDIR); $(SHELL) $${testdir}/run_acats $(CHAPTERS)
  
  .PHONY: check-gnat

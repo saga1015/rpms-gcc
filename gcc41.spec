@@ -110,7 +110,6 @@ Patch15: gcc41-ldbl-mangle-as-g.patch
 Patch16: gcc41-ldbl-default.patch
 Patch17: gcc41-ldbl-default-libstdc++.patch
 Patch18: gcc41-sparc64-g7.patch
-Patch19: gcc41-java-rh179070.patch
 Patch20: gcc41-fortran-where.patch
 
 %define _gnu %{nil}
@@ -406,7 +405,6 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -b .ldbl-default~
 %patch17 -p0 -b .ldbl-default-libstdc++~
 %patch18 -p0 -b .sparc64-g7~
-%patch19 -p0 -b .java-rh179070~
 %patch20 -p0 -b .fortran-where~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
