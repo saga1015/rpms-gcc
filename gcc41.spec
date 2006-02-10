@@ -102,7 +102,6 @@ Patch4: gcc41-gnuc-rh-release.patch
 Patch5: gcc41-java-nomulti.patch
 Patch8: gcc41-ada-pr18302.patch
 Patch9: gcc41-ada-tweaks.patch
-Patch10: gcc41-ia64-frame-base-loclist.patch
 Patch11: gcc41-java-slow_pthread_self.patch
 Patch12: gcc41-fortran-finclude.patch
 Patch13: gcc41-ppc32-retaddr.patch
@@ -399,7 +398,6 @@ which are required to run programs compiled with the GNAT.
 %patch5 -p0 -b .java-nomulti~
 %patch8 -p0 -b .ada-pr18302~
 %patch9 -p0 -b .ada-tweaks~
-%patch10 -p0 -b .ia64-frame-base-loclist~
 %patch11 -p0 -b .java-slow_pthread_self~
 %patch12 -p0 -b .fortran-finclude~
 %patch13 -p0 -b .ppc32-retaddr~
