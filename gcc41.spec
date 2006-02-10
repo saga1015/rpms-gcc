@@ -1,6 +1,6 @@
-%define DATE 20060206
+%define DATE 20060210
 %define gcc_version 4.1.0
-%define gcc_release 0.23
+%define gcc_release 0.24
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -72,6 +72,14 @@ Requires: libgcc >= %{version}-%{release}
 Requires: libgomp = %{version}-%{release}
 Obsoletes: gcc3
 Obsoletes: egcs
+%ifarch sparc
+Obsoletes: gcc-sparc32
+Obsoletes: gcc-c++-sparc32
+%endif
+%ifarch ppc
+Obsoletes: gcc-ppc32
+Obsoletes: gcc-c++-ppc32
+%endif
 Obsoletes: gcc-chill
 %if !%{build_ada}
 Obsoletes: gcc-gnat < %{version}-%{release}
@@ -92,8 +100,6 @@ Patch2: gcc41-ppc64-m32-m64-multilib-only.patch
 Patch3: gcc41-ia64-libunwind.patch
 Patch4: gcc41-gnuc-rh-release.patch
 Patch5: gcc41-java-nomulti.patch
-Patch6: gcc41-multi32-hack.patch
-Patch7: gcc41-gc-pthread_create.patch
 Patch8: gcc41-ada-pr18302.patch
 Patch9: gcc41-ada-tweaks.patch
 Patch10: gcc41-ia64-frame-base-loclist.patch
@@ -331,56 +337,6 @@ Autoreq: true
 %description -n libgcj-src
 The Java(tm) runtime library sources for use in Eclipse.
 
-%package sparc32
-Summary: The C compiler optimized for generating SPARC 32bit code
-Group: Development/Languages
-Requires: gcc = %{version}-%{release}, %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcc.a
-Autoreq: true
-
-%description sparc32
-This package contains the GNU C compiler which only supports generating
-32bit SPARC code, but should be faster than the 32/64bit gcc package. You
-should install this package if you want to trade disk space required for
-this package for faster compilation of 32bit code.
-
-%package c++-sparc32
-Summary: The C++ compiler optimized for generating SPARC 32bit code
-Group: Development/Languages
-Requires: gcc-c++ = %{version}-%{release}, gcc-sparc32 = %{version}-%{release}
-Requires: %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libstdc++.so
-Autoreq: true
-
-%description c++-sparc32
-This package contains the GNU C++ compiler which only supports generating
-32bit SPARC code, but should be faster than the 32/64bit gcc package. You
-should install this package if you want to trade disk space required for
-this package for faster compilation of 32bit code.
-
-%package ppc32
-Summary: The C compiler optimized for generating PowerPC 32bit code
-Group: Development/Languages
-Requires: gcc = %{version}-%{release}, %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcc.a
-Autoreq: true
-
-%description ppc32
-This package contains the GNU C compiler which only supports generating
-32bit PowerPC code, but should be faster than the 32/64bit gcc package. You
-should install this package if you want to trade disk space required for
-this package for faster compilation of 32bit code.
-
-%package c++-ppc32
-Summary: The C++ compiler optimized for generating PowerPC 32bit code
-Group: Development/Languages
-Requires: gcc-c++ = %{version}-%{release}, gcc-ppc32 = %{version}-%{release}
-Requires: %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libstdc++.so
-Autoreq: true
-
-%description c++-ppc32
-This package contains the GNU C++ compiler which only supports generating
-32bit PowerPC code, but should be faster than the 32/64bit gcc package. You
-should install this package if you want to trade disk space required for
-this package for faster compilation of 32bit code.
-
 %package -n cpp
 Summary: The C Preprocessor.
 Group: Development/Languages
@@ -441,10 +397,6 @@ which are required to run programs compiled with the GNAT.
 %patch3 -p0 -b .ia64-libunwind~
 %patch4 -p0 -b .gnuc-rh-release~
 %patch5 -p0 -b .java-nomulti~
-%ifarch ppc sparc
-%patch6 -p0 -b .multi32-hack~
-%endif
-%patch7 -p0 -b .gc-pthread_create~
 %patch8 -p0 -b .ada-pr18302~
 %patch9 -p0 -b .ada-tweaks~
 %patch10 -p0 -b .ia64-frame-base-loclist~
@@ -596,23 +548,6 @@ echo ====================TESTING END=====================
 # Make protoize
 make -C gcc CC="./xgcc -B ./ -O2" proto
 
-%ifarch sparc ppc
-# Build the -m32 only compiler which does not use long long for HOST_WIDE_INT
-mkdir gcc32
-cd gcc32
-OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'`
-echo "#!/bin/sh" > gcc32
-echo "exec `cd ../gcc; pwd`/xgcc -B `cd ../gcc; pwd`/ $OPT_FLAGS "'"$@"' >> gcc32
-chmod +x gcc32
-CC=`pwd`/gcc32 CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" \
-  TCFLAGS="$OPT_FLAGS" ../../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
-  --enable-shared --enable-threads=posix --enable-checking=release --disable-libunwind-exceptions \
-  --with-system-zlib --enable-__cxa_atexit --enable-languages=c,c++ \
-  --host=%{_target_platform} --build=%{_target_platform} --target=%{_target_platform}
-make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" all-gcc 
-cd ..
-%endif
-
 # Make generated man pages even if Pod::Man is not new enough
 perl -pi -e 's/head3/head2/' ../contrib/texi2pod.pl
 for i in ../gcc/doc/*.texi; do
@@ -726,27 +661,11 @@ EOF
   fi
 done
 
-%ifarch sparc ppc
-# Install the sparc/ppc -m32 only compilers
-FULLPATH32=$RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{_target_platform}/%{gcc_version}
-FULLEPATH32=$RPM_BUILD_ROOT%{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}
-mkdir -p $FULLPATH32 $FULLEPATH32
-ln -sf %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include \
-  $FULLPATH32/
-install -m 755 gcc32/gcc/cc1 $FULLEPATH32/
-install -m 755 gcc32/gcc/cc1plus $FULLEPATH32/
-ln -f $RPM_BUILD_ROOT%{_prefix}/bin/%{gcc_target_platform}-gcc \
-  $RPM_BUILD_ROOT%{_prefix}/bin/%{_target_platform}-gcc
-%endif
-%ifarch sparc ppc
-cp -al $RPM_BUILD_ROOT%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform} \
-  $RPM_BUILD_ROOT%{_prefix}/include/c++/%{gcc_version}/%{_target_platform}
-%endif
-%ifarch sparc64
+%ifarch sparc sparc64
 ln -f $RPM_BUILD_ROOT%{_prefix}/bin/%{gcc_target_platform}-gcc \
   $RPM_BUILD_ROOT%{_prefix}/bin/sparc-%{_vendor}-%{_target_os}-gcc
 %endif
-%ifarch ppc64
+%ifarch ppc ppc64
 ln -f $RPM_BUILD_ROOT%{_prefix}/bin/%{gcc_target_platform}-gcc \
   $RPM_BUILD_ROOT%{_prefix}/bin/ppc-%{_vendor}-%{_target_os}-gcc
 %endif
@@ -1508,47 +1427,17 @@ fi
 %endif
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
-%ifarch sparc
-%files sparc32
-%defattr(-,root,root)
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{_target_platform}
-%dir %{_prefix}/lib/gcc/%{_target_platform}/%{gcc_version}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{_target_platform}
-%dir %{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}
-%{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}/cc1
-%{_prefix}/lib/gcc/%{_target_platform}/%{gcc_version}/include
-
-%files c++-sparc32
-%defattr(-,root,root)
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{_target_platform}
-%dir %{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}
-%{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}/cc1plus
-%endif
-
-%ifarch ppc
-%files ppc32
-%defattr(-,root,root)
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{_target_platform}
-%dir %{_prefix}/lib/gcc/%{_target_platform}/%{gcc_version}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{_target_platform}
-%dir %{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}
-%{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}/cc1
-%{_prefix}/lib/gcc/%{_target_platform}/%{gcc_version}/include
-
-%files c++-ppc32
-%defattr(-,root,root)
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{_target_platform}
-%dir %{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}
-%{_prefix}/libexec/gcc/%{_target_platform}/%{gcc_version}/cc1plus
-%endif
-
 %changelog
+* Fri Feb 10 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.24
+- update from gcc-4_1-branch (-r110632:110831)
+  - PRs tree-opt/26180, c++/26070, c++/26071, fortran/25577, java/26192,
+	libfortran/23815, libstdc++/26127, target/23359, target/26109,
+	tree-opt/25251
+- remove gcc-ppc32, gcc-c++-ppc32, gcc-sparc32 and gcc-c++-sparc32
+  subpackages, they do more harm than good.  Particularly this time
+  gcc*ppc32 and gcc*sparc32 defaulted to DFmode long double rather
+  than TFmode long double
+
 * Mon Feb  6 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.23
 - update from gcc-4_1-branch (-r110582:110632)
   - PRs classpath/24618, classpath/25141, classpath/25727, fortran/25046,
