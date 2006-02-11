@@ -24,7 +24,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}
+Release: %{gcc_release}.1
 License: GPL
 Group: Development/Languages
 Source0: gcc-%{version}-%{DATE}.tar.bz2
@@ -1424,6 +1424,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 4.1.0-0.24.1
+- bump again for double-long bug on ppc(64)
+
 * Fri Feb 10 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.24
 - update from gcc-4_1-branch (-r110632:110831)
   - PRs tree-opt/26180, c++/26070, c++/26071, fortran/25577, java/26192,
