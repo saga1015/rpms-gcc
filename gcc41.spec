@@ -1,6 +1,6 @@
-%define DATE 20060210
+%define DATE 20060213
 %define gcc_version 4.1.0
-%define gcc_release 0.24
+%define gcc_release 0.25
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -24,7 +24,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}.1
+Release: %{gcc_release}
 License: GPL
 Group: Development/Languages
 Source0: gcc-%{version}-%{DATE}.tar.bz2
@@ -100,17 +100,17 @@ Patch2: gcc41-ppc64-m32-m64-multilib-only.patch
 Patch3: gcc41-ia64-libunwind.patch
 Patch4: gcc41-gnuc-rh-release.patch
 Patch5: gcc41-java-nomulti.patch
-Patch8: gcc41-ada-pr18302.patch
-Patch9: gcc41-ada-tweaks.patch
-Patch11: gcc41-java-slow_pthread_self.patch
-Patch12: gcc41-fortran-finclude.patch
-Patch13: gcc41-ppc32-retaddr.patch
-Patch14: gcc41-ppc32-ldbl.patch
-Patch15: gcc41-ldbl-mangle-as-g.patch
-Patch16: gcc41-ldbl-default.patch
-Patch17: gcc41-ldbl-default-libstdc++.patch
-Patch18: gcc41-sparc64-g7.patch
-Patch20: gcc41-fortran-where.patch
+Patch6: gcc41-ada-pr18302.patch
+Patch7: gcc41-ada-tweaks.patch
+Patch8: gcc41-java-slow_pthread_self.patch
+Patch9: gcc41-fortran-finclude.patch
+Patch10: gcc41-ppc32-retaddr.patch
+Patch11: gcc41-ldbl-default.patch
+Patch12: gcc41-ldbl-default-libstdc++.patch
+Patch13: gcc41-sparc64-g7.patch
+Patch14: gcc41-fortran-where.patch
+Patch15: gcc41-pr26092.patch
+Patch16: gcc41-pr26246.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -395,17 +395,17 @@ which are required to run programs compiled with the GNAT.
 %patch3 -p0 -b .ia64-libunwind~
 %patch4 -p0 -b .gnuc-rh-release~
 %patch5 -p0 -b .java-nomulti~
-%patch8 -p0 -b .ada-pr18302~
-%patch9 -p0 -b .ada-tweaks~
-%patch11 -p0 -b .java-slow_pthread_self~
-%patch12 -p0 -b .fortran-finclude~
-%patch13 -p0 -b .ppc32-retaddr~
-%patch14 -p0 -b .ppc32-ldbl~
-%patch15 -p0 -b .ldbl-mangle-as-g~
-%patch16 -p0 -b .ldbl-default~
-%patch17 -p0 -b .ldbl-default-libstdc++~
-%patch18 -p0 -b .sparc64-g7~
-%patch20 -p0 -b .fortran-where~
+%patch6 -p0 -b .ada-pr18302~
+%patch7 -p0 -b .ada-tweaks~
+%patch8 -p0 -b .java-slow_pthread_self~
+%patch9 -p0 -b .fortran-finclude~
+%patch10 -p0 -b .ppc32-retaddr~
+%patch11 -p0 -b .ldbl-default~
+%patch12 -p0 -b .ldbl-default-libstdc++~
+%patch13 -p0 -b .sparc64-g7~
+%patch14 -p0 -b .fortran-where~
+%patch15 -p0 -b .pr26092~
+%patch16 -p0 -b .pr26246~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1424,8 +1424,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 4.1.0-0.24.1
-- bump again for double-long bug on ppc(64)
+* Mon Feb 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.25
+- update from gcc-4_1-branch (-r110831:110903)
+  - PRs c++/16405, c++/24996, fortran/14771, fortran/20858, fortran/25756,
+	middle-end/22439
+- merge gomp changes from trunk (-r110719:110720, -r110852:110853 and
+  -r110907:110908)
+  - PR libgomp/25936
+- fix gimplification of const fn pointers to builting functions
+  (PR middle-end/26092)
+- make sure Fortran length artifical variables aren't SAVEd (Andrew Pinski,
+  PR fortran/26246)
 
 * Fri Feb 10 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.24
 - update from gcc-4_1-branch (-r110632:110831)
