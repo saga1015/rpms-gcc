@@ -1,6 +1,6 @@
-%define DATE 20060213
+%define DATE 20060214
 %define gcc_version 4.1.0
-%define gcc_release 0.25
+%define gcc_release 0.26
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -105,12 +105,16 @@ Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-fortran-finclude.patch
 Patch10: gcc41-ppc32-retaddr.patch
-Patch11: gcc41-ldbl-default.patch
-Patch12: gcc41-ldbl-default-libstdc++.patch
-Patch13: gcc41-sparc64-g7.patch
-Patch14: gcc41-fortran-where.patch
-Patch15: gcc41-pr26092.patch
-Patch16: gcc41-pr26246.patch
+Patch11: gcc41-sparc64-g7.patch
+Patch12: gcc41-fortran-where.patch
+Patch13: gcc41-expr_nonzero_p.patch
+Patch14: gcc41-libstdc++-bitset.patch
+Patch15: gcc41-mmintrin.patch
+Patch16: gcc41-pr22275.patch
+Patch17: gcc41-pr25626.patch
+Patch18: gcc41-pr26151.patch
+Patch19: gcc41-pr26209.patch
+Patch20: gcc41-vrp.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -400,12 +404,16 @@ which are required to run programs compiled with the GNAT.
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .fortran-finclude~
 %patch10 -p0 -b .ppc32-retaddr~
-%patch11 -p0 -b .ldbl-default~
-%patch12 -p0 -b .ldbl-default-libstdc++~
-%patch13 -p0 -b .sparc64-g7~
-%patch14 -p0 -b .fortran-where~
-%patch15 -p0 -b .pr26092~
-%patch16 -p0 -b .pr26246~
+%patch11 -p0 -b .sparc64-g7~
+%patch12 -p0 -b .fortran-where~
+%patch13 -p0 -b .expr_nonzero_p~
+%patch14 -p0 -b .libstdc++-bitset~
+%patch15 -p0 -b .mmintrin~
+%patch16 -p0 -b .pr22275~
+%patch17 -p0 -b .pr25626~
+%patch18 -p0 -b .pr26151~
+%patch19 -p0 -b .pr26209~
+%patch20 -p0 -b .vrp~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1424,6 +1432,23 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.26
+- update from gcc-4_1-branch (-r110903:110978)
+  - PRs fortran/20861, fortran/20871, fortran/25059, fortran/25070,
+	fortran/25083, fortran/25088, fortran/25103, fortran/26038,
+	fortran/26074, inline-asm/16194, libfortran/24685,
+	libfortran/25425, target/26141, tree-optimization/26258
+- ABI change - revert to GCC 3.3 and earlier behaviour of
+  zero sized bitfields in packed structs (Michael Matz, PR middle-end/22275)
+- fix valarrays vs. non-POD (Paolo Carlini, Gabriel Dos Reis,
+  PR libstdc++/25626)
+- fix C++ duplicate declspec diagnostics (Volker Reichelt, PR c++/26151)
+- fix dominance ICE (Zdenek Dvorak, PR tree-optimization/26209)
+- add some new Intel {,e,x}mmintrin.h intrinsics (H.J. Lu)
+- speedup bitset<>::_M_copy_to_string (Paolo Carlini)
+- fix tree_expr_nonzero_p (Jeff Law)
+- fix TRUTH_XOR_EXPR handling in VRP (Jeff Law)
+
 * Mon Feb 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.25
 - update from gcc-4_1-branch (-r110831:110903)
   - PRs c++/16405, c++/24996, fortran/14771, fortran/20858, fortran/25756,
