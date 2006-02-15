@@ -1,6 +1,6 @@
 %define DATE 20060214
 %define gcc_version 4.1.0
-%define gcc_release 0.26
+%define gcc_release 0.27
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -1432,6 +1432,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 14 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.0-0.27
+- merge fix by Zdenek Dvorak for regression introduced by patch for PR
+  tree-optimization/26209
+
 * Tue Feb 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.26
 - update from gcc-4_1-branch (-r110903:110978)
   - PRs fortran/20861, fortran/20871, fortran/25059, fortran/25070,
