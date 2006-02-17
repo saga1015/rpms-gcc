@@ -1,6 +1,6 @@
-%define DATE 20060214
+%define DATE 20060217
 %define gcc_version 4.1.0
-%define gcc_release 0.27
+%define gcc_release 0.28
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -103,18 +103,15 @@ Patch5: gcc41-java-nomulti.patch
 Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
-Patch9: gcc41-fortran-finclude.patch
-Patch10: gcc41-ppc32-retaddr.patch
-Patch11: gcc41-sparc64-g7.patch
-Patch12: gcc41-fortran-where.patch
-Patch13: gcc41-expr_nonzero_p.patch
-Patch14: gcc41-libstdc++-bitset.patch
-Patch15: gcc41-mmintrin.patch
-Patch16: gcc41-pr22275.patch
-Patch17: gcc41-pr25626.patch
-Patch18: gcc41-pr26151.patch
-Patch19: gcc41-pr26209.patch
-Patch20: gcc41-vrp.patch
+Patch9: gcc41-ppc32-retaddr.patch
+Patch10: gcc41-sparc64-g7.patch
+Patch11: gcc41-fortran-where.patch
+Patch12: gcc41-expr_nonzero_p.patch
+Patch13: gcc41-libstdc++-bitset.patch
+Patch14: gcc41-mmintrin.patch
+Patch15: gcc41-pr25626.patch
+Patch16: gcc41-vrp.patch
+Patch17: gcc41-pr26334.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -402,18 +399,15 @@ which are required to run programs compiled with the GNAT.
 %patch6 -p0 -b .ada-pr18302~
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
-%patch9 -p0 -b .fortran-finclude~
-%patch10 -p0 -b .ppc32-retaddr~
-%patch11 -p0 -b .sparc64-g7~
-%patch12 -p0 -b .fortran-where~
-%patch13 -p0 -b .expr_nonzero_p~
-%patch14 -p0 -b .libstdc++-bitset~
-%patch15 -p0 -b .mmintrin~
-%patch16 -p0 -b .pr22275~
-%patch17 -p0 -b .pr25626~
-%patch18 -p0 -b .pr26151~
-%patch19 -p0 -b .pr26209~
-%patch20 -p0 -b .vrp~
+%patch9 -p0 -b .ppc32-retaddr~
+%patch10 -p0 -b .sparc64-g7~
+%patch11 -p0 -b .fortran-where~
+%patch12 -p0 -b .expr_nonzero_p~
+%patch13 -p0 -b .libstdc++-bitset~
+%patch14 -p0 -b .mmintrin~
+%patch15 -p0 -b .pr25626~
+%patch16 -p0 -b .vrp~
+%patch17 -p0 -b .pr26334~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -713,8 +707,6 @@ ln -sf /lib/libgcc_s.so.1 $FULLPATH/32/libgcc_s.so
 
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgomp.spec $FULLPATH/
 mv -f $RPM_BUILD_ROOT%{_prefix}/include/omp.h $FULLPATH/include/
-mkdir -p $FULLPATH/finclude
-mv -f $RPM_BUILD_ROOT%{_prefix}/include/omp_lib* $FULLPATH/finclude/
 
 %if %{build_ada}
 mv -f $FULLPATH/adalib/libgnarl-*.so $RPM_BUILD_ROOT%{_prefix}/%{_lib}/
@@ -1432,6 +1424,21 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.28
+- update from gcc-4_1-branch (-r110978:111179)
+  - PRs ada/20753, bootstrap/16787, bootstrap/26053, fortran/25806,
+	libfortran/15234, libgfortran/25949, middle-end/25335,
+	target/25259, target/26255
+  - fix ICE with shift by -1 (#181586, PR middle-end/26300)
+- merge gomp changes from trunk (-r110983:110984, -r111017:111018,
+  -r111152:111153 and -r111204:111205)
+  - PRs bootstrap/26161, fortran/26224, libgomp/25938, libgomp/25984
+- don't define _REENTRANT in gthr*.h (#176278, PR libstdc++/11953)
+- define _REENTRANT if -pthread and _POSIX_SOURCE if -posix on s390{,x}
+  and ia64
+- fix ICE with register variable and __asm statement (#181731,
+  PR middle-end/26334)
+
 * Tue Feb 14 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.0-0.27
 - merge fix by Zdenek Dvorak for regression introduced by patch for PR
   tree-optimization/26209
