@@ -1,6 +1,6 @@
-%define DATE 20060217
+%define DATE 20060219
 %define gcc_version 4.1.0
-%define gcc_release 0.28
+%define gcc_release 0.29
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -111,7 +111,6 @@ Patch13: gcc41-libstdc++-bitset.patch
 Patch14: gcc41-mmintrin.patch
 Patch15: gcc41-pr25626.patch
 Patch16: gcc41-vrp.patch
-Patch17: gcc41-pr26334.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -407,7 +406,6 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .mmintrin~
 %patch15 -p0 -b .pr25626~
 %patch16 -p0 -b .vrp~
-%patch17 -p0 -b .pr26334~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1424,6 +1422,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sun Feb 19 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.29
+- update from gcc-4_1-branch (-r111179:111278)
+  - PRs ada/13408, c++/26266, target/22209, target/26189
+  - fix ppc32 -fpic reload problem with extenddftf2 pattern
+    (David Edelsohn, #181625, PR target/26350)
+  - fix the PR middle-end/26334 patch
+
 * Fri Feb 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.28
 - update from gcc-4_1-branch (-r110978:111179)
   - PRs ada/20753, bootstrap/16787, bootstrap/26053, fortran/25806,
