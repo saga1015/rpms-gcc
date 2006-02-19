@@ -111,6 +111,7 @@ Patch13: gcc41-libstdc++-bitset.patch
 Patch14: gcc41-mmintrin.patch
 Patch15: gcc41-pr25626.patch
 Patch16: gcc41-vrp.patch
+Patch17: gcc41-c++-parser.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -406,6 +407,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .mmintrin~
 %patch15 -p0 -b .pr25626~
 %patch16 -p0 -b .vrp~
+%patch17 -p0 -b .c++-parser~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
