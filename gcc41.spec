@@ -1,6 +1,6 @@
 %define DATE 20060227
 %define gcc_version 4.1.0
-%define gcc_release 0.30
+%define gcc_release 0.31
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -108,6 +108,8 @@ Patch10: gcc41-fortran-matmul.patch
 Patch11: gcc41-fortran-where-opt.patch
 Patch12: gcc41-x86_64-sse3.patch
 Patch13: gcc41-mni.patch
+Patch14: gcc41-floatunXiYf.patch
+Patch15: gcc41-pr26208.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -400,6 +402,8 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .fortran-where-opt~
 %patch12 -p0 -b .x86_64-sse3~
 %patch13 -p0 -b .mni~
+%patch14 -p0 -b .floatunXiYf~
+%patch15 -p0 -b .pr26208~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1417,6 +1421,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Feb 27 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.31
+- add __floatuns[sdt]i[sdxt]f exports to libgcc_s.so.1 (Joseph S. Myers)
+- fix unwinding through signal frames (#175951, PR other/26208, glibc BZ#300)
+
 * Mon Feb 27 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.30
 - update from gcc-4_1-branch (-r111278:111466)
   - GCC 4.1.0 RC2
