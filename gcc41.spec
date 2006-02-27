@@ -1,6 +1,6 @@
-%define DATE 20060219
+%define DATE 20060227
 %define gcc_version 4.1.0
-%define gcc_release 0.29
+%define gcc_release 0.30
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -104,14 +104,10 @@ Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
-Patch10: gcc41-sparc64-g7.patch
-Patch11: gcc41-fortran-where.patch
-Patch12: gcc41-expr_nonzero_p.patch
-Patch13: gcc41-libstdc++-bitset.patch
-Patch14: gcc41-mmintrin.patch
-Patch15: gcc41-pr25626.patch
-Patch16: gcc41-vrp.patch
-Patch17: gcc41-c++-parser.patch
+Patch10: gcc41-fortran-matmul.patch
+Patch11: gcc41-fortran-where-opt.patch
+Patch12: gcc41-x86_64-sse3.patch
+Patch13: gcc41-mni.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -400,14 +396,10 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .ppc32-retaddr~
-%patch10 -p0 -b .sparc64-g7~
-%patch11 -p0 -b .fortran-where~
-%patch12 -p0 -b .expr_nonzero_p~
-%patch13 -p0 -b .libstdc++-bitset~
-%patch14 -p0 -b .mmintrin~
-%patch15 -p0 -b .pr25626~
-%patch16 -p0 -b .vrp~
-%patch17 -p0 -b .c++-parser~
+%patch10 -p0 -b .fortran-matmul~
+%patch11 -p0 -b .fortran-where-opt~
+%patch12 -p0 -b .x86_64-sse3~
+%patch13 -p0 -b .mni~
 
 sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1063,6 +1055,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xmmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/emmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/pmmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/tmmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm_malloc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
 %endif
@@ -1424,6 +1417,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Feb 27 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.30
+- update from gcc-4_1-branch (-r111278:111466)
+  - GCC 4.1.0 RC2
+  - PRs fortran/26201, libobjc/26309, rtl-optimization/25603, target/25603
+  - fix nested vector shifts (#182047, PR middle-end/26379)
+- merge gomp changes from trunk (-r111390:111391, -r111428:111429 and
+  -r111440:111441)
+  - PR middle-end/26412
+- fortran MATMUL optimization (Richard Sandiford)
+- fortran WHERE optimizations (Roger Sayle)
+- x86_64 _mm_monitor fixes (H.J. Lu, PR target/24879)
+- add MNI support on i?86/x86_64, -mmni option and <tmmintrin.h> header
+  (H.J Lu)
+
 * Sun Feb 19 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.29
 - update from gcc-4_1-branch (-r111179:111278)
   - PRs ada/13408, c++/26266, target/22209, target/26189
