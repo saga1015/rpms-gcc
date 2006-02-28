@@ -1,6 +1,6 @@
-%define DATE 20060227
+%define DATE 20060228
 %define gcc_version 4.1.0
-%define gcc_release 0.31
+%define gcc_release 1
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -104,12 +104,8 @@ Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
-Patch10: gcc41-fortran-matmul.patch
-Patch11: gcc41-fortran-where-opt.patch
-Patch12: gcc41-x86_64-sse3.patch
-Patch13: gcc41-mni.patch
-Patch14: gcc41-floatunXiYf.patch
-Patch15: gcc41-pr26208.patch
+Patch10: gcc41-x86_64-sse3.patch
+Patch11: gcc41-mni.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -398,14 +394,10 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .ppc32-retaddr~
-%patch10 -p0 -b .fortran-matmul~
-%patch11 -p0 -b .fortran-where-opt~
-%patch12 -p0 -b .x86_64-sse3~
-%patch13 -p0 -b .mni~
-%patch14 -p0 -b .floatunXiYf~
-%patch15 -p0 -b .pr26208~
+%patch10 -p0 -b .x86_64-sse3~
+%patch11 -p0 -b .mni~
 
-sed -i -e 's/4\.1\.0/4.1.0/' gcc/BASE-VER gcc/version.c
+sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
 
 sed -i -e 's/libjawt/libgcjawt/g' libjava/Makefile.{am,in}
@@ -1421,6 +1413,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-1
+- update from gcc-4_1-branch (-r111466:111570)
+  - GCC 4.1.0 release
+  - PR other/26473
+
 * Mon Feb 27 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-0.31
 - add __floatuns[sdt]i[sdxt]f exports to libgcc_s.so.1 (Joseph S. Myers)
 - fix unwinding through signal frames (#175951, PR other/26208, glibc BZ#300)
