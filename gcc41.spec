@@ -1,6 +1,6 @@
-%define DATE 20060228
+%define DATE 20060304
 %define gcc_version 4.1.0
-%define gcc_release 1
+%define gcc_release 2
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -106,6 +106,7 @@ Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
 Patch10: gcc41-x86_64-sse3.patch
 Patch11: gcc41-mni.patch
+Patch12: gcc41-cfaval.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -396,6 +397,7 @@ which are required to run programs compiled with the GNAT.
 %patch9 -p0 -b .ppc32-retaddr~
 %patch10 -p0 -b .x86_64-sse3~
 %patch11 -p0 -b .mni~
+%patch12 -p0 -b .cfaval~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1413,6 +1415,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Mar  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-2
+- update from -gcc-4_1-branch (-r111570:111697)
+  - PRs c++/26291, libgfortran/26136, libgfortran/26423, libgfortran/26464,
+	libstdc++/26526, rtl-optimization/26345, target/19061, target/26453
+- handle DW_CFA_val_{offset,offset_sf,expression} in the libgcc{,_s} unwinder
+
 * Tue Feb 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-1
 - update from gcc-4_1-branch (-r111466:111570)
   - GCC 4.1.0 release
