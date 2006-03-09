@@ -1,6 +1,6 @@
 %define DATE 20060304
 %define gcc_version 4.1.0
-%define gcc_release 2
+%define gcc_release 3
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -107,6 +107,7 @@ Patch9: gcc41-ppc32-retaddr.patch
 Patch10: gcc41-x86_64-sse3.patch
 Patch11: gcc41-mni.patch
 Patch12: gcc41-cfaval.patch
+Patch13: gcc41-rh184446.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -398,6 +399,7 @@ which are required to run programs compiled with the GNAT.
 %patch10 -p0 -b .x86_64-sse3~
 %patch11 -p0 -b .mni~
 %patch12 -p0 -b .cfaval~
+%patch13 -p0 -b .rh184446~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1415,6 +1417,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Mar  9 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.0-3
+- make ppc32 TLS PIC code sequences compatible with secure plt (#184446)
+  (Richard Henderson and myself)
+
 * Sat Mar  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-2
 - update from -gcc-4_1-branch (-r111570:111697)
   - PRs c++/26291, libgfortran/26136, libgfortran/26423, libgfortran/26464,
