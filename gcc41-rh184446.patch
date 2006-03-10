@@ -1,44 +1,13 @@
-for gcc/ChangeLog
-from  Richard Henderson  <rth@redhat.com>, Alexandre Oliva  <aoliva@redhat.com>
-
-	* config/rs6000/rs6000.c (rs6000_legitimize_tls_address): Use
-	secure-plt load sequence to compute the GOT address for -fPIC
-	-msecure-plt.
-
 Index: gcc/config/rs6000/rs6000.c
 ===================================================================
 --- gcc/config/rs6000/rs6000.c.orig	2006-03-09 20:02:13.000000000 -0300
-+++ gcc/config/rs6000/rs6000.c	2006-03-09 20:02:31.000000000 -0300
-@@ -3094,10 +3094,28 @@ rs6000_legitimize_tls_address (rtx addr,
- 		  tmp3 = gen_reg_rtx (Pmode);
- 		  mem = gen_const_mem (Pmode, tmp1);
- 
--		  first = emit_insn (gen_load_toc_v4_PIC_1b (tempLR, gsym));
--		  emit_move_insn (tmp1, tempLR);
--		  emit_move_insn (tmp2, mem);
--		  emit_insn (gen_addsi3 (tmp3, tmp1, tmp2));
-+		  if (TARGET_SECURE_PLT)
-+		    {
-+		      char buf[30];
-+		      rtx l;
-+
-+		      ASM_GENERATE_INTERNAL_LABEL (buf, "LCF",
-+						   rs6000_pic_labelno++);
-+		      l = gen_rtx_SYMBOL_REF (Pmode, ggc_strdup (buf));
-+
-+		      first = emit_insn (gen_load_toc_v4_PIC_1 (tempLR, l));
-+		      emit_move_insn (tmp1, tempLR);
-+		      emit_insn (gen_load_toc_v4_PIC_3b (tmp2, tmp1, gsym, l));
-+		      emit_insn (gen_load_toc_v4_PIC_3c (tmp3, tmp2, gsym, l));
-+		    }
-+		  else
-+		    {
-+		      first = emit_insn (gen_load_toc_v4_PIC_1b (tempLR, gsym));
-+		      emit_move_insn (tmp1, tempLR);
-+		      emit_move_insn (tmp2, mem);
-+		      emit_insn (gen_addsi3 (tmp3, tmp1, tmp2));
-+		    }
-+
- 		  last = emit_move_insn (got, tmp3);
- 		  REG_NOTES (last) = gen_rtx_EXPR_LIST (REG_EQUAL, gsym,
- 							REG_NOTES (last));
++++ gcc/config/rs6000/rs6000.c	2006-03-09 22:00:43.000000000 -0300
+@@ -3081,7 +3081,7 @@ rs6000_legitimize_tls_address (rtx addr,
+ 	    {
+ 	      rtx gsym = rs6000_got_sym ();
+ 	      got = gen_reg_rtx (Pmode);
+-	      if (flag_pic == 0)
++	      if (flag_pic == 0 || (flag_pic && TARGET_SECURE_PLT))
+ 		rs6000_emit_move (got, gsym, Pmode);
+ 	      else
+ 		{
