@@ -1,0 +1,61 @@
+2006-03-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/20297
+	* gcc.dg/visibility-11.c: Moved to...
+	* gcc.target/i386/visibility-1.c: ... here.  Only run on
+	32-bit linux and bsds.
+
+--- gcc/testsuite/gcc.dg/visibility-11.c.jj	2006-03-24 17:07:15.000000000 +0100
++++ gcc/testsuite/gcc.dg/visibility-11.c	2006-03-28 14:59:27.000000000 +0200
+@@ -1,24 +0,0 @@
+-/* PR middle-end/20297 */
+-/* The memcpy FUNCTION_DECL built in the middle-end for block moves got
+-   hidden visibility from the first push, so the call didn't use the PLT.  */
+-
+-/* { dg-do compile { target i?86-*-* x86_64-*-* } } */
+-/* { dg-require-visibility "" } */
+-/* { dg-options "-Os -fpic" } */
+-/* { dg-final { scan-assembler "memcpy@PLT" } } */
+-
+-#pragma GCC visibility push(hidden)
+-#pragma GCC visibility push(default)
+-extern void* memcpy (void *, const void *, __SIZE_TYPE__);
+-#pragma GCC visibility pop
+-
+-struct a { int a[10]; };
+-
+-extern void *bar (struct a *, struct a *, int);
+-
+-void *
+-foo (struct a *a, struct a *b, int c)
+-{
+-  struct a cc = *b;
+-  return bar (a, &cc, 4 * c);
+-}
+--- gcc/testsuite/gcc.target/i386/visibility-1.c.jj	2006-03-28 14:30:17.000000000 +0200
++++ gcc/testsuite/gcc.target/i386/visibility-1.c	2006-03-28 14:58:48.000000000 +0200
+@@ -0,0 +1,24 @@
++/* PR middle-end/20297 */
++/* The memcpy FUNCTION_DECL built in the middle-end for block moves got
++   hidden visibility from the first push, so the call didn't use the PLT.  */
++
++/* { dg-do compile { target { { i?86-*-linux* x86_64-*-linux* i?86-*-*bsd* x86_64-*-*bsd* } && ilp32 } } } */
++/* { dg-require-visibility "" } */
++/* { dg-options "-Os -fpic" } */
++/* { dg-final { scan-assembler "memcpy@PLT" } } */
++
++#pragma GCC visibility push(hidden)
++#pragma GCC visibility push(default)
++extern void* memcpy (void *, const void *, __SIZE_TYPE__);
++#pragma GCC visibility pop
++
++struct a { int a[10]; };
++
++extern void *bar (struct a *, struct a *, int);
++
++void *
++foo (struct a *a, struct a *b, int c)
++{
++  struct a cc = *b;
++  return bar (a, &cc, 4 * c);
++}

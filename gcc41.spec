@@ -1,6 +1,6 @@
-%define DATE 20060304
+%define DATE 20060328
 %define gcc_version 4.1.0
-%define gcc_release 3
+%define gcc_release 4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -108,6 +108,9 @@ Patch10: gcc41-x86_64-sse3.patch
 Patch11: gcc41-mni.patch
 Patch12: gcc41-cfaval.patch
 Patch13: gcc41-rh184446.patch
+Patch14: gcc41-pr21764.patch
+Patch15: gcc41-pr21581.patch
+Patch16: gcc41-pr20297-test.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -400,6 +403,9 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .mni~
 %patch12 -p0 -b .cfaval~
 %patch13 -p0 -b .rh184446~
+%patch14 -p0 -b .pr21764~
+%patch15 -p0 -b .pr21581~
+%patch16 -p0 -E -b .pr20297-test~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1417,12 +1423,38 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Mar 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-4
+- update from gcc-4_1-branch (-r111697:112431)
+  - PRs ada/25885, c/26004, fortran/17298, fortran/20935, fortran/20938,
+	fortran/23092, fortran/24519, fortran/24557, fortran/25045,
+	fortran/25054, fortran/25075, fortran/25089, fortran/25378,
+	fortran/25395, fortran/26041, fortran/26054, fortran/26064,
+	fortran/26107, fortran/26277, fortran/26393, fortran/26716,
+	fortran/26741, libfortran/21303, libfortran/24903, libgcj/24461,
+	libgcj/25713, libgcj/26103, libgcj/26688, libgcj/26706,
+	libgfortran/26499, libgfortran/26509, libgfortran/26554,
+	libgfortran/26661, libgfortran/26880, libstdc++/26132,
+	middle-end/18859, middle-end/19543, middle-end/26557,
+	middle-end/26630, other/26489, target/25917, target/26347,
+	target/26459, target/26532, target/26607, tree-optimization/26524,
+	tree-optimization/26587, tree-optimization/26672
+  - fix visibility and builtins interaction (Jason Merrill,
+    PR middle-end/20297, #175442)
+- merge gomp changes from trunk (-r112022:112023, -r112250:112251,
+  -r112252:112253, -r112350:112351 and -r112282:112283)
+  - PRs c++/26691, middle-end/26084, middle-end/26611, c++/26690,
+	middle-end/25989
+- support visibility attribute on namespaces (Jason Merrill, PR c++/21764,
+  PR c++/19238)
+- use hidden visibility for anonymous namespaces by default (Jason Merrill,
+  PR c++/21581)
+
 * Thu Mar  9 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.0-3
 - make ppc32 TLS PIC code sequences compatible with secure plt (#184446)
   (Richard Henderson and myself)
 
 * Sat Mar  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-2
-- update from -gcc-4_1-branch (-r111570:111697)
+- update from gcc-4_1-branch (-r111570:111697)
   - PRs c++/26291, libgfortran/26136, libgfortran/26423, libgfortran/26464,
 	libstdc++/26526, rtl-optimization/26345, target/19061, target/26453
 - handle DW_CFA_val_{offset,offset_sf,expression} in the libgcc{,_s} unwinder
