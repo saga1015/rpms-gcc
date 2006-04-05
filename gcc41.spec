@@ -1,6 +1,6 @@
-%define DATE 20060328
+%define DATE 20060405
 %define gcc_version 4.1.0
-%define gcc_release 4
+%define gcc_release 5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -403,9 +403,9 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .mni~
 %patch12 -p0 -b .cfaval~
 %patch13 -p0 -b .rh184446~
-%patch14 -p0 -b .pr21764~
-%patch15 -p0 -b .pr21581~
-%patch16 -p0 -E -b .pr20297-test~
+#%patch14 -p0 -b .pr21764~
+#%patch15 -p0 -b .pr21581~
+#%patch16 -p0 -E -b .pr20297-test~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1423,6 +1423,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Apr  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-5
+- update from gcc-4_1-branch (-r112431:112706)
+  - PRs bootstrap/26936, bootstrap/27023, classpath/25924, fortran/19303,
+	fortran/25358, fortran/26816, java/25414, java/26042, java/26858,
+	libfortran/26735, libgcj/26990, libstdc++/26777, testsuite/25741,
+	tree-optimization/18527, tree-optimization/26763,
+	tree-optimization/26830
+- merge gomp changes from trunk (-r112602:112603 and -r112618:112619)
+- temporarily revert PR c++/21764, c++/19238, c++/21581 fixes (#187399)
+
 * Tue Mar 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-4
 - update from gcc-4_1-branch (-r111697:112431)
   - PRs ada/25885, c/26004, fortran/17298, fortran/20935, fortran/20938,
