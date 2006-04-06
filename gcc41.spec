@@ -1,6 +1,6 @@
-%define DATE 20060405
+%define DATE 20060406
 %define gcc_version 4.1.0
-%define gcc_release 5
+%define gcc_release 6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -111,6 +111,9 @@ Patch13: gcc41-rh184446.patch
 Patch14: gcc41-pr21764.patch
 Patch15: gcc41-pr21581.patch
 Patch16: gcc41-pr20297-test.patch
+Patch17: gcc41-java-pr13212.patch
+Patch18: gcc41-objc-rh185398.patch
+Patch19: gcc41-pr27057.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -403,9 +406,12 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .mni~
 %patch12 -p0 -b .cfaval~
 %patch13 -p0 -b .rh184446~
-#%patch14 -p0 -b .pr21764~
+%patch14 -p0 -b .pr21764~
 #%patch15 -p0 -b .pr21581~
-#%patch16 -p0 -E -b .pr20297-test~
+%patch16 -p0 -E -b .pr20297-test~
+%patch17 -p0 -b .java-pr13212~
+%patch18 -p0 -b .objc-rh185398~
+%patch19 -p0 -b .pr27057~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1423,7 +1429,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Wed Apr  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-5
+* Thu Apr  6 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-6
+- update from gcc-4_1-branch (-r)
+  - PRs classpath/24752, classpath/27028, libgcj/26625, libgcj/27024,
+	tree-optimization/26996
+- reenable PR c++/19238, c++/21764 fixes, only PR c++/21581 is not
+  applied
+- better fix for Java GC vs. pthread_create (Bryce McKinlay, #,
+  PR libgcj/13212)
+- fix objc_push_parm (#185398)
+- fix ICE with -feliminate-dwarf2-dups and using namespace (#187787,
+  PR debug/27057)
+
+* Wed Apr  5 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-5
 - update from gcc-4_1-branch (-r112431:112706)
   - PRs bootstrap/26936, bootstrap/27023, classpath/25924, fortran/19303,
 	fortran/25358, fortran/26816, java/25414, java/26042, java/26858,

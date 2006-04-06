@@ -1,4 +1,4 @@
-2006-03-28  Jakub Jelinek  <jakub@redhat.com>
+2006-04-06  Jakub Jelinek  <jakub@redhat.com>
 
 	PR middle-end/20297
 	* gcc.dg/visibility-11.c: Moved to...
@@ -34,12 +34,13 @@
 -}
 --- gcc/testsuite/gcc.target/i386/visibility-1.c.jj	2006-03-28 14:30:17.000000000 +0200
 +++ gcc/testsuite/gcc.target/i386/visibility-1.c	2006-03-28 14:58:48.000000000 +0200
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,25 @@
 +/* PR middle-end/20297 */
 +/* The memcpy FUNCTION_DECL built in the middle-end for block moves got
 +   hidden visibility from the first push, so the call didn't use the PLT.  */
 +
-+/* { dg-do compile { target { { i?86-*-linux* x86_64-*-linux* i?86-*-*bsd* x86_64-*-*bsd* } && ilp32 } } } */
++/* { dg-do compile { target { { *-*-linux* *-*-*bsd* *-*-solaris2* *-*-elf* *-*-gnu* *-*-sysv[45]* } && ilp32 } } } */
++/* { dg-require-effective-target fpic } */
 +/* { dg-require-visibility "" } */
 +/* { dg-options "-Os -fpic" } */
 +/* { dg-final { scan-assembler "memcpy@PLT" } } */
