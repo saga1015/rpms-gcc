@@ -1,6 +1,6 @@
-%define DATE 20060406
+%define DATE 20060410
 %define gcc_version 4.1.0
-%define gcc_release 6
+%define gcc_release 7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -113,7 +113,10 @@ Patch15: gcc41-pr21581.patch
 Patch16: gcc41-pr20297-test.patch
 Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
-Patch19: gcc41-pr27057.patch
+Patch19: gcc41-gomp-static.patch
+Patch20: gcc41-pr22375.patch
+Patch21: gcc41-pr24685.patch
+Patch22: gcc41-rh183212.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -411,7 +414,10 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -E -b .pr20297-test~
 %patch17 -p0 -b .java-pr13212~
 %patch18 -p0 -b .objc-rh185398~
-%patch19 -p0 -b .pr27057~
+%patch19 -p0 -b .gomp-static~
+%patch20 -p0 -b .pr22375~
+%patch21 -p0 -b .pr24685~
+%patch22 -p0 -b .rh183212~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1429,13 +1435,24 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Apr 10 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-7
+- update from gcc-4_1-branch (-r112727:112825)
+  - PRs fortran/19101, fortran/25031, fortran/26779, fortran/26891,
+	fortran/26976, target/26508, tree-optimization/26919
+- fix libgfortran printing of REAL*16 for IEEE quad and IBM extended formats
+  (PR libgfortran/24685)
+- fix Fortran -fbounds-check (Roger Sayle, #188409, PR middle-end/22375)
+- fix Java StackTraceElement.toString() (Mark Wielaard, #183212,
+  PR classpath/27081)
+- fix -fopenmp -static
+
 * Thu Apr  6 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-6
-- update from gcc-4_1-branch (-r)
+- update from gcc-4_1-branch (-r112706:112727)
   - PRs classpath/24752, classpath/27028, libgcj/26625, libgcj/27024,
 	tree-optimization/26996
 - reenable PR c++/19238, c++/21764 fixes, only PR c++/21581 is not
   applied
-- better fix for Java GC vs. pthread_create (Bryce McKinlay, #,
+- better fix for Java GC vs. pthread_create (Bryce McKinlay, #182263,
   PR libgcj/13212)
 - fix objc_push_parm (#185398)
 - fix ICE with -feliminate-dwarf2-dups and using namespace (#187787,
