@@ -1,6 +1,6 @@
-%define DATE 20060410
+%define DATE 20060414
 %define gcc_version 4.1.0
-%define gcc_release 7
+%define gcc_release 8
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -113,10 +113,10 @@ Patch15: gcc41-pr21581.patch
 Patch16: gcc41-pr20297-test.patch
 Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
-Patch19: gcc41-gomp-static.patch
+Patch19: gcc41-pr26823.patch
 Patch20: gcc41-pr22375.patch
 Patch21: gcc41-pr24685.patch
-Patch22: gcc41-rh183212.patch
+Patch22: gcc41-rh188649-test.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -414,10 +414,10 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -E -b .pr20297-test~
 %patch17 -p0 -b .java-pr13212~
 %patch18 -p0 -b .objc-rh185398~
-%patch19 -p0 -b .gomp-static~
+%patch19 -p0 -b .pr26823~
 %patch20 -p0 -b .pr22375~
 %patch21 -p0 -b .pr24685~
-%patch22 -p0 -b .rh183212~
+%patch22 -p0 -b .rh188649-test~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1435,6 +1435,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Apr 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-8
+- update from gcc-4_1-branch (-r112825:112951)
+  - PRs c++/26122, c++/26295, fortran/23634, fortran/25619, fortran/26257,
+	libgcj/23829, libgcj/26522, libgfortran/26890, target/27006
+- merge gomp changes from trunk (-r112934:112935)
+  - PR libgomp/26651
+- fix ICE in gomp handling of EH regions (PR middle-end/26823)
+
 * Mon Apr 10 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-7
 - update from gcc-4_1-branch (-r112727:112825)
   - PRs fortran/19101, fortran/25031, fortran/26779, fortran/26891,
