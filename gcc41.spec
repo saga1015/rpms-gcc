@@ -568,6 +568,13 @@ cd ..
 echo ====================TESTING=========================
 ( ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
+mkdir testlogs-%{_target_platform}-%{version}-%{release}
+for i in `find . -name \*.log | grep testsuite/ | grep -v 'config.log\|acats\|ada'`; do
+  ln $i testlogs/ || :
+done
+tar cf - testlogs-%{_target_platform}-%{version}-%{release} | bzip2 -9c \
+  | uuencode testlogs-%{_target_platform}.tar.bz2 || :
+rm -rf testlogs-%{_target_platform}-%{version}-%{release}
 
 # Make protoize
 make -C gcc CC="./xgcc -B ./ -O2" proto
@@ -1464,6 +1471,7 @@ fi
 - fix pretty printing C array types (#188944)
 - fix ICE on unprototyped alloca (PR tree-optimization/26865)
 - fix truncation optimization overflow handling (PR middle-end/26729)
+- uuencode dejagnu testsuite log files in rpmbuild output
 
 * Fri Apr 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-8
 - update from gcc-4_1-branch (-r112825:112951)
