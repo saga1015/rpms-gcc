@@ -1,6 +1,6 @@
-%define DATE 20060414
+%define DATE 20060420
 %define gcc_version 4.1.0
-%define gcc_release 8
+%define gcc_release 9
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -113,10 +113,18 @@ Patch15: gcc41-pr21581.patch
 Patch16: gcc41-pr20297-test.patch
 Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
-Patch19: gcc41-pr26823.patch
-Patch20: gcc41-pr22375.patch
-Patch21: gcc41-pr24685.patch
-Patch22: gcc41-rh188649-test.patch
+Patch19: gcc41-pr22375.patch
+Patch20: gcc41-pr24685.patch
+Patch21: gcc41-rh188649-test.patch
+Patch22: gcc41-ppc64-ldouble-stdarg.patch
+Patch23: gcc41-pr25874.patch
+Patch24: gcc41-pr25989.patch
+Patch25: gcc41-pr25996.patch
+Patch26: gcc41-pr26171.patch
+Patch27: gcc41-pr26729.patch
+Patch28: gcc41-pr26865.patch
+Patch29: gcc41-pr26913.patch
+Patch30: gcc41-rh188944.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -414,10 +422,18 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -E -b .pr20297-test~
 %patch17 -p0 -b .java-pr13212~
 %patch18 -p0 -b .objc-rh185398~
-%patch19 -p0 -b .pr26823~
-%patch20 -p0 -b .pr22375~
-%patch21 -p0 -b .pr24685~
-%patch22 -p0 -b .rh188649-test~
+%patch19 -p0 -b .pr22375~
+%patch20 -p0 -b .pr24685~
+%patch21 -p0 -b .rh188649-test~
+%patch22 -p0 -b .ppc64-ldouble-stdarg~
+%patch23 -p0 -b .pr25874~
+%patch24 -p0 -b .pr25989~
+%patch25 -p0 -b .pr25996~
+%patch26 -p0 -b .pr26171~
+%patch27 -p0 -b .pr26729~
+%patch28 -p0 -b .pr26865~
+%patch29 -p0 -b .pr26913~
+%patch30 -p0 -b .rh188944~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1435,6 +1451,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Apr 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-9
+- update from gcc-4_1-branch (-r)
+  - PRs c++/10385, c++/26036, c++/26365, c++/26558, classpath/27163,
+	fortran/26769, libgcj/27171, libgfortran/26766, libstdc++/27162,
+	middle-end/27095, middle-end/27134, target/27182,
+	tree-optimization/26643, tree-optimization/26821,
+	tree-optimization/26854, tree-optimization/27087
+- fix ppc32 va_arg bug (Alan Modra)
+- assorted gomp fixes (PRs c++/25874, middle-end/25989, c/25996, c/26171,
+  middle-end/26913)
+- fix pretty printing C array types (#188944)
+- fix ICE on unprototyped alloca (PR tree-optimization/26865)
+- fix truncation optimization overflow handling (PR middle-end/26729)
+
 * Fri Apr 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-8
 - update from gcc-4_1-branch (-r112825:112951)
   - PRs c++/26122, c++/26295, fortran/23634, fortran/25619, fortran/26257,
