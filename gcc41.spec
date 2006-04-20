@@ -1452,7 +1452,7 @@ fi
 
 %changelog
 * Thu Apr 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-9
-- update from gcc-4_1-branch (-r)
+- update from gcc-4_1-branch (-r112951:113110)
   - PRs c++/10385, c++/26036, c++/26365, c++/26558, classpath/27163,
 	fortran/26769, libgcj/27171, libgfortran/26766, libstdc++/27162,
 	middle-end/27095, middle-end/27134, target/27182,
