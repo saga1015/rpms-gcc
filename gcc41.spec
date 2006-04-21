@@ -1,6 +1,6 @@
-%define DATE 20060420
+%define DATE 20060421
 %define gcc_version 4.1.0
-%define gcc_release 9
+%define gcc_release 10
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -114,8 +114,8 @@ Patch16: gcc41-pr20297-test.patch
 Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
 Patch19: gcc41-pr22375.patch
-Patch20: gcc41-pr24685.patch
-Patch21: gcc41-rh188649-test.patch
+Patch20: gcc41-tests.patch
+Patch21: gcc41-pr26769.patch
 Patch22: gcc41-ppc64-ldouble-stdarg.patch
 Patch23: gcc41-pr25874.patch
 Patch24: gcc41-pr25989.patch
@@ -125,6 +125,8 @@ Patch27: gcc41-pr26729.patch
 Patch28: gcc41-pr26865.patch
 Patch29: gcc41-pr26913.patch
 Patch30: gcc41-rh188944.patch
+Patch31: gcc41-rh137200.patch
+Patch32: gcc41-rh187450.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -423,8 +425,8 @@ which are required to run programs compiled with the GNAT.
 %patch17 -p0 -b .java-pr13212~
 %patch18 -p0 -b .objc-rh185398~
 %patch19 -p0 -b .pr22375~
-%patch20 -p0 -b .pr24685~
-%patch21 -p0 -b .rh188649-test~
+%patch20 -p0 -b .tests~
+%patch21 -p0 -b .pr26769~
 %patch22 -p0 -b .ppc64-ldouble-stdarg~
 %patch23 -p0 -b .pr25874~
 %patch24 -p0 -b .pr25989~
@@ -434,6 +436,8 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .pr26865~
 %patch29 -p0 -b .pr26913~
 %patch30 -p0 -b .rh188944~
+%patch31 -p0 -b .rh137200~
+%patch32 -p0 -b .rh187450~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -570,7 +574,7 @@ echo ====================TESTING=========================
 echo ====================TESTING END=====================
 mkdir testlogs-%{_target_platform}-%{version}-%{release}
 for i in `find . -name \*.log | grep testsuite/ | grep -v 'config.log\|acats\|ada'`; do
-  ln $i testlogs/ || :
+  ln $i testlogs-%{_target_platform}-%{version}-%{release}/ || :
 done
 tar cf - testlogs-%{_target_platform}-%{version}-%{release} | bzip2 -9c \
   | uuencode testlogs-%{_target_platform}.tar.bz2 || :
@@ -1458,6 +1462,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Apr 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-10
+- update from gcc-4_1-branch (-r113110:113149)
+  - PRs libgcj/21941, libgcj/27170, libgcj/27231, libgfortran/27138,
+	libstdc++/26424, mudflap/26789
+- improve dir/../-stripping code to support /usr/lib64 and /usr/lib in
+  separate AFS mountpoints (Alexandre Oliva, #137200)
+- fix fortran real(16) transpose and reshape on 32-bit architectures
+  (PR fortran/26769)
+- fix i?86/x86_64 vector extraction (Alexandre Oliva, #187450)
+- fix testcase for ppc32 va_arg bug
+- fix testsuite log uuencoding
+- fix acats timeout framework
+
 * Thu Apr 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-9
 - update from gcc-4_1-branch (-r112951:113110)
   - PRs c++/10385, c++/26036, c++/26365, c++/26558, classpath/27163,
