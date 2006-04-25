@@ -129,6 +129,7 @@ Patch31: gcc41-rh137200.patch
 Patch32: gcc41-rh187450.patch
 Patch33: gcc41-pr27236.patch
 Patch34: gcc41-pr27285.patch
+Patch35: gcc41-fortran-merge-glitch.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -442,6 +443,7 @@ which are required to run programs compiled with the GNAT.
 %patch32 -p0 -b .rh187450~
 %patch33 -p0 -b .pr27236~
 %patch34 -p0 -b .pr27285~
+%patch35 -p0 -b .fortran-merge-glitch~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
