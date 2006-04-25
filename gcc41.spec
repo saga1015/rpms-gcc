@@ -1,6 +1,6 @@
-%define DATE 20060421
+%define DATE 20060425
 %define gcc_version 4.1.0
-%define gcc_release 10
+%define gcc_release 11
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -115,7 +115,7 @@ Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
 Patch19: gcc41-pr22375.patch
 Patch20: gcc41-tests.patch
-Patch21: gcc41-pr26769.patch
+Patch21: gcc41-pr27218.patch
 Patch22: gcc41-ppc64-ldouble-stdarg.patch
 Patch23: gcc41-pr25874.patch
 Patch24: gcc41-pr25989.patch
@@ -127,6 +127,8 @@ Patch29: gcc41-pr26913.patch
 Patch30: gcc41-rh188944.patch
 Patch31: gcc41-rh137200.patch
 Patch32: gcc41-rh187450.patch
+Patch33: gcc41-pr27236.patch
+Patch34: gcc41-pr27285.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -426,7 +428,7 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .objc-rh185398~
 %patch19 -p0 -b .pr22375~
 %patch20 -p0 -b .tests~
-%patch21 -p0 -b .pr26769~
+%patch21 -p0 -b .pr27218~
 %patch22 -p0 -b .ppc64-ldouble-stdarg~
 %patch23 -p0 -b .pr25874~
 %patch24 -p0 -b .pr25989~
@@ -438,6 +440,8 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .rh188944~
 %patch31 -p0 -b .rh137200~
 %patch32 -p0 -b .rh187450~
+%patch33 -p0 -b .pr27236~
+%patch34 -p0 -b .pr27285~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1462,6 +1466,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Apr 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-11
+- update from gcc-4_1-branch (-r113149:113242)
+  - PRs c/25875, c/26774, fortran/18803, fortran/25597, fortran/25669,
+	fortran/26787, fortran/26822, fortran/26834, fortran/27089,
+	fortran/27113, fortran/27122, fortran/27124, target/21283,
+	target/26961
+- fix number of iterations computation (Zdenek Dvorak, #189376,
+  PR tree-optimization/27285)
+- fix handling of volatile in the inliner (Andrew Pinski, Richard Guenther,
+  PR tree-optimization/27236)
+- strip useless type conversions in the inliner (Andrew Pinski,
+  Richard Guenther, PR tree-optimization/27218)
+
 * Fri Apr 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-10
 - update from gcc-4_1-branch (-r113110:113149)
   - PRs libgcj/21941, libgcj/27170, libgcj/27231, libgfortran/27138,
