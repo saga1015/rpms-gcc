@@ -126,12 +126,12 @@ Patch28: gcc41-rh188944.patch
 Patch29: gcc41-rh137200.patch
 Patch30: gcc41-rh187450.patch
 Patch31: gcc41-pr27285.patch
-Patch32: gcc41-pr26943.patch
+Patch32: gcc41-pr27337.patch
 Patch33: gcc41-pr27260.patch
 Patch34: gcc41-pr27310.patch
 Patch35: gcc41-pr27325.patch
 Patch36: gcc41-pr27328.patch
-Patch37: gcc41-pr27337.patch
+Patch37: gcc41-pr26943.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -442,12 +442,12 @@ which are required to run programs compiled with the GNAT.
 %patch29 -p0 -b .rh137200~
 %patch30 -p0 -b .rh187450~
 %patch31 -p0 -b .pr27285~
-%patch32 -p0 -b .pr26943~
+%patch32 -p0 -b .pr27337~
 %patch33 -p0 -b .pr27260~
 %patch34 -p0 -b .pr27310~
 %patch35 -p0 -b .pr27325~
 %patch36 -p0 -b .pr27328~
-%patch37 -p0 -b .pr27337~
+%patch37 -p0 -b .pr26943~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
