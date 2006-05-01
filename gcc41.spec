@@ -1,6 +1,6 @@
-%define DATE 20060425
+%define DATE 20060501
 %define gcc_version 4.1.0
-%define gcc_release 11
+%define gcc_release 12
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -115,21 +115,24 @@ Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
 Patch19: gcc41-pr22375.patch
 Patch20: gcc41-tests.patch
-Patch21: gcc41-pr27218.patch
-Patch22: gcc41-ppc64-ldouble-stdarg.patch
-Patch23: gcc41-pr25874.patch
-Patch24: gcc41-pr25989.patch
-Patch25: gcc41-pr25996.patch
-Patch26: gcc41-pr26171.patch
-Patch27: gcc41-pr26729.patch
-Patch28: gcc41-pr26865.patch
-Patch29: gcc41-pr26913.patch
-Patch30: gcc41-rh188944.patch
-Patch31: gcc41-rh137200.patch
-Patch32: gcc41-rh187450.patch
-Patch33: gcc41-pr27236.patch
-Patch34: gcc41-pr27285.patch
-Patch35: gcc41-fortran-merge-glitch.patch
+Patch21: gcc41-ppc64-ldouble-stdarg.patch
+Patch22: gcc41-pr25874.patch
+Patch23: gcc41-pr25989.patch
+Patch24: gcc41-pr25996.patch
+Patch25: gcc41-pr26171.patch
+Patch26: gcc41-pr26729.patch
+Patch27: gcc41-pr26913.patch
+Patch28: gcc41-rh188944.patch
+Patch29: gcc41-rh137200.patch
+Patch30: gcc41-rh187450.patch
+Patch31: gcc41-pr27236.patch
+Patch32: gcc41-pr27285.patch
+Patch33: gcc41-pr26943.patch
+Patch34: gcc41-pr27260.patch
+Patch35: gcc41-pr27310.patch
+Patch36: gcc41-pr27325.patch
+Patch37: gcc41-pr27328.patch
+Patch38: gcc41-pr27337.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -429,21 +432,24 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .objc-rh185398~
 %patch19 -p0 -b .pr22375~
 %patch20 -p0 -b .tests~
-%patch21 -p0 -b .pr27218~
-%patch22 -p0 -b .ppc64-ldouble-stdarg~
-%patch23 -p0 -b .pr25874~
-%patch24 -p0 -b .pr25989~
-%patch25 -p0 -b .pr25996~
-%patch26 -p0 -b .pr26171~
-%patch27 -p0 -b .pr26729~
-%patch28 -p0 -b .pr26865~
-%patch29 -p0 -b .pr26913~
-%patch30 -p0 -b .rh188944~
-%patch31 -p0 -b .rh137200~
-%patch32 -p0 -b .rh187450~
-%patch33 -p0 -b .pr27236~
-%patch34 -p0 -b .pr27285~
-%patch35 -p0 -b .fortran-merge-glitch~
+%patch21 -p0 -b .ppc64-ldouble-stdarg~
+%patch22 -p0 -b .pr25874~
+%patch23 -p0 -b .pr25989~
+%patch24 -p0 -b .pr25996~
+%patch25 -p0 -b .pr26171~
+%patch26 -p0 -b .pr26729~
+%patch27 -p0 -b .pr26913~
+%patch28 -p0 -b .rh188944~
+%patch29 -p0 -b .rh137200~
+%patch30 -p0 -b .rh187450~
+%patch31 -p0 -b .pr27236~
+%patch32 -p0 -b .pr27285~
+%patch33 -p0 -b .pr26943~
+%patch34 -p0 -b .pr27260~
+%patch35 -p0 -b .pr27310~
+%patch36 -p0 -b .pr27325~
+%patch37 -p0 -b .pr27328~
+%patch38 -p0 -b .pr27337~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1468,6 +1474,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon May  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-12
+- update from gcc-4_1-branch (-r113242:113416)
+  - PRs c++/26534, c++/26912, c++/27094, c++/27278, c++/27279, fortran/26017,
+	libgfortran/20257, libgfortran/27304, libgfortran/27360,
+	libstdc++/26513, middle-end/26565, middle-end/26869,
+	rtl-optimization/26685, target/26826
+- merge gomp changes from trunk (-r113255:113256, -r113420:113421)
+  - PRs libgomp/25865, c/27358
+- assorted gomp fixes (PRs middle-end/27325, middle-end/27310,
+  middle-end/27328, middle-end/27337, c++/26943)
+- fix builtin memset (Alan Modra, PR middle-end/27260, PR middle-end/27095)
+
 * Tue Apr 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-11
 - update from gcc-4_1-branch (-r113149:113242)
   - PRs c/25875, c/26774, fortran/18803, fortran/25597, fortran/25669,
