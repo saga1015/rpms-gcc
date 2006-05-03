@@ -1,6 +1,6 @@
-%define DATE 20060501
+%define DATE 20060503
 %define gcc_version 4.1.0
-%define gcc_release 12
+%define gcc_release 13
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -117,22 +117,15 @@ Patch19: gcc41-pr22375.patch
 Patch20: gcc41-tests.patch
 Patch21: gcc41-ppc64-ldouble-stdarg.patch
 Patch22: gcc41-pr25874.patch
-Patch23: gcc41-pr25989.patch
-Patch24: gcc41-pr25996.patch
-Patch25: gcc41-pr26171.patch
+Patch23: gcc41-pr27359.patch
+Patch24: gcc41-pr27388.patch
+Patch25: gcc41-rh177450.patch
 Patch26: gcc41-pr26729.patch
-Patch27: gcc41-pr26913.patch
-Patch28: gcc41-rh188944.patch
-Patch29: gcc41-rh137200.patch
-Patch30: gcc41-rh187450.patch
-Patch31: gcc41-pr27285.patch
-Patch32: gcc41-pr27337.patch
-Patch33: gcc41-pr27260.patch
-Patch34: gcc41-pr27310.patch
-Patch35: gcc41-pr27325.patch
-Patch36: gcc41-pr27328.patch
-Patch37: gcc41-pr26943.patch
-
+Patch27: gcc41-rh188944.patch
+Patch28: gcc41-rh137200.patch
+Patch29: gcc41-rh187450.patch
+Patch30: gcc41-pr27285.patch
+Patch31: gcc41-pr27260.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -433,21 +426,15 @@ which are required to run programs compiled with the GNAT.
 %patch20 -p0 -b .tests~
 %patch21 -p0 -b .ppc64-ldouble-stdarg~
 %patch22 -p0 -b .pr25874~
-%patch23 -p0 -b .pr25989~
-%patch24 -p0 -b .pr25996~
-%patch25 -p0 -b .pr26171~
+%patch23 -p0 -b .pr27359~
+%patch24 -p0 -b .pr27388~
+%patch25 -p0 -b .rh177450~
 %patch26 -p0 -b .pr26729~
-%patch27 -p0 -b .pr26913~
-%patch28 -p0 -b .rh188944~
-%patch29 -p0 -b .rh137200~
-%patch30 -p0 -b .rh187450~
-%patch31 -p0 -b .pr27285~
-%patch32 -p0 -b .pr27337~
-%patch33 -p0 -b .pr27260~
-%patch34 -p0 -b .pr27310~
-%patch35 -p0 -b .pr27325~
-%patch36 -p0 -b .pr27328~
-%patch37 -p0 -b .pr26943~
+%patch27 -p0 -b .rh188944~
+%patch28 -p0 -b .rh137200~
+%patch29 -p0 -b .rh187450~
+%patch30 -p0 -b .pr27285~
+%patch31 -p0 -b .pr27260~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -562,12 +549,12 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--host=%{gcc_target_platform}
 %endif
 
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
-#%ifarch %{ix86} x86_64
-#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
-#%else
-#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap-lean
-#%endif
+#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+%ifarch %{ix86} x86_64 ppc ppc64
+GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+%else
+GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap-lean
+%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check RUNTESTFLAGS="ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++" || :
@@ -954,6 +941,17 @@ rm -f $FULLEPATH/install-tools/{mkheaders,fixincl}
 rm -f $RPM_BUILD_ROOT%{_prefix}/lib/{32,64}/libiberty.a
 rm -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libssp*
 
+%ifarch %{multilib_64_archs}
+# Remove libraries for the other arch on multilib arches
+rm -f $RPM_BUILD_ROOT%{_prefix}/lib/lib*.so*
+rm -f $RPM_BUILD_ROOT%{_prefix}/lib/lib*.a
+%else
+%ifarch sparc ppc
+rm -f $RPM_BUILD_ROOT%{_prefix}/lib64/lib*.so*
+rm -f $RPM_BUILD_ROOT%{_prefix}/lib64/lib*.a
+%endif
+%endif
+
 %if %{build_java}
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/java/gcj-endorsed \
 	 $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
@@ -1095,6 +1093,7 @@ fi
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/SYSCALLS.c.X
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stddef.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdarg.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/varargs.h
@@ -1472,6 +1471,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed May  3 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-13
+- update from gcc-4_1-branch (-r113416:113489)
+  - PRs c/25309, target/27374, target/27387, tree-optimization/27364
+- merge gomp changes from trunk (-r113267:113271, -r113411:113412,
+  -r113452:113456, -r113482:113483, -r113493:113494)
+  - PR fortran/27395
+- additional gomp fixes (PRs c++/27359, middle-end/27388)
+- package SYSCALLS.c.X for protize (#190047)
+- fix gcj -fprofile-arcs -ftest-coverage (Alexandre Oliva, #177450)
+- reenable profiledbootstrap
+- in 64-bit builds remove 32-bit /usr/lib/lib* libraries from the
+  buildroots (and similarly on 32-bit builds remove 64-bit /usr/lib64/lib*)
+  before AutoReq generation (#190541)
+
 * Mon May  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-12
 - update from gcc-4_1-branch (-r113242:113416)
   - PRs c++/26534, c++/26912, c++/27094, c++/27278, c++/27279, fortran/26017,
