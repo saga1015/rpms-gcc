@@ -1,3 +1,13 @@
+2006-05-05  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.dg/tls/opt-12.c: New test.
+
+2006-04-25  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.dg/20060425-2.c: New test.
+
+	* g++.dg/opt/pr15054-2.C: New test.
+
 2006-04-20  Jakub Jelinek  <jakub@redhat.com>
 
 	* gcc.c-torture/execute/20060420-1.c: New test.
@@ -146,5 +156,79 @@
 +    abort ();
 +  if (q - p > 0)
 +    abort ();
++  return 0;
++}
+--- gcc/testsuite/g++.dg/opt/pr15054-2.C	2006-04-19 19:21:31.748476000 +0200
++++ gcc/testsuite/g++.dg/opt/pr15054-2.C	2006-04-25 15:55:07.000000000 +0200
+@@ -0,0 +1,39 @@
++// PR middle-end/15054
++
++// { dg-do run }
++// { dg-options "-O2" }
++
++extern "C" void abort (void);
++
++void
++__attribute__((noinline))
++check (long x, long y)
++{
++  if (x != y)
++    abort ();
++}
++
++struct A
++{
++  A() : a(2) { check (a, 2); }
++  ~A() { check (a, 2); }
++private:
++  long a;
++};
++
++class B {
++  long b;
++  B& operator =(const B& );
++public:
++  B (long p) : b(p) { check (b, 6); }
++  B (const B& p) : b(p.b) { check (b, 6); }
++  ~B () { check (b, 6); A obj; check (b, 6); }
++  B foo() { return B(*this); }
++};
++
++int main ()
++{
++  B o(6);
++  o.foo().foo();
++  return 0;
++}
+--- gcc/testsuite/gcc.dg/20060425-2.c	2004-06-24 14:04:38.000000000 -0400
++++ gcc/testsuite/gcc.dg/20060425-2.c	2006-04-25 09:15:04.000000000 -0400
+@@ -0,0 +1,10 @@
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++
++double
++crashme (double v, double *p)
++{
++  if (v < 0. && *p == 1.)
++    v = 0.;
++  return v;
++}
+--- gcc/testsuite/gcc.dg/tls/opt-12.c	2006-04-19 19:21:31.748476000 +0200
++++ gcc/testsuite/gcc.dg/tls/opt-12.c	2006-05-05 11:01:33.000000000 +0200
+@@ -0,0 +1,16 @@
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++/* { dg-require-effective-target tls } */
++
++__thread struct
++{
++  int a;
++  char b[32];
++} thr;
++
++int
++main ()
++{
++  __builtin_strcpy (thr.b, "abcd");
 +  return 0;
 +}

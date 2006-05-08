@@ -1,6 +1,6 @@
-%define DATE 20060503
+%define DATE 20060508
 %define gcc_version 4.1.0
-%define gcc_release 13
+%define gcc_release 14
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -124,8 +124,10 @@ Patch26: gcc41-pr26729.patch
 Patch27: gcc41-rh188944.patch
 Patch28: gcc41-rh137200.patch
 Patch29: gcc41-rh187450.patch
-Patch30: gcc41-pr27285.patch
-Patch31: gcc41-pr27260.patch
+Patch30: gcc41-pr27260.patch
+Patch31: gcc41-pr27136.patch
+Patch32: gcc41-pr27409.patch
+Patch33: gcc41-pr27421.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -433,8 +435,10 @@ which are required to run programs compiled with the GNAT.
 %patch27 -p0 -b .rh188944~
 %patch28 -p0 -b .rh137200~
 %patch29 -p0 -b .rh187450~
-%patch30 -p0 -b .pr27285~
-%patch31 -p0 -b .pr27260~
+%patch30 -p0 -b .pr27260~
+%patch31 -p0 -b .pr27136~
+%patch32 -p0 -b .pr27409~
+%patch33 -p0 -b .pr27421~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1471,6 +1475,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon May  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-14
+- update from gcc-4_1-branch (-r113489:113623)
+  - PRs c++/27422, c++/27427, fortran/24813, fortran/25099, fortran/25681,
+	fortran/27269, fortran/27324, libfortran/26985, objc/27240,
+	target/26481, target/26765, tree-optimization/25985,
+	tree-optimization/27151
+- fix zero size field handling in structalias (Richard Guenther,
+  PR tree-optimization/27409)
+- fix PR tree-optimization/27136 (Richard Guenther)
+- fix classification of invalid struct types on x86_64 (Volker Reichelt,
+  PR target/27421)
+
 * Wed May  3 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-13
 - update from gcc-4_1-branch (-r113416:113489)
   - PRs c/25309, target/27374, target/27387, tree-optimization/27364
@@ -1478,7 +1494,7 @@ fi
   -r113452:113456, -r113482:113483, -r113493:113494)
   - PR fortran/27395
 - additional gomp fixes (PRs c++/27359, middle-end/27388)
-- package SYSCALLS.c.X for protize (#190047)
+- package SYSCALLS.c.X for protoize (#190047)
 - fix gcj -fprofile-arcs -ftest-coverage (Alexandre Oliva, #177450)
 - reenable profiledbootstrap
 - in 64-bit builds remove 32-bit /usr/lib/lib* libraries from the
