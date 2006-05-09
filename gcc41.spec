@@ -1,6 +1,6 @@
-%define DATE 20060508
+%define DATE 20060509
 %define gcc_version 4.1.0
-%define gcc_release 14
+%define gcc_release 15
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -106,28 +106,21 @@ Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
 Patch10: gcc41-x86_64-sse3.patch
 Patch11: gcc41-mni.patch
-Patch12: gcc41-cfaval.patch
+Patch12: gcc41-pr27335.patch
 Patch13: gcc41-rh184446.patch
 Patch14: gcc41-pr21764.patch
 Patch15: gcc41-pr21581.patch
 Patch16: gcc41-pr20297-test.patch
 Patch17: gcc41-java-pr13212.patch
 Patch18: gcc41-objc-rh185398.patch
-Patch19: gcc41-pr22375.patch
-Patch20: gcc41-tests.patch
-Patch21: gcc41-ppc64-ldouble-stdarg.patch
-Patch22: gcc41-pr25874.patch
-Patch23: gcc41-pr27359.patch
-Patch24: gcc41-pr27388.patch
-Patch25: gcc41-rh177450.patch
-Patch26: gcc41-pr26729.patch
-Patch27: gcc41-rh188944.patch
-Patch28: gcc41-rh137200.patch
-Patch29: gcc41-rh187450.patch
-Patch30: gcc41-pr27260.patch
-Patch31: gcc41-pr27136.patch
-Patch32: gcc41-pr27409.patch
-Patch33: gcc41-pr27421.patch
+Patch19: gcc41-tests.patch
+Patch20: gcc41-ppc64-ldouble-stdarg.patch
+Patch21: gcc41-pr25874.patch
+Patch22: gcc41-pr27388.patch
+Patch23: gcc41-pr26729.patch
+Patch24: gcc41-pr27136.patch
+Patch25: gcc41-pr27409.patch
+Patch26: gcc41-pr27421.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -417,28 +410,21 @@ which are required to run programs compiled with the GNAT.
 %patch9 -p0 -b .ppc32-retaddr~
 %patch10 -p0 -b .x86_64-sse3~
 %patch11 -p0 -b .mni~
-%patch12 -p0 -b .cfaval~
+%patch12 -p0 -b .pr27335~
 %patch13 -p0 -b .rh184446~
 %patch14 -p0 -b .pr21764~
 #%patch15 -p0 -b .pr21581~
-%patch16 -p0 -E -b .pr20297-test~
+%patch16 -p0 -b .pr20297-test~
 %patch17 -p0 -b .java-pr13212~
 %patch18 -p0 -b .objc-rh185398~
-%patch19 -p0 -b .pr22375~
-%patch20 -p0 -b .tests~
-%patch21 -p0 -b .ppc64-ldouble-stdarg~
-%patch22 -p0 -b .pr25874~
-%patch23 -p0 -b .pr27359~
-%patch24 -p0 -b .pr27388~
-%patch25 -p0 -b .rh177450~
-%patch26 -p0 -b .pr26729~
-%patch27 -p0 -b .rh188944~
-%patch28 -p0 -b .rh137200~
-%patch29 -p0 -b .rh187450~
-%patch30 -p0 -b .pr27260~
-%patch31 -p0 -b .pr27136~
-%patch32 -p0 -b .pr27409~
-%patch33 -p0 -b .pr27421~
+%patch19 -p0 -b .tests~
+%patch20 -p0 -b .ppc64-ldouble-stdarg~
+%patch21 -p0 -b .pr25874~
+%patch22 -p0 -b .pr27388~
+%patch23 -p0 -b .pr26729~
+%patch24 -p0 -b .pr27136~
+%patch25 -p0 -b .pr27409~
+%patch26 -p0 -b .pr27421~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1475,6 +1461,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue May  9 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-15
+- update from gcc-4_1-branch (-r113623:113637)
+  - PR fortran/27378
+- update from trunk (-r109500:109501, -r109670:109671, -r111341:111342,
+		     -r111704:111705, -r112546:112547, -r113111:113112,
+		     -r113339:113341, -r113511:113513)
+- fix loop peeling (Zdenek Dvorak, #190039, PR rtl-optimization/27335)
+
 * Mon May  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-14
 - update from gcc-4_1-branch (-r113489:113623)
   - PRs c++/27422, c++/27427, fortran/24813, fortran/25099, fortran/25681,
