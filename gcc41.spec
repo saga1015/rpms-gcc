@@ -1,6 +1,6 @@
-%define DATE 20060509
+%define DATE 20060512
 %define gcc_version 4.1.0
-%define gcc_release 15
+%define gcc_release 16
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -118,9 +118,11 @@ Patch20: gcc41-ppc64-ldouble-stdarg.patch
 Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr27388.patch
 Patch23: gcc41-pr26729.patch
-Patch24: gcc41-pr27136.patch
-Patch25: gcc41-pr27409.patch
-Patch26: gcc41-pr27421.patch
+Patch24: gcc41-dsohandle.patch
+Patch25: gcc41-pr26881.patch
+Patch26: gcc41-pr27532.patch
+Patch27: gcc41-pr27549.patch
+Patch28: gcc41-pr27548.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -414,7 +416,7 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .rh184446~
 %patch14 -p0 -b .pr21764~
 #%patch15 -p0 -b .pr21581~
-%patch16 -p0 -b .pr20297-test~
+%patch16 -p0 -E -b .pr20297-test~
 %patch17 -p0 -b .java-pr13212~
 %patch18 -p0 -b .objc-rh185398~
 %patch19 -p0 -b .tests~
@@ -422,9 +424,11 @@ which are required to run programs compiled with the GNAT.
 %patch21 -p0 -b .pr25874~
 %patch22 -p0 -b .pr27388~
 %patch23 -p0 -b .pr26729~
-%patch24 -p0 -b .pr27136~
-%patch25 -p0 -b .pr27409~
-%patch26 -p0 -b .pr27421~
+%patch24 -p0 -b .dsohandle~
+%patch25 -p0 -b .pr26881~
+%patch26 -p0 -b .pr27532~
+%patch27 -p0 -b .pr27549~
+%patch28 -p0 -b .pr27548~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -750,6 +754,12 @@ fi
 #      $RPM_BUILD_ROOT%{_prefix}/%{_lib}/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/classpath/libgjsmalsa.so* \
       $RPM_BUILD_ROOT%{_prefix}/%{_lib}/
+
+if [ "%{_lib}" != "lib" ]; then
+  mkdir -p $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig
+  sed '/^libdir/s/lib$/%{_lib}/' $RPM_BUILD_ROOT%{_prefix}/lib/pkgconfig/libgcj.pc \
+    > $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig/libgcj.pc
+fi
 %endif
 
 pushd $FULLPATH
@@ -1390,7 +1400,7 @@ fi
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
 %{_prefix}/include/c++/%{gcc_version}/[gj]*
-%{_prefix}/lib/pkgconfig/libgcj.pc
+%{_prefix}/%{_lib}/pkgconfig/libgcj.pc
 %doc rpm.doc/boehm-gc/* rpm.doc/fastjar/* rpm.doc/libffi/*
 %doc rpm.doc/libjava/*
 %endif
@@ -1461,6 +1471,21 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri May 12 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-16
+- update from gcc-4_1-branch (-r113637:113722)
+  - PRs bootstrap/26872, c++/27547, fortran/20460, fortran/24549,
+	middle-end/27384, middle-end/27488, target/26545, target/27158
+- fix libgcj.pc location and content on x86_64, ppc64 and s390x (#185230)
+- make __dso_handle const, so that it is added into .data.rel.ro section
+  in shared libraries
+- fix a typo in __builtin_object_size computation (Richard Guenther,
+  PR tree-optimization/27532)
+- fix ICE on -O0 -g if static local variables are in unreachable code blocks
+  (Jan Hubicka, PR debug/26881)
+- fix ICEs with conflicts across abnormal edges (Zdenek Dvorak,
+  PRs tree-optimization/27283, tree-optimization/27548,
+  tree-optimization/27549)
+
 * Tue May  9 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-15
 - update from gcc-4_1-branch (-r113623:113637)
   - PR fortran/27378
