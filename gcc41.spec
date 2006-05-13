@@ -123,6 +123,10 @@ Patch25: gcc41-pr26881.patch
 Patch26: gcc41-pr27532.patch
 Patch27: gcc41-pr27549.patch
 Patch28: gcc41-pr27548.patch
+Patch29: gcc41-omp-nesting-warn.patch
+Patch30: gcc41-pr27446.patch
+Patch31: gcc41-pr27416.patch
+Patch32: gcc41-pr27499.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -429,6 +433,10 @@ which are required to run programs compiled with the GNAT.
 %patch26 -p0 -b .pr27532~
 %patch27 -p0 -b .pr27549~
 %patch28 -p0 -b .pr27548~
+%patch29 -p0 -b .omp-nesting-warn~
+%patch30 -p0 -b .pr27446~
+%patch31 -p0 -b .pr27416~
+%patch32 -p0 -b .pr27499~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1471,7 +1479,7 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Fri May 12 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-16
+* Sat May 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-16
 - update from gcc-4_1-branch (-r113637:113722)
   - PRs bootstrap/26872, c++/27547, fortran/20460, fortran/24549,
 	middle-end/27384, middle-end/27488, target/26545, target/27158
@@ -1485,6 +1493,11 @@ fi
 - fix ICEs with conflicts across abnormal edges (Zdenek Dvorak,
   PRs tree-optimization/27283, tree-optimization/27548,
   tree-optimization/27549)
+- warn about OpenMP section 2.9 region nesting violations
+- fix OpenMP fortran array REDUCTION with -fbounds-check (PR fortran/27446)
+- fix OpenMP {{FIRST,LAST}PRIVATE,REDUCTION} in orphaned construct on
+  Fortran dummy argument (PR middle-end/27416)
+- fix ICE on #pragma omp for unsigned iteration variable (PR c/27499)
 
 * Tue May  9 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-15
 - update from gcc-4_1-branch (-r113623:113637)
