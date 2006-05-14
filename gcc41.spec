@@ -548,7 +548,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--with-cpu=generic \
 %endif
 %ifarch s390 s390x
-	--with-tune=z9-900 \
+	--with-tune=z9-109 \
 %endif
 %ifnarch sparc ppc
 	--host=%{gcc_target_platform}
