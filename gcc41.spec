@@ -1,6 +1,6 @@
 %define DATE 20060512
 %define gcc_version 4.1.0
-%define gcc_release 16
+%define gcc_release 17
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -547,16 +547,15 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %ifarch %{ix86} x86_64
 	--with-cpu=generic \
 %endif
+%ifarch s390 s390x
+	--with-tune=z9-900 \
+%endif
 %ifnarch sparc ppc
 	--host=%{gcc_target_platform}
 %endif
 
 #GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
-%ifarch %{ix86} x86_64 ppc ppc64
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
-%else
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap-lean
-%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check RUNTESTFLAGS="ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++" || :
@@ -1479,6 +1478,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sun May 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-17
+- make -mtune=z9-109 the default on s390{,x} (#184630)
+
 * Sat May 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-16
 - update from gcc-4_1-branch (-r113637:113722)
   - PRs bootstrap/26872, c++/27547, fortran/20460, fortran/24549,
