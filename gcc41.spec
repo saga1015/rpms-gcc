@@ -1,6 +1,6 @@
-%define DATE 20060512
+%define DATE 20060515
 %define gcc_version 4.1.0
-%define gcc_release 17
+%define gcc_release 18
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -106,7 +106,7 @@ Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
 Patch10: gcc41-x86_64-sse3.patch
 Patch11: gcc41-mni.patch
-Patch12: gcc41-pr27335.patch
+Patch12: gcc41-dsohandle.patch
 Patch13: gcc41-rh184446.patch
 Patch14: gcc41-pr21764.patch
 Patch15: gcc41-pr21581.patch
@@ -117,16 +117,11 @@ Patch19: gcc41-tests.patch
 Patch20: gcc41-ppc64-ldouble-stdarg.patch
 Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr27388.patch
-Patch23: gcc41-pr26729.patch
-Patch24: gcc41-dsohandle.patch
-Patch25: gcc41-pr26881.patch
-Patch26: gcc41-pr27532.patch
-Patch27: gcc41-pr27549.patch
-Patch28: gcc41-pr27548.patch
-Patch29: gcc41-omp-nesting-warn.patch
-Patch30: gcc41-pr27446.patch
-Patch31: gcc41-pr27416.patch
-Patch32: gcc41-pr27499.patch
+Patch23: gcc41-pr26881.patch
+Patch24: gcc41-pr27532.patch
+Patch25: gcc41-pr27549.patch
+Patch26: gcc41-pr27548.patch
+Patch27: gcc41-pr27499.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -416,7 +411,7 @@ which are required to run programs compiled with the GNAT.
 %patch9 -p0 -b .ppc32-retaddr~
 %patch10 -p0 -b .x86_64-sse3~
 %patch11 -p0 -b .mni~
-%patch12 -p0 -b .pr27335~
+%patch12 -p0 -b .dsohandle~
 %patch13 -p0 -b .rh184446~
 %patch14 -p0 -b .pr21764~
 #%patch15 -p0 -b .pr21581~
@@ -427,16 +422,11 @@ which are required to run programs compiled with the GNAT.
 %patch20 -p0 -b .ppc64-ldouble-stdarg~
 %patch21 -p0 -b .pr25874~
 %patch22 -p0 -b .pr27388~
-%patch23 -p0 -b .pr26729~
-%patch24 -p0 -b .dsohandle~
-%patch25 -p0 -b .pr26881~
-%patch26 -p0 -b .pr27532~
-%patch27 -p0 -b .pr27549~
-%patch28 -p0 -b .pr27548~
-%patch29 -p0 -b .omp-nesting-warn~
-%patch30 -p0 -b .pr27446~
-%patch31 -p0 -b .pr27416~
-%patch32 -p0 -b .pr27499~
+%patch23 -p0 -b .pr26881~
+%patch24 -p0 -b .pr27532~
+%patch25 -p0 -b .pr27549~
+%patch26 -p0 -b .pr27548~
+%patch27 -p0 -b .pr27499~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1478,6 +1468,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon May 15 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-18
+- update from -gcc-4_1-branch (-r113722:113785)
+  - PRs c++/27315, c++/27581, c++/27582, rtl-optimization/22563
+- merge gomp changes from the trunk (-r113786:113790)
+
 * Sun May 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-17
 - make -mtune=z9-109 the default on s390{,x} (#184630)
 

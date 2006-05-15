@@ -13,7 +13,7 @@
  #endif
  #ifdef CRTSTUFFS_O
 -void *__dso_handle = &__dso_handle;
-+void *const __dso_handle = &__dso_handle;
++void *const __dso_handle = (void *) &__dso_handle;
  #else
 -void *__dso_handle = 0;
 +void *const __dso_handle = 0;
