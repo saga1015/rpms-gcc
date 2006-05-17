@@ -1,6 +1,6 @@
-%define DATE 20060515
+%define DATE 20060517
 %define gcc_version 4.1.0
-%define gcc_release 18
+%define gcc_release 19
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -116,12 +116,9 @@ Patch18: gcc41-objc-rh185398.patch
 Patch19: gcc41-tests.patch
 Patch20: gcc41-ppc64-ldouble-stdarg.patch
 Patch21: gcc41-pr25874.patch
-Patch22: gcc41-pr27388.patch
-Patch23: gcc41-pr26881.patch
-Patch24: gcc41-pr27532.patch
-Patch25: gcc41-pr27549.patch
-Patch26: gcc41-pr27548.patch
-Patch27: gcc41-pr27499.patch
+Patch22: gcc41-pr26881.patch
+Patch23: gcc41-pr27532.patch
+Patch24: gcc41-pr27620.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -421,12 +418,9 @@ which are required to run programs compiled with the GNAT.
 %patch19 -p0 -b .tests~
 %patch20 -p0 -b .ppc64-ldouble-stdarg~
 %patch21 -p0 -b .pr25874~
-%patch22 -p0 -b .pr27388~
-%patch23 -p0 -b .pr26881~
-%patch24 -p0 -b .pr27532~
-%patch25 -p0 -b .pr27549~
-%patch26 -p0 -b .pr27548~
-%patch27 -p0 -b .pr27499~
+%patch22 -p0 -b .pr26881~
+%patch23 -p0 -b .pr27532~
+%patch24 -p0 -b .pr27620~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1468,8 +1462,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed May 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-19
+- update from gcc-4_1-branch (-r113785:113848)
+  - PRs c++/26757, c++/27339, c++/27491, driver/26885, rtl-optimization/14261,
+	target/26600, tree-optimization/27603
+- merge gomp changes from the trunk (-r113513:113514, -r113821:113823 and
+  -r113845:113846)
+  - PRs middle-end/27415, middle-end/27573
+- optimize handling of large CONSTRUCTORs (Bernd Schmidt,
+  PR middle-end/27620)
+
 * Mon May 15 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-18
-- update from -gcc-4_1-branch (-r113722:113785)
+- update from gcc-4_1-branch (-r113722:113785)
   - PRs c++/27315, c++/27581, c++/27582, rtl-optimization/22563
 - merge gomp changes from the trunk (-r113786:113790)
 
