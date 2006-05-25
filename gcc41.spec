@@ -1,6 +1,6 @@
-%define DATE 20060517
-%define gcc_version 4.1.0
-%define gcc_release 19
+%define DATE 20060525
+%define gcc_version 4.1.1
+%define gcc_release 1
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -118,7 +118,10 @@ Patch20: gcc41-ppc64-ldouble-stdarg.patch
 Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27532.patch
-Patch24: gcc41-pr27620.patch
+Patch24: gcc41-pr26885.patch
+Patch25: gcc41-pr27758.patch
+Patch26: gcc41-rh192700.patch
+Patch27: gcc41-sw2438.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -420,7 +423,10 @@ which are required to run programs compiled with the GNAT.
 %patch21 -p0 -b .pr25874~
 %patch22 -p0 -b .pr26881~
 %patch23 -p0 -b .pr27532~
-%patch24 -p0 -b .pr27620~
+%patch24 -p0 -b .pr26885~
+%patch25 -p0 -b .pr27758~
+%patch26 -p0 -b .rh192700~
+%patch27 -p0 -b .sw2438~
 
 sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1462,6 +1468,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu May 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-1
+- update from gcc-4_1-branch (-r113848:114107)
+  - GCC 4.1.1 release
+  - PR fortran/27553
+- fix i386/x86_64 -O0 -fpic link failure (#192816, PR target/27758)
+- fix gcjh on 64-bit hosts (#192700)
+- -fvar-tracking fixes needed for SystemTap (Alexandre Oliva, BZ#2438)
+
 * Wed May 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.0-19
 - update from gcc-4_1-branch (-r113785:113848)
   - PRs c++/26757, c++/27339, c++/27491, driver/26885, rtl-optimization/14261,
