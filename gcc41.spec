@@ -428,7 +428,7 @@ which are required to run programs compiled with the GNAT.
 %patch26 -p0 -b .rh192700~
 %patch27 -p0 -b .sw2438~
 
-sed -i -e 's/4\.1\.1/4.1.0/' gcc/BASE-VER gcc/version.c
+sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
 
 sed -i -e 's/libjawt/libgcjawt/g' libjava/Makefile.{am,in}
