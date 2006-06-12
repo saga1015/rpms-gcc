@@ -119,6 +119,7 @@ Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
+Patch25: gcc41-fortran-merge-glitch.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -421,6 +422,7 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .pr26881~
 %patch23 -p0 -b .pr27793~
 %patch24 -p0 -b .pr26885~
+%patch25 -p0 -b .fortran-merge-glitch~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
