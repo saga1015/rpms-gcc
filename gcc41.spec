@@ -1,6 +1,6 @@
-%define DATE 20060525
+%define DATE 20060612
 %define gcc_version 4.1.1
-%define gcc_release 1
+%define gcc_release 2
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -119,7 +119,7 @@ Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27532.patch
 Patch24: gcc41-pr26885.patch
-Patch25: gcc41-pr27758.patch
+Patch25: gcc41-pr27793.patch
 Patch26: gcc41-rh192700.patch
 Patch27: gcc41-sw2438.patch
 %define _gnu %{nil}
@@ -424,7 +424,7 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .pr26881~
 %patch23 -p0 -b .pr27532~
 %patch24 -p0 -b .pr26885~
-%patch25 -p0 -b .pr27758~
+%patch25 -p0 -b .pr27793~
 %patch26 -p0 -b .rh192700~
 %patch27 -p0 -b .sw2438~
 
@@ -1468,6 +1468,27 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Jun 12 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-2
+- update from gcc-4_1-branch (-r114107:114555)
+  - PRs ada/27769, c++/20173, c++/26068, c++/26433, c++/26496, c++/27177,
+	c++/27385, c++/27447, c++/27451, c++/27601, c++/27713, c++/27716,
+	c++/27722, c++/27801, c++/27806, c++/27807, c++/27819, c/25161,
+	c/26818, c/27020, c/27718, fortran/14067, fortran/16943,
+	fortran/18003, fortran/19015, fortran/19777, fortran/20839,
+	fortran/20877, fortran/23091, fortran/23151, fortran/24168,
+	fortran/24558, fortran/25047, fortran/25058, fortran/25082,
+	fortran/25090, fortran/25098, fortran/25147, fortran/25746,
+	fortran/26551, fortran/27155, fortran/27320, fortran/27411,
+	fortran/27449, fortran/27470, fortran/27524, fortran/27552,
+	fortran/27584, fortran/27613, fortran/27655, fortran/27662,
+	fortran/27709, fortran/27897, libgcj/26483, libgfortran/24459,
+	libgfortran/27757, middle-end/27743, middle-end/27793,
+	target/25758, target/26223, target/27790, target/27842,
+	testsuite/27705, tree-optimization/26242, tree-optimization/26622
+- merge gomp changes from the trunk (-r114518:114520 and -r114524:114525)
+  - PRs preprocessor/27746, c/27747, c++/27748, fortran/27916
+- don't generate decls with the same DECL_UID in C++ FE (PR middle-end/27793)
+
 * Thu May 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-1
 - update from gcc-4_1-branch (-r113848:114107)
   - GCC 4.1.1 release
