@@ -52,6 +52,9 @@ BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.
 # Ada requires Ada to build
 BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
 %endif
+%ifarch ia64
+BuildRequires: libunwind >= 0.98
+%endif
 Requires: cpp = %{version}-%{release}
 # Need .eh_frame ld optimizations
 # Need proper visibility support
