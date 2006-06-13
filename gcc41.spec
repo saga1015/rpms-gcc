@@ -1,6 +1,6 @@
 %define DATE 20060612
 %define gcc_version 4.1.1
-%define gcc_release 2
+%define gcc_release 3
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -40,6 +40,7 @@ BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
 BuildRequires: glibc-devel >= 2.3.90-2
+BuildRequires: elfutils-devel >= 0.72
 %ifarch ppc ppc64 s390 s390x sparc sparcv9 alpha
 # Make sure glibc supports TFmode long double
 BuildRequires: glibc >= 2.3.90-35
@@ -123,6 +124,7 @@ Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
 Patch25: gcc41-fortran-merge-glitch.patch
+Patch26: gcc41-pr27959.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -426,6 +428,7 @@ which are required to run programs compiled with the GNAT.
 %patch23 -p0 -b .pr27793~
 %patch24 -p0 -b .pr26885~
 %patch25 -p0 -b .fortran-merge-glitch~
+%patch26 -p0 -b .pr27959~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1467,6 +1470,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jun 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-3
+- add BuildRequires for elfutils-devel on ia64
+- fix a reload bug visible on s390x (Andreas Krebbel, #193912,
+  PR middle-end/27959)
+
 * Mon Jun 12 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-2
 - update from gcc-4_1-branch (-r114107:114555)
   - PRs ada/27769, c++/20173, c++/26068, c++/26433, c++/26496, c++/27177,
