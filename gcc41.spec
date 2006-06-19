@@ -1,6 +1,6 @@
-%define DATE 20060612
+%define DATE 20060619
 %define gcc_version 4.1.1
-%define gcc_release 3
+%define gcc_release 4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -123,8 +123,8 @@ Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
-Patch25: gcc41-fortran-merge-glitch.patch
-Patch26: gcc41-pr27959.patch
+Patch25: gcc41-libgomp-critical.patch
+Patch26: gcc41-merge-all-constants.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -427,8 +427,8 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .pr26881~
 %patch23 -p0 -b .pr27793~
 %patch24 -p0 -b .pr26885~
-%patch25 -p0 -b .fortran-merge-glitch~
-%patch26 -p0 -b .pr27959~
+%patch25 -p0 -b .libgomp-critical~
+%patch26 -p0 -b .merge-all-constants~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1470,6 +1470,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Jun 19 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-4
+- update from gcc-4_1-branch (-r114555:114766)
+  - PRs bootstrap/22541, c++/21210, c++/26559, c++/27227, c++/27648,
+	c++/27665, c++/27666, c++/27689, c++/27884, c++/27933, c++/27951,
+	fortran/27786, java/28024, middle-end/27733, middle-end/27802,
+	target/27858, tree-optimization/27830
+- merge gomp changes from the trunk (-r114642:114643)
+  - PR libgomp/28008
+- fix -fmerge-all-constants
+- fix #pragma omp critical handling if not --enable-linux-futex
+
 * Tue Jun 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-3
 - add BuildRequires for elfutils-devel on ia64
 - fix a reload bug visible on s390x (Andreas Krebbel, #193912,
