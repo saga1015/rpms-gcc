@@ -1,6 +1,6 @@
 %define DATE 20060619
 %define gcc_version 4.1.1
-%define gcc_release 4
+%define gcc_release 5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -125,6 +125,7 @@ Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
 Patch25: gcc41-libgomp-critical.patch
 Patch26: gcc41-merge-all-constants.patch
+Patch27: gcc41-pr26559.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -429,6 +430,7 @@ which are required to run programs compiled with the GNAT.
 %patch24 -p0 -b .pr26885~
 %patch25 -p0 -b .libgomp-critical~
 %patch26 -p0 -b .merge-all-constants~
+%patch27 -p0 -b .pr26559~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1470,6 +1472,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jun 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-5
+- fix C++ #pragma omp atomic (Mark Mitchell)
+
 * Mon Jun 19 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-4
 - update from gcc-4_1-branch (-r114555:114766)
   - PRs bootstrap/22541, c++/21210, c++/26559, c++/27227, c++/27648,
