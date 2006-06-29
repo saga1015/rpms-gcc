@@ -1,6 +1,6 @@
-%define DATE 20060619
+%define DATE 20060629
 %define gcc_version 4.1.1
-%define gcc_release 5
+%define gcc_release 6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -123,9 +123,8 @@ Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
-Patch25: gcc41-libgomp-critical.patch
-Patch26: gcc41-merge-all-constants.patch
-Patch27: gcc41-pr26559.patch
+Patch25: gcc41-pr26991.patch
+Patch26: gcc41-rh195924.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -428,9 +427,8 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .pr26881~
 %patch23 -p0 -b .pr27793~
 %patch24 -p0 -b .pr26885~
-%patch25 -p0 -b .libgomp-critical~
-%patch26 -p0 -b .merge-all-constants~
-%patch27 -p0 -b .pr26559~
+%patch25 -p0 -b .pr26991~
+%patch26 -p0 -b .rh195924~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1472,6 +1470,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Jun 29 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-6
+- update from gcc-4_1-branch (-r114766:115058)
+  - PRs c++/27821, c++/28109, c++/28110, c++/28112, fortran/16206,
+	fortran/18769, fortran/19310, fortran/19904, fortran/20867,
+	fortran/20874, fortran/20876, fortran/22038, fortran/25049,
+	fortran/25050, fortran/25056, fortran/25073, fortran/27554,
+	fortran/27715, fortran/27784, fortran/27895, fortran/27958,
+	fortran/28118, fortran/28119, libfortran/27784, libfortran/27895,
+	libgcj/28178, middle-end/28045, middle-end/28151, target/27082,
+	target/27861, tree-optimization/27781
+- fix a reload problem that lead sometimes to writes to read-only objects
+  (Bernd Schmidt, #196736, PR middle-end/26991, PR rtl-optimization/25636)
+- ppc -mcpu=power6 initial support (Pete Steinmetz, #195924)
+
 * Tue Jun 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-5
 - fix C++ #pragma omp atomic (Mark Mitchell)
 
