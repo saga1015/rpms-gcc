@@ -128,6 +128,8 @@ Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
 Patch25: gcc41-hash-style-gnu.patch
 Patch26: gcc41-visibility.patch
+Patch27: gcc41-pr28150.patch
+Patch28: gcc41-pr28170.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -432,6 +434,8 @@ which are required to run programs compiled with the GNAT.
 %patch24 -p0 -b .pr26885~
 %patch25 -p0 -b .hash-style-gnu~
 %patch26 -p0 -b .visibility~
+%patch27 -p0 -b .pr28150~
+%patch28 -p0 -b .pr28170~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1481,10 +1485,13 @@ fi
 	fortran/28081, fortran/28094, fortran/28167, fortran/28174,
 	fortran/28213, fortran/28237, middle-end/27428, target/28084,
 	target/28207, tree-optimization/28218
+- use --hash-style=gnu by default
 - C++ visibility fixes (Jason Merrill, PRs c++/17470, c++/19134,
   c++/21581, c++/21675, c++/25915, c++/26612, c++/26905, c++/26984,
   c++/27000, c++/28215, c++/28279)
-- use --hash-style=gnu by default
+- fix ppc insvdi_internal2/3 (David Edelsohn, Alan Modra, #197755,
+  PR target/28170)
+- avoid TFmode PRE_INC/PRE_DEC on ppc (David Edelsohn, PR target/28150)
 
 * Thu Jun 29 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-6
 - update from gcc-4_1-branch (-r114766:115058)
