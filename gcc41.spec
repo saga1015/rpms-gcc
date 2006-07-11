@@ -1,6 +1,6 @@
-%define DATE 20060629
+%define DATE 20060711
 %define gcc_version 4.1.1
-%define gcc_release 6
+%define gcc_release 7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -35,11 +35,13 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils which can omit dot symbols and overlap .opd on ppc64 >= 2.15.91.0.2-4
 # Need binutils which handle -msecure-plt on ppc >= 2.16.91.0.2-2
 # Need binutils which support .weakref >= 2.16.91.0.3-1
-BuildRequires: binutils >= 2.16.91.0.3-1
+# Need binutils which support --hash-style=gnu >= 2.17.50.0.2-7
+BuildRequires: binutils >= 2.17.50.0.2-7
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
-BuildRequires: glibc-devel >= 2.3.90-2
+# Make sure glibc supports DT_GNU_HASH
+BuildRequires: glibc-devel >= 2.4.90-13
 BuildRequires: elfutils-devel >= 0.72
 %ifarch ppc ppc64 s390 s390x sparc sparcv9 alpha
 # Make sure glibc supports TFmode long double
@@ -64,7 +66,8 @@ Requires: cpp = %{version}-%{release}
 # On ppc64, need omit dot symbols support and --non-overlapping-opd
 # Need binutils that owns /usr/bin/c++filt
 # Need binutils that support .weakref
-Requires: binutils >= 2.16.91.0.3-1
+# Need binutils that supports --hash-style=gnu
+Requires: binutils >= 2.17.50.0.2-7
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
@@ -123,8 +126,8 @@ Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
 Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
-Patch25: gcc41-pr26991.patch
-Patch26: gcc41-rh195924.patch
+Patch25: gcc41-hash-style-gnu.patch
+Patch26: gcc41-visibility.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -427,8 +430,8 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .pr26881~
 %patch23 -p0 -b .pr27793~
 %patch24 -p0 -b .pr26885~
-%patch25 -p0 -b .pr26991~
-%patch26 -p0 -b .rh195924~
+%patch25 -p0 -b .hash-style-gnu~
+%patch26 -p0 -b .visibility~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1470,6 +1473,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jul 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-7
+- update from gcc-4_1-branch (-r115058:115330)
+  - PRs c++/13983, c++/17519, c++/18681, c++/18698, c++/26577, c++/27019,
+	c++/27424, c++/27768, c++/27820, c++/28114, fortran/23420,
+	fortran/23862, fortran/24748, fortran/26801, fortran/27965,
+	fortran/28081, fortran/28094, fortran/28167, fortran/28174,
+	fortran/28213, fortran/28237, middle-end/27428, target/28084,
+	target/28207, tree-optimization/28218
+- C++ visibility fixes (Jason Merrill, PRs c++/17470, c++/19134,
+  c++/21581, c++/21675, c++/25915, c++/26612, c++/26905, c++/26984,
+  c++/27000, c++/28215, c++/28279)
+- use --hash-style=gnu by default
+
 * Thu Jun 29 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-6
 - update from gcc-4_1-branch (-r114766:115058)
   - PRs c++/27821, c++/28109, c++/28110, c++/28112, fortran/16206,
