@@ -1,6 +1,6 @@
 %define DATE 20060711
 %define gcc_version 4.1.1
-%define gcc_release 7
+%define gcc_release 8
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -36,8 +36,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils which handle -msecure-plt on ppc >= 2.16.91.0.2-2
 # Need binutils which support .weakref >= 2.16.91.0.3-1
 # Need binutils which support --hash-style=gnu >= 2.17.50.0.2-7
-BuildRequires: binutils >= 2.17.50.0.2-7
-BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo
+# Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
+BuildRequires: binutils >= 2.17.50.0.2-8
+BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
 # Make sure glibc supports DT_GNU_HASH
@@ -67,7 +68,8 @@ Requires: cpp = %{version}-%{release}
 # Need binutils that owns /usr/bin/c++filt
 # Need binutils that support .weakref
 # Need binutils that supports --hash-style=gnu
-Requires: binutils >= 2.17.50.0.2-7
+# Need binutils that support mffgpr/mftgpr
+Requires: binutils >= 2.17.50.0.2-8
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
@@ -130,6 +132,14 @@ Patch25: gcc41-hash-style-gnu.patch
 Patch26: gcc41-visibility.patch
 Patch27: gcc41-pr28150.patch
 Patch28: gcc41-pr28170.patch
+Patch29: gcc41-pr28370.patch
+Patch30: gcc41-pr28390.patch
+Patch31: gcc41-reassoc1.patch
+Patch32: gcc41-reassoc2.patch
+Patch33: gcc41-reassoc3.patch
+Patch34: gcc41-reassoc4.patch
+Patch35: gcc41-reassoc5.patch
+Patch36: gcc41-power6.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -436,6 +446,14 @@ which are required to run programs compiled with the GNAT.
 %patch26 -p0 -b .visibility~
 %patch27 -p0 -b .pr28150~
 %patch28 -p0 -b .pr28170~
+%patch29 -p0 -b .pr28370~
+%patch30 -p0 -b .pr28390~
+%patch31 -p0 -b .reassoc1~
+%patch32 -p0 -b .reassoc2~
+%patch33 -p0 -b .reassoc3~
+%patch34 -p0 -b .reassoc4~
+%patch35 -p0 -b .reassoc5~
+%patch36 -p0 -b .power6~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1477,6 +1495,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Jul 15 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-8
+- fix handling of C++ template static data members in anonymous namespace
+  (PR c++/28370)
+- fix Fortran OpenMP handling of !$omp parallel do with lastprivate on the
+  iteration variable (PR fortran/28390)
+- backported reassociation pass rewrite (Daniel Berlin, Jeff Law,
+  Roger Sayle, Peter Bergner, PRs ada/24994, tree-optimization/26854)
+- BuildReq sharutils for uuencode
+
 * Tue Jul 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-7
 - update from gcc-4_1-branch (-r115058:115330)
   - PRs c++/13983, c++/17519, c++/18681, c++/18698, c++/26577, c++/27019,
