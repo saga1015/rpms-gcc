@@ -1,6 +1,6 @@
-%define DATE 20060711
+%define DATE 20060718
 %define gcc_version 4.1.1
-%define gcc_release 8
+%define gcc_release 9
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -140,6 +140,12 @@ Patch33: gcc41-reassoc3.patch
 Patch34: gcc41-reassoc4.patch
 Patch35: gcc41-reassoc5.patch
 Patch36: gcc41-power6.patch
+Patch37: gcc41-CVE-2006-3619.patch
+Patch38: gcc41-checking-identifier.patch
+Patch39: gcc41-duplicate-eh.patch
+Patch40: gcc41-pr27889.patch
+Patch41: gcc41-rh198849.patch
+Patch42: gcc41-testsuite-scantree.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -454,6 +460,12 @@ which are required to run programs compiled with the GNAT.
 %patch34 -p0 -b .reassoc4~
 %patch35 -p0 -b .reassoc5~
 %patch36 -p0 -b .power6~
+%patch37 -p0 -b .CVE-2006-3619~
+%patch38 -p0 -b .checking-identifier~
+%patch39 -p0 -b .duplicate-eh~
+%patch40 -p0 -b .pr27889~
+%patch41 -p0 -b .rh198849~
+%patch42 -p0 -b .testsuite-scantree~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -588,8 +600,11 @@ echo ====================TESTING=========================
 ( ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
 mkdir testlogs-%{_target_platform}-%{version}-%{release}
-for i in `find . -name \*.log | grep testsuite/ | grep -v 'config.log\|acats\|ada'`; do
+for i in `find . -name \*.log | grep -F testsuite/ | grep -v 'config.log\|acats\|ada'`; do
   ln $i testlogs-%{_target_platform}-%{version}-%{release}/ || :
+done
+for i in `find . -name \*.log | grep -F testsuite.ssp/ | grep -v 'config.log\|acats\|ada'`; do
+  ln $i testlogs-%{_target_platform}-%{version}-%{release}/ssp-`basename $i` || :
 done
 tar cf - testlogs-%{_target_platform}-%{version}-%{release} | bzip2 -9c \
   | uuencode testlogs-%{_target_platform}.tar.bz2 || :
@@ -1495,6 +1510,23 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jul 18 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-9
+- update from gcc-4_1-branch (-r115330:115565)
+  - PRs c++/28016, c++/28051, c++/28249, c++/28291, c++/28294, c++/28304,
+	c++/28343, c/26993, c/28286, fortran/20844, fortran/20893,
+	fortran/20903, fortran/25097, fortran/27980, fortran/28201,
+	fortran/28353, fortran/28384, libstdc++/27878,
+	tree-optimization/19505, tree-optimization/28162,
+	tree-optimization/28187
+- fix directory traversal issue in fastjar (Richard Guenther, CVE-2006-3619,
+  PR fastjar/28359)
+- fix ICE on complex assignment in nested fn (Richard Henderson,
+  PR middle-end/27889)
+- fix __builtin_constant_p in initializers (Mark Shinwell, #198849)
+- fix tree verification - IDENTIFIER_NODE can be shared (Diego Novillo)
+- fix duplicate_eh_regions
+- handle > 99 tree dumps in the testsuite
+
 * Sat Jul 15 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-8
 - fix handling of C++ template static data members in anonymous namespace
   (PR c++/28370)
