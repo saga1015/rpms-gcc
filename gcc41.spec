@@ -1,6 +1,6 @@
-%define DATE 20060718
+%define DATE 20060720
 %define gcc_version 4.1.1
-%define gcc_release 9
+%define gcc_release 10
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -39,6 +39,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
 BuildRequires: binutils >= 2.17.50.0.2-8
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
+BuildRequires: /usr/bin/fastjar
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
 # Make sure glibc supports DT_GNU_HASH
@@ -104,6 +105,7 @@ Provides: gcc4 = %{version}-%{release}
 Prereq: /sbin/install-info
 AutoReq: true
 
+Patch0: gcc41-java-backport.patch.bz2
 Patch1: gcc41-ice-hack.patch
 Patch2: gcc41-ppc64-m32-m64-multilib-only.patch
 Patch3: gcc41-ia64-libunwind.patch
@@ -130,22 +132,13 @@ Patch23: gcc41-pr27793.patch
 Patch24: gcc41-pr26885.patch
 Patch25: gcc41-hash-style-gnu.patch
 Patch26: gcc41-visibility.patch
-Patch27: gcc41-pr28150.patch
-Patch28: gcc41-pr28170.patch
-Patch29: gcc41-pr28370.patch
-Patch30: gcc41-pr28390.patch
-Patch31: gcc41-reassoc1.patch
-Patch32: gcc41-reassoc2.patch
-Patch33: gcc41-reassoc3.patch
-Patch34: gcc41-reassoc4.patch
-Patch35: gcc41-reassoc5.patch
-Patch36: gcc41-power6.patch
-Patch37: gcc41-CVE-2006-3619.patch
-Patch38: gcc41-checking-identifier.patch
-Patch39: gcc41-duplicate-eh.patch
-Patch40: gcc41-pr27889.patch
-Patch41: gcc41-rh198849.patch
-Patch42: gcc41-testsuite-scantree.patch
+Patch27: gcc41-pr28370.patch
+Patch28: gcc41-pr28407.patch
+Patch29: gcc41-power6.patch
+Patch30: gcc41-CVE-2006-3619.patch
+Patch31: gcc41-java-backport2.patch
+Patch32: gcc41-java-libdotdotlib.patch
+Patch33: gcc41-java-plugins.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -314,6 +307,7 @@ Obsoletes: gcc4-java
 Provides: gcc4-java
 Prereq: /sbin/install-info
 Autoreq: true
+Autoprov: false
 
 %description java
 This package adds support for compiling Java(tm) programs and
@@ -424,6 +418,7 @@ which are required to run programs compiled with the GNAT.
 
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
+%patch0 -p0 -E -b .java-backport~
 %patch1 -p0 -b .ice-hack~
 %patch2 -p0 -b .ppc64-m32-m64-multilib-only~
 %patch3 -p0 -b .ia64-libunwind~
@@ -450,27 +445,16 @@ which are required to run programs compiled with the GNAT.
 %patch24 -p0 -b .pr26885~
 %patch25 -p0 -b .hash-style-gnu~
 %patch26 -p0 -b .visibility~
-%patch27 -p0 -b .pr28150~
-%patch28 -p0 -b .pr28170~
-%patch29 -p0 -b .pr28370~
-%patch30 -p0 -b .pr28390~
-%patch31 -p0 -b .reassoc1~
-%patch32 -p0 -b .reassoc2~
-%patch33 -p0 -b .reassoc3~
-%patch34 -p0 -b .reassoc4~
-%patch35 -p0 -b .reassoc5~
-%patch36 -p0 -b .power6~
-%patch37 -p0 -b .CVE-2006-3619~
-%patch38 -p0 -b .checking-identifier~
-%patch39 -p0 -b .duplicate-eh~
-%patch40 -p0 -b .pr27889~
-%patch41 -p0 -b .rh198849~
-%patch42 -p0 -b .testsuite-scantree~
+%patch27 -p0 -b .pr28370~
+%patch28 -p0 -b .pr28407~
+%patch29 -p0 -b .power6~
+%patch30 -p0 -b .CVE-2006-3619~
+%patch31 -p0 -b .java-backport2~
+%patch32 -p0 -b .java-libdotdotlib~
+%patch33 -p0 -b .java-plugins~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
-
-sed -i -e 's/libjawt/libgcjawt/g' libjava/Makefile.{am,in}
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
@@ -558,7 +542,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %if !%{build_java}
 	--disable-libgcj \
 %else
-	--enable-java-awt=gtk --disable-dssi \
+	--enable-java-awt=gtk --disable-dssi --enable-plugin \
 	--with-java-home=%{_prefix}/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre \
 %endif
 %ifarch ppc ppc64
@@ -751,9 +735,9 @@ find $RPM_BUILD_ROOT -name \*.la | xargs rm -f
 if [ "%{build_java}" -gt 0 ]; then
 # gcj -static doesn't work properly anyway, unless using --whole-archive
 # and saving 35MB is not bad.
-find $RPM_BUILD_ROOT -name libgcj.a -o -name lib-gnu-java-awt-peer-gtk.a \
-		     -o -name libgjsmalsa.a \
-		     -o -name libgij.a -o -name libgcjawt.a | xargs rm -f
+find $RPM_BUILD_ROOT -name libgcj.a -o -name libgtkpeer.a \
+		     -o -name libgjsmalsa.a -o libgcj-tools.a -o libjvm.a \
+		     -o -name libgij.a -o name libgcj.a | xargs rm -f
 
 mv $RPM_BUILD_ROOT%{_prefix}/lib/libgcj.spec $FULLPATH/
 sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
@@ -789,11 +773,6 @@ else
 fi
 
 %if %{build_java}
-#mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/classpath/libgjsmalsa.so* \
-#      $RPM_BUILD_ROOT%{_prefix}/%{_lib}/
-mv -f $RPM_BUILD_ROOT%{_prefix}/lib/classpath/libgjsmalsa.so* \
-      $RPM_BUILD_ROOT%{_prefix}/%{_lib}/
-
 if [ "%{_lib}" != "lib" ]; then
   mkdir -p $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig
   sed '/^libdir/s/lib$/%{_lib}/' $RPM_BUILD_ROOT%{_prefix}/lib/pkgconfig/libgcj.pc \
@@ -810,11 +789,10 @@ ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../libgcj.so.7.* libgcj.so
-ln -sf ../../../lib-gnu-java-awt-peer-gtk.so.7.* lib-gnu-java-awt-peer-gtk.so
-ln -sf ../../../libgjsmalsa.so.0.* libgjsmalsa.so
-ln -sf ../../../libgij.so.7.* libgij.so
-ln -sf ../../../libgcjawt.so.7.* libgcjawt.so
+ln -sf ../../../libgcj.so.7rh.* libgcj.so
+ln -sf ../../../libgcj-tools.so.7rh.* libgcj-tools.so
+ln -sf ../../../libgij.so.7rh.* libgij.so
+mv ../../../libgcj_bc.so libgcj_bc.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -832,11 +810,10 @@ ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../../%{_lib}/libgcj.so.7.* libgcj.so
-ln -sf ../../../../%{_lib}/lib-gnu-java-awt-peer-gtk.so.7.* lib-gnu-java-awt-peer-gtk.so
-ln -sf ../../../../%{_lib}/libgjsmalsa.so.0.* libgjsmalsa.so
-ln -sf ../../../../%{_lib}/libgij.so.7.* libgij.so
-ln -sf ../../../../%{_lib}/libgcjawt.so.7.* libgcjawt.so
+ln -sf ../../../../%{_lib}/libgcj.so.7rh.* libgcj.so
+ln -sf ../../../../%{_lib}/libgcj-tools.so.7rh.* libgcj-tools.so
+ln -sf ../../../../%{_lib}/libgij.so.7rh.* libgij.so
+mv ../../../../%{_lib}/libgcj_bc.so libgcj_bc.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -864,11 +841,10 @@ ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgom
 ln -sf ../`echo ../../../../lib/libmudflap.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflap.so
 ln -sf ../`echo ../../../../lib/libmudflapth.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflapth.so
 if [ "%{build_java}" -gt 0 ]; then
-ln -sf ../`echo ../../../../lib/libgcj.so.7.* | sed s~/lib/~/lib64/~` 64/libgcj.so
-ln -sf ../`echo ../../../../lib/lib-gnu-java-awt-peer-gtk.so.7.* | sed s~/lib/~/lib64/~` 64/lib-gnu-java-awt-peer-gtk.so
-ln -sf ../`echo ../../../../lib/libgjsmalsa.so.0.* | sed s~/lib/~/lib64/~` 64/libgjsmalsa.so
-ln -sf ../`echo ../../../../lib/libgij.so.7.* | sed s~/lib/~/lib64/~` 64/libgij.so
-ln -sf ../`echo ../../../../lib/libgcjawt.so.7.* | sed s~/lib/~/lib64/~` 64/libgcjawt.so
+ln -sf ../`echo ../../../../lib/libgcj.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgcj.so
+ln -sf ../`echo ../../../../lib/libgcj-tools.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
+ln -sf ../`echo ../../../../lib/libgij.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgij.so
+mv ../../../../lib64/libgcj_bc.so 64/libgcj_bc.so
 fi
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libsupc++.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgfortran.*a 64/
@@ -888,11 +864,10 @@ ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgo
 ln -sf ../`echo ../../../../lib64/libmudflap.so.0.* | sed s~/../lib64/~/~` 32/libmudflap.so
 ln -sf ../`echo ../../../../lib64/libmudflapth.so.0.* | sed s~/../lib64/~/~` 32/libmudflapth.so
 if [ "%{build_java}" -gt 0 ]; then
-ln -sf ../`echo ../../../../lib64/libgcj.so.7.* | sed s~/../lib64/~/~` 32/libgcj.so
-ln -sf ../`echo ../../../../lib64/lib-gnu-java-awt-peer-gtk.so.7.* | sed s~/../lib64/~/~` 32/lib-gnu-java-awt-peer-gtk.so
-ln -sf ../`echo ../../../../lib64/libgjsmalsa.so.0.* | sed s~/../lib64/~/~` 32/libgjsmalsa.so
-ln -sf ../`echo ../../../../lib64/libgij.so.7.* | sed s~/../lib64/~/~` 32/libgij.so
-ln -sf ../`echo ../../../../lib64/libgcjawt.so.7.* | sed s~/../lib64/~/~` 32/libgcjawt.so
+ln -sf ../`echo ../../../../lib64/libgcj.so.7rh.* | sed s~/../lib64/~/~` 32/libgcj.so
+ln -sf ../`echo ../../../../lib64/libgcj-tools.so.7rh.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
+ln -sf ../`echo ../../../../lib64/libgij.so.7rh.* | sed s~/../lib64/~/~` 32/libgij.so
+mv ../../../../lib/libgcj_bc.so 32/libgcj_bc.so
 fi
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libsupc++.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortran.*a 32/
@@ -907,12 +882,6 @@ ln -sf lib64/libstdc++.a libstdc++.a
 %else
 %ifarch %{multilib_64_archs}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
-if [ "%{build_java}" -gt 0 ]; then
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj.a 32/libgcj.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/lib-gnu-java-awt-peer-gtk.a 32/lib-gnu-java-awt-peer-gtk.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgij.a 32/libgij.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcjawt.a 32/libgcjawt.a
-fi
 %endif
 %endif
 
@@ -1381,6 +1350,9 @@ fi
 %{_prefix}/bin/grmic
 %{_prefix}/bin/grmiregistry
 %{_prefix}/bin/gcj-dbtool
+%{_prefix}/bin/gappletviewer
+%{_prefix}/bin/gjarsigner
+%{_prefix}/bin/gkeytool
 %{_mandir}/man1/fastjar.1*
 %{_mandir}/man1/grepjar.1*
 %{_mandir}/man1/jv-convert.1*
@@ -1390,17 +1362,21 @@ fi
 %{_mandir}/man1/gcj-dbtool.1*
 %{_infodir}/fastjar*
 %{_prefix}/%{_lib}/libgcj.so.*
-%{_prefix}/%{_lib}/lib-gnu-java-awt-peer-gtk.so.*
-%{_prefix}/%{_lib}/libgjsmalsa.so.*
+%{_prefix}/%{_lib}/libgcj-tools.so.*
+%{_prefix}/%{_lib}/libgcj_bc.so.*
 %{_prefix}/%{_lib}/libgij.so.*
-%{_prefix}/%{_lib}/libgcjawt.so.*
+%dir %{_prefix}/%{_lib}/gcj-%{version}
+%{_prefix}/%{_lib}/gcj-%{version}/libgtkpeer.so*
+%{_prefix}/%{_lib}/gcj-%{version}/libgjsmalsa.so*
+%{_prefix}/%{_lib}/gcj-%{version}/libjawt.so*
+%{_prefix}/%{_lib}/gcj-%{version}/libgcjwebplugin.so
+%{_prefix}/%{_lib}/gcj-%{version}/libjvm.so.*
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/[^s]*
 %dir %{_prefix}/lib/security
 %config(noreplace) %{_prefix}/lib/security/classpath.security
 %config(noreplace) %{_prefix}/lib/security/libgcj.security
 %{_prefix}/lib/logging.properties
-%dir %{_prefix}/%{_lib}/gcj-%{version}
 %dir %{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_prefix}/%{_lib}/gcj-%{version}/classmap.db
 
@@ -1419,22 +1395,25 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jvmpi.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib-gnu-java-awt-peer-gtk.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libjvm.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgij.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcjawt.so
 %ifarch sparc ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/lib-gnu-java-awt-peer-gtk.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj-tools.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libjvm.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj_bc.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgij.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcjawt.so
 %endif
 %ifarch %{multilib_64_archs}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/lib-gnu-java-awt-peer-gtk.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj-tools.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libjvm.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj_bc.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgij.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcjawt.so
 %endif
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
@@ -1510,6 +1489,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Jul 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-10
+- Java backport of from GCC trunk (Tom Tromey, Bryce McKinlay)
+  - include libgcjwebplugin.so, gappletviewer, gjarsigner, gkeytool
+- C++ visibility changes (Jason Merrill, PRs c++/28407, c++/28409)
+
 * Tue Jul 18 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-9
 - update from gcc-4_1-branch (-r115330:115565)
   - PRs c++/28016, c++/28051, c++/28249, c++/28291, c++/28294, c++/28304,
