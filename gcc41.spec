@@ -457,6 +457,8 @@ which are required to run programs compiled with the GNAT.
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
 
+find . -name \*.java-backport~ | xargs rm
+
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
 # Hack to avoid building multilib libjava
