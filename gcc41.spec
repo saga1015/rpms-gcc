@@ -323,6 +323,7 @@ BuildRequires: gtk2-devel >= 2.4.0
 Requires: glib2 >= 2.4.0
 BuildRequires: glib2-devel >= 2.4.0
 Requires: libart_lgpl >= 2.1.0
+BuildRequires: mozilla-devel
 BuildRequires: libart_lgpl-devel >= 2.1.0
 BuildRequires: alsa-lib-devel
 BuildRequires: libXtst-devel
