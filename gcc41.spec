@@ -306,7 +306,7 @@ Obsoletes: gcc35-java
 Obsoletes: gcc4-java
 Provides: gcc4-java
 Prereq: /sbin/install-info
-Autoreq: true
+Autoreq: false
 Autoprov: false
 
 %description java
@@ -608,6 +608,26 @@ done
 make -C gcc generated-manpages
 for i in ../gcc/doc/*.texi; do mv -f $i.orig $i; done
 
+%if %{build_java}
+LIBGCJ_BC_CFLAGS=
+%ifarch sparc ppc
+LIBGCJ_BC_CFLAGS=-m64
+%endif
+%ifarch %{multilib_64_archs}
+LIBGCJ_BC_CFLAGS=-m32
+%endif
+%ifarch s390x
+LIBGCJ_BC_CFLAGS=-m31
+%endif
+if [ -n "$LIBGCJ_BC_CFLAGS" ]; then
+  mkdir libgcj_bc
+  gcc/xgcc -B gcc/ $OPT_FLAGS $LIBGCJ_BC_CFLAGS -shared -fpic -xc /dev/null \
+      -o libgcj_bc/libgcj.so -Wl,-soname,libgcj.so.7rh -nostdlib
+  gcc/xgcc -B gcc/ $OPT_FLAGS $LIBGCJ_BC_CFLAGS -shared -fpic ../libjava/libgcj_bc.c \
+      -o libgcj_bc/libgcj_bc.so -Wl,-soname,libgcj_bc.so.1 libgcj_bc/libgcj.so -shared-libgcc 
+fi
+%endif
+
 # Copy various doc files here and there
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
@@ -670,6 +690,12 @@ make prefix=$RPM_BUILD_ROOT%{_prefix} mandir=$RPM_BUILD_ROOT%{_mandir} \
   infodir=$RPM_BUILD_ROOT%{_infodir} install
 %if %{build_java}
 make DESTDIR=$RPM_BUILD_ROOT -C %{gcc_target_platform}/libjava install-src.zip
+%ifarch %{multilib_64_archs}
+install -m755 libgcj_bc/libgcj_bc.so $RPM_BUILD_ROOT%{_prefix}/lib/libgcj_bc.so
+%endif
+%ifarch sparc ppc
+install -m755 libgcj_bc/libgcj_bc.so $RPM_BUILD_ROOT%{_prefix}/lib64/libgcj_bc.so
+%endif
 %endif
 %if %{build_ada}
 chmod 644 $RPM_BUILD_ROOT%{_infodir}/gnat*
@@ -1369,11 +1395,11 @@ fi
 %{_prefix}/%{_lib}/libgcj_bc.so.*
 %{_prefix}/%{_lib}/libgij.so.*
 %dir %{_prefix}/%{_lib}/gcj-%{version}
-%{_prefix}/%{_lib}/gcj-%{version}/libgtkpeer.so*
-%{_prefix}/%{_lib}/gcj-%{version}/libgjsmalsa.so*
-%{_prefix}/%{_lib}/gcj-%{version}/libjawt.so*
+%{_prefix}/%{_lib}/gcj-%{version}/libgtkpeer.so
+%{_prefix}/%{_lib}/gcj-%{version}/libgjsmalsa.so
+%{_prefix}/%{_lib}/gcj-%{version}/libjawt.so
 %{_prefix}/%{_lib}/gcj-%{version}/libgcjwebplugin.so
-%{_prefix}/%{_lib}/gcj-%{version}/libjvm.so.*
+%{_prefix}/%{_lib}/gcj-%{version}/libjvm.so
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/[^s]*
 %dir %{_prefix}/lib/security
@@ -1399,14 +1425,12 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libjvm.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgij.so
 %ifarch sparc ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libjvm.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj_bc.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgij.so
 %endif
@@ -1414,7 +1438,6 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libjvm.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj_bc.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgij.so
 %endif
