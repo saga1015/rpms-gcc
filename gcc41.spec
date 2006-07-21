@@ -1,6 +1,6 @@
-%define DATE 20060720
+%define DATE 20060721
 %define gcc_version 4.1.1
-%define gcc_release 10
+%define gcc_release 11
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -306,8 +306,7 @@ Obsoletes: gcc35-java
 Obsoletes: gcc4-java
 Provides: gcc4-java
 Prereq: /sbin/install-info
-Autoreq: false
-Autoprov: false
+Autoreq: true
 
 %description java
 This package adds support for compiling Java(tm) programs and
@@ -342,12 +341,13 @@ programs compiled using the Java compiler from GNU Compiler Collection (gcj).
 %package -n libgcj-devel
 Summary: Libraries for Java development using GCC
 Group: Development/Languages
-Requires: zip >= 2.1, libgcj = %{version}-%{release}
+Requires: zip >= 2.1, libgcj = %{version}-%{release}, /bin/awk
 Obsoletes: libgcj3-devel
 Obsoletes: libgcj34-devel
 Obsoletes: libgcj4-devel
 Provides: libgcj4-devel
-Autoreq: true
+Autoreq: false
+Autoprov: false
 
 %description -n libgcj-devel
 The Java(tm) static libraries and C header files. You will need this
@@ -766,7 +766,7 @@ if [ "%{build_java}" -gt 0 ]; then
 # and saving 35MB is not bad.
 find $RPM_BUILD_ROOT -name libgcj.a -o -name libgtkpeer.a \
 		     -o -name libgjsmalsa.a -o libgcj-tools.a -o libjvm.a \
-		     -o -name libgij.a -o name libgcj.a | xargs rm -f
+		     -o -name libgij.a -o -name libgcj_bc.a | xargs rm -f
 
 mv $RPM_BUILD_ROOT%{_prefix}/lib/libgcj.spec $FULLPATH/
 sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
@@ -1515,6 +1515,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Jul 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-11
+- update from gcc-4_1-branch (-r115565:115644)
+  - PRs target/27363, c++/27495, c++/28048, c++/28235, c++/28337, c++/28338,
+	c++/28363, middle-end/28283
+- turn back autoprov/autoreq on gcc-java, instead disable it on
+  libgcj-devel
+
 * Thu Jul 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-10
 - Java backport of from GCC trunk (Tom Tromey, Bryce McKinlay)
   - include libgcjwebplugin.so, gappletviewer, gjarsigner, gkeytool
