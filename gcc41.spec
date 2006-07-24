@@ -1,6 +1,6 @@
 %define DATE 20060721
 %define gcc_version 4.1.1
-%define gcc_release 11
+%define gcc_release 12
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -139,6 +139,8 @@ Patch30: gcc41-CVE-2006-3619.patch
 Patch31: gcc41-java-backport2.patch
 Patch32: gcc41-java-libdotdotlib.patch
 Patch33: gcc41-java-plugins.patch
+Patch34: gcc41-java-backport-gcjplugin.patch
+
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -453,6 +455,7 @@ which are required to run programs compiled with the GNAT.
 %patch31 -p0 -b .java-backport2~
 %patch32 -p0 -b .java-libdotdotlib~
 %patch33 -p0 -b .java-plugins~
+%patch34 -p0 -b .java-gcjplugin~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1515,6 +1518,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Jul 24 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.1-12
+- Backport fix for NullPointerException in GCJ web plugin.
+
 * Fri Jul 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-11
 - update from gcc-4_1-branch (-r115565:115644)
   - PRs target/27363, c++/27495, c++/28048, c++/28235, c++/28337, c++/28338,
