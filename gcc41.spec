@@ -1,6 +1,6 @@
-%define DATE 20060721
+%define DATE 20060802
 %define gcc_version 4.1.1
-%define gcc_release 13
+%define gcc_release 14
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -105,7 +105,6 @@ Provides: gcc4 = %{version}-%{release}
 Prereq: /sbin/install-info
 AutoReq: true
 
-Patch0: gcc41-java-backport.patch.bz2
 Patch1: gcc41-ice-hack.patch
 Patch2: gcc41-ppc64-m32-m64-multilib-only.patch
 Patch3: gcc41-ia64-libunwind.patch
@@ -136,11 +135,7 @@ Patch27: gcc41-pr28370.patch
 Patch28: gcc41-pr28407.patch
 Patch29: gcc41-power6.patch
 Patch30: gcc41-CVE-2006-3619.patch
-Patch31: gcc41-java-backport2.patch
-Patch32: gcc41-java-libdotdotlib.patch
-Patch33: gcc41-java-plugins.patch
-Patch34: gcc41-java-backport-gcjplugin.patch
-Patch35: gcc41-java-backport-class-loader.patch
+Patch31: gcc41-java-libdotdotlib.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -325,7 +320,7 @@ BuildRequires: gtk2-devel >= 2.4.0
 Requires: glib2 >= 2.4.0
 BuildRequires: glib2-devel >= 2.4.0
 Requires: libart_lgpl >= 2.1.0
-BuildRequires: mozilla-devel
+BuildRequires: firefox-devel
 BuildRequires: libart_lgpl-devel >= 2.1.0
 BuildRequires: alsa-lib-devel
 BuildRequires: libXtst-devel
@@ -422,7 +417,6 @@ which are required to run programs compiled with the GNAT.
 
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
-%patch0 -p0 -E -b .java-backport~
 %patch1 -p0 -b .ice-hack~
 %patch2 -p0 -b .ppc64-m32-m64-multilib-only~
 %patch3 -p0 -b .ia64-libunwind~
@@ -453,11 +447,7 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .pr28407~
 %patch29 -p0 -b .power6~
 %patch30 -p0 -b .CVE-2006-3619~
-%patch31 -p0 -b .java-backport2~
-%patch32 -p0 -b .java-libdotdotlib~
-%patch33 -p0 -b .java-plugins~
-%patch34 -p0 -b .java-gcjplugin~
-%patch35 -p0 -b .java-class-loader~
+%patch31 -p0 -b .java-libdotdotlib~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1520,12 +1510,23 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Aug  2 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-14
+- update from gcc-4_1-branch (-r115644:115877)
+  - PRs c++/27572, c++/27668, c++/27962, c++/28025, c++/28258, c++/28523,
+	debug/25468, fortran/20892, fortran/27874, fortran/28129,
+	fortran/28439, libgfortran/28335, libgfortran/28339,
+	middle-end/28402, middle-end/28403, middle-end/28473,
+	target/27287, target/28247, tree-optimization/26719,
+	tree-optimization/27639, tree-optimization/27795,
+	tree-optimization/28029, tree-optimization/28238
+- BuildRequire firefox-devel instead of mozilla-devel
+
 * Tue Jul 25 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.1-13
-- Backport fix by Andrew Haley for build problems related with the
-bootstrap ClassLoader.
+- backport fix by Andrew Haley for build problems related with the
+  bootstrap ClassLoader
 
 * Mon Jul 24 2006 Alexandre Oliva <aoliva@redhat.com> 4.1.1-12
-- Backport fix by Mark Wielaard for NullPointerException in GCJ web plugin.
+- backport fix by Mark Wielaard for NullPointerException in GCJ web plugin
 
 * Fri Jul 21 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-11
 - update from gcc-4_1-branch (-r115565:115644)
