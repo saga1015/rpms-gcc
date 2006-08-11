@@ -1,6 +1,6 @@
-%define DATE 20060802
+%define DATE 20060811
 %define gcc_version 4.1.1
-%define gcc_release 14
+%define gcc_release 15
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -134,8 +134,10 @@ Patch26: gcc41-visibility.patch
 Patch27: gcc41-pr28370.patch
 Patch28: gcc41-pr28407.patch
 Patch29: gcc41-power6.patch
-Patch30: gcc41-CVE-2006-3619.patch
+Patch30: gcc41-power6-2.patch
 Patch31: gcc41-java-libdotdotlib.patch
+Patch32: gcc41-pr28600.patch
+Patch33: gcc41-rh200887.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -446,8 +448,10 @@ which are required to run programs compiled with the GNAT.
 %patch27 -p0 -b .pr28370~
 %patch28 -p0 -b .pr28407~
 %patch29 -p0 -b .power6~
-%patch30 -p0 -b .CVE-2006-3619~
+%patch30 -p0 -b .power6-2~
 %patch31 -p0 -b .java-libdotdotlib~
+%patch32 -p0 -b .pr28600~
+%patch33 -p0 -b .rh200887~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1508,6 +1512,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-15
+- update from gcc-4_1-branch (-r115877:116082)
+  - PRs c++/27508, c++/28148, c++/28250, c++/28256, c++/28257, c++/28259,
+	c++/28267, c++/28274, c++/28347, c++/28432, c++/28557, c++/28594,
+	c++/28637, c++/28638, c++/28639, c++/28640, c++/28641, c/27721,
+	c/28136, fortran/27981, fortran/28548, fortran/28590,
+	middle-end/28651, rtl-optimization/27291, rtl-optimization/28221,
+	target/27566, target/27827
+- fix Fortran ICE with nested function (Paul Thomas, #200618,
+  PR fortran/28600)
+- fix multilib conflict in libgcj-tools-4.1.1.jar (#200887)
+
 * Wed Aug  2 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-14
 - update from gcc-4_1-branch (-r115644:115877)
   - PRs c++/27572, c++/27668, c++/27962, c++/28025, c++/28258, c++/28523,
