@@ -1,6 +1,6 @@
 %define DATE 20060811
 %define gcc_version 4.1.1
-%define gcc_release 15
+%define gcc_release 16
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -138,6 +138,7 @@ Patch30: gcc41-power6-2.patch
 Patch31: gcc41-java-libdotdotlib.patch
 Patch32: gcc41-pr28600.patch
 Patch33: gcc41-rh200887.patch
+Patch34: gcc41-pr27827-test.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -452,6 +453,7 @@ which are required to run programs compiled with the GNAT.
 %patch31 -p0 -b .java-libdotdotlib~
 %patch32 -p0 -b .pr28600~
 %patch33 -p0 -b .rh200887~
+%patch34 -p0 -b .pr27827-test~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1512,6 +1514,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Aug 12 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-16
+- fix multilib conflict in libgcj-tools-4.1.1.jar (#200887)
+
 * Fri Aug 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-15
 - update from gcc-4_1-branch (-r115877:116082)
   - PRs c++/27508, c++/28148, c++/28250, c++/28256, c++/28257, c++/28259,
@@ -1522,7 +1527,6 @@ fi
 	target/27566, target/27827
 - fix Fortran ICE with nested function (Paul Thomas, #200618,
   PR fortran/28600)
-- fix multilib conflict in libgcj-tools-4.1.1.jar (#200887)
 
 * Wed Aug  2 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-14
 - update from gcc-4_1-branch (-r115644:115877)
