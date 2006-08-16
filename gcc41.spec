@@ -1,6 +1,6 @@
-%define DATE 20060811
+%define DATE 20060816
 %define gcc_version 4.1.1
-%define gcc_release 16
+%define gcc_release 17
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -127,7 +127,7 @@ Patch19: gcc41-tests.patch
 Patch20: gcc41-ppc64-ldouble-stdarg.patch
 Patch21: gcc41-pr25874.patch
 Patch22: gcc41-pr26881.patch
-Patch23: gcc41-pr27793.patch
+Patch23: gcc41-i386-tune-geode.patch
 Patch24: gcc41-pr26885.patch
 Patch25: gcc41-hash-style-gnu.patch
 Patch26: gcc41-visibility.patch
@@ -139,6 +139,11 @@ Patch31: gcc41-java-libdotdotlib.patch
 Patch32: gcc41-pr28600.patch
 Patch33: gcc41-rh200887.patch
 Patch34: gcc41-pr27827-test.patch
+Patch35: gcc41-pr25795.patch
+Patch36: gcc41-pr28706.patch
+Patch37: gcc41-pr28725.patch
+Patch38: gcc41-pr28709.patch
+Patch39: gcc41-pr28744.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -442,7 +447,7 @@ which are required to run programs compiled with the GNAT.
 %patch20 -p0 -b .ppc64-ldouble-stdarg~
 %patch21 -p0 -b .pr25874~
 %patch22 -p0 -b .pr26881~
-%patch23 -p0 -b .pr27793~
+%patch23 -p0 -b .i386-tune-geode~
 %patch24 -p0 -b .pr26885~
 %patch25 -p0 -b .hash-style-gnu~
 %patch26 -p0 -b .visibility~
@@ -454,6 +459,11 @@ which are required to run programs compiled with the GNAT.
 %patch32 -p0 -b .pr28600~
 %patch33 -p0 -b .rh200887~
 %patch34 -p0 -b .pr27827-test~
+%patch35 -p0 -b .pr25795~
+%patch36 -p0 -b .pr28706~
+%patch37 -p0 -b .pr28725~
+%patch38 -p0 -b .pr28709~
+%patch39 -p0 -b .pr28744~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -503,7 +513,7 @@ CC=gcc
 OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
 %ifarch sparc sparc64
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g'`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcpu=v[78]//g'`
 %endif
 %ifarch sparc64
 cat > gcc64 <<"EOF"
@@ -1514,6 +1524,22 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Aug 16 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-17
+- update from gcc-4_1-branch (-r116082:116176)
+  - PRs c++/27894, c++/28677, c/28649, middle-end/28075,
+	rtl-optimization/23454
+- merge gomp fixes from the trunk (-r116152:116154)
+  - PRs middle-end/28713, middle-end/28724
+- add -march=geode and -mtune=geode support (Vlad Makarov)
+- don't create jar manifest in libgcj-tools-4.*.jar (#200887)
+- externally_visible attribute fixes (Jan Hubicka, PRs c/25795, c++/27369)
+- --combine fixes for aggregates with attributes (PRs c/28706, c/28712)
+- further externally_visible attr fixes (PR c/28744)
+- fix invalid token pasting error message (PR preprocessor/28709)
+- obey OpenMP 2.5 chapter 4 env var requirements (whitespace rules
+  and case insensitivity in the env vars; PR libgomp/28725)
+- fix OPT_FLAGS on sparc
+
 * Sat Aug 12 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-16
 - fix multilib conflict in libgcj-tools-4.1.1.jar (#200887)
 
