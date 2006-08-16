@@ -143,6 +143,7 @@ Patch35: gcc41-pr28706.patch
 Patch36: gcc41-pr28725.patch
 Patch37: gcc41-pr28709.patch
 Patch38: gcc41-pr28744.patch
+Patch39: gcc41-x86_64-kernel-ssp.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -462,6 +463,7 @@ which are required to run programs compiled with the GNAT.
 %patch36 -p0 -b .pr28725~
 %patch37 -p0 -b .pr28709~
 %patch38 -p0 -b .pr28744~
+%patch39 -p0 -b .x86_64-kernel-ssp~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1529,6 +1531,8 @@ fi
 - merge gomp fixes from the trunk (-r116152:116154)
   - PRs middle-end/28713, middle-end/28724
 - add -march=geode and -mtune=geode support (Vlad Makarov)
+- use %gs rather than %fs register on x86_64 with
+  -mcmodel=kernel -fstack-protector (Arjan van de Ven, #202842)
 - don't create jar manifest in libgcj-tools-4.*.jar (#200887)
 - externally_visible attribute fixes (Jan Hubicka, PRs c/25795, c++/27369)
 - --combine fixes for aggregates with attributes (PRs c/28706, c/28712)
