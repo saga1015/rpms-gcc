@@ -138,12 +138,11 @@ Patch30: gcc41-power6-2.patch
 Patch31: gcc41-java-libdotdotlib.patch
 Patch32: gcc41-pr28600.patch
 Patch33: gcc41-rh200887.patch
-Patch34: gcc41-pr27827-test.patch
-Patch35: gcc41-pr25795.patch
-Patch36: gcc41-pr28706.patch
-Patch37: gcc41-pr28725.patch
-Patch38: gcc41-pr28709.patch
-Patch39: gcc41-pr28744.patch
+Patch34: gcc41-pr25795.patch
+Patch35: gcc41-pr28706.patch
+Patch36: gcc41-pr28725.patch
+Patch37: gcc41-pr28709.patch
+Patch38: gcc41-pr28744.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -458,12 +457,11 @@ which are required to run programs compiled with the GNAT.
 %patch31 -p0 -b .java-libdotdotlib~
 %patch32 -p0 -b .pr28600~
 %patch33 -p0 -b .rh200887~
-%patch34 -p0 -b .pr27827-test~
-%patch35 -p0 -b .pr25795~
-%patch36 -p0 -b .pr28706~
-%patch37 -p0 -b .pr28725~
-%patch38 -p0 -b .pr28709~
-%patch39 -p0 -b .pr28744~
+%patch34 -p0 -b .pr25795~
+%patch35 -p0 -b .pr28706~
+%patch36 -p0 -b .pr28725~
+%patch37 -p0 -b .pr28709~
+%patch38 -p0 -b .pr28744~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
