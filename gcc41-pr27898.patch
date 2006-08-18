@@ -22,13 +22,13 @@
 +extern int foo (union u *);
 --- gcc/c-typeck.c.jj	2006-08-17 09:55:11.000000000 +0200
 +++ gcc/c-typeck.c	2006-08-18 09:14:15.000000000 +0200
-@@ -1126,11 +1126,12 @@ tagged_types_tu_compatible_p (tree t1, t
+@@ -1072,11 +1072,12 @@ tagged_types_tu_compatible_p (tree t1, t
  	  {
  	    int result;
- 
--
+ 	    
+-	    
 -	    if (DECL_NAME (s1) == NULL
--		|| DECL_NAME (s1) != DECL_NAME (s2))
+-	        || DECL_NAME (s1) != DECL_NAME (s2))
 +	    if (DECL_NAME (s1) != DECL_NAME (s2))
  	      break;
  	    result = comptypes_internal (TREE_TYPE (s1), TREE_TYPE (s2));
@@ -38,7 +38,7 @@
  	    if (result == 0)
  	      {
  		tu->val = 0;
-@@ -1157,28 +1158,31 @@ tagged_types_tu_compatible_p (tree t1, t
+@@ -1103,28 +1104,31 @@ tagged_types_tu_compatible_p (tree t1, t
  	  {
  	    bool ok = false;
  

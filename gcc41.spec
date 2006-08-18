@@ -1,6 +1,6 @@
-%define DATE 20060816
+%define DATE 20060818
 %define gcc_version 4.1.1
-%define gcc_release 17
+%define gcc_release 18
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -144,6 +144,8 @@ Patch36: gcc41-pr28725.patch
 Patch37: gcc41-pr28709.patch
 Patch38: gcc41-pr28744.patch
 Patch39: gcc41-x86_64-kernel-ssp.patch
+Patch40: gcc41-pr28755.patch
+Patch41: gcc41-pr27898.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -464,6 +466,8 @@ which are required to run programs compiled with the GNAT.
 %patch37 -p0 -b .pr28709~
 %patch38 -p0 -b .pr28744~
 %patch39 -p0 -b .x86_64-kernel-ssp~
+%patch40 -p0 -b .pr28755~
+%patch41 -p0 -b .pr27898~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1524,6 +1528,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug 18 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-18
+- update from gcc-4_1-branch (-r116176:116223)
+  - PRs c++/28593, c++/28606, c++/28710, c/27697, middle-end/20256,
+	middle-end/25211, middle-end/26435
+- don't waste .rodata space when copying from const array with large
+  entries (PR middle-end/28755)
+- fix --combine with anonymous structures in unions (Alexandre Oliva,
+  PR c/27898)
+- rebuilt with latest binutils to pick up 64K -z commonpagesize on ppc*
+  (#203001)
+
 * Wed Aug 16 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-17
 - update from gcc-4_1-branch (-r116082:116176)
   - PRs c++/27894, c++/28677, c/28649, middle-end/28075,
