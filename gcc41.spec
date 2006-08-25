@@ -1415,10 +1415,9 @@ fi
 %{_prefix}/%{_lib}/gcj-%{version}/libjvm.so
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/[^s]*
-%dir %{_prefix}/lib/security
-%config(noreplace) %{_prefix}/lib/security/classpath.security
-%config(noreplace) %{_prefix}/lib/security/libgcj.security
-%{_prefix}/lib/logging.properties
+%dir %{_prefix}/%{_lib}/security
+%config(noreplace) %{_prefix}/%{_lib}/security/classpath.security
+%{_prefix}/%{_lib}/logging.properties
 %dir %{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_prefix}/%{_lib}/gcj-%{version}/classmap.db
 
