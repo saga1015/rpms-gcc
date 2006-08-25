@@ -1,6 +1,6 @@
-%define DATE 20060818
+%define DATE 20060825
 %define gcc_version 4.1.1
-%define gcc_release 18
+%define gcc_release 19
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -121,7 +121,7 @@ Patch13: gcc41-rh184446.patch
 Patch14: gcc41-pr21764.patch
 Patch15: gcc41-pr21581.patch
 Patch16: gcc41-pr20297-test.patch
-Patch17: gcc41-java-pr13212.patch
+Patch17: gcc41-pr28683.patch
 Patch18: gcc41-objc-rh185398.patch
 Patch19: gcc41-tests.patch
 Patch20: gcc41-ppc64-ldouble-stdarg.patch
@@ -443,7 +443,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .pr21764~
 #%patch15 -p0 -b .pr21581~
 %patch16 -p0 -E -b .pr20297-test~
-%patch17 -p0 -b .java-pr13212~
+%patch17 -p0 -b .pr28683~
 %patch18 -p0 -b .objc-rh185398~
 %patch19 -p0 -b .tests~
 %patch20 -p0 -b .ppc64-ldouble-stdarg~
@@ -1528,6 +1528,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-19
+- update from gcc-4_1-branch (-r116223:116389)
+  - PRs c++/23372, c++/27714, c++/28346, c++/28385, fortran/18111,
+	fortran/20886, fortran/25217, fortran/25828, fortran/28425,
+	fortran/28496, fortran/28601, fortran/28630, fortran/28660,
+	fortran/28735, fortran/28762, fortran/28771, fortran/28788,
+	libstdc++/28765, target/27565
+- another big Java merge from the trunk (Tom Fitzsimmons)
+- fix ICE in add_reg_br_prob_note (PR middle-end/28683)
+
 * Fri Aug 18 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-18
 - update from gcc-4_1-branch (-r116176:116223)
   - PRs c++/28593, c++/28606, c++/28710, c/27697, middle-end/20256,
