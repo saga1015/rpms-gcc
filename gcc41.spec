@@ -1,6 +1,6 @@
-%define DATE 20060825
+%define DATE 20060828
 %define gcc_version 4.1.1
-%define gcc_release 19
+%define gcc_release 20
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -118,34 +118,31 @@ Patch10: gcc41-x86_64-sse3.patch
 Patch11: gcc41-mni.patch
 Patch12: gcc41-dsohandle.patch
 Patch13: gcc41-rh184446.patch
-Patch14: gcc41-pr21764.patch
-Patch15: gcc41-pr21581.patch
-Patch16: gcc41-pr20297-test.patch
-Patch17: gcc41-pr28683.patch
-Patch18: gcc41-objc-rh185398.patch
-Patch19: gcc41-tests.patch
-Patch20: gcc41-ppc64-ldouble-stdarg.patch
-Patch21: gcc41-pr25874.patch
-Patch22: gcc41-pr26881.patch
-Patch23: gcc41-i386-tune-geode.patch
-Patch24: gcc41-pr26885.patch
-Patch25: gcc41-hash-style-gnu.patch
-Patch26: gcc41-visibility.patch
-Patch27: gcc41-pr28370.patch
-Patch28: gcc41-pr28407.patch
-Patch29: gcc41-power6.patch
-Patch30: gcc41-power6-2.patch
-Patch31: gcc41-java-libdotdotlib.patch
-Patch32: gcc41-pr28600.patch
-Patch33: gcc41-rh200887.patch
-Patch34: gcc41-pr25795.patch
-Patch35: gcc41-pr28706.patch
-Patch36: gcc41-pr28725.patch
-Patch37: gcc41-pr28709.patch
-Patch38: gcc41-pr28744.patch
-Patch39: gcc41-x86_64-kernel-ssp.patch
-Patch40: gcc41-pr28755.patch
-Patch41: gcc41-pr27898.patch
+Patch14: gcc41-pr20297-test.patch
+Patch15: gcc41-pr28683.patch
+Patch16: gcc41-objc-rh185398.patch
+Patch17: gcc41-tests.patch
+Patch18: gcc41-ppc64-ldouble-stdarg.patch
+Patch19: gcc41-pr25874.patch
+Patch20: gcc41-pr26881.patch
+Patch21: gcc41-i386-tune-geode.patch
+Patch22: gcc41-pr26885.patch
+Patch23: gcc41-hash-style-gnu.patch
+Patch24: gcc41-power6.patch
+Patch25: gcc41-power6-2.patch
+Patch26: gcc41-java-libdotdotlib.patch
+Patch27: gcc41-pr28600.patch
+Patch28: gcc41-rh200887.patch
+Patch29: gcc41-pr25795.patch
+Patch30: gcc41-pr28706.patch
+Patch31: gcc41-pr28725.patch
+Patch32: gcc41-pr28709.patch
+Patch33: gcc41-pr28744.patch
+Patch34: gcc41-x86_64-kernel-ssp.patch
+Patch35: gcc41-pr28755.patch
+Patch36: gcc41-pr27898.patch
+Patch37: gcc41-pr26026.patch
+Patch38: gcc41-pr28659.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -440,34 +437,31 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .mni~
 %patch12 -p0 -b .dsohandle~
 %patch13 -p0 -b .rh184446~
-%patch14 -p0 -b .pr21764~
-#%patch15 -p0 -b .pr21581~
-%patch16 -p0 -E -b .pr20297-test~
-%patch17 -p0 -b .pr28683~
-%patch18 -p0 -b .objc-rh185398~
-%patch19 -p0 -b .tests~
-%patch20 -p0 -b .ppc64-ldouble-stdarg~
-%patch21 -p0 -b .pr25874~
-%patch22 -p0 -b .pr26881~
-%patch23 -p0 -b .i386-tune-geode~
-%patch24 -p0 -b .pr26885~
-%patch25 -p0 -b .hash-style-gnu~
-%patch26 -p0 -b .visibility~
-%patch27 -p0 -b .pr28370~
-%patch28 -p0 -b .pr28407~
-%patch29 -p0 -b .power6~
-%patch30 -p0 -b .power6-2~
-%patch31 -p0 -b .java-libdotdotlib~
-%patch32 -p0 -b .pr28600~
-%patch33 -p0 -b .rh200887~
-%patch34 -p0 -b .pr25795~
-%patch35 -p0 -b .pr28706~
-%patch36 -p0 -b .pr28725~
-%patch37 -p0 -b .pr28709~
-%patch38 -p0 -b .pr28744~
-%patch39 -p0 -b .x86_64-kernel-ssp~
-%patch40 -p0 -b .pr28755~
-%patch41 -p0 -b .pr27898~
+%patch14 -p0 -b .pr20297-test~
+%patch15 -p0 -b .pr28683~
+%patch16 -p0 -b .objc-rh185398~
+%patch17 -p0 -b .tests~
+%patch18 -p0 -b .ppc64-ldouble-stdarg~
+%patch19 -p0 -b .pr25874~
+%patch20 -p0 -b .pr26881~
+%patch21 -p0 -b .i386-tune-geode~
+%patch22 -p0 -b .pr26885~
+%patch23 -p0 -b .hash-style-gnu~
+%patch24 -p0 -b .power6~
+%patch25 -p0 -b .power6-2~
+%patch26 -p0 -b .java-libdotdotlib~
+%patch27 -p0 -b .pr28600~
+%patch28 -p0 -b .rh200887~
+%patch29 -p0 -b .pr25795~
+%patch30 -p0 -b .pr28706~
+%patch31 -p0 -b .pr28725~
+%patch32 -p0 -b .pr28709~
+%patch33 -p0 -b .pr28744~
+%patch34 -p0 -b .x86_64-kernel-ssp~
+%patch35 -p0 -b .pr28755~
+%patch36 -p0 -b .pr27898~
+%patch37 -p0 -b .pr26026~
+%patch38 -p0 -b .pr28659~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1527,6 +1521,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-20
+- update from gcc-4_1-branch (-r116389:116498)
+  - PRs c++/28056, c++/28058, c++/28595, c++/28853, c/27558,
+	c/27893, c/28299, c/28418, driver/27622, libfortran/28452,
+	libfortran/28542, target/27075
+- optimize A / (B << N) where A and B is positive and B is a power of two
+  (Alan Modra, #195924, PR rtl-optimization/26026)
+- fix attribute handling in C++ (Jason Merrill, #204277, #204035,
+  PRs c++/28659, c++/28863)
+
 * Fri Aug 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-19
 - update from gcc-4_1-branch (-r116223:116389)
   - PRs c++/23372, c++/27714, c++/28346, c++/28385, fortran/18111,
