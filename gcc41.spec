@@ -1,6 +1,6 @@
-%define DATE 20060828
+%define DATE 20060908
 %define gcc_version 4.1.1
-%define gcc_release 20
+%define gcc_release 21
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -119,30 +119,30 @@ Patch11: gcc41-mni.patch
 Patch12: gcc41-dsohandle.patch
 Patch13: gcc41-rh184446.patch
 Patch14: gcc41-pr20297-test.patch
-Patch15: gcc41-pr28683.patch
-Patch16: gcc41-objc-rh185398.patch
-Patch17: gcc41-tests.patch
-Patch18: gcc41-ppc64-ldouble-stdarg.patch
-Patch19: gcc41-pr25874.patch
-Patch20: gcc41-pr26881.patch
-Patch21: gcc41-i386-tune-geode.patch
-Patch22: gcc41-pr26885.patch
-Patch23: gcc41-hash-style-gnu.patch
-Patch24: gcc41-power6.patch
-Patch25: gcc41-power6-2.patch
-Patch26: gcc41-java-libdotdotlib.patch
-Patch27: gcc41-pr28600.patch
-Patch28: gcc41-rh200887.patch
-Patch29: gcc41-pr25795.patch
-Patch30: gcc41-pr28706.patch
-Patch31: gcc41-pr28725.patch
-Patch32: gcc41-pr28709.patch
-Patch33: gcc41-pr28744.patch
-Patch34: gcc41-x86_64-kernel-ssp.patch
-Patch35: gcc41-pr28755.patch
-Patch36: gcc41-pr27898.patch
-Patch37: gcc41-pr26026.patch
-Patch38: gcc41-pr28659.patch
+Patch15: gcc41-objc-rh185398.patch
+Patch16: gcc41-tests.patch
+Patch17: gcc41-ppc64-ldouble-stdarg.patch
+Patch18: gcc41-pr25874.patch
+Patch19: gcc41-pr26881.patch
+Patch20: gcc41-i386-tune-geode.patch
+Patch21: gcc41-pr26885.patch
+Patch22: gcc41-hash-style-gnu.patch
+Patch23: gcc41-power6.patch
+Patch24: gcc41-power6-2.patch
+Patch25: gcc41-java-libdotdotlib.patch
+Patch26: gcc41-pr28600.patch
+Patch27: gcc41-rh200887.patch
+Patch28: gcc41-pr25795.patch
+Patch29: gcc41-pr28706.patch
+Patch30: gcc41-pr28725.patch
+Patch31: gcc41-pr28709.patch
+Patch32: gcc41-pr28744.patch
+Patch33: gcc41-x86_64-kernel-ssp.patch
+Patch34: gcc41-pr28755.patch
+Patch35: gcc41-pr27898.patch
+Patch36: gcc41-pr26026.patch
+Patch37: gcc41-pr28659.patch
+Patch38: gcc41-pr27567.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -201,7 +201,7 @@ C++ Library.
 %package -n libstdc++-devel
 Summary: Header files and libraries for C++ development
 Group: Development/Libraries
-Requires: libstdc++ = %{version}-%{release}
+Requires: libstdc++ = %{version}-%{release}, %{_prefix}/%{_lib}/libstdc++.so.6
 Obsoletes: libstdc++3-devel
 Obsoletes: libstdc++34-devel
 Provides: libstdc++34-devel
@@ -304,7 +304,7 @@ Summary: Java support for GCC
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libgcj = %{version}-%{release}
-Requires: libgcj-devel = %{version}-%{release}, zlib-devel
+Requires: libgcj-devel = %{version}-%{release}
 Obsoletes: gcc3-java
 Obsoletes: gcc34-java
 Obsoletes: gcc35-java
@@ -346,7 +346,9 @@ programs compiled using the Java compiler from GNU Compiler Collection (gcj).
 %package -n libgcj-devel
 Summary: Libraries for Java development using GCC
 Group: Development/Languages
-Requires: zip >= 2.1, libgcj = %{version}-%{release}, /bin/awk
+Requires: libgcj = %{version}-%{release}, %{_prefix}/%{_lib}/libgcj.so.7rh
+Requires: zlib-devel, %{_prefix}/%{_lib}/libz.so
+Requires: /bin/awk
 Obsoletes: libgcj3-devel
 Obsoletes: libgcj34-devel
 Obsoletes: libgcj4-devel
@@ -437,31 +439,31 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .mni~
 %patch12 -p0 -b .dsohandle~
 %patch13 -p0 -b .rh184446~
-%patch14 -p0 -b .pr20297-test~
-%patch15 -p0 -b .pr28683~
-%patch16 -p0 -b .objc-rh185398~
-%patch17 -p0 -b .tests~
-%patch18 -p0 -b .ppc64-ldouble-stdarg~
-%patch19 -p0 -b .pr25874~
-%patch20 -p0 -b .pr26881~
-%patch21 -p0 -b .i386-tune-geode~
-%patch22 -p0 -b .pr26885~
-%patch23 -p0 -b .hash-style-gnu~
-%patch24 -p0 -b .power6~
-%patch25 -p0 -b .power6-2~
-%patch26 -p0 -b .java-libdotdotlib~
-%patch27 -p0 -b .pr28600~
-%patch28 -p0 -b .rh200887~
-%patch29 -p0 -b .pr25795~
-%patch30 -p0 -b .pr28706~
-%patch31 -p0 -b .pr28725~
-%patch32 -p0 -b .pr28709~
-%patch33 -p0 -b .pr28744~
-%patch34 -p0 -b .x86_64-kernel-ssp~
-%patch35 -p0 -b .pr28755~
-%patch36 -p0 -b .pr27898~
-%patch37 -p0 -b .pr26026~
-%patch38 -p0 -b .pr28659~
+%patch14 -p0 -E -b .pr20297-test~
+%patch15 -p0 -b .objc-rh185398~
+%patch16 -p0 -b .tests~
+%patch17 -p0 -b .ppc64-ldouble-stdarg~
+%patch18 -p0 -b .pr25874~
+%patch19 -p0 -b .pr26881~
+%patch20 -p0 -b .i386-tune-geode~
+%patch21 -p0 -b .pr26885~
+%patch22 -p0 -b .hash-style-gnu~
+%patch23 -p0 -b .power6~
+%patch24 -p0 -b .power6-2~
+%patch25 -p0 -b .java-libdotdotlib~
+%patch26 -p0 -b .pr28600~
+%patch27 -p0 -b .rh200887~
+%patch28 -p0 -b .pr25795~
+%patch29 -p0 -b .pr28706~
+%patch30 -p0 -b .pr28725~
+%patch31 -p0 -b .pr28709~
+%patch32 -p0 -b .pr28744~
+%patch33 -p0 -b .x86_64-kernel-ssp~
+%patch34 -p0 -b .pr28755~
+%patch35 -p0 -b .pr27898~
+%patch36 -p0 -b .pr26026~
+%patch37 -p0 -b .pr28659~
+%patch38 -p0 -b .pr27567~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1521,6 +1523,22 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Sep  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-21
+- update from gcc-4_1-branch (-r116498:116778)
+  - PRs c++/19809, c++/26102, c++/26195, c++/26571, c++/26670, c++/26671,
+	c++/26696, c++/26917, c++/28860, c++/28878, c++/28886, fortran/20067,
+	fortran/24866, fortran/25077, fortran/25102, fortran/28005,
+	fortran/28873, fortran/28885, fortran/28908, libfortran/28005,
+	middle-end/27724, middle-end/28814, other/22313,
+	rtl-optimization/27616, rtl-optimization/28386, target/24367
+- add primitive class object symbols to libgcj_bc.so (Tom Tromey,
+  PR libgcj/28698)
+- optimize single entry memcpy/mempcpy/memmove/memset already at the tree
+  level (PR middle-end/27567)
+- add dependencies to *-devel subpackages, so that e.g. ppc64
+  libstdc++-devel requires 64-bit libstdc++, similarly for libgcj-devel
+  and libgcj/zlib-devel
+
 * Fri Aug 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-20
 - update from gcc-4_1-branch (-r116389:116498)
   - PRs c++/28056, c++/28058, c++/28595, c++/28853, c/27558,
