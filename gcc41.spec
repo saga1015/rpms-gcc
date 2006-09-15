@@ -645,6 +645,7 @@ cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
 mkdir -p rpm.doc/boehm-gc rpm.doc/fastjar rpm.doc/libffi rpm.doc/libjava
 mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}
+cp p %{SOURCE2} rpm.doc/README.libgcjwebplugin.so
 
 for i in {gcc,gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}/ChangeLog*; do
 	cp -p $i rpm.doc/changelogs/$i
@@ -1419,7 +1420,7 @@ fi
 %{_prefix}/%{_lib}/logging.properties
 %dir %{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_prefix}/%{_lib}/gcj-%{version}/classmap.db
-%doc %{SOURCE2}
+%doc rpm.doc/README.libgcjwebplugin.so
 
 %files -n libgcj-devel
 %defattr(-,root,root)
