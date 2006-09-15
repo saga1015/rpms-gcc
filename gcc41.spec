@@ -1,6 +1,6 @@
-%define DATE 20060908
+%define DATE 20060915
 %define gcc_version 4.1.1
-%define gcc_release 21
+%define gcc_release 22
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -29,6 +29,7 @@ License: GPL
 Group: Development/Languages
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
+Source2: README.libgcjwebplugin.so
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -143,6 +144,7 @@ Patch35: gcc41-pr27898.patch
 Patch36: gcc41-pr26026.patch
 Patch37: gcc41-pr28659.patch
 Patch38: gcc41-pr27567.patch
+Patch39: gcc41-pr28046.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -464,6 +466,7 @@ which are required to run programs compiled with the GNAT.
 %patch36 -p0 -b .pr26026~
 %patch37 -p0 -b .pr28659~
 %patch38 -p0 -b .pr27567~
+%patch39 -p0 -b .pr28046~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -647,8 +650,8 @@ for i in {gcc,gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}/C
 	cp -p $i rpm.doc/changelogs/$i
 done
 
-(cd gcc/f; for i in ChangeLog*; do
-	cp -p $i ../../rpm.doc/gfortran/$i.f
+(cd gcc/fortran; for i in ChangeLog*; do
+	cp -p $i ../../rpm.doc/gfortran/$i
 done)
 (cd libgfortran; for i in ChangeLog*; do
 	cp -p $i ../rpm.doc/gfortran/$i.libgfortran
@@ -1416,6 +1419,7 @@ fi
 %{_prefix}/%{_lib}/logging.properties
 %dir %{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_prefix}/%{_lib}/gcj-%{version}/classmap.db
+%doc %{SOURCE2}
 
 %files -n libgcj-devel
 %defattr(-,root,root)
@@ -1523,6 +1527,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Sep 15 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-22
+- update from gcc-4_1-branch (-r116778:116958)
+  - PRs ada/21952, ada/29025, c++/26957, fortran/28890, fortran/28923,
+	fortran/28959, libfortran/28890, libfortran/28923, libfortran/28947,
+	middle-end/28493, other/23541, other/26507, rtl-optimization/28243,
+	rtl-optimization/28634, rtl-optimization/28636, rtl-optimization/28726,
+	target/13685, target/26504, target/27537, target/27681, target/28621,
+	target/29006, testsuite/28950, testsuite/29007
+- fix #pragma omp atomic (PR middle-end/28046)
+- speed up dominance frontiers calculation (Jan Hubicka)
+- add README.libgcjwebplugin.so to libgcj %%doc (Tom Fitzsimmons)
+- fix gcc-gfortran %%doc (#206333)
+- fix gcc-debuginfo (#205500)
+
 * Fri Sep  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-21
 - update from gcc-4_1-branch (-r116498:116778)
   - PRs c++/19809, c++/26102, c++/26195, c++/26571, c++/26670, c++/26671,
