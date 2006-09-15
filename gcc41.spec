@@ -645,7 +645,7 @@ cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
 mkdir -p rpm.doc/boehm-gc rpm.doc/fastjar rpm.doc/libffi rpm.doc/libjava
 mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}
-cp p %{SOURCE2} rpm.doc/README.libgcjwebplugin.so
+cp -p %{SOURCE2} rpm.doc/README.libgcjwebplugin.so
 
 for i in {gcc,gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}/ChangeLog*; do
 	cp -p $i rpm.doc/changelogs/$i
