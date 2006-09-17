@@ -1,6 +1,6 @@
-%define DATE 20060915
+%define DATE 20060917
 %define gcc_version 4.1.1
-%define gcc_release 22
+%define gcc_release 23
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -145,6 +145,7 @@ Patch36: gcc41-pr26026.patch
 Patch37: gcc41-pr28659.patch
 Patch38: gcc41-pr27567.patch
 Patch39: gcc41-pr28046.patch
+Patch40: gcc41-pr29059.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -467,6 +468,7 @@ which are required to run programs compiled with the GNAT.
 %patch37 -p0 -b .pr28659~
 %patch38 -p0 -b .pr27567~
 %patch39 -p0 -b .pr28046~
+%patch40 -p0 -b .pr29059~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1528,6 +1530,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sun Sep 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-23
+- update from gcc-4_1-branch (-r116958:117000)
+  - PRs fortran/29051, target/28946
+- fix single entry mem{{,p}cpy,move,set} optimization (Andrew Pinski,
+  PR tree-opt/29059)
+
 * Fri Sep 15 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-22
 - update from gcc-4_1-branch (-r116778:116958)
   - PRs ada/21952, ada/29025, c++/26957, fortran/28890, fortran/28923,
