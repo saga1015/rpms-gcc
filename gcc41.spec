@@ -1,6 +1,6 @@
-%define DATE 20060917
+%define DATE 20060920
 %define gcc_version 4.1.1
-%define gcc_release 23
+%define gcc_release 24
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -144,8 +144,9 @@ Patch35: gcc41-pr27898.patch
 Patch36: gcc41-pr26026.patch
 Patch37: gcc41-pr28659.patch
 Patch38: gcc41-pr27567.patch
-Patch39: gcc41-pr28046.patch
+Patch39: gcc41-pr29097.patch
 Patch40: gcc41-pr29059.patch
+Patch41: gcc41-strncat-chk.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -467,8 +468,9 @@ which are required to run programs compiled with the GNAT.
 %patch36 -p0 -b .pr26026~
 %patch37 -p0 -b .pr28659~
 %patch38 -p0 -b .pr27567~
-%patch39 -p0 -b .pr28046~
+%patch39 -p0 -b .pr29097~
 %patch40 -p0 -b .pr29059~
+%patch41 -p0 -b .strncat-chk~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1530,6 +1532,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Sep 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-24
+- update from gcc-4_1-branch (-r117000:117069)
+  - PRs fortran/21918, fortran/28526, fortran/28817, fortran/29060,
+	fortran/29101, java/28754, java/28892, java/29013,
+	middle-end/27226, middle-end/4520, tree-optimization/28900
+- fix java.utils.logging.Logger (Mark Wielaard, #207111)
+- fix gnu.javax.net.ssl.provider.SSLSocket (Tom Tromey, #206904)
+- add support for Fortran OpenMP conditional inclusion (PR fortran/29097)
+- add some -D_FORTIFY_SOURCE compile time strncat buffer overflow checks
+
 * Sun Sep 17 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-23
 - update from gcc-4_1-branch (-r116958:117000)
   - PRs fortran/29051, target/28946
