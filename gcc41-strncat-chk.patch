@@ -1,29 +1,10 @@
 2006-09-18  Jakub Jelinek  <jakub@redhat.com>
 
-	* tree-ssa-propagate.c (set_rhs): Copy EXPR_LOCATION if
-	needed.
-
 	* builtins.c (expand_builtin, maybe_emit_chk_warning): Handle
 	BUILT_IN_STRNCAT_CHK.
 
 	* gcc.dg/builtin-strncat-chk-1.c: New test.
 
---- gcc/tree-ssa-propagate.c.jj	2006-04-06 11:33:59.000000000 +0200
-+++ gcc/tree-ssa-propagate.c	2006-09-18 14:49:57.000000000 +0200
-@@ -591,6 +591,13 @@ set_rhs (tree *stmt_p, tree expr)
-   else if (code == COMPOUND_EXPR)
-     return false;
- 
-+  if (EXPR_HAS_LOCATION (stmt)
-+      && EXPR_P (expr)
-+      && ! EXPR_HAS_LOCATION (expr)
-+      && TREE_SIDE_EFFECTS (expr)
-+      && TREE_CODE (expr) != LABEL_EXPR)
-+    SET_EXPR_LOCATION (expr, EXPR_LOCATION (stmt));
-+
-   switch (TREE_CODE (stmt))
-     {
-     case RETURN_EXPR:
 --- gcc/builtins.c.jj	2006-09-02 08:54:22.000000000 +0200
 +++ gcc/builtins.c	2006-09-18 16:54:57.000000000 +0200
 @@ -6437,6 +6437,7 @@ expand_builtin (tree exp, rtx target, rt

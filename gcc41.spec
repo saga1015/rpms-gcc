@@ -1,6 +1,6 @@
-%define DATE 20060920
+%define DATE 20060923
 %define gcc_version 4.1.1
-%define gcc_release 24
+%define gcc_release 25
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -115,38 +115,27 @@ Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
-Patch10: gcc41-x86_64-sse3.patch
-Patch11: gcc41-mni.patch
-Patch12: gcc41-dsohandle.patch
-Patch13: gcc41-rh184446.patch
-Patch14: gcc41-pr20297-test.patch
-Patch15: gcc41-objc-rh185398.patch
-Patch16: gcc41-tests.patch
-Patch17: gcc41-ppc64-ldouble-stdarg.patch
-Patch18: gcc41-pr25874.patch
-Patch19: gcc41-pr26881.patch
-Patch20: gcc41-i386-tune-geode.patch
-Patch21: gcc41-pr26885.patch
-Patch22: gcc41-hash-style-gnu.patch
-Patch23: gcc41-power6.patch
-Patch24: gcc41-power6-2.patch
-Patch25: gcc41-java-libdotdotlib.patch
-Patch26: gcc41-pr28600.patch
-Patch27: gcc41-rh200887.patch
-Patch28: gcc41-pr25795.patch
-Patch29: gcc41-pr28706.patch
-Patch30: gcc41-pr28725.patch
-Patch31: gcc41-pr28709.patch
-Patch32: gcc41-pr28744.patch
-Patch33: gcc41-x86_64-kernel-ssp.patch
-Patch34: gcc41-pr28755.patch
-Patch35: gcc41-pr27898.patch
-Patch36: gcc41-pr26026.patch
-Patch37: gcc41-pr28659.patch
-Patch38: gcc41-pr27567.patch
-Patch39: gcc41-pr29097.patch
-Patch40: gcc41-pr29059.patch
-Patch41: gcc41-strncat-chk.patch
+Patch10: gcc41-mni.patch
+Patch11: gcc41-dsohandle.patch
+Patch12: gcc41-rh184446.patch
+Patch13: gcc41-pr20297-test.patch
+Patch14: gcc41-objc-rh185398.patch
+Patch15: gcc41-tests.patch
+Patch16: gcc41-pr25874.patch
+Patch17: gcc41-pr26881.patch
+Patch18: gcc41-i386-tune-geode.patch
+Patch19: gcc41-hash-style-gnu.patch
+Patch20: gcc41-power6.patch
+Patch21: gcc41-power6-2.patch
+Patch22: gcc41-java-libdotdotlib.patch
+Patch23: gcc41-pr28709.patch
+Patch24: gcc41-pr28755.patch
+Patch25: gcc41-pr27898.patch
+Patch26: gcc41-pr27567.patch
+Patch27: gcc41-pr29097.patch
+Patch28: gcc41-pr29059.patch
+Patch29: gcc41-strncat-chk.patch
+Patch30: gcc41-pr25261.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -439,38 +428,27 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .ppc32-retaddr~
-%patch10 -p0 -b .x86_64-sse3~
-%patch11 -p0 -b .mni~
-%patch12 -p0 -b .dsohandle~
-%patch13 -p0 -b .rh184446~
-%patch14 -p0 -E -b .pr20297-test~
-%patch15 -p0 -b .objc-rh185398~
-%patch16 -p0 -b .tests~
-%patch17 -p0 -b .ppc64-ldouble-stdarg~
-%patch18 -p0 -b .pr25874~
-%patch19 -p0 -b .pr26881~
-%patch20 -p0 -b .i386-tune-geode~
-%patch21 -p0 -b .pr26885~
-%patch22 -p0 -b .hash-style-gnu~
-%patch23 -p0 -b .power6~
-%patch24 -p0 -b .power6-2~
-%patch25 -p0 -b .java-libdotdotlib~
-%patch26 -p0 -b .pr28600~
-%patch27 -p0 -b .rh200887~
-%patch28 -p0 -b .pr25795~
-%patch29 -p0 -b .pr28706~
-%patch30 -p0 -b .pr28725~
-%patch31 -p0 -b .pr28709~
-%patch32 -p0 -b .pr28744~
-%patch33 -p0 -b .x86_64-kernel-ssp~
-%patch34 -p0 -b .pr28755~
-%patch35 -p0 -b .pr27898~
-%patch36 -p0 -b .pr26026~
-%patch37 -p0 -b .pr28659~
-%patch38 -p0 -b .pr27567~
-%patch39 -p0 -b .pr29097~
-%patch40 -p0 -b .pr29059~
-%patch41 -p0 -b .strncat-chk~
+%patch10 -p0 -b .mni~
+%patch11 -p0 -b .dsohandle~
+%patch12 -p0 -b .rh184446~
+%patch13 -p0 -E -b .pr20297-test~
+%patch14 -p0 -b .objc-rh185398~
+%patch15 -p0 -b .tests~
+%patch16 -p0 -b .pr25874~
+%patch17 -p0 -b .pr26881~
+%patch18 -p0 -b .i386-tune-geode~
+%patch19 -p0 -b .hash-style-gnu~
+%patch20 -p0 -b .power6~
+%patch21 -p0 -b .power6-2~
+%patch22 -p0 -b .java-libdotdotlib~
+%patch23 -p0 -b .pr28709~
+%patch24 -p0 -b .pr28755~
+%patch25 -p0 -b .pr27898~
+%patch26 -p0 -b .pr27567~
+%patch27 -p0 -b .pr29097~
+%patch28 -p0 -b .pr29059~
+%patch29 -p0 -b .strncat-chk~
+%patch30 -p0 -b .pr25261~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1532,6 +1510,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Sep 23 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-25
+- update from gcc-4_1-branch (-r117069:117162)
+  - PRs c++/28996, c++/29087, middle-end/26983
+- fix -fprofile-use with anonymous namespaces (Jan Hubicka, PRs profile/20815,
+  profile/26399)
+- fix #pragma omp parallel and #pragma omp section that call nested
+  functions (PRs middle-end/25261, middle-end/28790)
+
 * Wed Sep 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-24
 - update from gcc-4_1-branch (-r117000:117069)
   - PRs fortran/21918, fortran/28526, fortran/28817, fortran/29060,
