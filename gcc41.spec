@@ -1,6 +1,6 @@
-%define DATE 20060923
+%define DATE 20060926
 %define gcc_version 4.1.1
-%define gcc_release 25
+%define gcc_release 26
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -1510,6 +1510,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Sep 26 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-26
+- update from gcc-4_1-branch (-r117162:117225)
+  - PRs classpath/28661, libgcj/29178, libstdc++/29179, libstdc++/29224
+  - fix unwind info generation, broken in gcc-4.1.1-21
+    (Roger Sayle, PR debug/29132)
+
 * Sat Sep 23 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-25
 - update from gcc-4_1-branch (-r117069:117162)
   - PRs c++/28996, c++/29087, middle-end/26983
