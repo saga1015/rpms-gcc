@@ -1,6 +1,6 @@
-%define DATE 20060926
+%define DATE 20060928
 %define gcc_version 4.1.1
-%define gcc_release 26
+%define gcc_release 27
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -132,10 +132,9 @@ Patch23: gcc41-pr28709.patch
 Patch24: gcc41-pr28755.patch
 Patch25: gcc41-pr27898.patch
 Patch26: gcc41-pr27567.patch
-Patch27: gcc41-pr29097.patch
+Patch27: gcc41-pr29272.patch
 Patch28: gcc41-pr29059.patch
 Patch29: gcc41-strncat-chk.patch
-Patch30: gcc41-pr25261.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -445,10 +444,9 @@ which are required to run programs compiled with the GNAT.
 %patch24 -p0 -b .pr28755~
 %patch25 -p0 -b .pr27898~
 %patch26 -p0 -b .pr27567~
-%patch27 -p0 -b .pr29097~
+%patch27 -p0 -b .pr29272~
 %patch28 -p0 -b .pr29059~
 %patch29 -p0 -b .strncat-chk~
-%patch30 -p0 -b .pr25261~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1510,6 +1508,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Sep 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-27
+- update from gcc-4_1-branch (-r117225:117266)
+  - PR target/29230
+- restrict single entry mem{{,p}cpy,move,set} optimization to vars
+  and components thereof (PR middle-end/29272)
+- fix java.util.Locale (Tom Tromey, #201712)
+
 * Tue Sep 26 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-26
 - update from gcc-4_1-branch (-r117162:117225)
   - PRs classpath/28661, libgcj/29178, libstdc++/29179, libstdc++/29224
