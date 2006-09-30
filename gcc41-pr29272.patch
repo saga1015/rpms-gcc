@@ -4,6 +4,8 @@
 	* builtins.c (fold_builtin_memset, fold_builtin_memory_op): Restrict
 	single entry optimization to variables and components thereof.
 
+	* gcc.c-torture/execute/20060930-1.c: New test.
+
 --- gcc/builtins.c.jj	2006-09-22 10:29:55.000000000 +0200
 +++ gcc/builtins.c	2006-09-28 20:31:30.000000000 +0200
 @@ -7905,7 +7905,7 @@ fold_builtin_exponent (tree fndecl, tree
@@ -72,3 +74,37 @@
        length = tree_low_cst (len, 1);
        if (GET_MODE_SIZE (TYPE_MODE (TREE_TYPE (destvar))) != length
  	  || get_pointer_alignment (dest, BIGGEST_ALIGNMENT) / BITS_PER_UNIT
+--- gcc/testsuite/gcc.c-torture/execute/20060930-1.c.jj	2006-09-30 21:10:17.000000000 +0200
++++ gcc/testsuite/gcc.c-torture/execute/20060930-1.c	2006-09-30 21:09:33.000000000 +0200
+@@ -0,0 +1,31 @@
++/* PR middle-end/29272 */
++
++extern void abort (void);
++
++struct S { struct S *s; } s;
++struct T { struct T *t; } t;
++
++static inline void
++foo (void *s)
++{
++  struct T *p = s;
++  __builtin_memcpy (&p->t, &t.t, sizeof (t.t));
++}
++
++void *
++__attribute__((noinline))
++bar (void *p, struct S *q)
++{
++  q->s = &s;
++  foo (p);
++  return q->s;
++}
++
++int
++main (void)
++{
++  t.t = &t;
++  if (bar (&s, &s) != (void *) &t)
++    abort ();
++  return 0;
++}

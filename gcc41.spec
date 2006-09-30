@@ -1,6 +1,6 @@
 %define DATE 20060928
 %define gcc_version 4.1.1
-%define gcc_release 27
+%define gcc_release 28
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -135,6 +135,9 @@ Patch26: gcc41-pr27567.patch
 Patch27: gcc41-pr29272.patch
 Patch28: gcc41-pr29059.patch
 Patch29: gcc41-strncat-chk.patch
+Patch30: gcc41-pr29154.patch
+Patch31: gcc41-pr29198.patch
+Patch32: gcc41-power6x.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -447,6 +450,9 @@ which are required to run programs compiled with the GNAT.
 %patch27 -p0 -b .pr29272~
 %patch28 -p0 -b .pr29059~
 %patch29 -p0 -b .strncat-chk~
+%patch30 -p0 -b .pr29154~
+%patch31 -p0 -b .pr29198~
+%patch32 -p0 -b .power6x~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1508,6 +1514,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Sep 30 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-28
+- fix i386/x86_64 legitimize_pic_address with TLS symbols (PR target/29198)
+- fix gimplification of post-increment with side-effects on the inner
+  expression (PR c/29154)
+
 * Thu Sep 28 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-27
 - update from gcc-4_1-branch (-r117225:117266)
   - PR target/29230
