@@ -1,56 +1,7 @@
 2006-04-06  Jakub Jelinek  <jakub@redhat.com>
 
-	* objc-act.c (objc_push_param): If changing type, run relayout_decl
-	on the parameter.
-
 	* objc/compile/20060406-1.m: New test.
 
---- gcc/objc/objc-act.c.jj	2006-03-04 08:01:27.000000000 +0100
-+++ gcc/objc/objc-act.c	2006-04-06 16:56:57.000000000 +0200
-@@ -1,6 +1,6 @@
- /* Implement classes and message passing for Objective C.
-    Copyright (C) 1992, 1993, 1994, 1995, 1997, 1998, 1999, 2000,
--   2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
-+   2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
-    Contributed by Steve Naroff.
- 
- This file is part of GCC.
-@@ -8222,21 +8222,29 @@ static GTY(()) tree objc_parmlist = NULL
- static void
- objc_push_parm (tree parm)
- {
-+  tree type = TREE_TYPE (parm);
-+
-   /* Decay arrays and functions into pointers.  */
-   if (TREE_CODE (TREE_TYPE (parm)) == ARRAY_TYPE)
--    TREE_TYPE (parm) = build_pointer_type (TREE_TYPE (TREE_TYPE (parm)));
-+    TREE_TYPE (parm) = build_pointer_type (TREE_TYPE (type));
-   else if (TREE_CODE (TREE_TYPE (parm)) == FUNCTION_TYPE)
--    TREE_TYPE (parm) = build_pointer_type (TREE_TYPE (parm));
-+    TREE_TYPE (parm) = build_pointer_type (type);
- 
-   DECL_ARG_TYPE (parm)
-     = lang_hooks.types.type_promotes_to (TREE_TYPE (parm));
- 
-+  if (type != TREE_TYPE (parm))
-+    {
-+      relayout_decl (parm);
-+      type = TREE_TYPE (parm);
-+    }
-+
-   /* Record constancy and volatility.  */
-   c_apply_type_quals_to_decl
--  ((TYPE_READONLY (TREE_TYPE (parm)) ? TYPE_QUAL_CONST : 0)
--   | (TYPE_RESTRICT (TREE_TYPE (parm)) ? TYPE_QUAL_RESTRICT : 0)
--   | (TYPE_VOLATILE (TREE_TYPE (parm)) ? TYPE_QUAL_VOLATILE : 0), parm);
--  
-+  ((TYPE_READONLY (type) ? TYPE_QUAL_CONST : 0)
-+   | (TYPE_RESTRICT (type) ? TYPE_QUAL_RESTRICT : 0)
-+   | (TYPE_VOLATILE (type) ? TYPE_QUAL_VOLATILE : 0), parm);
-+
-   objc_parmlist = chainon (objc_parmlist, parm);
- }
- 
 --- gcc/testsuite/objc/compile/20060406-1.m.jj	2006-04-06 17:25:59.000000000 +0200
 +++ gcc/testsuite/objc/compile/20060406-1.m	2006-04-06 17:20:48.000000000 +0200
 @@ -0,0 +1,21 @@
