@@ -1,6 +1,6 @@
-%define DATE 20061011
+%define DATE 20061025
 %define gcc_version 4.1.1
-%define gcc_release 30
+%define gcc_release 31
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -122,7 +122,7 @@ Patch13: gcc41-pr20297-test.patch
 Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
-Patch17: gcc41-pr26881.patch
+Patch17: gcc41-pr29241.patch
 Patch18: gcc41-i386-tune-geode.patch
 Patch19: gcc41-hash-style-gnu.patch
 Patch20: gcc41-power6.patch
@@ -136,7 +136,7 @@ Patch27: gcc41-pr29272.patch
 Patch28: gcc41-pr29059.patch
 Patch29: gcc41-strncat-chk.patch
 Patch30: gcc41-power6x.patch
-Patch31: gcc41-pr29091.patch
+Patch31: gcc41-pr29299.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -436,7 +436,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .objc-rh185398~
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
-%patch17 -p0 -b .pr26881~
+%patch17 -p0 -b .pr29241~
 %patch18 -p0 -b .i386-tune-geode~
 %patch19 -p0 -b .hash-style-gnu~
 %patch20 -p0 -b .power6~
@@ -450,7 +450,7 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .pr29059~
 %patch29 -p0 -b .strncat-chk~
 %patch30 -p0 -b .power6x~
-%patch31 -p0 -b .pr29091~
+%patch31 -p0 -b .pr29299~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1512,6 +1512,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Oct 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-31
+- update from gcc-4_1-branch (-r117629:118025)
+  - PRs c++/20647, c++/25878, c++/26884, c++/27787, c++/28506, c++/28906,
+	c++/29020, c++/29175, c++/29318, c++/29408, c++/29435, c/27184,
+	c/29092, fortran/25091, fortran/25092, fortran/29284, fortran/29321,
+	fortran/29322, fortran/29393, fortran/29403, gcov/profile/26570,
+	inline-asm/29119, middle-end/20491, rtl-optimization/29323,
+	target/25519, target/28825, target/28960, target/29300,
+	testsuite/28829, tree-optimization/26969
+  - fix libstdc++.so backwards compatibility with GCC 3.4.x (#210452)
+- fix always_inline attribute at -O0 (Jan Hubicka, PR middle-end/29241)
+- fix function local static vars with used attribute (Jan Hubicka,
+  Richard Guenther, PR middle-end/29299)
+
 * Wed Oct 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-30
 - update from gcc-4_1-branch (-r117464:117629)
   - PRs c++/28302, c++/28349, c++/28450, c++/29002, libstdc++/29095,
