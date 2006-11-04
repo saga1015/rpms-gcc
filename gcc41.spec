@@ -1,6 +1,6 @@
-%define DATE 20061025
+%define DATE 20061104
 %define gcc_version 4.1.1
-%define gcc_release 31
+%define gcc_release 32
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -137,6 +137,8 @@ Patch28: gcc41-pr29059.patch
 Patch29: gcc41-strncat-chk.patch
 Patch30: gcc41-power6x.patch
 Patch31: gcc41-pr29299.patch
+Patch32: gcc41-pr29641.patch
+Patch33: gcc41-pr29695.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -451,6 +453,8 @@ which are required to run programs compiled with the GNAT.
 %patch29 -p0 -b .strncat-chk~
 %patch30 -p0 -b .power6x~
 %patch31 -p0 -b .pr29299~
+%patch32 -p0 -b .pr29641~ 
+%patch33 -p0 -b .pr29695~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1512,6 +1516,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Nov  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-32
+- update from gcc-4_1-branch (-r118025:118468)
+  - PRs bootstrap/28400, fortran/29067, libgfortran/29563, middle-end/29250,
+	rtl-optimization/28970, rtl-optimization/29631, target/29377,
+	tree-optimization/27891
+  - fix infinite recursion in make_vector_type (#212848,
+    PR tree-optimization/29637)
+- merge gomp fixes from the trunk (-r118133:118134)
+  - PR fortran/29629
+- fix A < 0 ? <sign bit of A> : 0 optimization (#213821, PR middle-end/29695)
+- fix ICE in gfc_get_derived_type (Paul Thomas, #212936, PR fortran/29641)
+
 * Wed Oct 25 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-31
 - update from gcc-4_1-branch (-r117629:118025)
   - PRs c++/20647, c++/25878, c++/26884, c++/27787, c++/28506, c++/28906,
