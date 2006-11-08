@@ -1,6 +1,6 @@
-%define DATE 20061104
+%define DATE 20061108
 %define gcc_version 4.1.1
-%define gcc_release 32
+%define gcc_release 33
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -125,8 +125,8 @@ Patch16: gcc41-pr25874.patch
 Patch17: gcc41-pr29241.patch
 Patch18: gcc41-i386-tune-geode.patch
 Patch19: gcc41-hash-style-gnu.patch
-Patch20: gcc41-power6.patch
-Patch21: gcc41-power6-2.patch
+Patch20: gcc41-configure-ld-ver.patch
+Patch21: gcc41-pr29612.patch
 Patch22: gcc41-java-libdotdotlib.patch
 Patch23: gcc41-pr28709.patch
 Patch24: gcc41-pr28755.patch
@@ -135,10 +135,9 @@ Patch26: gcc41-pr27567.patch
 Patch27: gcc41-pr29272.patch
 Patch28: gcc41-pr29059.patch
 Patch29: gcc41-strncat-chk.patch
-Patch30: gcc41-power6x.patch
+Patch30: gcc41-pr29703.patch
 Patch31: gcc41-pr29299.patch
 Patch32: gcc41-pr29641.patch
-Patch33: gcc41-pr29695.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -441,8 +440,8 @@ which are required to run programs compiled with the GNAT.
 %patch17 -p0 -b .pr29241~
 %patch18 -p0 -b .i386-tune-geode~
 %patch19 -p0 -b .hash-style-gnu~
-%patch20 -p0 -b .power6~
-%patch21 -p0 -b .power6-2~
+%patch20 -p0 -b .configure-ld-ver~
+%patch21 -p0 -b .pr29612~
 %patch22 -p0 -b .java-libdotdotlib~
 %patch23 -p0 -b .pr28709~
 %patch24 -p0 -b .pr28755~
@@ -451,10 +450,9 @@ which are required to run programs compiled with the GNAT.
 %patch27 -p0 -b .pr29272~
 %patch28 -p0 -b .pr29059~
 %patch29 -p0 -b .strncat-chk~
-%patch30 -p0 -b .power6x~
+%patch30 -p0 -b .pr29703~
 %patch31 -p0 -b .pr29299~
 %patch32 -p0 -b .pr29641~ 
-%patch33 -p0 -b .pr29695~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1367,8 +1365,29 @@ fi
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jc1
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jvgenmain
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgij.so
+%ifarch sparc ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj-tools.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj_bc.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgij.so
+%endif
+%ifarch %{multilib_64_archs}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj-tools.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj_bc.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgij.so
+%endif
 %doc rpm.doc/changelogs/gcc/java/ChangeLog*
 
 %files -n libgcj
@@ -1424,24 +1443,6 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jni_md.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jvmpi.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.spec
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgij.so
-%ifarch sparc ppc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj_bc.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgij.so
-%endif
-%ifarch %{multilib_64_archs}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj_bc.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgij.so
-%endif
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
 %{_prefix}/include/c++/%{gcc_version}/[gj]*
@@ -1516,6 +1517,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Nov  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-33
+- update from gcc-4_1-branch (-r118468:118571)
+  - PRs fortran/24398, fortran/27701, fortran/29098, fortran/29115,
+	fortran/29211, fortran/29232, fortran/29364, fortran/29373,
+	fortran/29407, libfortran/29627, tree-optimization/29610
+- fix java.net.SocketPermission (Gary Benson, #212739)
+- fix java.util.regex.Matcher (Ito Kazumitsu, #183698, PR classpath/29703)
+- fix # <linenum> <file> <flags> handling in libcpp when switching
+  from system header to non-system header or main source
+  (PR preprocessor/29612)
+- fix gcc configury detection of ld COMDAT support
+- move *.so symlinks from libgcj-devel to gcc-java (#214195)
+
 * Sat Nov  4 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-32
 - update from gcc-4_1-branch (-r118025:118468)
   - PRs bootstrap/28400, fortran/29067, libgfortran/29563, middle-end/29250,
