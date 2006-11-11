@@ -1,6 +1,6 @@
 %define DATE 20061108
 %define gcc_version 4.1.1
-%define gcc_release 34
+%define gcc_release 35
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -1358,7 +1358,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jvgenmain
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
+%ifarch sparc sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
+%endif
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgij.so
 %ifarch sparc ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
@@ -1437,6 +1439,9 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libgcj_bc.so
 %endif
+%ifnarch sparc sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
+%endif
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
 %{_prefix}/include/c++/%{gcc_version}/[gj]*
@@ -1511,6 +1516,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Nov 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-35
+- fix libgcj_bc.so dummy lib on i?86/x86_64/ia64/s390/s390x
+
 * Sat Nov 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-34
 - fix libgcj_bc.so symlink and dummy lib placement to avoid 64-bit gcc-java
   requiring 32-bit libc or vice versa
