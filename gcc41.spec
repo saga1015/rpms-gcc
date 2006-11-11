@@ -1,6 +1,6 @@
 %define DATE 20061108
 %define gcc_version 4.1.1
-%define gcc_release 33
+%define gcc_release 34
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -138,6 +138,8 @@ Patch29: gcc41-strncat-chk.patch
 Patch30: gcc41-pr29703.patch
 Patch31: gcc41-pr29299.patch
 Patch32: gcc41-pr29641.patch
+Patch33: gcc41-pr29581.patch
+Patch34: gcc41-pr29759.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -453,6 +455,8 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .pr29703~
 %patch31 -p0 -b .pr29299~
 %patch32 -p0 -b .pr29641~ 
+#%patch33 -p0 -b .pr29581~
+%patch34 -p0 -b .pr29759~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -606,26 +610,6 @@ done
 make -C gcc generated-manpages
 for i in ../gcc/doc/*.texi; do mv -f $i.orig $i; done
 
-%if %{build_java}
-LIBGCJ_BC_CFLAGS=
-%ifarch sparc ppc
-LIBGCJ_BC_CFLAGS=-m64
-%endif
-%ifarch %{multilib_64_archs}
-LIBGCJ_BC_CFLAGS=-m32
-%endif
-%ifarch s390x
-LIBGCJ_BC_CFLAGS=-m31
-%endif
-if [ -n "$LIBGCJ_BC_CFLAGS" ]; then
-  mkdir libgcj_bc
-  gcc/xgcc -B gcc/ $OPT_FLAGS $LIBGCJ_BC_CFLAGS -shared -fpic -xc /dev/null \
-      -o libgcj_bc/libgcj.so -Wl,-soname,libgcj.so.7rh -nostdlib
-  gcc/xgcc -B gcc/ $OPT_FLAGS $LIBGCJ_BC_CFLAGS -shared -fpic ../libjava/libgcj_bc.c \
-      -o libgcj_bc/libgcj_bc.so -Wl,-soname,libgcj_bc.so.1 libgcj_bc/libgcj.so -shared-libgcc 
-fi
-%endif
-
 # Copy various doc files here and there
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
@@ -689,12 +673,6 @@ make prefix=$RPM_BUILD_ROOT%{_prefix} mandir=$RPM_BUILD_ROOT%{_mandir} \
   infodir=$RPM_BUILD_ROOT%{_infodir} install
 %if %{build_java}
 make DESTDIR=$RPM_BUILD_ROOT -C %{gcc_target_platform}/libjava install-src.zip
-%ifarch %{multilib_64_archs}
-install -m755 libgcj_bc/libgcj_bc.so $RPM_BUILD_ROOT%{_prefix}/lib/libgcj_bc.so
-%endif
-%ifarch sparc ppc
-install -m755 libgcj_bc/libgcj_bc.so $RPM_BUILD_ROOT%{_prefix}/lib64/libgcj_bc.so
-%endif
 %endif
 %if %{build_ada}
 chmod 644 $RPM_BUILD_ROOT%{_infodir}/gnat*
@@ -760,7 +738,7 @@ else
 fi
 
 find $RPM_BUILD_ROOT -name \*.la | xargs rm -f
-if [ "%{build_java}" -gt 0 ]; then
+%if %{build_java}
 # gcj -static doesn't work properly anyway, unless using --whole-archive
 # and saving 35MB is not bad.
 find $RPM_BUILD_ROOT -name libgcj.a -o -name libgtkpeer.a \
@@ -770,7 +748,7 @@ find $RPM_BUILD_ROOT -name libgcj.a -o -name libgtkpeer.a \
 mv $RPM_BUILD_ROOT%{_prefix}/lib/libgcj.spec $FULLPATH/
 sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
   $FULLPATH/libgcj.spec
-fi
+%endif
 
 mkdir -p $RPM_BUILD_ROOT/%{_lib}
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgcc_s.so.1 $RPM_BUILD_ROOT/%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
@@ -820,7 +798,6 @@ ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 ln -sf ../../../libgcj.so.7rh.* libgcj.so
 ln -sf ../../../libgcj-tools.so.7rh.* libgcj-tools.so
 ln -sf ../../../libgij.so.7rh.* libgij.so
-mv ../../../libgcj_bc.so libgcj_bc.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -841,7 +818,6 @@ ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 ln -sf ../../../../%{_lib}/libgcj.so.7rh.* libgcj.so
 ln -sf ../../../../%{_lib}/libgcj-tools.so.7rh.* libgcj-tools.so
 ln -sf ../../../../%{_lib}/libgij.so.7rh.* libgij.so
-mv ../../../../%{_lib}/libgcj_bc.so libgcj_bc.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -852,6 +828,9 @@ ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-4.1.so
 cd ..
 %endif
 fi
+%if %{build_java}
+mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgcj_bc.so $FULLLPATH/
+%endif
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libsupc++.*a .
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgfortran.*a .
@@ -868,12 +847,13 @@ ln -sf ../`echo ../../../../lib/libgfortran.so.1.* | sed s~/lib/~/lib64/~` 64/li
 ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgomp.so
 ln -sf ../`echo ../../../../lib/libmudflap.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflap.so
 ln -sf ../`echo ../../../../lib/libmudflapth.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflapth.so
-if [ "%{build_java}" -gt 0 ]; then
+%if %{build_java}
 ln -sf ../`echo ../../../../lib/libgcj.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgcj.so
 ln -sf ../`echo ../../../../lib/libgcj-tools.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
 ln -sf ../`echo ../../../../lib/libgij.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgij.so
-mv ../../../../lib64/libgcj_bc.so 64/libgcj_bc.so
-fi
+ln -sf lib32/libgcj_bc.so libgcj_bc.so
+ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
+%endif
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libsupc++.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgfortran.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgfortranbegin.*a 64/
@@ -891,12 +871,11 @@ ln -sf ../`echo ../../../../lib64/libgfortran.so.1.* | sed s~/../lib64/~/~` 32/l
 ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgomp.so
 ln -sf ../`echo ../../../../lib64/libmudflap.so.0.* | sed s~/../lib64/~/~` 32/libmudflap.so
 ln -sf ../`echo ../../../../lib64/libmudflapth.so.0.* | sed s~/../lib64/~/~` 32/libmudflapth.so
-if [ "%{build_java}" -gt 0 ]; then
+%if %{build_java}
 ln -sf ../`echo ../../../../lib64/libgcj.so.7rh.* | sed s~/../lib64/~/~` 32/libgcj.so
 ln -sf ../`echo ../../../../lib64/libgcj-tools.so.7rh.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
 ln -sf ../`echo ../../../../lib64/libgij.so.7rh.* | sed s~/../lib64/~/~` 32/libgij.so
-mv ../../../../lib/libgcj_bc.so 32/libgcj_bc.so
-fi
+%endif
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libsupc++.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortran.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortranbegin.*a 32/
@@ -907,9 +886,16 @@ mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libmudflap{,th}.*a 32/
 %ifarch sparc64 ppc64
 ln -sf ../lib32/libstdc++.a 32/libstdc++.a
 ln -sf lib64/libstdc++.a libstdc++.a
+%if %{build_java}
+ln -sf ../lib32/libgcj_bc.so 32/libgcj_bc.so
+ln -sf lib64/libgcj_bc.so libgcj_bc.so
+%endif
 %else
 %ifarch %{multilib_64_archs}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
+%ifarch %{build_java}
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj_bc.so 32/libgcj_bc.so
+%endif
 %endif
 %endif
 
@@ -1443,6 +1429,14 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jni_md.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jvmpi.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.spec
+%ifarch sparc ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libgcj_bc.so
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libgcj_bc.so
+%endif
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
 %{_prefix}/include/c++/%{gcc_version}/[gj]*
@@ -1517,6 +1511,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Nov 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-34
+- fix libgcj_bc.so symlink and dummy lib placement to avoid 64-bit gcc-java
+  requiring 32-bit libc or vice versa
+- fix ICE on Fortran !$omp continued line followed by !$ conditional
+  line (PR fortran/29759)
+
 * Wed Nov  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-33
 - update from gcc-4_1-branch (-r118468:118571)
   - PRs fortran/24398, fortran/27701, fortran/29098, fortran/29115,
