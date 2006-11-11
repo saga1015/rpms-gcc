@@ -893,7 +893,7 @@ ln -sf lib64/libgcj_bc.so libgcj_bc.so
 %else
 %ifarch %{multilib_64_archs}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
-%ifarch %{build_java}
+%if %{build_java}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj_bc.so 32/libgcj_bc.so
 %endif
 %endif
