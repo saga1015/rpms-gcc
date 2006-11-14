@@ -1,6 +1,6 @@
-%define DATE 20061108
+%define DATE 20061114
 %define gcc_version 4.1.1
-%define gcc_release 35
+%define gcc_release 36
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -125,21 +125,18 @@ Patch16: gcc41-pr25874.patch
 Patch17: gcc41-pr29241.patch
 Patch18: gcc41-i386-tune-geode.patch
 Patch19: gcc41-hash-style-gnu.patch
-Patch20: gcc41-configure-ld-ver.patch
-Patch21: gcc41-pr29612.patch
-Patch22: gcc41-java-libdotdotlib.patch
-Patch23: gcc41-pr28709.patch
-Patch24: gcc41-pr28755.patch
-Patch25: gcc41-pr27898.patch
-Patch26: gcc41-pr27567.patch
-Patch27: gcc41-pr29272.patch
-Patch28: gcc41-pr29059.patch
-Patch29: gcc41-strncat-chk.patch
-Patch30: gcc41-pr29703.patch
-Patch31: gcc41-pr29299.patch
-Patch32: gcc41-pr29641.patch
-Patch33: gcc41-pr29581.patch
-Patch34: gcc41-pr29759.patch
+Patch20: gcc41-pr29612.patch
+Patch21: gcc41-java-libdotdotlib.patch
+Patch22: gcc41-pr28709.patch
+Patch23: gcc41-pr28755.patch
+Patch24: gcc41-pr27898.patch
+Patch25: gcc41-pr27567.patch
+Patch26: gcc41-pr29272.patch
+Patch27: gcc41-pr29059.patch
+Patch28: gcc41-strncat-chk.patch
+Patch29: gcc41-pr29703.patch
+Patch30: gcc41-pr29299.patch
+Patch31: gcc41-pr29581.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -442,21 +439,18 @@ which are required to run programs compiled with the GNAT.
 %patch17 -p0 -b .pr29241~
 %patch18 -p0 -b .i386-tune-geode~
 %patch19 -p0 -b .hash-style-gnu~
-%patch20 -p0 -b .configure-ld-ver~
-%patch21 -p0 -b .pr29612~
-%patch22 -p0 -b .java-libdotdotlib~
-%patch23 -p0 -b .pr28709~
-%patch24 -p0 -b .pr28755~
-%patch25 -p0 -b .pr27898~
-%patch26 -p0 -b .pr27567~
-%patch27 -p0 -b .pr29272~
-%patch28 -p0 -b .pr29059~
-%patch29 -p0 -b .strncat-chk~
-%patch30 -p0 -b .pr29703~
-%patch31 -p0 -b .pr29299~
-%patch32 -p0 -b .pr29641~ 
-#%patch33 -p0 -b .pr29581~
-%patch34 -p0 -b .pr29759~
+%patch20 -p0 -b .pr29612~
+%patch21 -p0 -b .java-libdotdotlib~
+%patch22 -p0 -b .pr28709~
+%patch23 -p0 -b .pr28755~
+%patch24 -p0 -b .pr27898~
+%patch25 -p0 -b .pr27567~
+%patch26 -p0 -b .pr29272~
+%patch27 -p0 -b .pr29059~
+%patch28 -p0 -b .strncat-chk~
+%patch29 -p0 -b .pr29703~
+%patch30 -p0 -b .pr29299~
+%patch31 -p0 -b .pr29581~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1516,6 +1510,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Nov 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-36
+- update from gcc-4_1-branch (-r118571:118805)
+  - PRs c++/29106, c++/29518, fortran/24518, fortran/29216, fortran/29314,
+	fortran/29371, fortran/29387, fortran/29392, fortran/29490,
+	fortran/29565, fortran/29630, fortran/29679, fortran/29713,
+	middle-end/21032, middle-end/28915, testsuite/28703, tree-opt/28545
+- honor initial conditions and variable types in conversion to perfect
+  nesting for -ftree-loop-linear optimizations (#209297,
+  PR tree-optimization/29581)
+
 * Sat Nov 11 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-35
 - fix libgcj_bc.so dummy lib on i?86/x86_64/ia64/s390/s390x
 
