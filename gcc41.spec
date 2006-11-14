@@ -1,6 +1,6 @@
 %define DATE 20061114
 %define gcc_version 4.1.1
-%define gcc_release 36
+%define gcc_release 37
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -138,6 +138,7 @@ Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
 Patch31: gcc41-pr29581.patch
 Patch32: gcc41-revert-pr28915.patch
+Patch33: gcc41-gomp-testsuite.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -453,6 +454,7 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .pr29299~
 %patch31 -p0 -b .pr29581~
 %patch32 -p0 -b .revert-pr28915~
+%patch33 -p0 -b .gomp-testsuite~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1512,6 +1514,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Nov 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-37
+- fix up check_effective_target_fopenmp tcl test for the testsuite
+  framework backport changes
+
 * Tue Nov 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-36
 - update from gcc-4_1-branch (-r118571:118805)
   - PRs c++/29106, c++/29518, fortran/24518, fortran/29216, fortran/29314,
