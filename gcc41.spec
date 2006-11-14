@@ -137,6 +137,7 @@ Patch28: gcc41-strncat-chk.patch
 Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
 Patch31: gcc41-pr29581.patch
+Patch32: gcc41-revert-pr28915.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -451,6 +452,7 @@ which are required to run programs compiled with the GNAT.
 %patch29 -p0 -b .pr29703~
 %patch30 -p0 -b .pr29299~
 %patch31 -p0 -b .pr29581~
+%patch32 -p0 -b .revert-pr28915~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1515,7 +1517,7 @@ fi
   - PRs c++/29106, c++/29518, fortran/24518, fortran/29216, fortran/29314,
 	fortran/29371, fortran/29387, fortran/29392, fortran/29490,
 	fortran/29565, fortran/29630, fortran/29679, fortran/29713,
-	middle-end/21032, middle-end/28915, testsuite/28703, tree-opt/28545
+	middle-end/21032, testsuite/28703, tree-opt/28545
 - honor initial conditions and variable types in conversion to perfect
   nesting for -ftree-loop-linear optimizations (#209297,
   PR tree-optimization/29581)
