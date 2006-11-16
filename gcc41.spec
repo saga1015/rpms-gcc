@@ -1,6 +1,6 @@
-%define DATE 20061114
+%define DATE 20061116
 %define gcc_version 4.1.1
-%define gcc_release 37
+%define gcc_release 38
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -102,7 +102,6 @@ Obsoletes: egcs64
 Obsoletes: gcc34
 Obsoletes: gcc35
 Obsoletes: gcc4
-Provides: gcc4 = %{version}-%{release}
 Prereq: /sbin/install-info
 AutoReq: true
 
@@ -136,9 +135,7 @@ Patch27: gcc41-pr29059.patch
 Patch28: gcc41-strncat-chk.patch
 Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
-Patch31: gcc41-pr29581.patch
-Patch32: gcc41-revert-pr28915.patch
-Patch33: gcc41-gomp-testsuite.patch
+Patch31: gcc41-pr29584.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -174,7 +171,6 @@ Obsoletes: gcc3-c++
 Obsoletes: gcc34-c++
 Obsoletes: gcc35-c++
 Obsoletes: gcc4-c++
-Provides: gcc4-c++ = %{version}-%{release}
 Autoreq: true
 
 %description c++
@@ -187,7 +183,6 @@ Summary: GNU Standard C++ Library
 Group: System Environment/Libraries
 Obsoletes: libstdc++3
 Obsoletes: libstdc++34
-Provides: libstdc++34
 Autoreq: true
 
 %description -n libstdc++
@@ -200,7 +195,6 @@ Group: Development/Libraries
 Requires: libstdc++ = %{version}-%{release}, %{_prefix}/%{_lib}/libstdc++.so.6
 Obsoletes: libstdc++3-devel
 Obsoletes: libstdc++34-devel
-Provides: libstdc++34-devel
 Autoreq: true
 
 %description -n libstdc++-devel
@@ -305,7 +299,6 @@ Obsoletes: gcc3-java
 Obsoletes: gcc34-java
 Obsoletes: gcc35-java
 Obsoletes: gcc4-java
-Provides: gcc4-java
 Prereq: /sbin/install-info
 Autoreq: true
 
@@ -332,7 +325,6 @@ Obsoletes: gcc-libgcj
 Obsoletes: libgcj3
 Obsoletes: libgcj34
 Obsoletes: libgcj4
-Provides: libgcj4
 Autoreq: true
 
 %description -n libgcj
@@ -348,7 +340,6 @@ Requires: /bin/awk
 Obsoletes: libgcj3-devel
 Obsoletes: libgcj34-devel
 Obsoletes: libgcj4-devel
-Provides: libgcj4-devel
 Autoreq: false
 Autoprov: false
 
@@ -361,7 +352,6 @@ Summary: Java library sources from GCC4 preview
 Group: System Environment/Libraries
 Requires: libgcj = %{version}-%{release}
 Obsoletes: libgcj4-src
-Provides: libgcj4-src
 Autoreq: true
 
 %description -n libgcj-src
@@ -452,9 +442,7 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .strncat-chk~
 %patch29 -p0 -b .pr29703~
 %patch30 -p0 -b .pr29299~
-%patch31 -p0 -b .pr29581~
-%patch32 -p0 -b .revert-pr28915~
-%patch33 -p0 -b .gomp-testsuite~
+%patch31 -p0 -b .pr29584~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1514,6 +1502,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Nov 16 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-38
+- update from gcc-4_1-branch (-r118805:118891)
+  - PRs rtl-optimization/29797
+- fix forwprop switch optimization (PR middle-end/29584)
+- remove old *34* provides (#215839)
+
 * Tue Nov 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-37
 - fix up check_effective_target_fopenmp tcl test for the testsuite
   framework backport changes
