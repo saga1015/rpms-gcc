@@ -1,6 +1,6 @@
-%define DATE 20061116
+%define DATE 20061120
 %define gcc_version 4.1.1
-%define gcc_release 38
+%define gcc_release 39
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -135,7 +135,8 @@ Patch27: gcc41-pr29059.patch
 Patch28: gcc41-strncat-chk.patch
 Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
-Patch31: gcc41-pr29584.patch
+Patch31: gcc41-pr29570.patch
+Patch32: gcc41-pr29734.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -442,7 +443,8 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .strncat-chk~
 %patch29 -p0 -b .pr29703~
 %patch30 -p0 -b .pr29299~
-%patch31 -p0 -b .pr29584~
+%patch31 -p0 -b .pr29570~
+%patch32 -p0 -b .pr29734~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1502,6 +1504,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Nov 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-39
+- update from gcc-4_1-branch (-r118891:119021)
+  - PRs middle-end/26306, middle-end/29753, target/18553, target/29114,
+	target/29449, tree-opt/29788, tree-optimization/28888
+- fix some C++ vector conversions (PR c++/29734)
+- fix C++ ICE with value dependent const brace enclosed initializer
+  (PR c++/29570)
+
 * Thu Nov 16 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-38
 - update from gcc-4_1-branch (-r118805:118891)
   - PRs rtl-optimization/29797
