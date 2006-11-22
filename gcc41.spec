@@ -1,6 +1,6 @@
 %define DATE 20061120
 %define gcc_version 4.1.1
-%define gcc_release 39
+%define gcc_release 40
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -137,6 +137,9 @@ Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
 Patch31: gcc41-pr29570.patch
 Patch32: gcc41-pr29734.patch
+Patch33: gcc41-libjava-anonverscript.patch
+Patch34: gcc41-pr29735.patch
+Patch35: gcc41-pr29736.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -445,6 +448,9 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .pr29299~
 %patch31 -p0 -b .pr29570~
 %patch32 -p0 -b .pr29734~
+%patch33 -p0 -b .libjava-anonverscript~
+%patch34 -p0 -b .pr29735~
+%patch35 -p0 -b .pr29736~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1504,6 +1510,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Nov 22 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-40
+- disallow multiple vector_size attributes (PR c/29736)
+- don't ICE on main returning int with vector_size attribute (PR c++/29735)
+- hide symbols that shouldn't be exported from libgcj.so (GC_*, ffi_*,
+  lt_* etc., #216120)
+
 * Tue Nov 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-39
 - update from gcc-4_1-branch (-r118891:119021)
   - PRs middle-end/26306, middle-end/29753, target/18553, target/29114,
