@@ -1,6 +1,6 @@
 %define DATE 20061120
 %define gcc_version 4.1.1
-%define gcc_release 40
+%define gcc_release 41
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -140,6 +140,8 @@ Patch32: gcc41-pr29734.patch
 Patch33: gcc41-libjava-anonverscript.patch
 Patch34: gcc41-pr29735.patch
 Patch35: gcc41-pr29736.patch
+Patch36: gcc41-pr29886.patch
+Patch37: gcc41-pr29955.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -451,6 +453,8 @@ which are required to run programs compiled with the GNAT.
 %patch33 -p0 -b .libjava-anonverscript~
 %patch34 -p0 -b .pr29735~
 %patch35 -p0 -b .pr29736~
+%patch36 -p0 -b .pr29886~
+%patch37 -p0 -b .pr29955~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1510,6 +1514,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Nov 23 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-41
+- fix ICE with -fopenmp -fexceptions on ia64 (#216988, PR c/29955)
+- fix parsing of C++ if/switch/etc. conditions (PR c++/29886)
+
 * Wed Nov 22 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-40
 - disallow multiple vector_size attributes (PR c/29736)
 - don't ICE on main returning int with vector_size attribute (PR c++/29735)
