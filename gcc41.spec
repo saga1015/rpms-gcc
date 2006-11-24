@@ -1,6 +1,6 @@
-%define DATE 20061120
+%define DATE 20061124
 %define gcc_version 4.1.1
-%define gcc_release 41
+%define gcc_release 42
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -135,13 +135,10 @@ Patch27: gcc41-pr29059.patch
 Patch28: gcc41-strncat-chk.patch
 Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
-Patch31: gcc41-pr29570.patch
-Patch32: gcc41-pr29734.patch
-Patch33: gcc41-libjava-anonverscript.patch
-Patch34: gcc41-pr29735.patch
-Patch35: gcc41-pr29736.patch
-Patch36: gcc41-pr29886.patch
-Patch37: gcc41-pr29955.patch
+Patch31: gcc41-libjava-anonverscript.patch
+Patch32: gcc41-pr29735.patch
+Patch33: gcc41-pr29886.patch
+Patch34: gcc41-ppc64-libffi-unwind.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -448,13 +445,10 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .strncat-chk~
 %patch29 -p0 -b .pr29703~
 %patch30 -p0 -b .pr29299~
-%patch31 -p0 -b .pr29570~
-%patch32 -p0 -b .pr29734~
-%patch33 -p0 -b .libjava-anonverscript~
-%patch34 -p0 -b .pr29735~
-%patch35 -p0 -b .pr29736~
-%patch36 -p0 -b .pr29886~
-%patch37 -p0 -b .pr29955~
+%patch31 -p0 -b .libjava-anonverscript~
+%patch32 -p0 -b .pr29735~
+%patch33 -p0 -b .pr29886~
+%patch34 -p0 -b .ppc64-libffi-unwind~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1514,6 +1508,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Nov 24 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-42
+- update from gcc-4_1-branch (-r119021:119167)
+  - fix s390{,x} __sync_* builtins
+- fix ppc64 libffi unwind info
+
 * Thu Nov 23 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-41
 - fix ICE with -fopenmp -fexceptions on ia64 (#216988, PR c/29955)
 - fix parsing of C++ if/switch/etc. conditions (PR c++/29886)
