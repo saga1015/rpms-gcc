@@ -1,6 +1,6 @@
-%define DATE 20061124
+%define DATE 20061130
 %define gcc_version 4.1.1
-%define gcc_release 42
+%define gcc_release 43
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -136,9 +136,8 @@ Patch28: gcc41-strncat-chk.patch
 Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
 Patch31: gcc41-libjava-anonverscript.patch
-Patch32: gcc41-pr29735.patch
-Patch33: gcc41-pr29886.patch
-Patch34: gcc41-ppc64-libffi-unwind.patch
+Patch32: gcc41-ppc64-libffi-unwind.patch
+Patch33: gcc41-pr29965.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -446,9 +445,8 @@ which are required to run programs compiled with the GNAT.
 %patch29 -p0 -b .pr29703~
 %patch30 -p0 -b .pr29299~
 %patch31 -p0 -b .libjava-anonverscript~
-%patch32 -p0 -b .pr29735~
-%patch33 -p0 -b .pr29886~
-%patch34 -p0 -b .ppc64-libffi-unwind~
+%patch32 -p0 -b .ppc64-libffi-unwind~
+%patch33 -p0 -b .pr29965~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1508,6 +1506,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Nov 30 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-43
+- update from gcc-4_1-branch (-r119167:119343)
+  - PRs c++/29022, fortran/29391, fortran/29489, fortran/29982,
+	libgfortran/29936, target/29319, tree-opt/29964
+- fix -fopenmp ICEs on omp constructs where the body never returns
+  (PR middle-end/29965)
+
 * Fri Nov 24 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-42
 - update from gcc-4_1-branch (-r119021:119167)
   - fix s390{,x} __sync_* builtins
