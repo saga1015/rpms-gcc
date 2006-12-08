@@ -1,6 +1,6 @@
-%define DATE 20061130
+%define DATE 20061208
 %define gcc_version 4.1.1
-%define gcc_release 44
+%define gcc_release 45
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -30,6 +30,7 @@ Group: Development/Languages
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
 Source2: README.libgcjwebplugin.so
+Source3: protoize.1
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -137,8 +138,8 @@ Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
 Patch31: gcc41-libjava-anonverscript.patch
 Patch32: gcc41-ppc64-libffi-unwind.patch
-Patch33: gcc41-pr29965.patch
-Patch34: gcc41-pr29949.patch
+Patch33: gcc41-pr27761.patch
+Patch34: gcc41-pr30110.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -447,8 +448,8 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .pr29299~
 %patch31 -p0 -b .libjava-anonverscript~
 %patch32 -p0 -b .ppc64-libffi-unwind~
-%patch33 -p0 -b .pr29965~
-%patch34 -p0 -b .pr29949~
+%patch33 -p0 -b .pr27761~
+%patch34 -p0 -b .pr30110~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -975,6 +976,10 @@ chmod 755 $RPM_BUILD_ROOT%{_prefix}/share/java/gcj-endorsed \
 touch $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gcj-%{version}/classmap.db
 %endif
 
+install -m644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man1/protoize.1
+echo '.so man1/protoize.1' > $RPM_BUILD_ROOT%{_mandir}/man1/unprotoize.1
+chmod 644 $RPM_BUILD_ROOT%{_mandir}/man1/unprotoize.1
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -1099,6 +1104,8 @@ fi
 %{_prefix}/bin/%{gcc_target_platform}-gcc
 %{_mandir}/man1/gcc.1*
 %{_mandir}/man1/gcov.1*
+%{_mandir}/man1/protoize.1*
+%{_mandir}/man1/unprotoize.1*
 %{_infodir}/gcc*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
@@ -1508,8 +1515,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Dec  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-45
+- update from gcc-4_1-branch (-r119343:119654)
+  - PRs c++/14329, c++/28284, c++/29632, c++/29728, c++/29729, c++/29730,
+	c++/29733, c++/30022, libfortran/29810
+- add protoize.1 and unprotoize.1 man pages (#188914)
+- fix RTL sharing problem in combine (#218603, PR rtl-optimization/27761)
+- additions to libgcj-src (Ben Konrath, PR libgcj/30110)
+
 * Fri Dec  1 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-44
-- fix OpenMP loops with 0 iterations (PR libgomp/29949)
+- fix OpenMP loops with 0 iterations (PR libgomp/29947)
 
 * Thu Nov 30 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-43
 - update from gcc-4_1-branch (-r119167:119343)
