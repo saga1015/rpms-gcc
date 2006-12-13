@@ -1,6 +1,6 @@
-%define DATE 20061208
+%define DATE 20061213
 %define gcc_version 4.1.1
-%define gcc_release 45
+%define gcc_release 46
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -138,7 +138,7 @@ Patch29: gcc41-pr29703.patch
 Patch30: gcc41-pr29299.patch
 Patch31: gcc41-libjava-anonverscript.patch
 Patch32: gcc41-ppc64-libffi-unwind.patch
-Patch33: gcc41-pr27761.patch
+Patch33: gcc41-pr30113.patch
 Patch34: gcc41-pr30110.patch
 
 %define _gnu %{nil}
@@ -448,7 +448,7 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .pr29299~
 %patch31 -p0 -b .libjava-anonverscript~
 %patch32 -p0 -b .ppc64-libffi-unwind~
-%patch33 -p0 -b .pr27761~
+%patch33 -p0 -b .pr30113~
 %patch34 -p0 -b .pr30110~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
@@ -1515,6 +1515,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Dec 13 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-46
+- update from gcc-4_1-branch (-r119654:119833)
+  - PRs c++/27316, c++/28740, c++/29732, fortran/29820, fortran/29821,
+	fortran/29912, fortran/29916, fortran/30003, libstdc++/26497,
+	libstdc++/28125, libstdc++/28265, target/30039
+- fix loop unswitching (Zdenek Dvorak, #219138, PR rtl-optimization/30113)
+
 * Fri Dec  8 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-45
 - update from gcc-4_1-branch (-r119343:119654)
   - PRs c++/14329, c++/28284, c++/29632, c++/29728, c++/29729, c++/29730,
