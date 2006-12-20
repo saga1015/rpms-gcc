@@ -1,6 +1,6 @@
-%define DATE 20061213
+%define DATE 20061220
 %define gcc_version 4.1.1
-%define gcc_release 47
+%define gcc_release 48
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64
@@ -141,8 +141,10 @@ Patch32: gcc41-ppc64-libffi-unwind.patch
 Patch33: gcc41-pr30113.patch
 Patch34: gcc41-pr30110.patch
 Patch35: gcc41-pr29166.patch
-Patch36: gcc41-pr30185.patch
-
+Patch36: gcc41-pr27266.patch
+Patch37: gcc41-pr30143.patch
+Patch38: gcc41-pr30262.patch
+Patch39: gcc41-pr30230.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -453,7 +455,10 @@ which are required to run programs compiled with the GNAT.
 %patch33 -p0 -b .pr30113~
 %patch34 -p0 -b .pr30110~
 %patch35 -p0 -b .pr29166~
-%patch36 -p0 -b .pr30185~
+%patch36 -p0 -b .pr27266~
+%patch37 -p0 -b .pr30143~
+%patch38 -p0 -b .pr30262~
+%patch39 -p0 -b .pr30230~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1519,6 +1524,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Dec 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-48
+- update from gcc-4_1-branch (-r119833:120062)
+  - PRs libstdc++/11953, target/24036
+- fix ia64 EH region boundaries where last br.call in the region
+  is not at the end of a bundle (#219596, PR target/30230)
+- fix DI resp. TImode __sync_*_compare_and_swap on i?86 resp. x86_64
+  (Kazu Hirata, #220258, PR target/27266)
+- fix asm vs. nested functions or OpenMP (#220250, PRs middle-end/30262,
+  middle-end/30263)
+- fix handling of complex shared OpenMP vars (Andrew Pinski,
+  PR middle-end/30143)
+
 * Thu Dec 14 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-47
 - fix ia64 prologue generation (Andreas Schwab, #219594, PR target/29166)
 - fix ppc64 divdi3 (PR target/30185)
