@@ -1537,7 +1537,7 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Tue Jan  2 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-49
+* Tue Jan  2 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-49
 - update from gcc-4_1-branch (-r120062:120325)
   - PRs debug/26964, fortran/30200, libfortran/30145
 - fix endless recursion in negate_expr/fold_unary (PR middle-end/30286)
