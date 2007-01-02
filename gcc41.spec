@@ -1,8 +1,9 @@
-%define DATE 20061220
+%define DATE 20070102
 %define gcc_version 4.1.1
-%define gcc_release 48
+%define gcc_release 49
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
+%define include_gappletviewer 1
 %ifarch %{ix86} x86_64 ia64
 %define build_ada 1
 %else
@@ -125,7 +126,7 @@ Patch16: gcc41-pr25874.patch
 Patch17: gcc41-pr29241.patch
 Patch18: gcc41-i386-tune-geode.patch
 Patch19: gcc41-hash-style-gnu.patch
-Patch20: gcc41-pr29612.patch
+Patch20: gcc41-pr30001.patch
 Patch21: gcc41-java-libdotdotlib.patch
 Patch22: gcc41-pr28709.patch
 Patch23: gcc41-pr28755.patch
@@ -143,8 +144,11 @@ Patch34: gcc41-pr30110.patch
 Patch35: gcc41-pr29166.patch
 Patch36: gcc41-pr27266.patch
 Patch37: gcc41-pr30143.patch
-Patch38: gcc41-pr30262.patch
-Patch39: gcc41-pr30230.patch
+Patch38: gcc41-pr28261.patch
+Patch39: gcc41-pr29054.patch
+Patch40: gcc41-pr29535-test.patch
+Patch41: gcc41-pr30045.patch
+Patch42: gcc41-pr30286.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -439,7 +443,7 @@ which are required to run programs compiled with the GNAT.
 %patch17 -p0 -b .pr29241~
 %patch18 -p0 -b .i386-tune-geode~
 %patch19 -p0 -b .hash-style-gnu~
-%patch20 -p0 -b .pr29612~
+%patch20 -p0 -b .pr30001~
 %patch21 -p0 -b .java-libdotdotlib~
 %patch22 -p0 -b .pr28709~
 %patch23 -p0 -b .pr28755~
@@ -457,8 +461,11 @@ which are required to run programs compiled with the GNAT.
 %patch35 -p0 -b .pr29166~
 %patch36 -p0 -b .pr27266~
 %patch37 -p0 -b .pr30143~
-%patch38 -p0 -b .pr30262~
-%patch39 -p0 -b .pr30230~
+%patch38 -p0 -b .pr28261~
+%patch39 -p0 -b .pr29054~
+%patch40 -p0 -b .pr29535-test~
+%patch41 -p0 -b .pr30045~
+%patch42 -p0 -b .pr30286~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1395,7 +1402,9 @@ fi
 %{_prefix}/bin/grmic
 %{_prefix}/bin/grmiregistry
 %{_prefix}/bin/gcj-dbtool
+%if %{include_gappletviewer}
 %{_prefix}/bin/gappletviewer
+%endif
 %{_prefix}/bin/gjarsigner
 %{_prefix}/bin/gkeytool
 %{_mandir}/man1/fastjar.1*
@@ -1414,7 +1423,9 @@ fi
 %{_prefix}/%{_lib}/gcj-%{version}/libgtkpeer.so
 %{_prefix}/%{_lib}/gcj-%{version}/libgjsmalsa.so
 %{_prefix}/%{_lib}/gcj-%{version}/libjawt.so
+%if %{include_gappletviewer}
 %{_prefix}/%{_lib}/gcj-%{version}/libgcjwebplugin.so
+%endif
 %{_prefix}/%{_lib}/gcj-%{version}/libjvm.so
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/[^s]*
@@ -1423,7 +1434,9 @@ fi
 %{_prefix}/%{_lib}/logging.properties
 %dir %{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_prefix}/%{_lib}/gcj-%{version}/classmap.db
+%if %{include_gappletviewer}
 %doc rpm.doc/README.libgcjwebplugin.so
+%endif
 
 %files -n libgcj-devel
 %defattr(-,root,root)
@@ -1524,6 +1537,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jan  2 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-49
+- update from gcc-4_1-branch (-r120062:120325)
+  - PRs debug/26964, fortran/30200, libfortran/30145
+- fix endless recursion in negate_expr/fold_unary (PR middle-end/30286)
+- fix cpp problem on empty source files (Tom Tromey, PR preprocessor/30001)
+- improve constructor disambiguation (Mark Mitchell, PR c++/28261,
+  PR c++/29535)
+- fix handling of non-NULL attribute on nested functions (Andrew Pinski,
+  PR tree-opt/30045)
+- fix ICE with friend templatized static member function (PR c++/29054)
+
 * Wed Dec 20 2006 Jakub Jelinek <jakub@redhat.com> 4.1.1-48
 - update from gcc-4_1-branch (-r119833:120062)
   - PRs libstdc++/11953, target/24036
