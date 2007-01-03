@@ -1,6 +1,6 @@
 %define DATE 20070102
 %define gcc_version 4.1.1
-%define gcc_release 49
+%define gcc_release 50
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -149,6 +149,10 @@ Patch39: gcc41-pr29054.patch
 Patch40: gcc41-pr29535-test.patch
 Patch41: gcc41-pr30045.patch
 Patch42: gcc41-pr30286.patch
+Patch43: gcc41-pr25993.patch
+Patch44: gcc41-pr28217.patch
+Patch45: gcc41-pr30189.patch
+Patch46: gcc41-rh220627.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -466,6 +470,10 @@ which are required to run programs compiled with the GNAT.
 %patch40 -p0 -b .pr29535-test~
 %patch41 -p0 -b .pr30045~
 %patch42 -p0 -b .pr30286~
+%patch43 -p0 -b .pr25993~
+%patch44 -p0 -b .pr28217~
+%patch45 -p0 -b .pr30189~
+%patch46 -p0 -b .rh220627~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1537,6 +1545,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jan  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-50
+- backwards compatibility with old layout of struct _Unwind_Context
+  (#220627)
+- fix preprocessor defines in assembly preprocessed with -std=...
+  (Steven Bosscher, PR c/25993)
+- fix PCH creation with templates (Jason Merrill, PR c++/28217)
+- fix dwarf2out ICE (Alexandre Oliva, #217529, PR debug/30189)
+
 * Tue Jan  2 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-49
 - update from gcc-4_1-branch (-r120062:120325)
   - PRs debug/26964, fortran/30200, libfortran/30145
