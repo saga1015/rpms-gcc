@@ -1,6 +1,6 @@
 %define DATE 20070102
 %define gcc_version 4.1.1
-%define gcc_release 50.1
+%define gcc_release 51
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -32,7 +32,6 @@ Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
 Source2: README.libgcjwebplugin.so
 Source3: protoize.1
-Source4: gcc-gnat-4.1.1-47.ppc.tar.gz
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -59,9 +58,7 @@ BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.
 %endif
 %if %{build_ada}
 # Ada requires Ada to build
-%ifnarch ppc
 BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
-%endif
 %endif
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
@@ -509,9 +506,6 @@ if [ -d libstdc++-v3/config/abi/sparc64-linux-gnu ]; then
   rm -rf libstdc++-v3/config/abi/sparc64-linux-gnu/32
 fi
 %endif
-%ifarch ppc
-tar xfz %SOURCE4
-%endif
 
 %build
 
@@ -548,11 +542,6 @@ EOF
   chmod +x gcc64
   CC=`pwd`/gcc64
 fi
-%endif
-%ifarch ppc
-  CC=`pwd`/../usr/bin/gcc
-  export PATH=`pwd`/../usr/bin:$PATH
-  export LD_LIBRARY_PATH=`pwd`/../usr/lib
 %endif
 OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
 case "$OPT_FLAGS" in
@@ -1556,7 +1545,7 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Wed Jan  3 2007 David Woodhouse <dwmw2@redhat.com> 4.1.1-50.1
+* Thu Jan  4 2007 David Woodhouse <dwmw2@redhat.com> 4.1.1-51
 - Bootstrap Ada on PowerPC
 
 * Wed Jan  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-50
