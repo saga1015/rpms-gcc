@@ -1,6 +1,6 @@
-%define DATE 20070102
+%define DATE 20070105
 %define gcc_version 4.1.1
-%define gcc_release 51
+%define gcc_release 52
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -123,7 +123,7 @@ Patch13: gcc41-pr20297-test.patch
 Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
-Patch17: gcc41-pr29241.patch
+Patch17: gcc41-pr30189.patch
 Patch18: gcc41-i386-tune-geode.patch
 Patch19: gcc41-hash-style-gnu.patch
 Patch20: gcc41-pr30001.patch
@@ -141,19 +141,8 @@ Patch31: gcc41-libjava-anonverscript.patch
 Patch32: gcc41-ppc64-libffi-unwind.patch
 Patch33: gcc41-pr30113.patch
 Patch34: gcc41-pr30110.patch
-Patch35: gcc41-pr29166.patch
-Patch36: gcc41-pr27266.patch
-Patch37: gcc41-pr30143.patch
-Patch38: gcc41-pr28261.patch
-Patch39: gcc41-pr29054.patch
-Patch40: gcc41-pr29535-test.patch
-Patch41: gcc41-pr30045.patch
-Patch42: gcc41-pr30286.patch
-Patch43: gcc41-pr25993.patch
-Patch44: gcc41-pr28217.patch
-Patch45: gcc41-pr30189.patch
-Patch46: gcc41-rh220627.patch
-Patch47: gcc41-pr30360.patch
+Patch35: gcc41-pr30143.patch
+Patch36: gcc41-pr30045.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -445,7 +434,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .objc-rh185398~
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
-%patch17 -p0 -b .pr29241~
+%patch17 -p0 -b .pr30189~
 %patch18 -p0 -b .i386-tune-geode~
 %patch19 -p0 -b .hash-style-gnu~
 %patch20 -p0 -b .pr30001~
@@ -463,19 +452,8 @@ which are required to run programs compiled with the GNAT.
 %patch32 -p0 -b .ppc64-libffi-unwind~
 %patch33 -p0 -b .pr30113~
 %patch34 -p0 -b .pr30110~
-%patch35 -p0 -b .pr29166~
-%patch36 -p0 -b .pr27266~
-%patch37 -p0 -b .pr30143~
-%patch38 -p0 -b .pr28261~
-%patch39 -p0 -b .pr29054~
-%patch40 -p0 -b .pr29535-test~
-%patch41 -p0 -b .pr30045~
-%patch42 -p0 -b .pr30286~
-%patch43 -p0 -b .pr25993~
-%patch44 -p0 -b .pr28217~
-%patch45 -p0 -b .pr30189~
-%patch46 -p0 -b .rh220627~
-%patch47 -p0 -b .pr30360~
+%patch35 -p0 -b .pr30143~
+%patch36 -p0 -b .pr30045~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1547,6 +1525,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Jan  5 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-52
+- update from gcc-4_1-branch (-r120325:120507)
+  - PRs c++/30382, middle-end/27826, middle-end/28116,
+	tree-optimization/30212
+
 * Thu Jan  4 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-51
 - bootstrap Ada on ppc32 (David Woodhouse)
 - fix complex division with -std=c99 or -std=gnu99 (PR c/30360)
