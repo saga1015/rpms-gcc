@@ -153,6 +153,7 @@ Patch43: gcc41-pr25993.patch
 Patch44: gcc41-pr28217.patch
 Patch45: gcc41-pr30189.patch
 Patch46: gcc41-rh220627.patch
+Patch47: gcc41-pr30360.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -474,6 +475,7 @@ which are required to run programs compiled with the GNAT.
 %patch44 -p0 -b .pr28217~
 %patch45 -p0 -b .pr30189~
 %patch46 -p0 -b .rh220627~
+%patch47 -p0 -b .pr30360~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1545,8 +1547,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Thu Jan  4 2007 David Woodhouse <dwmw2@redhat.com> 4.1.1-51
-- Bootstrap Ada on PowerPC
+* Thu Jan  4 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-51
+- bootstrap Ada on ppc32 (David Woodhouse)
+- fix complex division with -std=c99 or -std=gnu99 (PR c/30360)
 
 * Wed Jan  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-50
 - backwards compatibility with old layout of struct _Unwind_Context
