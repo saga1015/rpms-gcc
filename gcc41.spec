@@ -1,6 +1,6 @@
-%define DATE 20070105
+%define DATE 20070123
 %define gcc_version 4.1.1
-%define gcc_release 53
+%define gcc_release 54
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -143,8 +143,9 @@ Patch33: gcc41-pr30113.patch
 Patch34: gcc41-pr30110.patch
 Patch35: gcc41-pr30143.patch
 Patch36: gcc41-pr30045.patch
-Patch37: gcc41-pr25514.patch
-Patch38: gcc41-libgomp-scanrtl.patch
+Patch37: gcc41-pr27416.patch
+Patch38: gcc41-pr30421.patch
+Patch39: gcc41-pr30494.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -456,8 +457,9 @@ which are required to run programs compiled with the GNAT.
 %patch34 -p0 -b .pr30110~
 %patch35 -p0 -b .pr30143~
 %patch36 -p0 -b .pr30045~
-%patch37 -p0 -b .pr25514~
-%patch38 -p0 -b .libgomp-scanrtl~
+%patch37 -p0 -b .pr27416~
+%patch38 -p0 -b .pr30421~
+%patch39 -p0 -b .pr30494~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1529,6 +1531,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jan 23 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-54
+- update from gcc-4_1-branch (-r120507:121069)
+  - PRs c++/28999, libgfortran/30435, objc/30479, rtl-optimization/29329,
+	target/30173, testsuite/12325
+- OpenMP fixes (PRs middle-end/27416, middle-end/30421, middle-end/30494)
+
 * Tue Jan  9 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-53
 - fix libgomp testsuite driver (Ulrich Weigand)
 - combiner fixes (Richard Sandiford, PR rtl-optimization/25514,
