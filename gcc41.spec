@@ -1,6 +1,6 @@
-%define DATE 20070123
+%define DATE 20070202
 %define gcc_version 4.1.1
-%define gcc_release 54
+%define gcc_release 55
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -116,7 +116,7 @@ Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
-Patch10: gcc41-mni.patch
+Patch10: gcc41-i386-tune-core2.patch
 Patch11: gcc41-dsohandle.patch
 Patch12: gcc41-rh184446.patch
 Patch13: gcc41-pr20297-test.patch
@@ -124,7 +124,7 @@ Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
 Patch17: gcc41-pr30189.patch
-Patch18: gcc41-i386-tune-geode.patch
+Patch18: gcc41-ssse3.patch
 Patch19: gcc41-hash-style-gnu.patch
 Patch20: gcc41-pr30001.patch
 Patch21: gcc41-java-libdotdotlib.patch
@@ -143,9 +143,8 @@ Patch33: gcc41-pr30113.patch
 Patch34: gcc41-pr30110.patch
 Patch35: gcc41-pr30143.patch
 Patch36: gcc41-pr30045.patch
-Patch37: gcc41-pr27416.patch
-Patch38: gcc41-pr30421.patch
-Patch39: gcc41-pr30494.patch
+Patch37: gcc41-pr30473.patch
+Patch38: gcc41-pr30536.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -430,7 +429,7 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .ppc32-retaddr~
-%patch10 -p0 -b .mni~
+%patch10 -p0 -b .i386-tune-core2~
 %patch11 -p0 -b .dsohandle~
 %patch12 -p0 -b .rh184446~
 %patch13 -p0 -E -b .pr20297-test~
@@ -438,7 +437,7 @@ which are required to run programs compiled with the GNAT.
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
 %patch17 -p0 -b .pr30189~
-%patch18 -p0 -b .i386-tune-geode~
+%patch18 -p0 -b .ssse3~
 %patch19 -p0 -b .hash-style-gnu~
 %patch20 -p0 -b .pr30001~
 %patch21 -p0 -b .java-libdotdotlib~
@@ -457,9 +456,8 @@ which are required to run programs compiled with the GNAT.
 %patch34 -p0 -b .pr30110~
 %patch35 -p0 -b .pr30143~
 %patch36 -p0 -b .pr30045~
-%patch37 -p0 -b .pr27416~
-%patch38 -p0 -b .pr30421~
-%patch39 -p0 -b .pr30494~
+%patch37 -p0 -b .pr30473~
+%patch38 -p0 -b .pr30536~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -995,60 +993,60 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gcc.info.gz
+  --info-dir=%{_infodir} %{_infodir}/gcc.info.gz || :
 
 %preun
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gcc.info.gz
+    --info-dir=%{_infodir} %{_infodir}/gcc.info.gz || :
 fi
 
 %post -n cpp
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/cpp.info.gz
+  --info-dir=%{_infodir} %{_infodir}/cpp.info.gz || :
 
 %preun -n cpp
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/cpp.info.gz
+    --info-dir=%{_infodir} %{_infodir}/cpp.info.gz || :
 fi
 
 %post gfortran
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gfortran.info.gz
+  --info-dir=%{_infodir} %{_infodir}/gfortran.info.gz || :
 
 %preun gfortran
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gfortran.info.gz
+    --info-dir=%{_infodir} %{_infodir}/gfortran.info.gz || :
 fi
 
 %post java
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gcj.info.gz
+  --info-dir=%{_infodir} %{_infodir}/gcj.info.gz || :
 
 %preun java
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gcj.info.gz
+    --info-dir=%{_infodir} %{_infodir}/gcj.info.gz || :
 fi
 
 %post gnat
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gnat_rm.info.gz
+  --info-dir=%{_infodir} %{_infodir}/gnat_rm.info.gz || :
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gnat_ugn_unw.info.gz
+  --info-dir=%{_infodir} %{_infodir}/gnat_ugn_unw.info.gz || :
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gnat-style.info.gz
+  --info-dir=%{_infodir} %{_infodir}/gnat-style.info.gz || :
 
 %preun gnat
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gnat_rm.info.gz
+    --info-dir=%{_infodir} %{_infodir}/gnat_rm.info.gz || :
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gnat_ugn_unw.info.gz
+    --info-dir=%{_infodir} %{_infodir}/gnat_ugn_unw.info.gz || :
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gnat-style.info.gz
+    --info-dir=%{_infodir} %{_infodir}/gnat-style.info.gz || :
 fi
 
 # Because glibc Prereq's libgcc and /sbin/ldconfig
@@ -1067,12 +1065,12 @@ fi
 %post -n libgcj
 /sbin/ldconfig
 /sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz
+  --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz || :
 
 %preun -n libgcj
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz
+    --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz || :
 fi
 
 %postun -n libgcj -p /sbin/ldconfig
@@ -1531,6 +1529,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb  2 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-55
+- update from gcc-4_1-branch (-r121069:121479)
+  - PRs c++/28988, fortran/30278, libstdc++/30586, middle-end/29683,
+	objc/27438
+- add -march=core2 and -mtune=core2 support (Vlad Makarov)
+- fix sprintf builtin (PR middle-end/30473)
+- fix ICE on invalid __thread register on fields (PR c++/30536)
+- ignore install-info errors in scriptlets (#223687)
+- rename MNI and mni to SSSE3 and ssse3, keep -m{,no-}mni option and
+  __MNI__ macro for compatibility
+
 * Tue Jan 23 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-54
 - update from gcc-4_1-branch (-r120507:121069)
   - PRs c++/28999, libgfortran/30435, objc/30479, rtl-optimization/29329,
