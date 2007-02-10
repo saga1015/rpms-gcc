@@ -1,10 +1,10 @@
-%define DATE 20070202
+%define DATE 20070209
 %define gcc_version 4.1.1
-%define gcc_release 55
+%define gcc_release 56
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
-%ifarch %{ix86} x86_64 ia64 ppc
+%ifarch %{ix86} x86_64 ia64 ppc alpha
 %define build_ada 1
 %else
 %define build_ada 0
@@ -116,7 +116,7 @@ Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
-Patch10: gcc41-i386-tune-core2.patch
+Patch10: gcc41-amdfam10.patch
 Patch11: gcc41-dsohandle.patch
 Patch12: gcc41-rh184446.patch
 Patch13: gcc41-pr20297-test.patch
@@ -124,7 +124,7 @@ Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
 Patch17: gcc41-pr30189.patch
-Patch18: gcc41-ssse3.patch
+Patch18: gcc41-rh227983.patch
 Patch19: gcc41-hash-style-gnu.patch
 Patch20: gcc41-pr30001.patch
 Patch21: gcc41-java-libdotdotlib.patch
@@ -429,7 +429,7 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .ppc32-retaddr~
-%patch10 -p0 -b .i386-tune-core2~
+%patch10 -p0 -b .amdfam10~
 %patch11 -p0 -b .dsohandle~
 %patch12 -p0 -b .rh184446~
 %patch13 -p0 -E -b .pr20297-test~
@@ -437,7 +437,7 @@ which are required to run programs compiled with the GNAT.
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
 %patch17 -p0 -b .pr30189~
-%patch18 -p0 -b .ssse3~
+%patch18 -p0 -b .rh227983~
 %patch19 -p0 -b .hash-style-gnu~
 %patch20 -p0 -b .pr30001~
 %patch21 -p0 -b .java-libdotdotlib~
@@ -1529,6 +1529,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Feb 10 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-56
+- update from gcc-4_1-branch (-r121479:121738)
+  - PRs c++/29487, target/29487, target/30370
+- merge gomp fixes from gcc-4_2-branch (-r121689:121690)
+  PR c++/30703
+- add AMDfam10 support (Harsha Jagasia, #222897)
+- set build_ada to 1 on alpha (#224247)
+- regenerate libjava.util.TimeZone data from tzdata2007a (#227888)
+
 * Fri Feb  2 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-55
 - update from gcc-4_1-branch (-r121069:121479)
   - PRs c++/28988, fortran/30278, libstdc++/30586, middle-end/29683,
