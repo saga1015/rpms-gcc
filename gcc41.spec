@@ -1,6 +1,6 @@
 %define DATE 20070209
 %define gcc_version 4.1.1
-%define gcc_release 56
+%define gcc_release 57
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -145,6 +145,7 @@ Patch35: gcc41-pr30143.patch
 Patch36: gcc41-pr30045.patch
 Patch37: gcc41-pr30473.patch
 Patch38: gcc41-pr30536.patch
+Patch39: gcc41-pr27351.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -458,6 +459,7 @@ which are required to run programs compiled with the GNAT.
 %patch36 -p0 -b .pr30045~
 %patch37 -p0 -b .pr30473~
 %patch38 -p0 -b .pr30536~
+%patch39 -p0 -b .pr27351~
 
 sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1139,6 +1141,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/emmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/pmmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/tmmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/ammintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm_malloc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
 %endif
@@ -1529,6 +1532,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sun Feb 11 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-57
+- package up ammintrin.h on i386/x86_64
+- fix AMDfam10 testcases (H.J. Lu)
+- fix f951 assert accessing memory after free (H.J. Lu, PR fortran/27351)
+
 * Sat Feb 10 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-56
 - update from gcc-4_1-branch (-r121479:121738)
   - PRs c++/29487, target/29487, target/30370

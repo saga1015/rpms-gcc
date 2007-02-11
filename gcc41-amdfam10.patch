@@ -1,3 +1,8 @@
+2007-02-10  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* gcc.target/i386/sse4a-extract.c: Add "LL" to 64bit constants.
+	* gcc.target/i386/sse4a-insert.c: Likewise.
+
 2007-02-08  Harsha Jagasia  <harsha.jagasia@amd.com>
 
 	* config/i386/xmmintrin.h: Make inclusion of emmintrin.h
@@ -264,7 +269,7 @@
 +  __m128i v1,v2;
 +  long long index_length, pad;
 +  LI v_out;
-+  index_length = 0x0000000000000810;
++  index_length = 0x0000000000000810LL;
 +  pad = 0x0;
 +  v1 = _mm_set_epi64x (pad, in1);
 +  v2 = _mm_set_epi64x (index_length, in2); 
@@ -294,29 +299,29 @@
 +
 +long long vals_in1[5] =
 +  {
-+    0x1234567887654321,
-+    0x1456782093002490,
-+    0x2340909123990390,
-+    0x9595959599595999,
-+    0x9099038798000029
++    0x1234567887654321LL,
++    0x1456782093002490LL,
++    0x2340909123990390LL,
++    0x9595959599595999LL,
++    0x9099038798000029LL
 +  };
 +
 +long long vals_in2[5] =
 +  {
-+    0x9ABCDEF00FEDCBA9,
-+    0x234567097289672A,
-+    0x45476453097BD342,
-+    0x23569012AE586FF0,
-+    0x432567ABCDEF765D
++    0x9ABCDEF00FEDCBA9LL,
++    0x234567097289672ALL,
++    0x45476453097BD342LL,
++    0x23569012AE586FF0LL,
++    0x432567ABCDEF765DLL
 +  };
 +
 +long long vals_out[5] =
 +  {
-+    0x1234567887CBA921,
-+    0x1456782093672A90,
-+    0x2340909123D34290,
-+    0x95959595996FF099,
-+    0x9099038798765D29
++    0x1234567887CBA921LL,
++    0x1456782093672A90LL,
++    0x2340909123D34290LL,
++    0x95959595996FF099LL,
++    0x9099038798765D29LL
 +  };
 +
 +static void
@@ -377,7 +382,7 @@
 +  __m128i v1, v2;
 +  long long index_length, pad;
 +  LI v_out;
-+  index_length = 0x0000000000000810; 
++  index_length = 0x0000000000000810LL; 
 +  pad = 0x0;
 +  v1 = _mm_set_epi64x (pad, in);
 +  v2 = _mm_set_epi64x (pad, index_length); 
@@ -406,20 +411,20 @@
 +
 +long long vals_in[5] =
 +  {
-+    0x1234567887654321,
-+    0x1456782093002490,
-+    0x2340909123990390,
-+    0x9595959599595999,
-+    0x9099038798000029
++    0x1234567887654321LL,
++    0x1456782093002490LL,
++    0x2340909123990390LL,
++    0x9595959599595999LL,
++    0x9099038798000029LL
 +  };
 +
 +long long vals_out[5] =
 +  {
-+    0x0000000000006543,
-+    0x0000000000000024,
-+    0x0000000000009903,
-+    0x0000000000005959,
-+    0x0000000000000000
++    0x0000000000006543LL,
++    0x0000000000000024LL,
++    0x0000000000009903LL,
++    0x0000000000005959LL,
++    0x0000000000000000LL
 +  };
 +
 +static void
