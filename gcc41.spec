@@ -1,6 +1,6 @@
-%define DATE 20070209
-%define gcc_version 4.1.1
-%define gcc_release 57
+%define DATE 20070214
+%define gcc_version 4.1.2
+%define gcc_release 1
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -124,7 +124,7 @@ Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
 Patch17: gcc41-pr30189.patch
-Patch18: gcc41-rh227983.patch
+Patch18: gcc41-pr27351.patch
 Patch19: gcc41-hash-style-gnu.patch
 Patch20: gcc41-pr30001.patch
 Patch21: gcc41-java-libdotdotlib.patch
@@ -143,9 +143,8 @@ Patch33: gcc41-pr30113.patch
 Patch34: gcc41-pr30110.patch
 Patch35: gcc41-pr30143.patch
 Patch36: gcc41-pr30045.patch
-Patch37: gcc41-pr30473.patch
-Patch38: gcc41-pr30536.patch
-Patch39: gcc41-pr27351.patch
+Patch37: gcc41-rh223576.patch
+Patch38: gcc41-rh227376.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -438,7 +437,7 @@ which are required to run programs compiled with the GNAT.
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
 %patch17 -p0 -b .pr30189~
-%patch18 -p0 -b .rh227983~
+%patch18 -p0 -b .pr27351~
 %patch19 -p0 -b .hash-style-gnu~
 %patch20 -p0 -b .pr30001~
 %patch21 -p0 -b .java-libdotdotlib~
@@ -457,11 +456,10 @@ which are required to run programs compiled with the GNAT.
 %patch34 -p0 -b .pr30110~
 %patch35 -p0 -b .pr30143~
 %patch36 -p0 -b .pr30045~
-%patch37 -p0 -b .pr30473~
-%patch38 -p0 -b .pr30536~
-%patch39 -p0 -b .pr27351~
+%patch37 -p0 -b .rh223576~
+%patch38 -p0 -b .rh227376~
 
-sed -i -e 's/4\.1\.2/4.1.1/' gcc/BASE-VER gcc/version.c
+sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
@@ -1532,6 +1530,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Feb 14 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-1
+- update from gcc-4_1-branch (-r121738:121962)
+  - GCC 4.1.2 release
+  - PRs fortran/24783, testsuite/30649, middle-end/30313
+- fix ICE in dwarf2out with limbo die nodes in namespace context
+  (Alexandre Oliva, #227376)
+- fix a SRA bug with bitfields (Alexandre Oliva, #223576)
+
 * Sun Feb 11 2007 Jakub Jelinek <jakub@redhat.com> 4.1.1-57
 - package up ammintrin.h on i386/x86_64
 - fix AMDfam10 testcases (H.J. Lu)
