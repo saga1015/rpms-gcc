@@ -1,6 +1,6 @@
-%define DATE 20070214
+%define DATE 20070220
 %define gcc_version 4.1.2
-%define gcc_release 1
+%define gcc_release 2
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -42,7 +42,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
 BuildRequires: binutils >= 2.17.50.0.2-8
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
-BuildRequires: /usr/bin/fastjar
+%if %{build_java}
+BuildRequires: gcc-java, libgcj, /usr/share/java/eclipse-ecj.jar, zip, unzip
+%endif
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
 # Make sure glibc supports DT_GNU_HASH
@@ -123,28 +125,22 @@ Patch13: gcc41-pr20297-test.patch
 Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
-Patch17: gcc41-pr30189.patch
-Patch18: gcc41-pr27351.patch
-Patch19: gcc41-hash-style-gnu.patch
-Patch20: gcc41-pr30001.patch
-Patch21: gcc41-java-libdotdotlib.patch
-Patch22: gcc41-pr28709.patch
-Patch23: gcc41-pr28755.patch
-Patch24: gcc41-pr27898.patch
-Patch25: gcc41-pr27567.patch
-Patch26: gcc41-pr29272.patch
-Patch27: gcc41-pr29059.patch
-Patch28: gcc41-strncat-chk.patch
-Patch29: gcc41-pr29703.patch
-Patch30: gcc41-pr29299.patch
-Patch31: gcc41-libjava-anonverscript.patch
-Patch32: gcc41-ppc64-libffi-unwind.patch
-Patch33: gcc41-pr30113.patch
-Patch34: gcc41-pr30110.patch
-Patch35: gcc41-pr30143.patch
-Patch36: gcc41-pr30045.patch
-Patch37: gcc41-rh223576.patch
-Patch38: gcc41-rh227376.patch
+Patch17: gcc41-pr27351.patch
+Patch18: gcc41-hash-style-gnu.patch
+Patch19: gcc41-pr30001.patch
+Patch20: gcc41-java-libdotdotlib.patch
+Patch21: gcc41-pr28709.patch
+Patch22: gcc41-pr28755.patch
+Patch23: gcc41-pr27898.patch
+Patch24: gcc41-pr27567.patch
+Patch25: gcc41-pr29272.patch
+Patch26: gcc41-pr29059.patch
+Patch27: gcc41-strncat-chk.patch
+Patch28: gcc41-pr29299.patch
+Patch29: gcc41-pr30113.patch
+Patch30: gcc41-pr30143.patch
+Patch31: gcc41-pr30045.patch
+Patch32: gcc41-rh227376.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -303,6 +299,7 @@ Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libgcj = %{version}-%{release}
 Requires: libgcj-devel = %{version}-%{release}
+Requires: /usr/share/java/eclipse-ecj.jar
 Obsoletes: gcc3-java
 Obsoletes: gcc34-java
 Obsoletes: gcc35-java
@@ -342,7 +339,7 @@ programs compiled using the Java compiler from GNU Compiler Collection (gcj).
 %package -n libgcj-devel
 Summary: Libraries for Java development using GCC
 Group: Development/Languages
-Requires: libgcj = %{version}-%{release}, %{_prefix}/%{_lib}/libgcj.so.7rh
+Requires: libgcj = %{version}-%{release}, %{_prefix}/%{_lib}/libgcj.so.8rh
 Requires: zlib-devel, %{_prefix}/%{_lib}/libz.so
 Requires: /bin/awk
 Obsoletes: libgcj3-devel
@@ -436,28 +433,22 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .objc-rh185398~
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
-%patch17 -p0 -b .pr30189~
-%patch18 -p0 -b .pr27351~
-%patch19 -p0 -b .hash-style-gnu~
-%patch20 -p0 -b .pr30001~
-%patch21 -p0 -b .java-libdotdotlib~
-%patch22 -p0 -b .pr28709~
-%patch23 -p0 -b .pr28755~
-%patch24 -p0 -b .pr27898~
-%patch25 -p0 -b .pr27567~
-%patch26 -p0 -b .pr29272~
-%patch27 -p0 -b .pr29059~
-%patch28 -p0 -b .strncat-chk~
-%patch29 -p0 -b .pr29703~
-%patch30 -p0 -b .pr29299~
-%patch31 -p0 -b .libjava-anonverscript~
-%patch32 -p0 -b .ppc64-libffi-unwind~
-%patch33 -p0 -b .pr30113~
-%patch34 -p0 -b .pr30110~
-%patch35 -p0 -b .pr30143~
-%patch36 -p0 -b .pr30045~
-%patch37 -p0 -b .rh223576~
-%patch38 -p0 -b .rh227376~
+%patch17 -p0 -b .pr27351~
+%patch18 -p0 -b .hash-style-gnu~
+%patch19 -p0 -b .pr30001~
+%patch20 -p0 -b .java-libdotdotlib~
+%patch21 -p0 -b .pr28709~
+%patch22 -p0 -b .pr28755~
+%patch23 -p0 -b .pr27898~
+%patch24 -p0 -b .pr27567~
+%patch25 -p0 -b .pr29272~
+%patch26 -p0 -b .pr29059~
+%patch27 -p0 -b .strncat-chk~
+%patch28 -p0 -b .pr29299~
+%patch29 -p0 -b .pr30113~
+%patch30 -p0 -b .pr30143~
+%patch31 -p0 -b .pr30045~
+%patch32 -p0 -b .rh227376~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -503,6 +494,34 @@ if [ ! -f /usr/lib/locale/de_DE/LC_CTYPE ]; then
   export LOCPATH=`pwd`/locale:/usr/lib/locale
 fi
 
+%if %{build_java}
+# If we don't have gjavah in $PATH, try to build it with the old gij
+mkdir java_hacks
+cd java_hacks
+if [ ! -x /usr/bin/gjavah ]; then
+  cp -a ../../libjava/classpath/tools/external external
+  mkdir -p gnu/classpath/tools
+  cp -a ../../libjava/classpath/tools/gnu/classpath/tools/{common,javah,getopt} gnu/classpath/tools/
+  cp -a ../../libjava/classpath/resource/gnu/classpath/tools/common/Messages.properties gnu/classpath/tools/common
+  cd external/asm; for i in `find . -name \*.java`; do gcj --encoding ISO-8859-1 -C $i -I.; done; cd ../..
+  for i in `find gnu -name \*.java`; do gcj -C $i -I. -Iexternal/asm/; done
+  gcj -findirect-dispatch -O2 -fmain=gnu.classpath.tools.javah.Main -I. -Iexternal/asm/ `find . -name \*.class` -o gjavah.real
+  cat > gjavah <<EOF
+#!/bin/sh
+export CLASSPATH=`pwd`${CLASSPATH:+:$CLASSPATH}
+exec `pwd`/gjavah.real "\$@"
+EOF
+  chmod +x `pwd`/gjavah
+fi
+cat > ecj1 <<EOF
+#!/bin/sh
+exec gij -cp /usr/share/java/eclipse-ecj.jar org.eclipse.jdt.internal.compiler.batch.GCCMain "\$@"
+EOF
+chmod +x `pwd`/ecj1
+export PATH=`pwd`${PATH:+:$PATH}
+cd ..
+%endif
+
 CC=gcc
 OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
@@ -539,7 +558,6 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
-	--enable-libgcj-multifile \
 %if !%{build_ada}
 	--enable-languages=c,c++,objc,obj-c++,java,fortran \
 %else
@@ -550,6 +568,8 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 %else
 	--enable-java-awt=gtk --disable-dssi --enable-plugin \
 	--with-java-home=%{_prefix}/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre \
+	--enable-libgcj-multifile --enable-java-maintainer-mode \
+	--with-ecj-jar=/usr/share/java/eclipse-ecj.jar \
 %endif
 %ifarch ppc ppc64
 	--enable-secureplt \
@@ -665,6 +685,10 @@ if [ ! -f /usr/lib/locale/de_DE/LC_CTYPE ]; then
   export LOCPATH=`pwd`/locale:/usr/lib/locale
 fi
 
+%if %{build_java}
+export PATH=`pwd`/java_hacks${PATH:+:$PATH}
+%endif
+
 TARGET_PLATFORM=%{gcc_target_platform}
 
 # There are some MP bugs in libstdc++ Makefiles
@@ -743,7 +767,7 @@ find $RPM_BUILD_ROOT -name \*.la | xargs rm -f
 # gcj -static doesn't work properly anyway, unless using --whole-archive
 # and saving 35MB is not bad.
 find $RPM_BUILD_ROOT -name libgcj.a -o -name libgtkpeer.a \
-		     -o -name libgjsmalsa.a -o libgcj-tools.a -o libjvm.a \
+		     -o -name libgjsmalsa.a -o -name libgcj-tools.a -o -name libjvm.a \
 		     -o -name libgij.a -o -name libgcj_bc.a | xargs rm -f
 
 mv $RPM_BUILD_ROOT%{_prefix}/lib/libgcj.spec $FULLPATH/
@@ -782,8 +806,8 @@ fi
 %if %{build_java}
 if [ "%{_lib}" != "lib" ]; then
   mkdir -p $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig
-  sed '/^libdir/s/lib$/%{_lib}/' $RPM_BUILD_ROOT%{_prefix}/lib/pkgconfig/libgcj.pc \
-    > $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig/libgcj.pc
+  sed '/^libdir/s/lib$/%{_lib}/' $RPM_BUILD_ROOT%{_prefix}/lib/pkgconfig/libgcj-*.pc \
+    > $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig/`basename $RPM_BUILD_ROOT%{_prefix}/lib/pkgconfig/libgcj-*.pc`
 fi
 %endif
 
@@ -796,9 +820,9 @@ ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../libgcj.so.7rh.* libgcj.so
-ln -sf ../../../libgcj-tools.so.7rh.* libgcj-tools.so
-ln -sf ../../../libgij.so.7rh.* libgij.so
+ln -sf ../../../libgcj.so.8rh.* libgcj.so
+ln -sf ../../../libgcj-tools.so.8rh.* libgcj-tools.so
+ln -sf ../../../libgij.so.8rh.* libgij.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -816,9 +840,9 @@ ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../../%{_lib}/libgcj.so.7rh.* libgcj.so
-ln -sf ../../../../%{_lib}/libgcj-tools.so.7rh.* libgcj-tools.so
-ln -sf ../../../../%{_lib}/libgij.so.7rh.* libgij.so
+ln -sf ../../../../%{_lib}/libgcj.so.8rh.* libgcj.so
+ln -sf ../../../../%{_lib}/libgcj-tools.so.8rh.* libgcj-tools.so
+ln -sf ../../../../%{_lib}/libgij.so.8rh.* libgij.so
 %endif
 %if %{build_ada}
 cd adalib
@@ -849,9 +873,9 @@ ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgom
 ln -sf ../`echo ../../../../lib/libmudflap.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflap.so
 ln -sf ../`echo ../../../../lib/libmudflapth.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflapth.so
 %if %{build_java}
-ln -sf ../`echo ../../../../lib/libgcj.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgcj.so
-ln -sf ../`echo ../../../../lib/libgcj-tools.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
-ln -sf ../`echo ../../../../lib/libgij.so.7rh.* | sed s~/lib/~/lib64/~` 64/libgij.so
+ln -sf ../`echo ../../../../lib/libgcj.so.8rh.* | sed s~/lib/~/lib64/~` 64/libgcj.so
+ln -sf ../`echo ../../../../lib/libgcj-tools.so.8rh.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
+ln -sf ../`echo ../../../../lib/libgij.so.8rh.* | sed s~/lib/~/lib64/~` 64/libgij.so
 ln -sf lib32/libgcj_bc.so libgcj_bc.so
 ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
 %endif
@@ -873,9 +897,9 @@ ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgo
 ln -sf ../`echo ../../../../lib64/libmudflap.so.0.* | sed s~/../lib64/~/~` 32/libmudflap.so
 ln -sf ../`echo ../../../../lib64/libmudflapth.so.0.* | sed s~/../lib64/~/~` 32/libmudflapth.so
 %if %{build_java}
-ln -sf ../`echo ../../../../lib64/libgcj.so.7rh.* | sed s~/../lib64/~/~` 32/libgcj.so
-ln -sf ../`echo ../../../../lib64/libgcj-tools.so.7rh.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
-ln -sf ../`echo ../../../../lib64/libgij.so.7rh.* | sed s~/../lib64/~/~` 32/libgij.so
+ln -sf ../`echo ../../../../lib64/libgcj.so.8rh.* | sed s~/../lib64/~/~` 32/libgcj.so
+ln -sf ../`echo ../../../../lib64/libgcj-tools.so.8rh.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
+ln -sf ../`echo ../../../../lib64/libgij.so.8rh.* | sed s~/../lib64/~/~` 32/libgij.so
 %endif
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libsupc++.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortran.*a 32/
@@ -1245,7 +1269,9 @@ fi
 %defattr(-,root,root)
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
-%{_prefix}/include/c++/%{gcc_version}/[^gj]*
+%{_prefix}/include/c++/%{gcc_version}/[^gjos]*
+%{_prefix}/include/c++/%{gcc_version}/os*
+%{_prefix}/include/c++/%{gcc_version}/s[^u]*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -1346,15 +1372,10 @@ fi
 %files java
 %defattr(-,root,root)
 %{_prefix}/bin/gcj
-%{_prefix}/bin/gcjh
-%{_prefix}/bin/gjnih
+%{_prefix}/bin/gjavah
 %{_prefix}/bin/jcf-dump
-%{_prefix}/bin/jv-scan
 %{_mandir}/man1/gcj.1*
-%{_mandir}/man1/gcjh.1*
-%{_mandir}/man1/gjnih.1*
 %{_mandir}/man1/jcf-dump.1*
-%{_mandir}/man1/jv-scan.1*
 %{_infodir}/gcj*
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
@@ -1363,6 +1384,7 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jc1
+%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/ecj1
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jvgenmain
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
@@ -1390,16 +1412,21 @@ fi
 %defattr(-,root,root)
 %{_prefix}/bin/jv-convert
 %{_prefix}/bin/gij
+%{_prefix}/bin/gjar
 %{_prefix}/bin/fastjar
 %{_prefix}/bin/grepjar
 %{_prefix}/bin/grmic
+%{_prefix}/bin/grmid
 %{_prefix}/bin/grmiregistry
+%{_prefix}/bin/gtnameserv
+%{_prefix}/bin/gkeytool
+%{_prefix}/bin/gorbd
+%{_prefix}/bin/gserialver
 %{_prefix}/bin/gcj-dbtool
 %if %{include_gappletviewer}
 %{_prefix}/bin/gappletviewer
 %endif
 %{_prefix}/bin/gjarsigner
-%{_prefix}/bin/gkeytool
 %{_mandir}/man1/fastjar.1*
 %{_mandir}/man1/grepjar.1*
 %{_mandir}/man1/jv-convert.1*
@@ -1421,7 +1448,8 @@ fi
 %endif
 %{_prefix}/%{_lib}/gcj-%{version}/libjvm.so
 %dir %{_prefix}/share/java
-%{_prefix}/share/java/[^s]*
+%{_prefix}/share/java/[^sl]*
+%{_prefix}/share/java/libgcj-%{version}.jar
 %dir %{_prefix}/%{_lib}/security
 %config(noreplace) %{_prefix}/%{_lib}/security/classpath.security
 %{_prefix}/%{_lib}/logging.properties
@@ -1459,7 +1487,9 @@ fi
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
 %{_prefix}/include/c++/%{gcc_version}/[gj]*
-%{_prefix}/%{_lib}/pkgconfig/libgcj.pc
+%{_prefix}/include/c++/%{gcc_version}/org
+%{_prefix}/include/c++/%{gcc_version}/sun
+%{_prefix}/%{_lib}/pkgconfig/libgcj-*.pc
 %doc rpm.doc/boehm-gc/* rpm.doc/fastjar/* rpm.doc/libffi/*
 %doc rpm.doc/libjava/*
 %endif
@@ -1468,6 +1498,7 @@ fi
 %defattr(-,root,root)
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/src*.zip
+%{_prefix}/share/java/libgcj-tools-%{version}.jar
 
 %if %{build_ada}
 %files gnat
@@ -1530,6 +1561,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 20 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-2
+- merge from redhat/gcc-4_1-branch-java-merge-20070117
+  to get an eclipse based Java 1.5 gcc-java/libgcj
+- update from gcc-4_1-branch (-r121962:122163)
+  - PRs fortran/30478, fortran/30799, middle-end/24427, other/27843,
+	rtl-optimization/28173, rtl-optimization/28772,
+	rtl-optimization/29599, rtl-optimization/30787, target/19087,
+	tree-optimization/30823
+
 * Wed Feb 14 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-1
 - update from gcc-4_1-branch (-r121738:121962)
   - GCC 4.1.2 release
