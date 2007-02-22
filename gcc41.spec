@@ -1,6 +1,6 @@
-%define DATE 20070220
+%define DATE 20070222
 %define gcc_version 4.1.2
-%define gcc_release 2
+%define gcc_release 3
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -138,9 +138,10 @@ Patch26: gcc41-pr29059.patch
 Patch27: gcc41-strncat-chk.patch
 Patch28: gcc41-pr29299.patch
 Patch29: gcc41-pr30113.patch
-Patch30: gcc41-pr30143.patch
+Patch30: gcc41-pr25392.patch
 Patch31: gcc41-pr30045.patch
 Patch32: gcc41-rh227376.patch
+Patch33: gcc41-java-zoneinfo.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -446,9 +447,10 @@ which are required to run programs compiled with the GNAT.
 %patch27 -p0 -b .strncat-chk~
 %patch28 -p0 -b .pr29299~
 %patch29 -p0 -b .pr30113~
-%patch30 -p0 -b .pr30143~
+%patch30 -p0 -b .pr25392~
 %patch31 -p0 -b .pr30045~
 %patch32 -p0 -b .rh227376~
+%patch33 -p0 -b .java-zoneinfo~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1561,6 +1563,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Feb 22 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-3
+- update from gcc-4_1-branch (-r122163:122219)
+  - PR ada/30684
+- fix !$omp space space parsing in Fortran
+- fix Fortran -ff2c (Tobias Schlueter, #229110, PR fortran/25392)
+- add gnu.java.util.ZoneInfo class, use tzdata files for libgcj
+  timezone stuff (#227888)
+
 * Tue Feb 20 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-2
 - merge from redhat/gcc-4_1-branch-java-merge-20070117
   to get an eclipse based Java 1.5 gcc-java/libgcj
