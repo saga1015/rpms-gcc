@@ -141,6 +141,9 @@ Patch29: gcc41-pr30113.patch
 Patch30: gcc41-rh228769.patch
 Patch31: gcc41-pr30045.patch
 Patch32: gcc41-rh227376.patch
+Patch33: gcc41-rh231134.patch
+Patch34: gcc41-libjava-xpcom.patch
+Patch35: gcc41-rh231261.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -449,6 +452,9 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .rh228769~
 %patch31 -p0 -b .pr30045~
 %patch32 -p0 -b .rh227376~
+%patch33 -p0 -b .rh231134~
+%patch34 -p0 -b .libjava-xpcom~
+%patch35 -p0 -b .rh231261~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1570,6 +1576,8 @@ fi
 	rtl-optimization/30931, target/30848, tree-optimization/29925
   - reenable memory CSE (Alexandre Oliva, #229366, PR rtl-optimization/30643)
 - fix random seed handling with -frepo (Alexandre Oliva, #228769)
+- fix fortran OPEN without ACTION on read-only filesystem (#231134)
+- fix fortran module writer ICEs on implicit conversions (#231261)
 
 * Thu Feb 22 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-3
 - update from gcc-4_1-branch (-r122163:122219)
