@@ -1373,6 +1373,7 @@ fi
 %defattr(-,root,root)
 %{_prefix}/bin/gcj
 %{_prefix}/bin/gjavah
+%{_prefix}/bin/gcjh
 %{_prefix}/bin/jcf-dump
 %{_mandir}/man1/gcj.1*
 %{_mandir}/man1/jcf-dump.1*
