@@ -1,0 +1,16 @@
+2007-03-16  Andrew Haley  <aph@redhat.com>
+
+	* class.c (push_class): Don't bogusly guess the source filename.
+
+--- gcc/java/class.c	(revision 122746)
++++ gcc/java/class.c	(working copy)
+@@ -426,8 +426,7 @@
+   tree decl, signature;
+   location_t saved_loc = input_location;
+ #ifndef USE_MAPPED_LOCATION
+-  tree source_name = identifier_subst (class_name, "", '.', '/', ".java");
+-  input_filename = IDENTIFIER_POINTER (source_name);
++  input_filename = "<unknown>";
+   input_line = 0;
+ #endif
+   CLASS_P (class_type) = 1;

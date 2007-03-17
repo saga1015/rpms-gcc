@@ -1,6 +1,6 @@
-%define DATE 20070312
+%define DATE 20070317
 %define gcc_version 4.1.2
-%define gcc_release 4
+%define gcc_release 5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -142,9 +142,7 @@ Patch30: gcc41-rh228769.patch
 Patch31: gcc41-pr30045.patch
 Patch32: gcc41-rh227376.patch
 Patch33: gcc41-rh231134.patch
-Patch34: gcc41-libjava-xpcom.patch
-Patch35: gcc41-rh231261.patch
-Patch36: gcc41-libjava-mandir.patch
+Patch34: gcc41-java-bogus-debugline.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -454,9 +452,7 @@ which are required to run programs compiled with the GNAT.
 %patch31 -p0 -b .pr30045~
 %patch32 -p0 -b .rh227376~
 %patch33 -p0 -b .rh231134~
-%patch34 -p0 -b .libjava-xpcom~
-%patch35 -p0 -b .rh231261~
-%patch36 -p0 -b .libjava-mandir~
+%patch34 -p0 -b .java-bogus-debugline~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -575,7 +571,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--disable-libgcj \
 %else
 	--enable-java-awt=gtk --disable-dssi --enable-plugin \
-	--with-java-home=%{_prefix}/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre \
+	--with-java-home=%{_prefix}/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre \
 	--enable-libgcj-multifile --enable-java-maintainer-mode \
 	--with-ecj-jar=/usr/share/java/eclipse-ecj.jar \
 %endif
@@ -1570,6 +1566,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Mar 17 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-5
+- update from gcc-4_1-branch (-r122833:123011)
+  - PRs debug/29906, middle-end/30364, middle-end/30433, target/31123
+- rebuilt against newer rpm to fix libgcj debuginfo (#232222)
+
 * Mon Mar 12 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-4
 - update from gcc-4_1-branch (-r122219:122833)
   - PRs c++/30852, c++/30895, classpath/28550, classpath/30831,
