@@ -1381,6 +1381,7 @@ fi
 %{_prefix}/bin/jcf-dump
 %{_mandir}/man1/gcj.1*
 %{_mandir}/man1/jcf-dump.1*
+%{_mandir}/man1/gjavah.1*
 %{_infodir}/gcj*
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
@@ -1430,15 +1431,23 @@ fi
 %{_prefix}/bin/gcj-dbtool
 %if %{include_gappletviewer}
 %{_prefix}/bin/gappletviewer
+%{_mandir}/man1/gappletviewer.1*
 %endif
 %{_prefix}/bin/gjarsigner
 %{_mandir}/man1/fastjar.1*
 %{_mandir}/man1/grepjar.1*
+%{_mandir}/man1/gjar.1*
+%{_mandir}/man1/gjarsigner.1*
 %{_mandir}/man1/jv-convert.1*
 %{_mandir}/man1/gij.1*
 %{_mandir}/man1/grmic.1*
 %{_mandir}/man1/grmiregistry.1*
 %{_mandir}/man1/gcj-dbtool.1*
+%{_mandir}/man1/gkeytool.1*
+%{_mandir}/man1/gorbd.1*
+%{_mandir}/man1/grmid.1*
+%{_mandir}/man1/gserialver.1*
+%{_mandir}/man1/gtnameserv.1*
 %{_infodir}/fastjar*
 %{_prefix}/%{_lib}/libgcj.so.*
 %{_prefix}/%{_lib}/libgcj-tools.so.*
