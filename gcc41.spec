@@ -1,6 +1,6 @@
-%define DATE 20070317
+%define DATE 20070327
 %define gcc_version 4.1.2
-%define gcc_release 5
+%define gcc_release 6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -141,8 +141,10 @@ Patch29: gcc41-pr30113.patch
 Patch30: gcc41-rh228769.patch
 Patch31: gcc41-pr30045.patch
 Patch32: gcc41-rh227376.patch
-Patch33: gcc41-rh231134.patch
+Patch33: gcc41-pr30863.patch
 Patch34: gcc41-java-bogus-debugline.patch
+Patch35: gcc41-libffi-selinux.patch
+Patch36: gcc41-libjava-visibility.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -451,8 +453,10 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .rh228769~
 %patch31 -p0 -b .pr30045~
 %patch32 -p0 -b .rh227376~
-%patch33 -p0 -b .rh231134~
+%patch33 -p0 -b .pr30863~
 %patch34 -p0 -b .java-bogus-debugline~
+%patch35 -p0 -b .libffi-selinux~
+%patch36 -p0 -b .libjava-visibility~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1575,6 +1579,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Mar 27 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-6
+- update from gcc-4_1-branch (-r123011:123245)
+  - PRs fortran/31184, target/31245, tree-optimization/30590
+- libjava W^X support (Alexandre Oliva, #202209)
+- fix gcjh -jni and gjavah -cni (Stepan Kasal, #233349)
+- fix C++ accepts invalid bug (Mark Mitchell, PR c++/30863)
+- use hidden visibility for Java private methods (Andrew Haley)
+
 * Sat Mar 17 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-5
 - update from gcc-4_1-branch (-r122833:123011)
   - PRs debug/29906, middle-end/30364, middle-end/30433, target/31123
