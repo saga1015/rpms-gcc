@@ -456,7 +456,7 @@ which are required to run programs compiled with the GNAT.
 %patch33 -p0 -b .pr30863~
 %patch34 -p0 -b .java-bogus-debugline~
 %patch35 -p0 -b .libffi-selinux~
-%patch36 -p0 -b .libjava-visibility~
+#%patch36 -p0 -b .libjava-visibility~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1585,7 +1585,6 @@ fi
 - libjava W^X support (Alexandre Oliva, #202209)
 - fix gcjh -jni and gjavah -cni (Stepan Kasal, #233349)
 - fix C++ accepts invalid bug (Mark Mitchell, PR c++/30863)
-- use hidden visibility for Java private methods (Andrew Haley)
 
 * Sat Mar 17 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-5
 - update from gcc-4_1-branch (-r122833:123011)
