@@ -1,6 +1,6 @@
-%define DATE 20070327
+%define DATE 20070329
 %define gcc_version 4.1.2
-%define gcc_release 6
+%define gcc_release 7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -145,6 +145,7 @@ Patch33: gcc41-pr30863.patch
 Patch34: gcc41-java-bogus-debugline.patch
 Patch35: gcc41-libffi-selinux.patch
 Patch36: gcc41-libjava-visibility.patch
+Patch37: gcc41-pr30847.patch
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -457,6 +458,7 @@ which are required to run programs compiled with the GNAT.
 %patch34 -p0 -b .java-bogus-debugline~
 %patch35 -p0 -b .libffi-selinux~
 #%patch36 -p0 -b .libjava-visibility~
+%patch37 -p0 -b .pr30847~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1386,6 +1388,7 @@ fi
 %{_mandir}/man1/gcj.1*
 %{_mandir}/man1/jcf-dump.1*
 %{_mandir}/man1/gjavah.1*
+%{_mandir}/man1/gcjh.1*
 %{_infodir}/gcj*
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
@@ -1579,6 +1582,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Mar 29 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-7
+- make sure boehm-gc doesn't use PROT_EXEC (#202209)
+- fix C++ ICE on i ? j : k = (void) 0; (PR c++/30847)
+
 * Tue Mar 27 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-6
 - update from gcc-4_1-branch (-r123011:123245)
   - PRs fortran/31184, target/31245, tree-optimization/30590
