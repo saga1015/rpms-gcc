@@ -1,6 +1,6 @@
-%define DATE 20070329
+%define DATE 20070403
 %define gcc_version 4.1.2
-%define gcc_release 7
+%define gcc_release 8
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -125,27 +125,22 @@ Patch13: gcc41-pr20297-test.patch
 Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
 Patch16: gcc41-pr25874.patch
-Patch17: gcc41-pr27351.patch
-Patch18: gcc41-hash-style-gnu.patch
-Patch19: gcc41-pr30001.patch
-Patch20: gcc41-java-libdotdotlib.patch
-Patch21: gcc41-pr28709.patch
-Patch22: gcc41-pr28755.patch
-Patch23: gcc41-pr27898.patch
-Patch24: gcc41-pr27567.patch
-Patch25: gcc41-pr29272.patch
-Patch26: gcc41-pr29059.patch
-Patch27: gcc41-strncat-chk.patch
-Patch28: gcc41-pr29299.patch
-Patch29: gcc41-pr30113.patch
-Patch30: gcc41-rh228769.patch
-Patch31: gcc41-pr30045.patch
-Patch32: gcc41-rh227376.patch
-Patch33: gcc41-pr30863.patch
-Patch34: gcc41-java-bogus-debugline.patch
-Patch35: gcc41-libffi-selinux.patch
-Patch36: gcc41-libjava-visibility.patch
-Patch37: gcc41-pr30847.patch
+Patch17: gcc41-hash-style-gnu.patch
+Patch18: gcc41-java-libdotdotlib.patch
+Patch19: gcc41-pr28709.patch
+Patch20: gcc41-pr28755.patch
+Patch21: gcc41-pr27898.patch
+Patch22: gcc41-pr27567.patch
+Patch23: gcc41-pr29272.patch
+Patch24: gcc41-pr29059.patch
+Patch25: gcc41-strncat-chk.patch
+Patch26: gcc41-pr29299.patch
+Patch27: gcc41-java-bogus-debugline.patch
+Patch28: gcc41-libjava-visibility.patch
+Patch29: gcc41-pr31187.patch
+Patch30: gcc41-rh231818.patch
+Patch31: gcc41-rh234515.patch
+
 %define _gnu %{nil}
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
@@ -438,27 +433,21 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .objc-rh185398~
 %patch15 -p0 -b .tests~
 %patch16 -p0 -b .pr25874~
-%patch17 -p0 -b .pr27351~
-%patch18 -p0 -b .hash-style-gnu~
-%patch19 -p0 -b .pr30001~
-%patch20 -p0 -b .java-libdotdotlib~
-%patch21 -p0 -b .pr28709~
-%patch22 -p0 -b .pr28755~
-%patch23 -p0 -b .pr27898~
-%patch24 -p0 -b .pr27567~
-%patch25 -p0 -b .pr29272~
-%patch26 -p0 -b .pr29059~
-%patch27 -p0 -b .strncat-chk~
-%patch28 -p0 -b .pr29299~
-%patch29 -p0 -b .pr30113~
-%patch30 -p0 -b .rh228769~
-%patch31 -p0 -b .pr30045~
-%patch32 -p0 -b .rh227376~
-%patch33 -p0 -b .pr30863~
-%patch34 -p0 -b .java-bogus-debugline~
-%patch35 -p0 -b .libffi-selinux~
-#%patch36 -p0 -b .libjava-visibility~
-%patch37 -p0 -b .pr30847~
+%patch17 -p0 -b .hash-style-gnu~
+%patch18 -p0 -b .java-libdotdotlib~
+%patch19 -p0 -b .pr28709~
+%patch20 -p0 -b .pr28755~
+%patch21 -p0 -b .pr27898~
+%patch22 -p0 -b .pr27567~
+%patch23 -p0 -b .pr29272~
+%patch24 -p0 -b .pr29059~
+%patch25 -p0 -b .strncat-chk~
+%patch26 -p0 -b .pr29299~
+%patch27 -p0 -b .java-bogus-debugline~
+%patch28 -p0 -b .libjava-visibility~
+%patch29 -p0 -b .pr31187~
+%patch30 -p0 -b .rh231818~
+%patch31 -p0 -b .rh234515~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1582,6 +1571,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Apr  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-8
+- update from gcc-4_1-branch (-r123245:123462)
+  - PRs target/31137, target/31380
+- libjava fixes (PRs classpath/31302, classpath/31303, libgcj/29869)
+- java Proxy fix (Andrew Haley, #234836)
+- deque::erase fix (Steve LoBasso, Paolo Carlini, #234515)
+- fix java font rendering (Francis Kung, #231818)
+- fix a regression caused by C++ visibility fixes (Jason Merrill,
+  PR c++/31187)
+- use hidden visibility for non-native java private methods (Andrew Haley)
+
 * Thu Mar 29 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-7
 - make sure boehm-gc doesn't use PROT_EXEC (#202209)
 - fix C++ ICE on i ? j : k = (void) 0; (PR c++/30847)
