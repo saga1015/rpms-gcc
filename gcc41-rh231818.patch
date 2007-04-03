@@ -86,24 +86,6 @@
      else
 --- libjava/classpath/gnu/java/awt/peer/gtk/ComponentGraphics.java	16 Mar 2007 15:14:53 -0000	1.25
 +++ libjava/classpath/gnu/java/awt/peer/gtk/ComponentGraphics.java	2 Apr 2007 19:39:26 -0000	1.26
-@@ -114,7 +114,7 @@ public class ComponentGraphics extends C
- 
-   private void lock()
-   {
--    Integer i = (Integer) hasLock.get();
-+    Integer i = hasLock.get();
-     if (i == null)
-       {
- 	start_gdk_drawing();
-@@ -126,7 +126,7 @@ public class ComponentGraphics extends C
- 
-   private void unlock()
-   {
--    Integer i = (Integer) hasLock.get();
-+    Integer i = hasLock.get();
-     if (i == null)
-       throw new IllegalStateException();
-     if (i == ONE)
 @@ -134,6 +134,8 @@ public class ComponentGraphics extends C
  	hasLock.set(null);
  	end_gdk_drawing();

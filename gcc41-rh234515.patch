@@ -7,15 +7,15 @@
 
 --- libstdc++-v3/include/bits/deque.tcc	(revision 121146)
 +++ libstdc++-v3/include/bits/deque.tcc	(revision 121147)
-@@ -143,7 +143,7 @@ _GLIBCXX_BEGIN_NESTED_NAMESPACE(std, _GL
- 	{
+@@ -142,7 +142,7 @@ namespace _GLIBCXX_STD
  	  const difference_type __n = __last - __first;
- 	  const difference_type __elems_before = __first - begin();
+ 	  const difference_type __elems_before = (__first
+ 						  - this->_M_impl._M_start);
 -	  if (static_cast<size_type>(__elems_before) < (size() - __n) / 2)
 +	  if (static_cast<size_type>(__elems_before) <= (size() - __n) / 2)
  	    {
- 	      if (__first != begin())
- 		std::copy_backward(begin(), __first, __last);
+ 	      std::copy_backward(this->_M_impl._M_start, __first, __last);
+ 	      iterator __new_start = this->_M_impl._M_start + __n;
 --- libstdc++-v3/testsuite/23_containers/deque/modifiers/erase/3.cc	(revision 0)
 +++ libstdc++-v3/testsuite/23_containers/deque/modifiers/erase/3.cc	(revision 121147)
 @@ -0,0 +1,52 @@
