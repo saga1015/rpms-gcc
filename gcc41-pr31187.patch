@@ -32,7 +32,7 @@
  bool
 --- gcc/cp/decl.c	(revision 123431)
 +++ gcc/cp/decl.c	(revision 123432)
-@@ -3797,6 +3797,7 @@ start_decl (const cp_declarator *declara
+@@ -3817,6 +3817,7 @@ start_decl (const cp_declarator *declara
    tree decl;
    tree type, tem;
    tree context;
@@ -40,7 +40,7 @@
  
    *pushed_scope_p = NULL_TREE;
  
-@@ -3951,6 +3952,8 @@ start_decl (const cp_declarator *declara
+@@ -3969,6 +3970,8 @@ start_decl (const cp_declarator *declara
  		 decl);
      }
  
@@ -49,9 +49,9 @@
    /* Enter this declaration into the symbol table.  */
    tem = maybe_push_decl (decl);
  
-@@ -3971,6 +3974,17 @@ start_decl (const cp_declarator *declara
-       && !have_global_bss_p ())
-     DECL_COMMON (tem) = 1;
+@@ -3988,6 +3991,17 @@ start_decl (const cp_declarator *declara
+ 		       && (flag_conserve_space || ! TREE_PUBLIC (tem)));
+ #endif
  
 +  if (TREE_CODE (tem) == VAR_DECL
 +      && DECL_NAMESPACE_SCOPE_P (tem) && !TREE_PUBLIC (tem) && !was_public
@@ -64,10 +64,10 @@
 +      DECL_THIS_STATIC (tem) = 1;
 +    }
 +
-   if (!processing_template_decl && TREE_CODE (tem) == VAR_DECL)
-     start_decl_1 (tem, initialized);
+   if (! processing_template_decl)
+     start_decl_1 (tem);
  
-@@ -5283,14 +5297,6 @@ cp_finish_decl (tree decl, tree init, bo
+@@ -5320,14 +5334,6 @@ cp_finish_decl (tree decl, tree init, bo
  	{
  	  layout_var_decl (decl);
  	  maybe_commonize_var (decl);

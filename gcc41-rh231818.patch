@@ -58,16 +58,16 @@
 
 --- libjava/classpath/gnu/java/awt/peer/gtk/CairoGraphics2D.java	16 Mar 2007 15:14:53 -0000	1.67
 +++ libjava/classpath/gnu/java/awt/peer/gtk/CairoGraphics2D.java	2 Apr 2007 19:39:26 -0000	1.68
-@@ -402,7 +402,7 @@ public abstract class CairoGraphics2D ex
+@@ -392,7 +392,7 @@ public abstract class CairoGraphics2D ex
     */
-   protected native void cairoDrawGlyphVector(long pointer, GdkFontPeer font, 
+   native void cairoDrawGlyphVector(long pointer, GdkFontPeer font, 
                                     float x, float y, int n, 
 -                                   int[] codes, float[] positions);
 +                                   int[] codes, float[] positions, long[] fontset);
  
    /**
     * Set the font in cairo.
-@@ -1730,6 +1730,7 @@ public abstract class CairoGraphics2D ex
+@@ -1676,6 +1676,7 @@ public abstract class CairoGraphics2D ex
        {
          int n = gv.getNumGlyphs ();
          int[] codes = gv.getGlyphCodes (0, n, null);
@@ -75,28 +75,28 @@
          float[] positions = gv.getGlyphPositions (0, n, null);
  
          setFont (gv.getFont ());
-@@ -1737,7 +1738,7 @@ public abstract class CairoGraphics2D ex
-         synchronized (fontPeer) 
-           { 
-             cairoDrawGlyphVector(nativePointer, fontPeer,
--                                 x, y, n, codes, positions);
-+                                 x, y, n, codes, positions, fontset);
-           }
+@@ -1683,7 +1684,7 @@ public abstract class CairoGraphics2D ex
+ 	synchronized (fontPeer) 
+ 	  { 
+ 	    cairoDrawGlyphVector(nativePointer, fontPeer,
+-				 x, y, n, codes, positions);
++				 x, y, n, codes, positions, fontset);
+ 	  }
        }
      else
 --- libjava/classpath/gnu/java/awt/peer/gtk/ComponentGraphics.java	16 Mar 2007 15:14:53 -0000	1.25
 +++ libjava/classpath/gnu/java/awt/peer/gtk/ComponentGraphics.java	2 Apr 2007 19:39:26 -0000	1.26
-@@ -121,7 +121,7 @@ public class ComponentGraphics extends C
-    */
+@@ -114,7 +114,7 @@ public class ComponentGraphics extends C
+ 
    private void lock()
    {
 -    Integer i = (Integer) hasLock.get();
 +    Integer i = hasLock.get();
      if (i == null)
        {
-         start_gdk_drawing();
-@@ -136,7 +136,7 @@ public class ComponentGraphics extends C
-    */
+ 	start_gdk_drawing();
+@@ -126,7 +126,7 @@ public class ComponentGraphics extends C
+ 
    private void unlock()
    {
 -    Integer i = (Integer) hasLock.get();
@@ -104,32 +104,15 @@
      if (i == null)
        throw new IllegalStateException();
      if (i == ONE)
-@@ -144,6 +144,8 @@ public class ComponentGraphics extends C
-         hasLock.set(null);
-         end_gdk_drawing();
+@@ -134,6 +134,8 @@ public class ComponentGraphics extends C
+ 	hasLock.set(null);
+ 	end_gdk_drawing();
        }
 +    else if (i.intValue() == 2)
 +      hasLock.set(ONE);
      else
        hasLock.set(Integer.valueOf(i.intValue() - 1));
    }
-@@ -744,12 +746,14 @@ public class ComponentGraphics extends C
-   @Override
-   protected void cairoDrawGlyphVector(long pointer, GdkFontPeer font,
-                                       float x, float y, int n,
--                                      int[] codes, float[] positions)
-+                                      int[] codes, float[] positions,
-+                                      long[] fontset)
-   {
-     try
-     {
-       lock();
--      super.cairoDrawGlyphVector(pointer, font, x, y, n, codes, positions);
-+      super.cairoDrawGlyphVector(pointer, font, x, y, n, codes, positions,
-+                                 fontset);
-     }
-     finally
-     {
 --- libjava/classpath/gnu/java/awt/peer/gtk/FreetypeGlyphVector.java	6 Mar 2007 19:38:31 -0000	1.16
 +++ libjava/classpath/gnu/java/awt/peer/gtk/FreetypeGlyphVector.java	2 Apr 2007 21:28:58 -0000	1.18
 @@ -79,6 +79,11 @@ public class FreetypeGlyphVector extends
@@ -283,26 +266,26 @@
  
      for(int i = 0; i < nGlyphs; i++)
        {
--        GlyphMetrics gm = (GlyphMetrics)
--        peer.getGlyphMetrics( glyphCodes[ i ] );
-+        GlyphMetrics gm = (GlyphMetrics)peer.getGlyphMetrics(glyphCodes[i]);
-         if( gm == null )
-           {
--            double[] val = getMetricsNative( glyphCodes[ i ] );
-+            double[] val = getMetricsNative(glyphCodes[i], fontSet[i]);
-             if( val == null )
-               gm = null;
-             else
-@@ -376,7 +431,8 @@ public class FreetypeGlyphVector extends
+-	GlyphMetrics gm = (GlyphMetrics)
+-	  peer.getGlyphMetrics( glyphCodes[ i ] );
++	GlyphMetrics gm = (GlyphMetrics)peer.getGlyphMetrics(glyphCodes[i]);
+ 	if( gm == null )
+ 	  {
+-	    double[] val = getMetricsNative( glyphCodes[ i ] );
++	    double[] val = getMetricsNative(glyphCodes[i], fontSet[i]);
+ 	    if( val == null )
+ 	      gm = null;
+ 	    else
+@@ -374,7 +429,8 @@ public class FreetypeGlyphVector extends
     */
    public Shape getGlyphOutline(int glyphIndex)
    {
 -    GeneralPath gp = getGlyphOutlineNative( glyphCodes[ glyphIndex ] );
 +    GeneralPath gp = getGlyphOutlineNative(glyphCodes[glyphIndex],
-+                                           fontSet[glyphIndex]);
++					   fontSet[glyphIndex]);
+     if (glyphTransforms[glyphIndex] != null)
+       gp.transform( glyphTransforms[glyphIndex]);
      
-     AffineTransform tx = AffineTransform.getTranslateInstance(glyphPositions[glyphIndex*2],
-                                                               glyphPositions[glyphIndex*2+1]);
 --- libjava/classpath/include/gnu_java_awt_peer_gtk_CairoGraphics2D.h	16 Mar 2007 15:14:53 -0000	1.17
 +++ libjava/classpath/include/gnu_java_awt_peer_gtk_CairoGraphics2D.h	2 Apr 2007 19:39:26 -0000	1.18
 @@ -22,7 +22,7 @@ JNIEXPORT void JNICALL Java_gnu_java_awt
