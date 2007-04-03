@@ -1,9 +1,11 @@
 2007-03-16  Andrew Haley  <aph@redhat.com>
 
 	* class.c (push_class): Don't bogusly guess the source filename.
+	* jcf-parse.c (give_name_to_class): Don't set input_location from
+	DECL_ARTIFICIAL decls.
 
---- gcc/java/class.c	(revision 122746)
-+++ gcc/java/class.c	(working copy)
+--- gcc/java/class.c        (revision 122746)
++++ gcc/java/class.c        (working copy)
 @@ -426,8 +426,7 @@
    tree decl, signature;
    location_t saved_loc = input_location;
@@ -14,3 +16,22 @@
    input_line = 0;
  #endif
    CLASS_P (class_type) = 1;
+--- gcc/java/jcf-parse.c    (revision 122746)
++++ gcc/java/jcf-parse.c    (working copy)
+@@ -1221,9 +1221,12 @@
+        main_input_filename = sfname;
+       }
+ #else
+-      input_location = DECL_SOURCE_LOCATION (TYPE_NAME (this_class));
+-      if (main_input_filename == NULL && jcf == main_jcf)
+-       main_input_filename = input_filename;
++      if (! DECL_ARTIFICIAL (TYPE_NAME (this_class)))
++       {
++         input_location = DECL_SOURCE_LOCATION (TYPE_NAME (this_class));
++         if (main_input_filename == NULL && jcf == main_jcf)
++           main_input_filename = input_filename;
++       }
+ #endif
+ 
+       jcf->cpool.data[i].t = this_class;
+
