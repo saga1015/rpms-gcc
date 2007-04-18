@@ -1,6 +1,6 @@
-%define DATE 20070403
+%define DATE 20070418
 %define gcc_version 4.1.2
-%define gcc_release 8
+%define gcc_release 9
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -124,22 +124,21 @@ Patch12: gcc41-rh184446.patch
 Patch13: gcc41-pr20297-test.patch
 Patch14: gcc41-objc-rh185398.patch
 Patch15: gcc41-tests.patch
-Patch16: gcc41-pr25874.patch
-Patch17: gcc41-hash-style-gnu.patch
-Patch18: gcc41-java-libdotdotlib.patch
-Patch19: gcc41-pr28709.patch
-Patch20: gcc41-pr28755.patch
-Patch21: gcc41-pr27898.patch
-Patch22: gcc41-pr27567.patch
-Patch23: gcc41-pr29272.patch
-Patch24: gcc41-pr29059.patch
-Patch25: gcc41-strncat-chk.patch
-Patch26: gcc41-pr29299.patch
-Patch27: gcc41-java-bogus-debugline.patch
-Patch28: gcc41-libjava-visibility.patch
-Patch29: gcc41-pr31187.patch
-Patch30: gcc41-rh231818.patch
-Patch31: gcc41-rh234515.patch
+Patch16: gcc41-hash-style-gnu.patch
+Patch17: gcc41-java-libdotdotlib.patch
+Patch18: gcc41-pr28709.patch
+Patch19: gcc41-pr28755.patch
+Patch20: gcc41-pr27898.patch
+Patch21: gcc41-pr27567.patch
+Patch22: gcc41-pr29272.patch
+Patch23: gcc41-pr29059.patch
+Patch24: gcc41-strncat-chk.patch
+Patch25: gcc41-pr29299.patch
+Patch26: gcc41-java-bogus-debugline.patch
+Patch27: gcc41-libjava-visibility.patch
+Patch28: gcc41-pr31187.patch
+Patch29: gcc41-rh231818.patch
+Patch30: gcc41-rh234515.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -317,15 +316,17 @@ Group: System Environment/Libraries
 Prereq: /sbin/install-info
 Requires: zip >= 2.1
 Requires: gtk2 >= 2.4.0
-BuildRequires: gtk2-devel >= 2.4.0
 Requires: glib2 >= 2.4.0
-BuildRequires: glib2-devel >= 2.4.0
 Requires: libart_lgpl >= 2.1.0
+%if %{build_java}
+BuildRequires: gtk2-devel >= 2.4.0
+BuildRequires: glib2-devel >= 2.4.0
 BuildRequires: firefox-devel
 BuildRequires: libart_lgpl-devel >= 2.1.0
 BuildRequires: alsa-lib-devel
 BuildRequires: libXtst-devel
 BuildRequires: libXt-devel
+%endif
 Obsoletes: gcc-libgcj
 Obsoletes: libgcj3
 Obsoletes: libgcj34
@@ -432,22 +433,21 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -E -b .pr20297-test~
 %patch14 -p0 -b .objc-rh185398~
 %patch15 -p0 -b .tests~
-%patch16 -p0 -b .pr25874~
-%patch17 -p0 -b .hash-style-gnu~
-%patch18 -p0 -b .java-libdotdotlib~
-%patch19 -p0 -b .pr28709~
-%patch20 -p0 -b .pr28755~
-%patch21 -p0 -b .pr27898~
-%patch22 -p0 -b .pr27567~
-%patch23 -p0 -b .pr29272~
-%patch24 -p0 -b .pr29059~
-%patch25 -p0 -b .strncat-chk~
-%patch26 -p0 -b .pr29299~
-%patch27 -p0 -b .java-bogus-debugline~
-%patch28 -p0 -b .libjava-visibility~
-%patch29 -p0 -b .pr31187~
-%patch30 -p0 -b .rh231818~
-%patch31 -p0 -b .rh234515~
+%patch16 -p0 -b .hash-style-gnu~
+%patch17 -p0 -b .java-libdotdotlib~
+%patch18 -p0 -b .pr28709~
+%patch19 -p0 -b .pr28755~
+%patch20 -p0 -b .pr27898~
+%patch21 -p0 -b .pr27567~
+%patch22 -p0 -b .pr29272~
+%patch23 -p0 -b .pr29059~
+%patch24 -p0 -b .strncat-chk~
+%patch25 -p0 -b .pr29299~
+%patch26 -p0 -b .java-bogus-debugline~
+%patch27 -p0 -b .libjava-visibility~
+%patch28 -p0 -b .pr31187~
+%patch29 -p0 -b .rh231818~
+%patch30 -p0 -b .rh234515~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1502,13 +1502,13 @@ fi
 %{_prefix}/%{_lib}/pkgconfig/libgcj-*.pc
 %doc rpm.doc/boehm-gc/* rpm.doc/fastjar/* rpm.doc/libffi/*
 %doc rpm.doc/libjava/*
-%endif
 
 %files -n libgcj-src
 %defattr(-,root,root)
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/src*.zip
 %{_prefix}/share/java/libgcj-tools-%{version}.jar
+%endif
 
 %if %{build_ada}
 %files gnat
@@ -1571,6 +1571,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Apr 18 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-9
+- update from gcc-4_1-branch (-r123462:123951)
+  - PRs c++/30168, c++/31074, c++/31449, c++/31517, c/31520, middle-end/30729,
+	target/25448, target/30289, target/30483, target/31361, target/31582,
+	testsuite/31578
+- fix %%build_java 0 build (#235500)
+- fix libjava build on alpha (#236337)
+- fix for Java AWT programs that could hang X server (Francis Kung,
+  PR classpath/31311)
+- fix gnu.javax.net.ssl.provider.SSLSocketFactoryImpl (Tom Tromey, #236614)
+
 * Tue Apr  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-8
 - update from gcc-4_1-branch (-r123245:123462)
   - PRs target/31137, target/31380
