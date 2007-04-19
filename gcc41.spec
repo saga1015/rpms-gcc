@@ -1,6 +1,6 @@
 %define DATE 20070418
 %define gcc_version 4.1.2
-%define gcc_release 9
+%define gcc_release 10
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -139,6 +139,9 @@ Patch27: gcc41-libjava-visibility.patch
 Patch28: gcc41-pr31187.patch
 Patch29: gcc41-rh231818.patch
 Patch30: gcc41-rh234515.patch
+Patch31: gcc41-pr31632.patch
+Patch32: gcc41-rh236895.patch
+Patch33: gcc41-rh237067.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -448,6 +451,9 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .pr31187~
 %patch29 -p0 -b .rh231818~
 %patch30 -p0 -b .rh234515~
+%patch31 -p0 -b .pr31632~
+%patch32 -p0 -b .rh236895~
+%patch33 -p0 -b .rh237067~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1571,6 +1577,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Apr 19 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-10
+- fix folding of comparisions against min, min+1, max-1, max
+  (#236711, PR tree-optimization/31632)
+- fix _mm_cmpord_ss on i?86/x86_64 (#237067)
+- Java proxy fix (Andrew Haley, #236895)
+
 * Wed Apr 18 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-9
 - update from gcc-4_1-branch (-r123462:123951)
   - PRs c++/30168, c++/31074, c++/31449, c++/31517, c/31520, middle-end/30729,

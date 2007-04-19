@@ -1,0 +1,16 @@
+2007-04-18  Andrew Haley  <aph@redhat.com>
+
+	* java/lang/reflect/VMProxy.java (HAVE_NATIVE_GENERATE_PROXY_CLASS):
+	Set to false.
+
+--- libjava/java/lang/reflect/VMProxy.java	(revision 123861)
++++ libjava/java/lang/reflect/VMProxy.java	(working copy)
+@@ -65,7 +65,7 @@
+    * If this is true, HAVE_NATIVE_GET_PROXY_CLASS should be false.
+    * @see java.lang.reflect.Proxy
+    */
+-  static boolean HAVE_NATIVE_GENERATE_PROXY_CLASS = true;
++  static boolean HAVE_NATIVE_GENERATE_PROXY_CLASS = false;
+ 
+   /**
+    * Optional native method to replace (and speed up) the pure Java
