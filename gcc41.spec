@@ -1,6 +1,6 @@
-%define DATE 20070418
+%define DATE 20070424
 %define gcc_version 4.1.2
-%define gcc_release 10
+%define gcc_release 11
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -139,9 +139,10 @@ Patch27: gcc41-libjava-visibility.patch
 Patch28: gcc41-pr31187.patch
 Patch29: gcc41-rh231818.patch
 Patch30: gcc41-rh234515.patch
-Patch31: gcc41-pr31632.patch
+Patch31: gcc41-pr30558.patch
 Patch32: gcc41-rh236895.patch
-Patch33: gcc41-rh237067.patch
+Patch33: gcc41-pr31598.patch
+Patch34: gcc41-rh235008.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -451,9 +452,10 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .pr31187~
 %patch29 -p0 -b .rh231818~
 %patch30 -p0 -b .rh234515~
-%patch31 -p0 -b .pr31632~
+%patch31 -p0 -b .pr30558~
 %patch32 -p0 -b .rh236895~
-%patch33 -p0 -b .rh237067~
+%patch33 -p0 -b .pr31598~
+%patch34 -p0 -b .rh235008~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -641,7 +643,7 @@ cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
 mkdir -p rpm.doc/boehm-gc rpm.doc/fastjar rpm.doc/libffi rpm.doc/libjava
 mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}
-cp -p %{SOURCE2} rpm.doc/README.libgcjwebplugin.so
+sed -e 's,@VERSION@,%{gcc_version},' %{SOURCE2} > rpm.doc/README.libgcjwebplugin.so
 
 for i in {gcc,gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}/ChangeLog*; do
 	cp -p $i rpm.doc/changelogs/$i
@@ -1577,6 +1579,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Apr 25 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-11
+- update from gcc-4_1-branch (-r123951:124100)
+  - PRs middle-end/31448, preprocessor/30468, target/28623, target/31641
+- Java fixes
+  - PRs classpath/31626, classpath/31646, #236895
+- fix a couple of translation bugs that could lead to ICEs (#235008)
+- fix ICE with #pragma omp parallel inside of a try catch construct
+  (PR tree-optimization/30558)
+- fix OpenMP clause handling in templates (PR c++/31598)
+
 * Thu Apr 19 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-10
 - fix folding of comparisions against min, min+1, max-1, max
   (#236711, PR tree-optimization/31632)

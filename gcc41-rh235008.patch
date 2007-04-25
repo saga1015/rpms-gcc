@@ -1,0 +1,97 @@
+2007-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	* fr.po: Use %s rather than %S.
+	* sr.po: Likewise.
+	* tr.po: Likewise.
+	* sv.po: Likewise.
+	* rw.po: Comment out translations with bogus format
+	strings.
+
+--- gcc/po/fr.po	(revision 123636)
++++ gcc/po/fr.po	(working copy)
+@@ -31416,7 +31416,7 @@ msgstr "attribut � %s � ignor�"
+ #~ msgstr "prise de l'adresse de la borne de l'expression d'un pointeur-vers-un membre"
+ 
+ #~ msgid "%s from type `%T' to type `%T' casts away constness"
+-#~ msgstr "%S � partir du � %T � vers le type � %T � provoque un transtypage sans constante"
++#~ msgstr "%s � partir du � %T � vers le type � %T � provoque un transtypage sans constante"
+ 
+ #~ msgid "invalid reinterpret_cast from type `%T' to type `%T'"
+ #~ msgstr "reinterpret_cast invalide � partir du type � %T � vers le type � %T �"
+--- gcc/po/sr.po	(revision 123636)
++++ gcc/po/sr.po	(working copy)
+@@ -8516,7 +8516,7 @@ msgstr "Не могу се промен�
+ #: fortran/symbol.c:592
+ #, no-c-format
+ msgid "Duplicate %s attribute specified at %L"
+-msgstr "Двоструки атрибут %S наведен код %L"
++msgstr "Двоструки атрибут %s наведен код %L"
+ 
+ #: fortran/symbol.c:733
+ #, no-c-format
+--- gcc/po/tr.po	(revision 123636)
++++ gcc/po/tr.po	(working copy)
+@@ -6951,7 +6951,7 @@ msgstr "INTERFACE gövdesinde umulmadık
+ #: fortran/parse.c:1604
+ #, no-c-format
+ msgid "%s statement must appear in a MODULE"
+-msgstr "%S deyimi bir MODULE'de görünmemeli"
++msgstr "%s deyimi bir MODULE'de görünmemeli"
+ 
+ #: fortran/parse.c:1611
+ #, no-c-format
+--- gcc/po/rw.po	(revision 123636)
++++ gcc/po/rw.po	(working copy)
+@@ -2168,8 +2168,8 @@ msgstr ""
+ 
+ #: tlink.c:480
+ #, fuzzy, c-format
+-msgid "renaming .rpo file"
+-msgstr "Gufungura %s%S Ibisohoka IDOSIYE"
++#~ msgid "renaming .rpo file"
++#~ msgstr "Gufungura %s%S Ibisohoka IDOSIYE"
+ 
+ #: tlink.c:534
+ #, c-format
+@@ -17500,8 +17500,8 @@ msgstr "-Umutekano"
+ 
+ #: c-opts.c:1040
+ #, fuzzy, gcc-internal-format
+-msgid "opening output file %s: %m"
+-msgstr "Gufungura %s%S Ibisohoka IDOSIYE"
++#~ msgid "opening output file %s: %m"
++#~ msgstr "Gufungura %s%S Ibisohoka IDOSIYE"
+ 
+ #: c-opts.c:1045
+ #, fuzzy, gcc-internal-format
+@@ -17515,8 +17515,8 @@ msgstr ""
+ 
+ #: c-opts.c:1177
+ #, fuzzy, gcc-internal-format
+-msgid "opening dependency file %s: %m"
+-msgstr "Gufungura %s%S IDOSIYE"
++#~ msgid "opening dependency file %s: %m"
++#~ msgstr "Gufungura %s%S IDOSIYE"
+ 
+ #: c-opts.c:1187
+ #, fuzzy, gcc-internal-format
+--- gcc/po/sv.po	2007-02-20 22:38:45.000000000 +0100
++++ gcc/po/sv.po	2007-04-13 00:18:11.000000000 +0200
+@@ -3328,7 +3328,7 @@ msgstr "ogiltig operand till %%R"
+ #: config/sh/sh.c:773
+ #, c-format
+ msgid "invalid operand to %%S"
+-msgstr "ogiltig operand till %%R"
++msgstr "ogiltig operand till %%S"
+ 
+ #: config/sh/sh.c:7679
+ msgid "created and used with different architectures / ABIs"
+@@ -8019,7 +8019,7 @@ msgstr "PROCEDURE-attribut i konflikt me
+ #: fortran/resolve.c:4943
+ #, no-c-format
+ msgid "Parameter array '%s' at %L cannot be automatic or assumed shape"
+-msgstr "Parametervektor \"%S\" vid %L kan inte ha automatisk eller antagen form"
++msgstr "Parametervektor \"%s\" vid %L kan inte ha automatisk eller antagen form"
+ 
+ #: fortran/resolve.c:4955
+ #, no-c-format

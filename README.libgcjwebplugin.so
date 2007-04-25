@@ -42,7 +42,7 @@ sufficiently mature that they're able to run many applets deployed on
 the web.  If you're interested in trying gcjwebplugin, you can do so
 by creating a symbolic link in ~/.mozilla/plugins like so:
 
-ln -s /usr/lib/gcj-4.1.1/libgcjwebplugin.so ~/.mozilla/plugins/
+ln -s /usr/lib/gcj-@VERSION@/libgcjwebplugin.so ~/.mozilla/plugins/
 
 Type about:plugins in Firefox's URL bar to confirm that the plugin has
 been loaded.  To see gcjwebplugin debugging output, run:
