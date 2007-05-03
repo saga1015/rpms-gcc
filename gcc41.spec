@@ -1,6 +1,6 @@
-%define DATE 20070424
+%define DATE 20070503
 %define gcc_version 4.1.2
-%define gcc_release 11
+%define gcc_release 12
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -137,12 +137,14 @@ Patch25: gcc41-pr29299.patch
 Patch26: gcc41-java-bogus-debugline.patch
 Patch27: gcc41-libjava-visibility.patch
 Patch28: gcc41-pr31187.patch
-Patch29: gcc41-rh231818.patch
+Patch29: gcc41-dtor-relro.patch
 Patch30: gcc41-rh234515.patch
-Patch31: gcc41-pr30558.patch
+Patch31: gcc41-libgomp-ncpus.patch
 Patch32: gcc41-rh236895.patch
-Patch33: gcc41-pr31598.patch
+Patch33: gcc41-pr28482.patch
 Patch34: gcc41-rh235008.patch
+Patch35: gcc41-pr31748.patch
+Patch36: gcc41-tls-data-alignment.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -450,12 +452,14 @@ which are required to run programs compiled with the GNAT.
 %patch26 -p0 -b .java-bogus-debugline~
 %patch27 -p0 -b .libjava-visibility~
 %patch28 -p0 -b .pr31187~
-%patch29 -p0 -b .rh231818~
+%patch29 -p0 -b .dtor-relro~
 %patch30 -p0 -b .rh234515~
-%patch31 -p0 -b .pr30558~
+%patch31 -p0 -b .libgomp-ncpus~
 %patch32 -p0 -b .rh236895~
-%patch33 -p0 -b .pr31598~
+%patch33 -p0 -b .pr28482~
 %patch34 -p0 -b .rh235008~
+%patch35 -p0 -b .pr31748~
+%patch36 -p0 -b .tls-data-alignment~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1579,6 +1583,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu May  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-12
+- update from gcc-4_1-branch (-r124100:124365)
+  - PRs c++/30016, c++/30221, middle-end/30761, target/18989,
+	target/28675, tree-optimization/29446, tree-optimization/31698
+- add default.css Java resource (Tom Fitzsimmons, #237304)
+- don't increase alignment of TLS variables too much
+- __do_global_dtors_aux hardening
+- allow libgomp to be dlopened (PR libgomp/28482)
+- speed up and improve libgomp omp_get_num_procs and dynamic
+  thread count computation
+- GOMP_CPU_AFFINITY support
+- fix ICE on C++ type passed as OpenMP clause variable (PR c++/31748)
+
 * Wed Apr 25 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-11
 - update from gcc-4_1-branch (-r123951:124100)
   - PRs middle-end/31448, preprocessor/30468, target/28623, target/31641
