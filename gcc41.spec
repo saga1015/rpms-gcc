@@ -1,6 +1,6 @@
-%define DATE 20070503
+%define DATE 20070615
 %define gcc_version 4.1.2
-%define gcc_release 12
+%define gcc_release 13
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -137,14 +137,14 @@ Patch25: gcc41-pr29299.patch
 Patch26: gcc41-java-bogus-debugline.patch
 Patch27: gcc41-libjava-visibility.patch
 Patch28: gcc41-pr31187.patch
-Patch29: gcc41-dtor-relro.patch
+Patch29: gcc41-pr31809.patch
 Patch30: gcc41-rh234515.patch
-Patch31: gcc41-libgomp-ncpus.patch
+Patch31: gcc41-pr32139.patch
 Patch32: gcc41-rh236895.patch
-Patch33: gcc41-pr28482.patch
+Patch33: gcc41-pr32285.patch
 Patch34: gcc41-rh235008.patch
 Patch35: gcc41-pr31748.patch
-Patch36: gcc41-tls-data-alignment.patch
+Patch36: gcc41-pr32353.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -452,14 +452,14 @@ which are required to run programs compiled with the GNAT.
 %patch26 -p0 -b .java-bogus-debugline~
 %patch27 -p0 -b .libjava-visibility~
 %patch28 -p0 -b .pr31187~
-%patch29 -p0 -b .dtor-relro~
+%patch29 -p0 -b .pr31809~
 %patch30 -p0 -b .rh234515~
-%patch31 -p0 -b .libgomp-ncpus~
+%patch31 -p0 -b .pr32139~
 %patch32 -p0 -b .rh236895~
-%patch33 -p0 -b .pr28482~
+%patch33 -p0 -b .pr32285~
 %patch34 -p0 -b .rh235008~
 %patch35 -p0 -b .pr31748~
-%patch36 -p0 -b .tls-data-alignment~
+%patch36 -p0 -b .pr32353~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1583,6 +1583,25 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Jun 15 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-13
+- update from gcc-4_1-branch (-r124365:125727)
+  - PRs libfortran/31409, libfortran/31880, libfortran/31964,
+	rtl-optimization/31691, target/31022, target/31480, target/31701,
+	target/31876, target/32163, tree-optimization/26998
+- gomp updates from the trunk (-r125541:125542, -r125543:125544) and
+  from gcc-4_2-branch (-r125184:125185)
+  - PRs tree-optimization/31769, c++/32177
+- don't set TREE_READONLY on C++ objects that need runtime initialization
+  (PRs c++/31806, c++/31809)
+- fix computation of common pointer type (PR tree-optimization/32139)
+- precompute const and pure fn calls inside another fn call arguments
+  with accumulating outgoing args
+  (PRs middle-end/32285, tree-optimization/30493)
+- fix handling of RESULT_DECLs in points-to analysis
+  (#243438, PR tree-optimization/32353)
+- work around java.lang.reflect.Modifier.INTERPRETED clash with
+  java.lang.reflect.Modifier.SYNTHETIC (Andrew Haley, #240720)
+
 * Thu May  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-12
 - update from gcc-4_1-branch (-r124100:124365)
   - PRs c++/30016, c++/30221, middle-end/30761, target/18989,
