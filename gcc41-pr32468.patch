@@ -1,0 +1,54 @@
+2007-06-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libgomp/32468
+	* sections.c (GOMP_parallel_sections_start): Only decrease
+	number of threads to COUNT if dyn_var is true.
+
+	* libgomp.c/pr32468.c: New test.
+
+--- libgomp/sections.c.jj	2006-10-05 00:24:40.000000000 +0200
++++ libgomp/sections.c	2007-06-25 22:03:17.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2005 Free Software Foundation, Inc.
++/* Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+    Contributed by Richard Henderson <rth@redhat.com>.
+ 
+    This file is part of the GNU OpenMP Library (libgomp).
+@@ -106,7 +106,7 @@ GOMP_parallel_sections_start (void (*fn)
+   struct gomp_work_share *ws;
+ 
+   num_threads = gomp_resolve_num_threads (num_threads);
+-  if (num_threads > count)
++  if (gomp_dyn_var && num_threads > count)
+     num_threads = count;
+ 
+   ws = gomp_new_work_share (false, num_threads);
+--- libgomp/testsuite/libgomp.c/pr32468.c.jj	2007-06-25 21:51:07.000000000 +0200
++++ libgomp/testsuite/libgomp.c/pr32468.c	2007-06-25 21:55:44.000000000 +0200
+@@ -0,0 +1,26 @@
++/* PR libgomp/32468 */
++/* { dg-do run } */
++
++#include <omp.h>
++#include <stdlib.h>
++
++int
++main (void)
++{
++  int res[2] = { -1, -1 };
++  omp_set_dynamic (0);
++  omp_set_num_threads (4);
++#pragma omp parallel
++  {
++    #pragma omp sections
++      {
++	#pragma omp section
++	res[0] = omp_get_num_threads () != 4;
++	#pragma omp section
++	res[1] = omp_get_num_threads () != 4;
++      }
++  }
++  if (res[0] != 0 || res[1] != 0)
++    abort ();
++  return 0;
++}

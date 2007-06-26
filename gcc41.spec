@@ -1,6 +1,6 @@
-%define DATE 20070615
+%define DATE 20070626
 %define gcc_version 4.1.2
-%define gcc_release 13
+%define gcc_release 14
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -118,33 +118,23 @@ Patch6: gcc41-ada-pr18302.patch
 Patch7: gcc41-ada-tweaks.patch
 Patch8: gcc41-java-slow_pthread_self.patch
 Patch9: gcc41-ppc32-retaddr.patch
-Patch10: gcc41-amdfam10.patch
-Patch11: gcc41-dsohandle.patch
-Patch12: gcc41-rh184446.patch
-Patch13: gcc41-pr20297-test.patch
-Patch14: gcc41-objc-rh185398.patch
-Patch15: gcc41-tests.patch
-Patch16: gcc41-hash-style-gnu.patch
-Patch17: gcc41-java-libdotdotlib.patch
-Patch18: gcc41-pr28709.patch
-Patch19: gcc41-pr28755.patch
-Patch20: gcc41-pr27898.patch
-Patch21: gcc41-pr27567.patch
-Patch22: gcc41-pr29272.patch
-Patch23: gcc41-pr29059.patch
-Patch24: gcc41-strncat-chk.patch
-Patch25: gcc41-pr29299.patch
-Patch26: gcc41-java-bogus-debugline.patch
-Patch27: gcc41-libjava-visibility.patch
-Patch28: gcc41-pr31187.patch
-Patch29: gcc41-pr31809.patch
-Patch30: gcc41-rh234515.patch
-Patch31: gcc41-pr32139.patch
-Patch32: gcc41-rh236895.patch
-Patch33: gcc41-pr32285.patch
-Patch34: gcc41-rh235008.patch
-Patch35: gcc41-pr31748.patch
-Patch36: gcc41-pr32353.patch
+Patch10: gcc41-dsohandle.patch
+Patch11: gcc41-rh184446.patch
+Patch12: gcc41-pr20297-test.patch
+Patch13: gcc41-hash-style-gnu.patch
+Patch14: gcc41-java-libdotdotlib.patch
+Patch15: gcc41-pr28755.patch
+Patch16: gcc41-pr27898.patch
+Patch17: gcc41-java-bogus-debugline.patch
+Patch18: gcc41-libjava-visibility.patch
+Patch19: gcc41-pr32139.patch
+Patch20: gcc41-rh236895.patch
+Patch21: gcc41-rh235008.patch
+Patch22: gcc41-pr31748.patch
+Patch23: gcc41-pr28690.patch
+Patch24: gcc41-pr32468.patch
+Patch25: gcc41-pr32468-2.patch
+Patch26: gcc41-rh245424.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -433,33 +423,23 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .ada-tweaks~
 %patch8 -p0 -b .java-slow_pthread_self~
 %patch9 -p0 -b .ppc32-retaddr~
-%patch10 -p0 -b .amdfam10~
-%patch11 -p0 -b .dsohandle~
-%patch12 -p0 -b .rh184446~
-%patch13 -p0 -E -b .pr20297-test~
-%patch14 -p0 -b .objc-rh185398~
-%patch15 -p0 -b .tests~
-%patch16 -p0 -b .hash-style-gnu~
-%patch17 -p0 -b .java-libdotdotlib~
-%patch18 -p0 -b .pr28709~
-%patch19 -p0 -b .pr28755~
-%patch20 -p0 -b .pr27898~
-%patch21 -p0 -b .pr27567~
-%patch22 -p0 -b .pr29272~
-%patch23 -p0 -b .pr29059~
-%patch24 -p0 -b .strncat-chk~
-%patch25 -p0 -b .pr29299~
-%patch26 -p0 -b .java-bogus-debugline~
-%patch27 -p0 -b .libjava-visibility~
-%patch28 -p0 -b .pr31187~
-%patch29 -p0 -b .pr31809~
-%patch30 -p0 -b .rh234515~
-%patch31 -p0 -b .pr32139~
-%patch32 -p0 -b .rh236895~
-%patch33 -p0 -b .pr32285~
-%patch34 -p0 -b .rh235008~
-%patch35 -p0 -b .pr31748~
-%patch36 -p0 -b .pr32353~
+%patch10 -p0 -b .dsohandle~
+%patch11 -p0 -b .rh184446~
+%patch12 -p0 -E -b .pr20297-test~
+%patch13 -p0 -b .hash-style-gnu~
+%patch14 -p0 -b .java-libdotdotlib~
+%patch15 -p0 -b .pr28755~
+%patch16 -p0 -b .pr27898~
+%patch17 -p0 -b .java-bogus-debugline~
+%patch18 -p0 -b .libjava-visibility~
+%patch19 -p0 -b .pr32139~
+%patch20 -p0 -b .rh236895~
+%patch21 -p0 -b .rh235008~
+%patch22 -p0 -b .pr31748~
+%patch23 -p0 -b .pr28690~
+%patch24 -p0 -b .pr32468~
+%patch25 -p0 -b .pr32468-2~
+%patch26 -p0 -b .rh245424~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1583,6 +1563,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jun 26 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-14
+- update from gcc-4_1-branch (-r125727:126008)
+  - PRs inline-asm/32109, rtl-optimization/28011, target/32389
+- gomp update from gcc-4_2-branch (-r125917:125918)
+  - PR middle-end/32362
+- on ppc{,64} when tuning for power6{,x}, try to put the base
+  register as first operand in instructions to improve
+  performance (Peter Bergner, #225425, PR middle-end/28690)
+- on ppc64 emit nop after a call and disallow sibling calls
+  if the target function is not defined in the same object file
+  (David Edelsohn, #245424)
+- gomp parallel sections fix and fix for checking whether combined
+  parallel can be used (PR libgomp/32468)
+
 * Fri Jun 15 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-13
 - update from gcc-4_1-branch (-r124365:125727)
   - PRs libfortran/31409, libfortran/31880, libfortran/31964,
