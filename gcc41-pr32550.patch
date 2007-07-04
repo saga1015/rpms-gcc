@@ -1,0 +1,107 @@
+2007-07-02  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/32550
+	* trans.h (GFC_POINTER_TYPE_P): Define.
+	* trans-types.c (gfc_sym_type): Set it for types on attr->sym.pointer.
+	* trans-openmp.c (gfc_omp_privatize_by_reference): Return false
+	if GFC_POINTER_TYPE_P is set on the type.
+
+	* testsuite/libgomp.fortran/pr32550.f90: New test.
+	* testsuite/libgomp.fortran/crayptr2.f90: New test.
+
+--- gcc/fortran/trans.h.jj	2007-05-30 14:54:52.000000000 +0200
++++ gcc/fortran/trans.h	2007-07-02 13:02:08.000000000 +0200
+@@ -603,6 +603,8 @@ struct lang_decl		GTY(())
+ #define GFC_DESCRIPTOR_TYPE_P(node) TYPE_LANG_FLAG_1(node)
+ /* An array without a descriptor.  */
+ #define GFC_ARRAY_TYPE_P(node) TYPE_LANG_FLAG_2(node)
++/* Fortran POINTER type.  */
++#define GFC_POINTER_TYPE_P(node) TYPE_LANG_FLAG_3(node)
+ /* The GFC_TYPE_ARRAY_* members are present in both descriptor and
+    descriptorless array types.  */
+ #define GFC_TYPE_ARRAY_LBOUND(node, dim) \
+--- gcc/fortran/trans-openmp.c.jj	2007-05-30 14:54:52.000000000 +0200
++++ gcc/fortran/trans-openmp.c	2007-07-02 13:10:19.000000000 +0200
+@@ -50,9 +50,12 @@ gfc_omp_privatize_by_reference (tree dec
+ 
+   if (TREE_CODE (type) == POINTER_TYPE)
+     {
+-      /* POINTER/ALLOCATABLE have aggregate types, all user variables
+-	 that have POINTER_TYPE type are supposed to be privatized
+-	 by reference.  */
++      /* Array POINTER/ALLOCATABLE have aggregate types, all user variables
++	 that have POINTER_TYPE type and don't have GFC_POINTER_TYPE_P
++	 set are supposed to be privatized by reference.  */
++      if (GFC_POINTER_TYPE_P (type))
++	return false;
++
+       if (!DECL_ARTIFICIAL (decl))
+ 	return true;
+ 
+--- gcc/fortran/trans-types.c.jj	2007-06-13 17:38:49.000000000 +0200
++++ gcc/fortran/trans-types.c	2007-07-02 13:03:22.000000000 +0200
+@@ -1364,6 +1364,8 @@ gfc_sym_type (gfc_symbol * sym)
+     {
+       if (sym->attr.allocatable || sym->attr.pointer)
+ 	type = gfc_build_pointer_type (sym, type);
++      if (sym->attr.pointer)
++	GFC_POINTER_TYPE_P (type) = 1;
+     }
+ 
+   /* We currently pass all parameters by reference.
+--- libgomp/testsuite/libgomp.fortran/crayptr2.f90.jj	2007-07-02 13:23:11.000000000 +0200
++++ libgomp/testsuite/libgomp.fortran/crayptr2.f90	2007-07-02 13:38:34.000000000 +0200
+@@ -0,0 +1,30 @@
++! { dg-do run }
++! { dg-options "-fopenmp -fcray-pointer" }
++
++  use omp_lib
++  integer :: a, b, c, d, p
++  logical :: l
++  pointer (ip, p)
++  save ip
++!$omp threadprivate (ip)
++  a = 1
++  b = 2
++  c = 3
++  l = .false.
++!$omp parallel num_threads (3) reduction (.or.:l)
++  if (omp_get_thread_num () .eq. 0) then
++    ip = loc (a)
++  elseif (omp_get_thread_num () .eq. 1) then
++    ip = loc (b)
++  else
++    ip = loc (c)
++  end if
++  l = p .ne. omp_get_thread_num () + 1
++!$omp single
++  d = omp_get_thread_num ()
++!$omp end single copyprivate (d, ip)
++  l = l .or. (p .ne. d + 1)
++!$omp end parallel
++
++  if (l) call abort
++end
+--- libgomp/testsuite/libgomp.fortran/pr32550.f90.jj	2007-07-02 13:17:59.000000000 +0200
++++ libgomp/testsuite/libgomp.fortran/pr32550.f90	2007-07-02 13:18:10.000000000 +0200
+@@ -0,0 +1,20 @@
++! PR fortran/32550
++! { dg-do run }
++
++      integer, pointer, save :: ptr
++      integer, target :: targ
++      integer :: e
++!$omp threadprivate(ptr)
++      e = 0
++      targ = 42
++!$omp parallel shared(targ)
++!$omp single
++      ptr => targ
++!$omp end single copyprivate(ptr)
++      if (ptr.ne.42) then
++!$omp atomic
++	e = e + 1
++      end if
++!$omp end parallel
++      if (e.ne.0) call abort
++      end

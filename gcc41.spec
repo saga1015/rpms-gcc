@@ -1,6 +1,6 @@
-%define DATE 20070626
+%define DATE 20070704
 %define gcc_version 4.1.2
-%define gcc_release 14
+%define gcc_release 15
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -130,11 +130,8 @@ Patch18: gcc41-libjava-visibility.patch
 Patch19: gcc41-pr32139.patch
 Patch20: gcc41-rh236895.patch
 Patch21: gcc41-rh235008.patch
-Patch22: gcc41-pr31748.patch
+Patch22: gcc41-pr32550.patch
 Patch23: gcc41-pr28690.patch
-Patch24: gcc41-pr32468.patch
-Patch25: gcc41-pr32468-2.patch
-Patch26: gcc41-rh245424.patch
 
 %define _gnu %{nil}
 %ifarch sparc
@@ -435,11 +432,8 @@ which are required to run programs compiled with the GNAT.
 %patch19 -p0 -b .pr32139~
 %patch20 -p0 -b .rh236895~
 %patch21 -p0 -b .rh235008~
-%patch22 -p0 -b .pr31748~
+%patch22 -p0 -b .pr32550~
 %patch23 -p0 -b .pr28690~
-%patch24 -p0 -b .pr32468~
-%patch25 -p0 -b .pr32468-2~
-%patch26 -p0 -b .rh245424~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1563,6 +1557,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jul  4 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-15
+- update from gcc-4_1-branch (-r126008:126302)
+  - PRs boehm-gc/21940, boehm-gc/21942, target/28307, target/32506,
+	tree-optimization/31966, tree-optimization/32533
+- merge in redhat/gcc-4_1-jdwp-merge-branch
+  - JDWP support (Keith Seitz)
+- fix OpenMP handling of Fortran POINTER non-array vars (PR fortran/32550)
+
 * Tue Jun 26 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-14
 - update from gcc-4_1-branch (-r125727:126008)
   - PRs inline-asm/32109, rtl-optimization/28011, target/32389
