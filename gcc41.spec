@@ -1,6 +1,6 @@
-%define DATE 20070704
+%define DATE 20070723
 %define gcc_version 4.1.2
-%define gcc_release 15
+%define gcc_release 16
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -40,7 +40,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils which support .weakref >= 2.16.91.0.3-1
 # Need binutils which support --hash-style=gnu >= 2.17.50.0.2-7
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
-BuildRequires: binutils >= 2.17.50.0.2-8
+# Need binutils which support --build-id >= 2.17.50.0.17-3
+BuildRequires: binutils >= binutils-2.17.50.0.17-3
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 %if %{build_java}
 BuildRequires: gcc-java, libgcj, /usr/share/java/eclipse-ecj.jar, zip, unzip
@@ -75,7 +76,8 @@ Requires: cpp = %{version}-%{release}
 # Need binutils that support .weakref
 # Need binutils that supports --hash-style=gnu
 # Need binutils that support mffgpr/mftgpr
-Requires: binutils >= 2.17.50.0.2-8
+# Need binutils that support --build-id
+Requires: binutils >= binutils-2.17.50.0.17-3
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
@@ -130,10 +132,15 @@ Patch18: gcc41-libjava-visibility.patch
 Patch19: gcc41-pr32139.patch
 Patch20: gcc41-rh236895.patch
 Patch21: gcc41-rh235008.patch
-Patch22: gcc41-pr32550.patch
+Patch22: gcc41-build-id.patch
 Patch23: gcc41-pr28690.patch
+Patch24: gcc41-rh247256.patch
 
+# On ARM EABI systems, we do want -gnueabi to be part of the                                                                    
+# target triple.                                                                                                                
+%ifnarch %{arm}                                                                                                                 
 %define _gnu %{nil}
+%endif
 %ifarch sparc
 %define gcc_target_platform sparc64-%{_vendor}-%{_target_os}
 %endif
@@ -432,8 +439,9 @@ which are required to run programs compiled with the GNAT.
 %patch19 -p0 -b .pr32139~
 %patch20 -p0 -b .rh236895~
 %patch21 -p0 -b .rh235008~
-%patch22 -p0 -b .pr32550~
+%patch22 -p0 -b .build-id~
 %patch23 -p0 -b .pr28690~
+%patch24 -p0 -b .rh247256~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1557,6 +1565,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Jul 23 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-16
+- update from gcc-4_1-branch (-r126302:126830)
+  - PRs rtl-optimization/32450, target/31331, target/32641, target/32660,
+	tree-optimization/32681
+- pass --build-id to ld for all linking but ld -r, update {,Build}Requires
+  to binutils that support it (Roland McGrath)
+- backport ARM fixes from trunk (#246800)
+  - PRs middle-end/24998, target/28516, target/30486
+- fix simplify_plus_minus with ppc{,64} power6 tuning (regression from                                                           
+  4.1.1-52.el5.2, #247256)
+
 * Wed Jul  4 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-15
 - update from gcc-4_1-branch (-r126008:126302)
   - PRs boehm-gc/21940, boehm-gc/21942, target/28307, target/32506,
