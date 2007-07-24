@@ -1,6 +1,6 @@
 %define DATE 20070723
 %define gcc_version 4.1.2
-%define gcc_release 16
+%define gcc_release 17
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -41,7 +41,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils which support --hash-style=gnu >= 2.17.50.0.2-7
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
 # Need binutils which support --build-id >= 2.17.50.0.17-3
-BuildRequires: binutils >= binutils-2.17.50.0.17-3
+BuildRequires: binutils >= 2.17.50.0.17-3
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 %if %{build_java}
 BuildRequires: gcc-java, libgcj, /usr/share/java/eclipse-ecj.jar, zip, unzip
@@ -77,7 +77,7 @@ Requires: cpp = %{version}-%{release}
 # Need binutils that supports --hash-style=gnu
 # Need binutils that support mffgpr/mftgpr
 # Need binutils that support --build-id
-Requires: binutils >= binutils-2.17.50.0.17-3
+Requires: binutils >= 2.17.50.0.17-3
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
@@ -1565,6 +1565,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jul 24 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-17
+- fix {,Build}Requires from last change (#249384)
+
 * Mon Jul 23 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-16
 - update from gcc-4_1-branch (-r126302:126830)
   - PRs rtl-optimization/32450, target/31331, target/32641, target/32660,
