@@ -1,6 +1,6 @@
-%define DATE 20070723
+%define DATE 20070816
 %define gcc_version 4.1.2
-%define gcc_release 17
+%define gcc_release 18
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -26,7 +26,10 @@ Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
 Release: %{gcc_release}
-License: GPL
+# libgcc, libgfortran, libmudflap and crtstuff have an exception which allows
+# linking it into any kind of programs or shared libraries without
+# restrictions.
+License: GPLv2+ and GPLv2+ with exceptions
 Group: Development/Languages
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
@@ -135,6 +138,10 @@ Patch21: gcc41-rh235008.patch
 Patch22: gcc41-build-id.patch
 Patch23: gcc41-pr28690.patch
 Patch24: gcc41-rh247256.patch
+Patch25: gcc41-pr22244.patch
+Patch26: gcc41-pr32678.patch
+Patch27: gcc41-pr32992.patch
+Patch28: gcc41-sparc-niagara.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the                                                                    
 # target triple.                                                                                                                
@@ -241,7 +248,7 @@ Summary: Fortran 95 support
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libgfortran = %{version}-%{release}
-BuildRequires: gmp-devel >= 4.1.2-8
+BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1
 Prereq: /sbin/install-info
 Obsoletes: gcc3-g77
 Obsoletes: gcc-g77
@@ -442,6 +449,10 @@ which are required to run programs compiled with the GNAT.
 %patch22 -p0 -b .build-id~
 %patch23 -p0 -b .pr28690~
 %patch24 -p0 -b .rh247256~
+%patch25 -p0 -b .pr22244~
+%patch26 -p0 -b .pr32678~
+%patch27 -p0 -b .pr32992~
+%patch28 -p0 -b .sparc-niagara~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1565,6 +1576,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Aug 16 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-18
+- update from gcc-4_1-branch (-r126830:127528)
+  - PR c++/17763
+- fix --build-id patch on ia64 (#251936)
+- fix fortran Tx format handling (Jerry DeLisle, #252152,
+  PR libgfortran/32678)
+- add support for Sun UltraSPARC T1 chips - -mcpu=niagara (David S. Miller)
+- don't NRV optimize fields inside anonymous unions (PR c++/32992)
+- fortran debuginfo improvements for constant bound arrays (#248541,
+  PR fortran/22244)
+- BuildRequire mpfr-devel
+- update License tag
+
 * Tue Jul 24 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-17
 - fix {,Build}Requires from last change (#249384)
 
