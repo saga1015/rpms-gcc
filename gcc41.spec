@@ -1,6 +1,6 @@
-%define DATE 20070816
+%define DATE 20070821
 %define gcc_version 4.1.2
-%define gcc_release 18
+%define gcc_release 19
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,8 +140,10 @@ Patch23: gcc41-pr28690.patch
 Patch24: gcc41-rh247256.patch
 Patch25: gcc41-pr22244.patch
 Patch26: gcc41-pr32678.patch
-Patch27: gcc41-pr32992.patch
+Patch27: gcc41-pr32912.patch
 Patch28: gcc41-sparc-niagara.patch
+Patch29: gcc41-ppc-tramp.patch
+Patch30: gcc41-rh253102.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the                                                                    
 # target triple.                                                                                                                
@@ -451,8 +453,10 @@ which are required to run programs compiled with the GNAT.
 %patch24 -p0 -b .rh247256~
 %patch25 -p0 -b .pr22244~
 %patch26 -p0 -b .pr32678~
-%patch27 -p0 -b .pr32992~
+%patch27 -p0 -b .pr32912~
 %patch28 -p0 -b .sparc-niagara~
+%patch29 -p0 -b .ppc-tramp~
+%patch30 -p0 -b .rh253102~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -744,6 +748,17 @@ EOF
     break
   fi
 done
+
+# Nuke bits/stdc++.h.gch dirs
+# 1) there is no bits/stdc++.h header installed, so when gch file can't be
+#    used, compilation fails
+# 2) sometimes it is hard to match the exact options used for building
+#    libstdc++-v3 or they aren't desirable
+# 3) there are multilib issues, conflicts etc. with this
+# 4) it is huge
+# People can always precompile on their own whatever they want, but
+# shipping this for everybody is unnecessary.
+rm -rf $RPM_BUILD_ROOT%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/bits/stdc++.h.gch
 
 %ifarch sparc sparc64
 ln -f $RPM_BUILD_ROOT%{_prefix}/bin/%{gcc_target_platform}-gcc \
@@ -1576,6 +1591,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Aug 21 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-19
+- update from gcc-4_1-branch (-r127528:127672)
+  - PR c++/32112
+- fix ppc32 libgcc.a(tramp.o), so that binaries using trampolines
+  aren't forced to use bss PLT
+- fix a fortran charlen sharing bug (#253102)
+- fix ICE with X|~X or X^~X with vectors (PR middle-end/32912)
+- nuke bits/stdc++.gch directories from libstdc++-devel (#253304)
+
 * Thu Aug 16 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-18
 - update from gcc-4_1-branch (-r126830:127528)
   - PR c++/17763
