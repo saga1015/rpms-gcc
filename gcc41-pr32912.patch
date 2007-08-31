@@ -46,7 +46,7 @@
 @@ -0,0 +1,44 @@
 +/* PR middle-end/32912 */
 +/* { dg-do run } */
-+/* { dg-options "-O2" } */
++/* { dg-options "-O2 -w" } */
 +
 +extern void abort (void);
 +
@@ -92,7 +92,7 @@
 +++ gcc/testsuite/gcc.dg/pr32912-2.c	2007-08-20 15:55:32.000000000 +0200
 @@ -0,0 +1,45 @@
 +/* { dg-do run } */
-+/* { dg-options "-O2" } */
++/* { dg-options "-O2 -w" } */
 +
 +extern void abort (void);
 +

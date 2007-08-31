@@ -1,6 +1,6 @@
 %define DATE 20070821
 %define gcc_version 4.1.2
-%define gcc_release 19
+%define gcc_release 20
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -144,10 +144,13 @@ Patch27: gcc41-pr32912.patch
 Patch28: gcc41-sparc-niagara.patch
 Patch29: gcc41-ppc-tramp.patch
 Patch30: gcc41-rh253102.patch
+Patch31: gcc41-c++-gnu_inline.patch
+Patch32: gcc41-ppc-sync-qihi.patch
+Patch33: gcc41-ppc64-ia64-GNU-stack.patch
 
-# On ARM EABI systems, we do want -gnueabi to be part of the                                                                    
-# target triple.                                                                                                                
-%ifnarch %{arm}                                                                                                                 
+# On ARM EABI systems, we do want -gnueabi to be part of the
+# target triple.
+%ifnarch %{arm}
 %define _gnu %{nil}
 %endif
 %ifarch sparc
@@ -457,6 +460,9 @@ which are required to run programs compiled with the GNAT.
 %patch28 -p0 -b .sparc-niagara~
 %patch29 -p0 -b .ppc-tramp~
 %patch30 -p0 -b .rh253102~
+%patch31 -p0 -b .c++-gnu_inline~
+%patch32 -p0 -b .ppc-sync-qihi~
+%patch33 -p0 -b .ppc64-ia64-GNU-stack~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1591,6 +1597,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug 31 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-20
+- backport __attribute__((__gnu_inline__)) support for C++
+- fix ppc/ppc64 __sync_* builtins with aligned 8 or 16-bit values
+- don't set executable flag on .note.GNU-stack on ppc64/ia64 even
+  when trampolines are used - trampolines on those architectures
+  don't need executable stack
+
 * Tue Aug 21 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-19
 - update from gcc-4_1-branch (-r127528:127672)
   - PR c++/32112
@@ -1624,7 +1637,7 @@ fi
   to binutils that support it (Roland McGrath)
 - backport ARM fixes from trunk (#246800)
   - PRs middle-end/24998, target/28516, target/30486
-- fix simplify_plus_minus with ppc{,64} power6 tuning (regression from                                                           
+- fix simplify_plus_minus with ppc{,64} power6 tuning (regression from
   4.1.1-52.el5.2, #247256)
 
 * Wed Jul  4 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-15
