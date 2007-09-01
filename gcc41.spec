@@ -1617,7 +1617,7 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Sat Aug  1 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-21
+* Sat Sep  1 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-21
 - fix libmudflap-devel multilib conflict on ppc/ppc64 and sparc/sparc64
   (#270281)
 
