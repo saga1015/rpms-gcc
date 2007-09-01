@@ -1,6 +1,6 @@
 %define DATE 20070821
 %define gcc_version 4.1.2
-%define gcc_release 20
+%define gcc_release 21
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -887,7 +887,7 @@ mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgfortran.*a .
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgfortranbegin.*a .
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libobjc.*a .
 mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libgomp.*a .
-mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libmudflap{,th}.*a .
+mv -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libmudflap{,th}.*a $FULLLPATH/
 mv -f $RPM_BUILD_ROOT%{_prefix}/include/mf-runtime.h include/
 
 %ifarch sparc ppc
@@ -909,9 +909,12 @@ mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgfortran.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgfortranbegin.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libobjc.*a 64/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libgomp.*a 64/
-mv -f $RPM_BUILD_ROOT%{_prefix}/lib64/libmudflap{,th}.*a 64/
 ln -sf lib32/libstdc++.a libstdc++.a
 ln -sf ../lib64/libstdc++.a 64/libstdc++.a
+ln -sf lib32/libmudflap.a libmudflap.a
+ln -sf ../lib64/libmudflap.a 64/libmudflap.a
+ln -sf lib32/libmudflapth.a libmudflapth.a
+ln -sf ../lib64/libmudflapth.a 64/libmudflapth.a
 %endif
 %ifarch %{multilib_64_archs}
 mkdir -p 32
@@ -931,11 +934,14 @@ mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortran.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgfortranbegin.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libobjc.*a 32/
 mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libgomp.*a 32/
-mv -f $RPM_BUILD_ROOT%{_prefix}/lib/libmudflap{,th}.*a 32/
 %endif
 %ifarch sparc64 ppc64
 ln -sf ../lib32/libstdc++.a 32/libstdc++.a
 ln -sf lib64/libstdc++.a libstdc++.a
+ln -sf ../lib32/libmudflap.a 32/libmudflap.a
+ln -sf lib64/libmudflap.a libmudflap.a
+ln -sf ../lib32/libmudflapth.a 32/libmudflapth.a
+ln -sf lib64/libmudflapth.a libmudflapth.a
 %if %{build_java}
 ln -sf ../lib32/libgcj_bc.so 32/libgcj_bc.so
 ln -sf lib64/libgcj_bc.so libgcj_bc.so
@@ -943,6 +949,8 @@ ln -sf lib64/libgcj_bc.so libgcj_bc.so
 %else
 %ifarch %{multilib_64_archs}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmudflap.a 32/libmudflap.a
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmudflapth.a 32/libmudflapth.a
 %if %{build_java}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj_bc.so 32/libgcj_bc.so
 %endif
@@ -1219,6 +1227,10 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcc_s.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgomp.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgomp.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflapth.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflap.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflapth.so
 %endif
 %ifarch %{multilib_64_archs}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
@@ -1229,6 +1241,16 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcc_s.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgomp.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgomp.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflapth.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflap.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflapth.so
+%endif
+%ifarch sparc sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
 %endif
 %dir %{_prefix}/libexec/getconf
 %{_prefix}/libexec/getconf/default
@@ -1576,27 +1598,29 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mf-runtime.h
+%ifarch sparc ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflapth.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmudflapth.a
+%endif
+%ifnarch sparc sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
-%ifarch sparc ppc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflap.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflapth.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflap.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflapth.so
-%endif
-%ifarch %{multilib_64_archs}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflap.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflapth.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflap.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflapth.so
 %endif
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Aug  1 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-21
+- fix libmudflap-devel multilib conflict on ppc/ppc64 and sparc/sparc64
+  (#270281)
+
 * Fri Aug 31 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-20
 - backport __attribute__((__gnu_inline__)) support for C++
 - fix ppc/ppc64 __sync_* builtins with aligned 8 or 16-bit values
