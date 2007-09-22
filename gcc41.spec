@@ -155,6 +155,7 @@ Patch38: gcc41-pr27954.patch
 Patch39: gcc41-pr33423.patch
 Patch40: gcc41-scanf-fmt-check.patch
 Patch41: gcc41-pr33506.patch
+Patch42: gcc41-makeinfo-ver.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -479,6 +480,7 @@ which are required to run programs compiled with the GNAT.
 %patch39 -p0 -b .pr33423~
 %patch40 -p0 -b .scanf-fmt-check~
 %patch41 -p0 -b .pr33506~
+%patch42 -p0 -b .makeinfo-ver~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1636,6 +1638,7 @@ fi
 * Sat Sep 22 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-26
 - don't ignore throw specification of function types in type hashing
   (PR c++/33506)
+- handle makeinfo version >= 4.10 in gcc configury
 
 * Mon Sep 17 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-25
 - fix ICE on __builtin_mem*_chk if it couldn't be folded until
