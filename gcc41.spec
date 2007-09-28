@@ -1,6 +1,6 @@
 %define DATE 20070925
 %define gcc_version 4.1.2
-%define gcc_release 28
+%define gcc_release 29
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -145,6 +145,7 @@ Patch28: gcc41-error-attrib.patch
 Patch29: gcc41-jdwp.patch
 Patch30: gcc41-pr20880.patch
 Patch31: gcc41-pr32694.patch
+Patch32: gcc41-virtual-inline-backtrace.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -459,6 +460,7 @@ which are required to run programs compiled with the GNAT.
 %patch29 -p0 -b .jdwp~
 %patch30 -p0 -b .pr20880~
 %patch31 -p0 -b .pr32694~
+%patch32 -p0 -b .virtual-inline-backtrace~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1613,6 +1615,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Sep 28 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-29
+- print virtual inline backtrace in some diagnostic messages to help
+  locate bugs reported with -D_FORTIFY_SOURCE{,=2}
+
 * Tue Sep 25 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-28
 - update from gcc-4_1-branch (-r127672:128736)
   - PRs bootstrap/33418, c++/31941, c++/32113, java/31842, target/33256,
