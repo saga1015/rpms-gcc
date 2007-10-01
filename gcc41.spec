@@ -1,6 +1,6 @@
 %define DATE 20070925
 %define gcc_version 4.1.2
-%define gcc_release 29
+%define gcc_release 30
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -146,6 +146,7 @@ Patch29: gcc41-jdwp.patch
 Patch30: gcc41-pr20880.patch
 Patch31: gcc41-pr32694.patch
 Patch32: gcc41-virtual-inline-backtrace.patch
+Patch33: gcc41-c++-gnu-inline-redecl.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -461,6 +462,7 @@ which are required to run programs compiled with the GNAT.
 %patch30 -p0 -b .pr20880~
 %patch31 -p0 -b .pr32694~
 %patch32 -p0 -b .virtual-inline-backtrace~
+%patch33 -p0 -b .c++-gnu-inline-redecl~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1615,6 +1617,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Oct  1 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-30
+- fix ICE on C++ gnu_inline function followed by prototype of the same
+  fn (Alexandre Oliva)
+
 * Fri Sep 28 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-29
 - print virtual inline backtrace in some diagnostic messages to help
   locate bugs reported with -D_FORTIFY_SOURCE{,=2}
