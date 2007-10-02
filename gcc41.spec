@@ -1,6 +1,6 @@
 %define DATE 20070925
 %define gcc_version 4.1.2
-%define gcc_release 30
+%define gcc_release 31
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -147,6 +147,8 @@ Patch30: gcc41-pr20880.patch
 Patch31: gcc41-pr32694.patch
 Patch32: gcc41-virtual-inline-backtrace.patch
 Patch33: gcc41-c++-gnu-inline-redecl.patch
+Patch34: gcc41-c++-builtin-redecl.patch
+Patch35: gcc41-c++-guard-visibility.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -463,6 +465,8 @@ which are required to run programs compiled with the GNAT.
 %patch31 -p0 -b .pr32694~
 %patch32 -p0 -b .virtual-inline-backtrace~
 %patch33 -p0 -b .c++-gnu-inline-redecl~
+%patch34 -p0 -b .c++-builtin-redecl~
+%patch35 -p0 -b .c++-guard-visibility~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1617,6 +1621,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Oct  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-31
+- fix visibility of C++ guard variables (Jason Merrill)
+- don't drop DECL_BUILT_IN_CLASS when defining a builtin function
+
 * Mon Oct  1 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-30
 - fix ICE on C++ gnu_inline function followed by prototype of the same
   fn (Alexandre Oliva)
