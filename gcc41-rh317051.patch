@@ -1,0 +1,291 @@
+2006-07-26  Francois-Xavier Coudert  <coudert@clipper.ens.fr>
+
+	* intrinsic.c (add_functions): Add INT2, SHORT, INT8, LONG,
+	LSTAT, MCLOCK and MCLOCK8 intrinsic functions.
+	(add_subroutines): Add LSTAT intrinsic subroutine.
+	* gfortran.h (gfc_generic_isym_id): Add GFC_ISYM_INT2,
+	GFC_ISYM_INT8, GFC_ISYM_LONG, GFC_ISYM_LSTAT, GFC_ISYM_MCLOCK
+	and GFC_ISYM_MCLOCK8.
+	* iresolve.c (gfc_resolve_int2, gfc_resolve_int8,
+	gfc_resolve_long, gfc_resolve_lstat, gfc_resolve_mclock,
+	gfc_resolve_mclock8, gfc_resolve_lstat_sub): New functions.
+	* check.c (gfc_check_intconv): New function.
+	* trans-intrinsic.c (gfc_conv_intrinsic_function): Add cases for
+	the added GFC_ISYM_*.
+	* simplify.c (gfc_simplify_intconv, gfc_simplify_int2,
+	gfc_simplify_int8, gfc_simplify_long): New functions.
+	* intrinsic.h (gfc_check_intconv, gfc_simplify_int2,
+	gfc_simplify_int8, gfc_simplify_long, gfc_resolve_int2,
+	gfc_resolve_int8, gfc_resolve_long, gfc_resolve_lstat,
+	gfc_resolve_mclock, gfc_resolve_mclock8, gfc_resolve_lstat_sub):
+	Add prototypes.
+
+	* gfortran.dg/int_conv_1.f90: New test.
+
+--- gcc/testsuite/gfortran.dg/int_conv_1.f90	(revision 0)
++++ gcc/testsuite/gfortran.dg/int_conv_1.f90	(revision 115754)
+@@ -0,0 +1,36 @@
++! { dg-do run }
++! { dg-options "-std=gnu" }
++  integer(kind=2) :: i2, j2, k2, l2, m2, n2, o2
++  integer(kind=4) :: i4, j4
++  integer(kind=8) :: i8, j8
++  real :: x
++  complex :: z
++
++  i2 = huge(i2) / 3
++  i8 = int8(i2)
++  i4 = long(i2)
++  j2 = short(i2)
++  k2 = int2(i2)
++  l2 = int2(i8)
++  m2 = short(i8)
++  n2 = int2(i4)
++  o2 = short(i4)
++
++  if (i8 /= i2 .or. i4 /= i2 .or. j2 /= i2 .or. k2 /= i2 &
++      .or. l2 /= i2 .or. m2 /= i2 .or. n2 /= i2 .or. o2 /= i2) call abort
++
++  x = i2
++  i8 = int8(x)
++  i4 = long(x)
++  j2 = short(x)
++  k2 = int2(x)
++  if (i8 /= i2 .or. i4 /= i2 .or. j2 /= i2 .or. k2 /= i2) call abort
++
++  z = i2 + (0.,-42.)
++  i8 = int8(z)
++  i4 = long(z)
++  j2 = short(z)
++  k2 = int2(z)
++  if (i8 /= i2 .or. i4 /= i2 .or. j2 /= i2 .or. k2 /= i2) call abort
++
++  end
+--- gcc/fortran/intrinsic.c	(revision 115753)
++++ gcc/fortran/intrinsic.c	(revision 115754)
+@@ -1535,6 +1535,26 @@ add_functions (void)
+ 
+   make_generic ("int", GFC_ISYM_INT, GFC_STD_F77);
+ 
++  add_sym_1 ("int2", 1, 0, BT_INTEGER, di, GFC_STD_GNU,
++	     gfc_check_intconv, gfc_simplify_int2, gfc_resolve_int2,
++	     a, BT_REAL, dr, REQUIRED);
++
++  make_alias ("short", GFC_STD_GNU);
++
++  make_generic ("int2", GFC_ISYM_INT2, GFC_STD_GNU);
++
++  add_sym_1 ("int8", 1, 0, BT_INTEGER, di, GFC_STD_GNU,
++	     gfc_check_intconv, gfc_simplify_int8, gfc_resolve_int8,
++	     a, BT_REAL, dr, REQUIRED);
++
++  make_generic ("int8", GFC_ISYM_INT8, GFC_STD_GNU);
++
++  add_sym_1 ("long", 1, 0, BT_INTEGER, di, GFC_STD_GNU,
++	     gfc_check_intconv, gfc_simplify_long, gfc_resolve_long,
++	     a, BT_REAL, dr, REQUIRED);
++
++  make_generic ("long", GFC_ISYM_LONG, GFC_STD_GNU);
++
+   add_sym_2 ("ior", 1, 1, BT_INTEGER, di, GFC_STD_F95,
+ 	     gfc_check_ior, gfc_simplify_ior, gfc_resolve_ior,
+ 	     i, BT_INTEGER, di, REQUIRED, j, BT_INTEGER, di, REQUIRED);
+--- gcc/fortran/intrinsic.h	(revision 115753)
++++ gcc/fortran/intrinsic.h	(revision 115754)
+@@ -74,6 +74,7 @@ try gfc_check_idnint (gfc_expr *);
+ try gfc_check_ieor (gfc_expr *, gfc_expr *);
+ try gfc_check_index (gfc_expr *, gfc_expr *, gfc_expr *);
+ try gfc_check_int (gfc_expr *, gfc_expr *);
++try gfc_check_intconv (gfc_expr *);
+ try gfc_check_ior (gfc_expr *, gfc_expr *);
+ try gfc_check_irand (gfc_expr *);
+ try gfc_check_isatty (gfc_expr *);
+@@ -222,6 +223,9 @@ gfc_expr *gfc_simplify_ichar (gfc_expr *
+ gfc_expr *gfc_simplify_ieor (gfc_expr *, gfc_expr *);
+ gfc_expr *gfc_simplify_index (gfc_expr *, gfc_expr *, gfc_expr *);
+ gfc_expr *gfc_simplify_int (gfc_expr *, gfc_expr *);
++gfc_expr *gfc_simplify_int2 (gfc_expr *);
++gfc_expr *gfc_simplify_int8 (gfc_expr *);
++gfc_expr *gfc_simplify_long (gfc_expr *);
+ gfc_expr *gfc_simplify_ifix (gfc_expr *);
+ gfc_expr *gfc_simplify_idint (gfc_expr *);
+ gfc_expr *gfc_simplify_ior (gfc_expr *, gfc_expr *);
+@@ -352,6 +356,9 @@ void gfc_resolve_ieor (gfc_expr *, gfc_e
+ void gfc_resolve_ichar (gfc_expr *, gfc_expr *);
+ void gfc_resolve_idnint (gfc_expr *, gfc_expr *);
+ void gfc_resolve_int (gfc_expr *, gfc_expr *, gfc_expr *);
++void gfc_resolve_int2 (gfc_expr *, gfc_expr *);
++void gfc_resolve_int8 (gfc_expr *, gfc_expr *);
++void gfc_resolve_long (gfc_expr *, gfc_expr *);
+ void gfc_resolve_ior (gfc_expr *, gfc_expr *, gfc_expr *);
+ void gfc_resolve_isatty (gfc_expr *, gfc_expr *);
+ void gfc_resolve_ishft (gfc_expr *, gfc_expr *, gfc_expr *);
+--- gcc/fortran/gfortran.h	(revision 115753)
++++ gcc/fortran/gfortran.h	(revision 115754)
+@@ -377,6 +377,8 @@ enum gfc_generic_isym_id
+   GFC_ISYM_IERRNO,
+   GFC_ISYM_INDEX,
+   GFC_ISYM_INT,
++  GFC_ISYM_INT2,
++  GFC_ISYM_INT8,
+   GFC_ISYM_IOR,
+   GFC_ISYM_IRAND,
+   GFC_ISYM_ISATTY,
+@@ -391,10 +393,11 @@ enum gfc_generic_isym_id
+   GFC_ISYM_LGT,
+   GFC_ISYM_LLE,
+   GFC_ISYM_LLT,
+-  GFC_ISYM_LOG,
+   GFC_ISYM_LOC,
++  GFC_ISYM_LOG,
+   GFC_ISYM_LOG10,
+   GFC_ISYM_LOGICAL,
++  GFC_ISYM_LONG,
+   GFC_ISYM_MALLOC,
+   GFC_ISYM_MATMUL,
+   GFC_ISYM_MAX,
+--- gcc/fortran/iresolve.c	(revision 115753)
++++ gcc/fortran/iresolve.c	(revision 115754)
+@@ -854,6 +854,42 @@ gfc_resolve_int (gfc_expr * f, gfc_expr 
+ 
+ 
+ void
++gfc_resolve_int2 (gfc_expr * f, gfc_expr * a)
++{
++  f->ts.type = BT_INTEGER;
++  f->ts.kind = 2;
++
++  f->value.function.name =
++    gfc_get_string ("__int_%d_%c%d", f->ts.kind, gfc_type_letter (a->ts.type),
++		    a->ts.kind);
++}
++
++
++void
++gfc_resolve_int8 (gfc_expr * f, gfc_expr * a)
++{
++  f->ts.type = BT_INTEGER;
++  f->ts.kind = 8;
++
++  f->value.function.name =
++    gfc_get_string ("__int_%d_%c%d", f->ts.kind, gfc_type_letter (a->ts.type),
++		    a->ts.kind);
++}
++
++
++void
++gfc_resolve_long (gfc_expr * f, gfc_expr * a)
++{
++  f->ts.type = BT_INTEGER;
++  f->ts.kind = 4;
++
++  f->value.function.name =
++    gfc_get_string ("__int_%d_%c%d", f->ts.kind, gfc_type_letter (a->ts.type),
++		    a->ts.kind);
++}
++
++
++void
+ gfc_resolve_isatty (gfc_expr * f, gfc_expr * u)
+ {
+   gfc_typespec ts;
+--- gcc/fortran/check.c	(revision 115753)
++++ gcc/fortran/check.c	(revision 115754)
+@@ -1200,6 +1200,16 @@ gfc_check_int (gfc_expr * x, gfc_expr * 
+ 
+ 
+ try
++gfc_check_intconv (gfc_expr * x)
++{
++  if (numeric_check (x, 0) == FAILURE)
++    return FAILURE;
++
++  return SUCCESS;
++}
++
++
++try
+ gfc_check_ior (gfc_expr * i, gfc_expr * j)
+ {
+   if (type_check (i, 0, BT_INTEGER) == FAILURE)
+--- gcc/fortran/trans-intrinsic.c	(revision 115753)
++++ gcc/fortran/trans-intrinsic.c	(revision 115754)
+@@ -3477,6 +3477,9 @@ gfc_conv_intrinsic_function (gfc_se * se
+       /* Integer conversions are handled separately to make sure we get the
+          correct rounding mode.  */
+     case GFC_ISYM_INT:
++    case GFC_ISYM_INT2:
++    case GFC_ISYM_INT8:
++    case GFC_ISYM_LONG:
+       gfc_conv_intrinsic_int (se, expr, FIX_TRUNC_EXPR);
+       break;
+ 
+--- gcc/fortran/simplify.c	(revision 115753)
++++ gcc/fortran/simplify.c	(revision 115754)
+@@ -1610,6 +1610,66 @@ gfc_simplify_int (gfc_expr * e, gfc_expr
+ }
+ 
+ 
++static gfc_expr *
++gfc_simplify_intconv (gfc_expr * e, int kind, const char *name)
++{
++  gfc_expr *rpart, *rtrunc, *result;
++
++  if (e->expr_type != EXPR_CONSTANT)
++    return NULL;
++
++  result = gfc_constant_result (BT_INTEGER, kind, &e->where);
++
++  switch (e->ts.type)
++    {
++    case BT_INTEGER:
++      mpz_set (result->value.integer, e->value.integer);
++      break;
++
++    case BT_REAL:
++      rtrunc = gfc_copy_expr (e);
++      mpfr_trunc (rtrunc->value.real, e->value.real);
++      gfc_mpfr_to_mpz (result->value.integer, rtrunc->value.real);
++      gfc_free_expr (rtrunc);
++      break;
++
++    case BT_COMPLEX:
++      rpart = gfc_complex2real (e, kind);
++      rtrunc = gfc_copy_expr (rpart);
++      mpfr_trunc (rtrunc->value.real, rpart->value.real);
++      gfc_mpfr_to_mpz (result->value.integer, rtrunc->value.real);
++      gfc_free_expr (rpart);
++      gfc_free_expr (rtrunc);
++      break;
++
++    default:
++      gfc_error ("Argument of %s at %L is not a valid type", name, &e->where);
++      gfc_free_expr (result);
++      return &gfc_bad_expr;
++    }
++
++  return range_check (result, name);
++}
++
++gfc_expr *
++gfc_simplify_int2 (gfc_expr * e)
++{
++  return gfc_simplify_intconv (e, 2, "INT2");
++}
++
++gfc_expr *
++gfc_simplify_int8 (gfc_expr * e)
++{
++  return gfc_simplify_intconv (e, 8, "INT8");
++}
++
++gfc_expr *
++gfc_simplify_long (gfc_expr * e)
++{
++  return gfc_simplify_intconv (e, 4, "LONG");
++}
++
++
+ gfc_expr *
+ gfc_simplify_ifix (gfc_expr * e)
+ {

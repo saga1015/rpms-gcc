@@ -1,0 +1,132 @@
+2007-10-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/32121
+	* parser.c (cp_parser_compound_statement): Handle label-declarations
+	at the beginning of the compound statement.
+	(cp_parser_block_declaration): Issue diagnostics about __label__
+	not at the beginning of a block.
+
+	* g++.dg/ext/label4.C: Adjust error regexp.
+	* g++.dg/ext/label7.C: New test.
+	* g++.dg/ext/label8.C: New test.
+	* g++.dg/ext/label9.C: New test.
+
+--- gcc/cp/parser.c	(revision 129252)
++++ gcc/cp/parser.c	(revision 129253)
+@@ -6821,6 +6821,15 @@ cp_parser_expression_statement (cp_parse
+    compound-statement:
+      { statement-seq [opt] }
+ 
++   GNU extension:
++
++   compound-statement:
++     { label-declaration-seq [opt] statement-seq [opt] }
++
++   label-declaration-seq:
++     label-declaration
++     label-declaration-seq label-declaration
++
+    Returns a tree representing the statement.  */
+ 
+ static tree
+@@ -6834,6 +6843,9 @@ cp_parser_compound_statement (cp_parser 
+     return error_mark_node;
+   /* Begin the compound-statement.  */
+   compound_stmt = begin_compound_stmt (in_try ? BCS_TRY_BLOCK : 0);
++  /* If the next keyword is `__label__' we have a label declaration.  */
++  while (cp_lexer_next_token_is_keyword (parser->lexer, RID_LABEL))
++    cp_parser_label_declaration (parser);
+   /* Parse an (optional) statement-seq.  */
+   cp_parser_statement_seq_opt (parser, in_statement_expr);
+   /* Finish the compound-statement.  */
+@@ -7711,7 +7723,6 @@ cp_parser_declaration (cp_parser* parser
+ 
+    block-declaration:
+      __extension__ block-declaration
+-     label-declaration
+ 
+    C++0x Extension:
+ 
+@@ -7772,12 +7783,16 @@ cp_parser_block_declaration (cp_parser *
+ 	cp_parser_using_declaration (parser,
+ 				     /*access_declaration_p=*/false);
+     }
+-  /* If the next keyword is `__label__' we have a label declaration.  */
++  /* If the next keyword is `__label__' we have a misplaced label
++     declaration.  */
+   else if (token1->keyword == RID_LABEL)
+     {
+-      if (statement_p)
+-	cp_parser_commit_to_tentative_parse (parser);
+-      cp_parser_label_declaration (parser);
++      cp_lexer_consume_token (parser->lexer);
++      error ("%<__label__%> not at the beginning of a block");
++      cp_parser_skip_to_end_of_statement (parser);
++      /* If the next token is now a `;', consume it.  */
++      if (cp_lexer_next_token_is (parser->lexer, CPP_SEMICOLON))
++	cp_lexer_consume_token (parser->lexer);
+     }
+   /* If the next token is `static_assert' we have a static assertion.  */
+   else if (token1->keyword == RID_STATIC_ASSERT)
+
+--- gcc/testsuite/g++.dg/ext/label9.C	(revision 0)
++++ gcc/testsuite/g++.dg/ext/label9.C	(revision 129253)
+@@ -0,0 +1,10 @@
++// PR c++/32121
++// { dg-do compile }
++
++int f (void)
++{
++  while (1)
++    __label__ a;	// { dg-error "not at the beginning" }
++  for (;;)
++    __label__ b;	// { dg-error "not at the beginning" }
++}
+--- gcc/testsuite/g++.dg/ext/label4.C	(revision 129252)
++++ gcc/testsuite/g++.dg/ext/label4.C	(revision 129253)
+@@ -3,4 +3,4 @@
+ 
+ // { dg-do compile }
+ 
+-__label__ *l;  // { dg-error "before" }
++__label__ *l;  // { dg-error "not at the beginning of" }
+--- gcc/testsuite/g++.dg/ext/label7.C	(revision 0)
++++ gcc/testsuite/g++.dg/ext/label7.C	(revision 129253)
+@@ -0,0 +1,12 @@
++// PR c++/32121
++// { dg-do compile }
++
++int f (void)
++{
++  a:;
++  __label__ a;	// { dg-error "not at the beginning" }
++  int b;
++  __label__ c;	// { dg-error "not at the beginning" }
++  a:;		// { dg-error "duplicate label" }
++  c:;
++}
+--- gcc/testsuite/g++.dg/ext/label8.C	(revision 0)
++++ gcc/testsuite/g++.dg/ext/label8.C	(revision 129253)
+@@ -0,0 +1,22 @@
++// PR c++/32121
++// { dg-do compile }
++
++int f (void)
++{
++  __label__ a, b;
++  __label__ c;
++  a:;
++  b:;
++  c:;
++  {
++    __label__ d;
++    d:;
++    if (0)
++      {
++	__label__ e;
++	__label__ f;
++	f:;
++	e:;
++      }
++  }
++}

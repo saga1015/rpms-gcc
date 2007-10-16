@@ -1,6 +1,6 @@
 %define DATE 20070925
 %define gcc_version 4.1.2
-%define gcc_release 31
+%define gcc_release 32
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -149,6 +149,15 @@ Patch32: gcc41-virtual-inline-backtrace.patch
 Patch33: gcc41-c++-gnu-inline-redecl.patch
 Patch34: gcc41-c++-builtin-redecl.patch
 Patch35: gcc41-c++-guard-visibility.patch
+Patch36: gcc41-pr32121.patch
+Patch37: gcc41-pr33136.patch
+Patch38: gcc41-pr33238.patch
+Patch39: gcc41-pr33619.patch
+Patch40: gcc41-pr33639.patch
+Patch41: gcc41-pr33744.patch
+Patch42: gcc41-pr33763.patch
+Patch43: gcc41-rh317051.patch
+Patch44: gcc41-rh330771.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -467,6 +476,15 @@ which are required to run programs compiled with the GNAT.
 %patch33 -p0 -b .c++-gnu-inline-redecl~
 %patch34 -p0 -b .c++-builtin-redecl~
 %patch35 -p0 -b .c++-guard-visibility~
+%patch36 -p0 -b .pr32121~
+%patch37 -p0 -b .pr33136~
+%patch38 -p0 -b .pr33238~
+%patch39 -p0 -b .pr33619~
+%patch40 -p0 -b .pr33639~
+%patch41 -p0 -b .pr33744~
+%patch42 -p0 -b .pr33763~
+%patch43 -p0 -b .rh317051~
+%patch44 -p0 -b .rh330771~
 
 sed -i -e 's/4\.1\.3/4.1.2/' gcc/BASE-VER gcc/version.c
 sed -i -e 's/" (Red Hat[^)]*)"/" (Red Hat %{version}-%{gcc_release})"/' gcc/version.c
@@ -1621,6 +1639,22 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Oct 16 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-32
+- only allow __label__ at the start of a block (PR c++/32121)
+- disable -fipa-type-escape by default (PR tree-optimization/33136)
+- VLA handling fix (PR c/33238, PR c/27301)
+- disable TER of pure and const function calls except for __builtin_expect
+  (PR tree-optimization/33619)
+- handle classes with characters other than [a-zA-Z0-9_$] in
+  their names (Andrew Haley, #297961, PR java/33639)
+- fix parsing of C++ function-like cast in template argument where cast's
+  argument uses greater-than operator (PR c++/33744)
+- ignore always_inline attribute on redefined extern inline
+  functions (Jan Hubicka, #329671, PR tree-optimization/33763)
+- add support for Fortran int conversion intrinsics (Francois-Xavier
+  Coudert, #317051)
+- link libgcj-tools.so* against libgcj.so* (#330771)
+
 * Wed Oct  3 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-31
 - fix visibility of C++ guard variables (Jason Merrill)
 - don't drop DECL_BUILT_IN_CLASS when defining a builtin function

@@ -1,0 +1,77 @@
+2007-10-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/33619
+	* tree-outof-ssa.c (check_replaceable): Return false for all
+	calls other than __builtin_expect.
+
+	* gcc.dg/pr33619.c: New test.
+
+--- gcc/tree-outof-ssa.c	2007-10-11 22:01:41.000000000 +0200
++++ gcc/tree-outof-ssa.c	2007-10-16 14:28:42.000000000 +0200
+@@ -1570,12 +1570,14 @@ check_replaceable (temp_expr_table_p tab
+   if (flag_float_store && FLOAT_TYPE_P (TREE_TYPE (TREE_OPERAND (stmt, 1))))
+     return false;
+ 
+-  /* Calls to functions with side-effects cannot be replaced.  */
++  /* No calls to functions other than __builtin_expect are replaceable.  */
+   if ((call_expr = get_call_expr_in (stmt)) != NULL_TREE)
+     {
+-      int call_flags = call_expr_flags (call_expr);
+-      if (TREE_SIDE_EFFECTS (call_expr)
+-	  && !(call_flags & (ECF_PURE | ECF_CONST | ECF_NORETURN)))
++      tree fndecl = get_callee_fndecl (call_expr);
++
++      if (fndecl == NULL_TREE
++	  || DECL_BUILT_IN_CLASS (fndecl) != BUILT_IN_NORMAL
++	  || DECL_FUNCTION_CODE (fndecl) != BUILT_IN_EXPECT)
+ 	return false;
+     }
+ 
+--- gcc/testsuite/gcc.dg/pr33619.c	(revision 0)
++++ gcc/testsuite/gcc.dg/pr33619.c	(revision 129350)
+@@ -0,0 +1,45 @@
++/* PR tree-optimization/33619 */
++/* { dg-do run } */
++/* { dg-options "-O2" } */
++
++#ifdef __powerpc__
++# define REG1 __asm__ ("3")
++# define REG2 __asm__ ("4")
++#elif defined __x86_64__
++# define REG1 __asm__ ("rdi")
++# define REG2 __asm__ ("rsi")
++#else
++# define REG1
++# define REG2
++#endif
++
++static inline void
++bar (unsigned long x, int y)
++{
++  register unsigned long p1 REG1 = x;
++  register unsigned long p2 REG2 = y;
++  __asm__ volatile ("" : "=r" (p1), "=r" (p2) : "0" (p1), "1" (p2) : "memory");
++  if (p1 != 0xdeadUL || p2 != 0xbefUL)
++    __builtin_abort ();
++}
++
++__attribute__((const, noinline)) int
++baz (int x)
++{
++  return x;
++}
++
++__attribute__((noinline)) void
++foo (unsigned long *x, int y)
++{
++  unsigned long a = *x;
++  bar (a, baz (y));
++}
++
++int
++main (void)
++{
++  unsigned long a = 0xdeadUL;
++  foo (&a, 0xbefUL);
++  return 0;
++}
