@@ -1,0 +1,60 @@
+2007-11-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/34094
+	* decl2.c (cp_write_global_declarations): Issue error about static
+	data members in anonymous namespace which are declared and used,
+	but not defined.
+
+	* g++.dg/ext/visibility/anon7.C: New test.
+
+--- gcc/cp/decl2.c	(revision 130350)
++++ gcc/cp/decl2.c	(revision 130351)
+@@ -3365,7 +3365,21 @@ cp_write_global_declarations (void)
+ 	  /* If this static data member is needed, provide it to the
+ 	     back end.  */
+ 	  if (DECL_NOT_REALLY_EXTERN (decl) && decl_needed_p (decl))
+-	    DECL_EXTERNAL (decl) = 0;
++	    {
++	      /* Error on
++		 namespace { struct A { static int i; }; }
++		 int foo () { return A::i; }
++		 without A::i definition (which can't be defined in
++		 a different CU because of the anonymous namespace).
++		 Don't do this if DECL_INITIAL is set, because for
++		 namespace { struct A { static const int i = 4; } };
++		 decl_needed_p won't reliably detect whether it was
++		 really needed.  */
++	      if (DECL_IN_AGGR_P (decl) && DECL_INITIAL (decl) == NULL_TREE)
++		error ("%Jstatic data member %qD used, but not defined",
++		       decl, decl);
++	      DECL_EXTERNAL (decl) = 0;
++	    }
+ 	}
+       if (VEC_length (tree, pending_statics) != 0
+ 	  && wrapup_global_declarations (VEC_address (tree, pending_statics),
+--- gcc/testsuite/g++.dg/ext/visibility/anon7.C	(revision 0)
++++ gcc/testsuite/g++.dg/ext/visibility/anon7.C	(revision 130351)
+@@ -0,0 +1,23 @@
++// PR c++/34094
++// { dg-do compile }
++
++namespace
++{
++  struct A {
++    static int bar ();
++    static int i;		// { dg-error "used, but not defined" }
++    static int j;
++    static int k;
++    static int l;
++    static const int m = 16;
++    static const int n = 17;
++  };
++  int A::j = 4;
++  int A::k;
++  const int A::m;
++}
++
++int foo (void)
++{
++  return A::i + A::j + A::k + A::m + A::n + A::bar ();
++}
