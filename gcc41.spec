@@ -1,6 +1,6 @@
 %define DATE 20071124
 %define gcc_version 4.1.2
-%define gcc_release 34
+%define gcc_release 35
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -199,6 +199,10 @@ Patch73: gcc41-pr34094.patch
 Patch74: gcc41-pr34130.patch
 Patch75: gcc41-pr34146.patch
 Patch76: gcc41-rh364001.patch
+Patch77: gcc41-pr34213.patch
+Patch78: gcc41-pr34238.patch
+Patch79: gcc41-pr34275.patch
+Patch80: gcc41-rh407281.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -556,6 +560,10 @@ which are required to run programs compiled with the GNAT.
 %patch74 -p0 -b .pr34130~
 %patch75 -p0 -b .pr34146~
 %patch76 -p0 -b .rh364001~
+%patch77 -p0 -b .pr34213~
+%patch78 -p0 -b .pr34238~
+%patch79 -p0 -b .pr34275~
+%patch80 -p0 -b .rh407281~
 
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
@@ -1728,6 +1736,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sun Dec  2 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-35
+- two ctor preevaluation fixes (Olivier Hainque,
+  Eric Botcazou, #407281)
+- slightly weaken diagnostics for declared, but undefined static data
+  members in anon ns classes (#402521, PR c++/34238)
+- consider static data members and static member functions in anon ns
+  classes to be external for C++ linkage type handling (PR c++/34213)
+- handle OBJ_TYPE_REF in C++ diagnostics (PR c++/34275)
+
 * Sat Nov 24 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-34
 - update from gcc-4_1-branch (-r128736:130387)
   - PRs middle-end/34030, rtl-optimization/28062, rtl-optimization/33822
