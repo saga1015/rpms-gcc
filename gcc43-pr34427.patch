@@ -1,0 +1,197 @@
+2007-12-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libfortran/34427
+
+	Revert:
+	2007-12-08  Tobias Burnus  <burnus@net-b.de>
+
+	PR fortran/34319
+	* io/list_read.c (parse_real, read_real): Support NaN/Infinity.
+
+	* gfortran.dg/nan_3.f90: New.
+
+--- libgfortran/io/list_read.c	(revision 130708)
++++ libgfortran/io/list_read.c	(revision 130707)
+@@ -1078,12 +1078,7 @@ parse_real (st_parameter_dt *dtp, void *
+     }
+ 
+   if (!isdigit (c) && c != '.')
+-    {
+-      if (c == 'i' || c == 'I' || c == 'n' || c == 'N')
+-	goto inf_nan;
+-      else
+-	goto bad;
+-    }
++    goto bad;
+ 
+   push_char (dtp, c);
+ 
+@@ -1141,13 +1136,6 @@ parse_real (st_parameter_dt *dtp, void *
+ 
+  exp2:
+   if (!isdigit (c))
+-    {
+-      if (c == 'i' || c == 'I' || c == 'n' || c == 'N')
+-	goto inf_nan;
+-      else
+-	goto bad;
+-    }
+-
+     goto bad;
+   push_char (dtp, c);
+ 
+@@ -1178,41 +1166,6 @@ parse_real (st_parameter_dt *dtp, void *
+ 
+   return m;
+ 
+- inf_nan:
+-  /* Match INF and Infinity.  */
+-  if ((c == 'i' || c == 'I')
+-      && ((c = next_char (dtp)) == 'n' || c == 'N')
+-      && ((c = next_char (dtp)) == 'f' || c == 'F'))
+-    {
+-	c = next_char (dtp);
+-	if ((c != 'i' && c != 'I')
+-	    || ((c == 'i' || c == 'I')
+-		&& ((c = next_char (dtp)) == 'n' || c == 'N')
+-		&& ((c = next_char (dtp)) == 'i' || c == 'I')
+-		&& ((c = next_char (dtp)) == 't' || c == 'T')
+-		&& ((c = next_char (dtp)) == 'y' || c == 'Y')
+-		&& (c = next_char (dtp))))
+-	  {
+-	     if (is_separator (c))
+-	       unget_char (dtp, c);
+-	     push_char (dtp, 'i');
+-	     push_char (dtp, 'n');
+-	     push_char (dtp, 'f');
+-	     goto done;
+-	  }
+-    } /* Match NaN.  */
+-  else if (((c = next_char (dtp)) == 'a' || c == 'A')
+-	   && ((c = next_char (dtp)) == 'n' || c == 'N')
+-	   && (c = next_char (dtp)))
+-    {
+-      if (is_separator (c))
+-	unget_char (dtp, c);
+-      push_char (dtp, 'n');
+-      push_char (dtp, 'a');
+-      push_char (dtp, 'n');
+-      goto done;
+-    }
+-
+  bad:
+ 
+   if (nml_bad_return (dtp, c))
+@@ -1340,12 +1293,6 @@ read_real (st_parameter_dt *dtp, int len
+       eat_separator (dtp);
+       return;
+ 
+-    case 'i':
+-    case 'I':
+-    case 'n':
+-    case 'N':
+-      goto inf_nan;
+-
+     default:
+       goto bad_real;
+     }
+@@ -1420,12 +1367,7 @@ read_real (st_parameter_dt *dtp, int len
+     }
+ 
+   if (!isdigit (c) && c != '.')
+-    {
+-      if (c == 'i' || c == 'I' || c == 'n' || c == 'N')
+-	goto inf_nan;
+-      else
+-	goto bad_real;
+-    }
++    goto bad_real;
+ 
+   if (c == '.')
+     {
+@@ -1522,37 +1464,6 @@ read_real (st_parameter_dt *dtp, int len
+   dtp->u.p.saved_type = BT_REAL;
+   return;
+ 
+- inf_nan:
+-  /* Match INF and Infinity.  */
+-  if ((c == 'i' || c == 'I')
+-      && ((c = next_char (dtp)) == 'n' || c == 'N')
+-      && ((c = next_char (dtp)) == 'f' || c == 'F'))
+-    {
+-	c = next_char (dtp);
+-	if (is_separator (c)
+-	    || ((c == 'i' || c == 'I')
+-		&& ((c = next_char (dtp)) == 'n' || c == 'N')
+-		&& ((c = next_char (dtp)) == 'i' || c == 'I')
+-		&& ((c = next_char (dtp)) == 't' || c == 'T')
+-		&& ((c = next_char (dtp)) == 'y' || c == 'Y')
+-		&& (c = next_char (dtp)) && is_separator (c)))
+-	  {
+-	     push_char (dtp, 'i');
+-	     push_char (dtp, 'n');
+-	     push_char (dtp, 'f');
+-	     goto done;
+-	  }
+-    } /* Match NaN.  */
+-  else if (((c = next_char (dtp)) == 'a' || c == 'A')
+-	   && ((c = next_char (dtp)) == 'n' || c == 'N')
+-	   && (c = next_char (dtp)) && is_separator (c))
+-    {
+-      push_char (dtp, 'n');
+-      push_char (dtp, 'a');
+-      push_char (dtp, 'n');
+-      goto done;
+-    }
+-
+  bad_real:
+ 
+   if (nml_bad_return (dtp, c))
+--- gcc/testsuite/gfortran.dg/nan_3.f90	(revision 130708)
++++ gcc/testsuite/gfortran.dg/nan_3.f90	(revision 130707)
+@@ -1,45 +0,0 @@
+-! { dg-do run }
+-! { dg-options "-fno-range-check" }
+-! { dg-options "-fno-range-check -mieee" { target sh*-*-* } }
+-!
+-! PR fortran/34319
+-!
+-! Check support of INF/NaN for I/O.
+-!
+-program main
+-  implicit none
+-  real :: r
+-  complex :: z
+-  character(len=30) :: str
+-
+-  str = "nan"
+-  read(str,*) r
+-  if (.not.isnan(r)) call abort()
+-  str = "(nan,4.0)"
+-  read(str,*) z
+-  if (.not.isnan(real(z)) .or. aimag(z) /= 4.0) call abort()
+-  str = "(7.0,nan)"
+-  read(str,*) z
+-  if (.not.isnan(aimag(z)) .or. real(z) /= 7.0) call abort()
+-
+-  str = "inFinity"
+-  read(str,*) r
+-  if (r <= huge(r)) call abort()
+-  str = "(+inFinity,4.0)"
+-  read(str,*) z
+-  if ((real(z) <= huge(r)) .or. aimag(z) /= 4.0) call abort()
+-  str = "(7.0,-inFinity)"
+-  read(str,*) z
+-  if ((aimag(z) >= -huge(r)) .or. real(z) /= 7.0) call abort()
+-
+-  str = "inf"
+-  read(str,*) r
+-  if (r <= huge(r)) call abort()
+-  str = "(+inf,4.0)"
+-  read(str,*) z
+-  if ((real(z) <= huge(r)) .or. aimag(z) /= 4.0) call abort()
+-  str = "(7.0,-inf)"
+-  read(str,*) z
+-  if ((aimag(z) >= -huge(r)) .or. real(z) /= 7.0) call abort()
+-
+-end program main
