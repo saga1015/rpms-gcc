@@ -1,6 +1,6 @@
 %define DATE 20071124
 %define gcc_version 4.1.2
-%define gcc_release 35
+%define gcc_release 36
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -195,14 +195,17 @@ Patch69: gcc41-pr33844.patch
 Patch70: gcc41-pr33962.patch
 Patch71: gcc41-pr34070.patch
 Patch72: gcc41-pr34089.patch
-Patch73: gcc41-pr34094.patch
+Patch73: gcc41-pr34178.patch
 Patch74: gcc41-pr34130.patch
 Patch75: gcc41-pr34146.patch
 Patch76: gcc41-rh364001.patch
 Patch77: gcc41-pr34213.patch
-Patch78: gcc41-pr34238.patch
+Patch78: gcc41-pr34364.patch
 Patch79: gcc41-pr34275.patch
 Patch80: gcc41-rh407281.patch
+Patch81: gcc41-pr34394.patch
+Patch82: gcc41-debug-fortran-array.patch
+Patch83: gcc41-omp-outer-ctx.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -556,14 +559,17 @@ which are required to run programs compiled with the GNAT.
 %patch70 -p0 -b .pr33962~
 %patch71 -p0 -b .pr34070~
 %patch72 -p0 -b .pr34089~
-%patch73 -p0 -b .pr34094~
+%patch73 -p0 -b .pr34178~
 %patch74 -p0 -b .pr34130~
 %patch75 -p0 -b .pr34146~
 %patch76 -p0 -b .rh364001~
 %patch77 -p0 -b .pr34213~
-%patch78 -p0 -b .pr34238~
+%patch78 -p0 -b .pr34364~
 %patch79 -p0 -b .pr34275~
 %patch80 -p0 -b .rh407281~
+%patch81 -p0 -b .pr34394~
+%patch82 -p0 -b .debug-fortran-array~
+%patch83 -p0 -b .omp-outer-ctx~
 
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
@@ -1736,6 +1742,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Dec 12 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-36
+- revert PR c++/34094 fix altogether, it was only accepts-invalid and
+  caused a bunch of valid or unclear cases to be rejected (#411871, #402521)
+- fix OpenMP handling of global vars privatized in orphaned constructs
+  with #pragma omp parallel inside them
+- -frepo fixes (#411741, PRs c++/34178, c++/34340)
+- fix dynamic_cast<C &> in templates (PR c++/34364)
+- fix error diagnostics involving ABS_EXPR (PR c++/34394)
+
 * Sun Dec  2 2007 Jakub Jelinek <jakub@redhat.com> 4.1.2-35
 - two ctor preevaluation fixes (Olivier Hainque,
   Eric Botcazou, #407281)
