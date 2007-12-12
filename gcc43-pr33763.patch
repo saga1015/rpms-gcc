@@ -1,18 +1,18 @@
-2007-10-16  Jakub Jelinek  <jakub@redhat.com>
+2007-11-06  Jakub Jelinek  <jakub@redhat.com>
 
 	PR tree-optimization/33763
 	* gcc.dg/pr33763.c: New test.
-	* g++.dg/opt/inline12.C: New test.
+	* g++.dg/opt/inline13.C: New test.
 
-2007-10-14  Jan Hubicka  <jh@suse.cz>
+2007-11-06  Jan Hubicka  <jh@suse.cz>
 
 	PR tree-optimization/33763
 	* tree-inline.c (expand_call_inline): Silently ignore always_inline
 	attribute for redefined extern inline functions.
 
---- gcc/tree-inline.c.jj	2007-09-25 12:23:05.000000000 +0200
-+++ gcc/tree-inline.c	2007-10-16 15:27:51.000000000 +0200
-@@ -2059,6 +2059,12 @@ expand_call_inline (basic_block bb, tree
+--- gcc/tree-inline.c.jj	2007-11-06 09:29:04.000000000 +0100
++++ gcc/tree-inline.c	2007-11-06 16:19:12.000000000 +0100
+@@ -2582,6 +2582,12 @@ expand_call_inline (basic_block bb, tree
    if (!cgraph_inline_p (cg_edge, &reason))
      {
        if (lookup_attribute ("always_inline", DECL_ATTRIBUTES (fn))
@@ -25,8 +25,8 @@
  	  /* Avoid warnings during early inline pass. */
  	  && (!flag_unit_at_a_time || cgraph_global_info_ready))
  	{
---- gcc/testsuite/gcc.dg/pr33763.c.jj	2007-10-16 15:20:41.000000000 +0200
-+++ gcc/testsuite/gcc.dg/pr33763.c	2007-10-16 15:20:35.000000000 +0200
+--- gcc/testsuite/gcc.dg/pr33763.c.jj	2007-11-06 16:19:12.000000000 +0100
++++ gcc/testsuite/gcc.dg/pr33763.c	2007-11-06 16:19:12.000000000 +0100
 @@ -0,0 +1,60 @@
 +/* PR tree-optimization/33763 */
 +/* { dg-do compile } */
@@ -88,8 +88,8 @@
 +{
 +  return inl (x, y);
 +}
---- gcc/testsuite/g++.dg/opt/inline12.C.jj	2007-10-16 15:26:01.000000000 +0200
-+++ gcc/testsuite/g++.dg/opt/inline12.C	2007-10-16 15:26:20.000000000 +0200
+--- gcc/testsuite/g++.dg/opt/inline13.C.jj	2007-11-06 16:20:20.000000000 +0100
++++ gcc/testsuite/g++.dg/opt/inline13.C	2007-11-06 16:21:30.000000000 +0100
 @@ -0,0 +1,60 @@
 +// PR tree-optimization/33763
 +// { dg-do compile }

@@ -1,0 +1,25 @@
+2007-12-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/32636
+	* df-scan.c (df_get_entry_block_def_set): Set struct_value_rtx
+	regno in entry_block_defs even if HAVE_prologue && epilogue_completed.
+
+--- gcc/df-scan.c.jj	2007-10-26 13:45:44.000000000 +0200
++++ gcc/df-scan.c	2007-12-11 22:24:21.000000000 +0100
+@@ -3530,12 +3530,12 @@ df_get_entry_block_def_set (bitmap entry
+       bitmap_set_bit (entry_block_defs, STATIC_CHAIN_REGNUM);
+ #endif
+ #endif
+-      
+-      r = targetm.calls.struct_value_rtx (current_function_decl, true);
+-      if (r && REG_P (r))
+-	bitmap_set_bit (entry_block_defs, REGNO (r));
+     }
+ 
++  r = targetm.calls.struct_value_rtx (current_function_decl, true);
++  if (r && REG_P (r))
++    bitmap_set_bit (entry_block_defs, REGNO (r));
++
+   if ((!reload_completed) || frame_pointer_needed)
+     {
+       /* Any reference to any pseudo before reload is a potential

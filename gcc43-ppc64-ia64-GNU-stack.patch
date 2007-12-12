@@ -6,17 +6,17 @@
 	* config/ia64/ia64.c (ia64_linux_file_end): new.
 	* config/ia64/linux.h (TARGET_ASM_FILE_END): Use ia64_linux_file_end.
 
---- gcc/config/rs6000/rs6000.c.jj	2007-06-27 12:10:19.000000000 +0200
-+++ gcc/config/rs6000/rs6000.c	2007-08-27 19:27:24.000000000 +0200
-@@ -638,6 +638,7 @@ static void rs6000_file_start (void);
- static unsigned int rs6000_elf_section_type_flags (tree, const char *, int);
+--- gcc/config/rs6000/rs6000.c.jj	2007-12-07 18:41:08.000000000 +0100
++++ gcc/config/rs6000/rs6000.c	2007-12-07 18:42:12.000000000 +0100
+@@ -746,6 +746,7 @@ static void rs6000_file_start (void);
+ static int rs6000_elf_reloc_rw_mask (void);
  static void rs6000_elf_asm_out_constructor (rtx, int);
  static void rs6000_elf_asm_out_destructor (rtx, int);
 +static void rs6000_elf_end_indicate_exec_stack (void) ATTRIBUTE_UNUSED;
- static void rs6000_elf_select_section (tree, int, unsigned HOST_WIDE_INT);
- static void rs6000_elf_unique_section (tree, int);
- static void rs6000_elf_select_rtx_section (enum machine_mode, rtx,
-@@ -18896,6 +18897,20 @@ rs6000_elf_declare_function_name (FILE *
+ static void rs6000_elf_asm_init_sections (void);
+ static section *rs6000_elf_select_rtx_section (enum machine_mode, rtx,
+ 					       unsigned HOST_WIDE_INT);
+@@ -20418,6 +20419,20 @@ rs6000_elf_declare_function_name (FILE *
      }
    ASM_OUTPUT_LABEL (file, name);
  }
@@ -37,9 +37,9 @@
  #endif
  
  #if TARGET_XCOFF
---- gcc/config/rs6000/linux64.h.jj	2006-11-08 17:53:15.000000000 +0100
-+++ gcc/config/rs6000/linux64.h	2007-08-27 19:25:09.000000000 +0200
-@@ -549,7 +549,7 @@ while (0)
+--- gcc/config/rs6000/linux64.h.jj	2007-12-07 17:18:06.000000000 +0100
++++ gcc/config/rs6000/linux64.h	2007-12-07 18:41:21.000000000 +0100
+@@ -504,7 +504,7 @@ extern int dot_symbols;
  #undef DRAFT_V4_STRUCT_RET
  #define DRAFT_V4_STRUCT_RET (!TARGET_64BIT)
  
@@ -48,8 +48,8 @@
  
  #define TARGET_POSIX_IO
  
---- gcc/config/ia64/linux.h.jj	2006-07-14 18:00:58.000000000 +0200
-+++ gcc/config/ia64/linux.h	2007-08-27 19:21:12.000000000 +0200
+--- gcc/config/ia64/linux.h.jj	2007-12-07 18:17:43.000000000 +0100
++++ gcc/config/ia64/linux.h	2007-12-07 18:41:21.000000000 +0100
 @@ -5,7 +5,7 @@
  
  #define TARGET_VERSION fprintf (stderr, " (IA-64) Linux");
@@ -59,19 +59,19 @@
  
  /* This is for -profile to use -lc_p instead of -lc.  */
  #undef CC1_SPEC
---- gcc/config/ia64/ia64.c.jj	2007-01-05 23:54:11.000000000 +0100
-+++ gcc/config/ia64/ia64.c	2007-08-27 19:21:43.000000000 +0200
-@@ -246,6 +246,8 @@ static void ia64_hpux_add_extern_decl (t
+--- gcc/config/ia64/ia64.c.jj	2007-12-07 15:41:58.000000000 +0100
++++ gcc/config/ia64/ia64.c	2007-12-07 18:43:18.000000000 +0100
+@@ -262,6 +262,8 @@ static section *ia64_select_rtx_section 
+ static void ia64_output_dwarf_dtprel (FILE *, int, rtx)
       ATTRIBUTE_UNUSED;
- static void ia64_hpux_file_end (void)
-      ATTRIBUTE_UNUSED;
+ static unsigned int ia64_section_type_flags (tree, const char *, int);
 +static void ia64_linux_file_end (void)
 +     ATTRIBUTE_UNUSED;
  static void ia64_init_libfuncs (void)
       ATTRIBUTE_UNUSED;
  static void ia64_hpux_init_libfuncs (void)
-@@ -9096,4 +9098,13 @@ ia64_invalid_binary_op (int op ATTRIBUTE
-   return NULL;
+@@ -9957,4 +9959,13 @@ ia64_c_mode_for_suffix (char suffix)
+   return VOIDmode;
  }
  
 +static void
