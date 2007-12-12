@@ -139,6 +139,7 @@ Patch11: gcc43-rh330771.patch
 Patch12: gcc43-rh341221.patch
 Patch13: gcc43-libjava-test.patch
 Patch14: gcc43-pr34427.patch
+Patch15: gcc43-libjava-gcjpath.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -436,6 +437,7 @@ which are required to run programs compiled with the GNAT.
 %patch12 -p0 -b .rh341221~
 %patch13 -p0 -b .libjava-test~
 %patch14 -p0 -E -b .pr34427~
+%patch15 -p0 -b .libjava-gcjpath~
 
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
