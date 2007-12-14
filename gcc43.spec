@@ -1,6 +1,6 @@
 %define DATE 20071212
 %define gcc_version 4.3.0
-%define gcc_release 0.2
+%define gcc_release 0.3
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -41,6 +41,8 @@ Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
 Source2: README.libgcjwebplugin.so
 Source3: protoize.1
+%define fastjar_ver 0.95
+Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -140,6 +142,9 @@ Patch12: gcc43-rh341221.patch
 Patch13: gcc43-libjava-test.patch
 Patch14: gcc43-pr34427.patch
 Patch15: gcc43-libjava-gcjpath.patch
+Patch16: gcc43-pr34003.patch
+Patch17: gcc43-ada-profiledbootstrap.patch
+Patch18: gcc43-pr29978.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -438,13 +443,18 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .libjava-test~
 %patch14 -p0 -E -b .pr34427~
 %patch15 -p0 -b .libjava-gcjpath~
+%patch16 -p0 -b .pr34003~
+%patch17 -p0 -b .ada-profiledbootstrap~
+%patch18 -p0 -b .pr29978~
+
+tar xzf %{SOURCE4}
 
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
 %endif
 
 sed -i -e 's/4\.3\.0/4.3.0/' gcc/BASE-VER
-echo '(Red Hat %{version}-%{gcc_release})' > gcc/DEV-PHASE
+echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
@@ -476,6 +486,17 @@ fi
 %endif
 
 %build
+
+%if %{build_java}
+# gjar isn't usable, so even when GCC source tree no longer includes
+# fastjar, build it anyway.
+mkdir fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
+cd fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
+../configure CFLAGS="$RPM_OPT_FLAGS" --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir}
+make %{?_smp_mflags}
+export PATH=`pwd`${PATH:+:$PATH}
+cd ../../
+%endif
 
 rm -fr obj-%{gcc_target_platform}
 mkdir obj-%{gcc_target_platform}
@@ -634,7 +655,7 @@ for i in ../gcc/doc/*.texi; do mv -f $i.orig $i; done
 # Copy various doc files here and there
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
-mkdir -p rpm.doc/boehm-gc rpm.doc/libffi rpm.doc/libjava
+mkdir -p rpm.doc/boehm-gc rpm.doc/fastjar rpm.doc/libffi rpm.doc/libjava
 mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}
 sed -e 's,@VERSION@,%{gcc_version},' %{SOURCE2} > rpm.doc/README.libgcjwebplugin.so
 
@@ -656,6 +677,9 @@ done)
 done)
 (cd boehm-gc; for i in ChangeLog*; do
 	cp -p $i ../rpm.doc/boehm-gc/$i.gc
+done)
+(cd fastjar-%{fastjar_ver}; for i in ChangeLog* README*; do
+	cp -p $i ../rpm.doc/fastjar/$i.fastjar
 done)
 (cd libffi; for i in ChangeLog* README* LICENSE; do
 	cp -p $i ../rpm.doc/libffi/$i.libffi
@@ -690,6 +714,7 @@ if [ ! -f /usr/lib/locale/de_DE/LC_CTYPE ]; then
 fi
 
 %if %{build_java}
+export PATH=`pwd`/../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}${PATH:+:$PATH}
 %if !%{bootstrap_java}
 export PATH=`pwd`/java_hacks${PATH:+:$PATH}
 %endif
@@ -820,6 +845,10 @@ else
 fi
 
 %if %{build_java}
+pushd ../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
+make install DESTDIR=$RPM_BUILD_ROOT
+popd
+
 if [ "%{_lib}" != "lib" ]; then
   mkdir -p $RPM_BUILD_ROOT%{_prefix}/%{_lib}/pkgconfig
   sed '/^libdir/s/lib$/%{_lib}/' $RPM_BUILD_ROOT%{_prefix}/lib/pkgconfig/libgcj-*.pc \
@@ -1112,11 +1141,15 @@ fi
 /sbin/ldconfig
 /sbin/install-info \
   --info-dir=%{_infodir} %{_infodir}/cp-tools.info.gz || :
+/sbin/install-info \
+  --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz || :
 
 %preun -n libgcj
 if [ $1 = 0 ]; then
   /sbin/install-info --delete \
     --info-dir=%{_infodir} %{_infodir}/cp-tools.info.gz || :
+  /sbin/install-info --delete \
+    --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz || :
 fi
 
 %postun -n libgcj -p /sbin/ldconfig
@@ -1465,6 +1498,8 @@ fi
 %{_prefix}/bin/jv-convert
 %{_prefix}/bin/gij
 %{_prefix}/bin/gjar
+%{_prefix}/bin/fastjar
+%{_prefix}/bin/grepjar
 %{_prefix}/bin/grmic
 %{_prefix}/bin/grmid
 %{_prefix}/bin/grmiregistry
@@ -1478,6 +1513,8 @@ fi
 %{_mandir}/man1/gappletviewer.1*
 %endif
 %{_prefix}/bin/gjarsigner
+%{_mandir}/man1/fastjar.1*
+%{_mandir}/man1/grepjar.1*
 %{_mandir}/man1/gjar.1*
 %{_mandir}/man1/gjarsigner.1*
 %{_mandir}/man1/jv-convert.1*
@@ -1490,6 +1527,7 @@ fi
 %{_mandir}/man1/grmid.1*
 %{_mandir}/man1/gserialver.1*
 %{_mandir}/man1/gtnameserv.1*
+%{_infodir}/fastjar.info*
 %{_infodir}/cp-tools.info*
 %{_prefix}/%{_lib}/libgcj.so.*
 %{_prefix}/%{_lib}/libgcj-tools.so.*
@@ -1546,7 +1584,7 @@ fi
 %{_prefix}/include/c++/%{gcc_version}/org
 %{_prefix}/include/c++/%{gcc_version}/sun
 %{_prefix}/%{_lib}/pkgconfig/libgcj-*.pc
-%doc rpm.doc/boehm-gc/* rpm.doc/libffi/*
+%doc rpm.doc/boehm-gc/* rpm.doc/fastjar/* rpm.doc/libffi/*
 %doc rpm.doc/libjava/*
 
 %files -n libgcj-src
@@ -1615,6 +1653,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Dec 14 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.3
+- build fastjar, gjar is uncomparably worse
+- fix profiledbootstrap and use it
+
 * Wed Dec 12 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.2
 - update from the trunk
 
