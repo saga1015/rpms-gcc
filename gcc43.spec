@@ -55,7 +55,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: binutils >= 2.17.50.0.17-3
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 %if %{build_java}
-BuildRequires: eclipse-ecj, zip, unzip
+BuildRequires: /usr/share/java/eclipse-ecj.jar, zip, unzip
 %if %{bootstrap_java}
 Source10: libjava-classes-%{version}-%{release}.tar.bz2
 %else
@@ -142,6 +142,8 @@ Patch12: gcc43-rh341221.patch
 Patch13: gcc43-pr34281.patch
 Patch14: gcc43-pr34448.patch
 Patch15: gcc43-pr34535.patch
+Patch16: gcc43-libjava-xulrunner.patch
+Patch17: gcc43-pr34111.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -440,6 +442,8 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .pr34281~
 %patch14 -p0 -b .pr34448~
 %patch15 -p0 -b .pr34535~
+%patch16 -p0 -b .libjava-xulrunner~
+%patch17 -p0 -b .pr34111~
 
 tar xzf %{SOURCE4}
 
@@ -1649,6 +1653,7 @@ fi
 %changelog
 * Thu Dec 20 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.4
 - update from the trunk
+- adjustments to build against xulrunner-devel
 
 * Fri Dec 14 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.3
 - build fastjar, gjar is uncomparably worse
