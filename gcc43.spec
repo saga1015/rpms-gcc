@@ -55,7 +55,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: binutils >= 2.17.50.0.17-3
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 %if %{build_java}
-BuildRequires: /usr/share/java/eclipse-ecj.jar, zip, unzip
+BuildRequires: eclipse-ecj, zip, unzip
 %if %{bootstrap_java}
 Source10: libjava-classes-%{version}-%{release}.tar.bz2
 %else
