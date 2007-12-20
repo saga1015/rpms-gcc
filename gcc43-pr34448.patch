@@ -1,0 +1,229 @@
+2007-12-17  Aldy Hernandez  <aldyh@redhat.com>
+
+	PR tree-optimization/34448
+	PR tree-optimization/34465
+	* gimplify.c (gimplify_init_constructor): Add new parameter
+	notify_temp_creation.  Use it.
+	(gimplify_modify_expr_rhs): Take volatiles into account when
+	optimizing constructors.
+	Do not optimize constructors if gimplify_init_constructor will dump to
+	memory.
+	* gcc.dg/tree-ssa/pr32901.c: Tests const volatiles.
+	* gcc.c-torture/compile/pr34448.c: New.
+
+--- gcc/gimplify.c	(revision 130934)
++++ gcc/gimplify.c	(local)
+@@ -3119,11 +3119,18 @@ gimplify_init_ctor_eval (tree object, VE
+ 
+    Note that we still need to clear any elements that don't have explicit
+    initializers, so if not all elements are initialized we keep the
+-   original MODIFY_EXPR, we just remove all of the constructor elements.  */
++   original MODIFY_EXPR, we just remove all of the constructor elements.
++
++   If NOTIFY_TEMP_CREATION is true, do not gimplify, just return
++   GS_ERROR if we would have to create a temporary when gimplifying
++   this constructor.  Otherwise, return GS_OK.
++
++   If NOTIFY_TEMP_CREATION is false, just do the gimplification.  */
+ 
+ static enum gimplify_status
+ gimplify_init_constructor (tree *expr_p, tree *pre_p,
+-			   tree *post_p, bool want_value)
++			   tree *post_p, bool want_value,
++			   bool notify_temp_creation)
+ {
+   tree object;
+   tree ctor = GENERIC_TREE_OPERAND (*expr_p, 1);
+@@ -3134,10 +3141,13 @@ gimplify_init_constructor (tree *expr_p,
+   if (TREE_CODE (ctor) != CONSTRUCTOR)
+     return GS_UNHANDLED;
+ 
+-  ret = gimplify_expr (&GENERIC_TREE_OPERAND (*expr_p, 0), pre_p, post_p,
+-		       is_gimple_lvalue, fb_lvalue);
+-  if (ret == GS_ERROR)
+-    return ret;
++  if (!notify_temp_creation)
++    {
++      ret = gimplify_expr (&GENERIC_TREE_OPERAND (*expr_p, 0), pre_p, post_p,
++			   is_gimple_lvalue, fb_lvalue);
++      if (ret == GS_ERROR)
++	return ret;
++    }
+   object = GENERIC_TREE_OPERAND (*expr_p, 0);
+ 
+   elts = CONSTRUCTOR_ELTS (ctor);
+@@ -3159,7 +3169,11 @@ gimplify_init_constructor (tree *expr_p,
+ 	   individual elements.  The exception is that a CONSTRUCTOR node
+ 	   with no elements indicates zero-initialization of the whole.  */
+ 	if (VEC_empty (constructor_elt, elts))
+-	  break;
++	  {
++	    if (notify_temp_creation)
++	      return GS_OK;
++	    break;
++	  }
+ 
+ 	/* Fetch information about the constructor to direct later processing.
+ 	   We might want to make static versions of it in various cases, and
+@@ -3175,6 +3189,8 @@ gimplify_init_constructor (tree *expr_p,
+ 	    && TREE_READONLY (object)
+ 	    && TREE_CODE (object) == VAR_DECL)
+ 	  {
++	    if (notify_temp_creation)
++	      return GS_ERROR;
+ 	    DECL_INITIAL (object) = ctor;
+ 	    TREE_STATIC (object) = 1;
+ 	    if (!DECL_NAME (object))
+@@ -3251,7 +3267,12 @@ gimplify_init_constructor (tree *expr_p,
+ 
+ 	    if (size > 0 && !can_move_by_pieces (size, align))
+ 	      {
+-		tree new = create_tmp_var_raw (type, "C");
++		tree new;
++
++		if (notify_temp_creation)
++		  return GS_ERROR;
++
++		new = create_tmp_var_raw (type, "C");
+ 
+ 		gimple_add_tmp_var (new);
+ 		TREE_STATIC (new) = 1;
+@@ -3273,6 +3294,9 @@ gimplify_init_constructor (tree *expr_p,
+ 	      }
+ 	  }
+ 
++	if (notify_temp_creation)
++	  return GS_OK;
++
+ 	/* If there are nonzero elements, pre-evaluate to capture elements
+ 	   overlapping with the lhs into temporaries.  We must do this before
+ 	   clearing to fetch the values before they are zeroed-out.  */
+@@ -3312,6 +3336,9 @@ gimplify_init_constructor (tree *expr_p,
+       {
+ 	tree r, i;
+ 
++	if (notify_temp_creation)
++	  return GS_OK;
++
+ 	/* Extract the real and imaginary parts out of the ctor.  */
+ 	gcc_assert (VEC_length (constructor_elt, elts) == 2);
+ 	r = VEC_index (constructor_elt, elts, 0)->value;
+@@ -3348,6 +3375,9 @@ gimplify_init_constructor (tree *expr_p,
+ 	unsigned HOST_WIDE_INT ix;
+ 	constructor_elt *ce;
+ 
++	if (notify_temp_creation)
++	  return GS_OK;
++
+ 	/* Go ahead and simplify constant constructors to VECTOR_CST.  */
+ 	if (TREE_CONSTANT (ctor))
+ 	  {
+@@ -3488,10 +3518,28 @@ gimplify_modify_expr_rhs (tree *expr_p, 
+ 	   constructor expression to the RHS of the MODIFY_EXPR.  */
+ 	if (DECL_INITIAL (*from_p)
+ 	    && TYPE_READONLY (TREE_TYPE (*from_p))
++	    && !TREE_THIS_VOLATILE (*from_p)
+ 	    && TREE_CODE (DECL_INITIAL (*from_p)) == CONSTRUCTOR)
+ 	  {
+-	    *from_p = DECL_INITIAL (*from_p);
+-	    ret = GS_OK;
++	    tree old_from = *from_p;
++
++	    /* Move the constructor into the RHS.  */
++	    *from_p = DECL_INITIAL (*from_p);
++
++	    /* Let's see if gimplify_init_constructor will need to put
++	       it in memory.  If so, revert the change.  */
++	    ret = gimplify_init_constructor (expr_p, NULL, NULL, false, true);
++	    if (ret == GS_ERROR)
++	      {
++		*from_p = old_from;
++		/* Fall through.  */
++	      }
++	    else
++	      {
++		*from_p = unshare_expr (*from_p);
++		ret = GS_OK;
++		break;
++	      }
+ 	  }
+ 	ret = GS_UNHANDLED;
+ 	break;
+@@ -3551,7 +3599,8 @@ gimplify_modify_expr_rhs (tree *expr_p, 
+       case CONSTRUCTOR:
+ 	/* If we're initializing from a CONSTRUCTOR, break this into
+ 	   individual MODIFY_EXPRs.  */
+-	return gimplify_init_constructor (expr_p, pre_p, post_p, want_value);
++	return gimplify_init_constructor (expr_p, pre_p, post_p, want_value,
++					  false);
+ 
+       case COND_EXPR:
+ 	/* If we're assigning to a non-register type, push the assignment
+--- gcc/testsuite/gcc.c-torture/compile/pr34448.c	(revision 130934)
++++ gcc/testsuite/gcc.c-torture/compile/pr34448.c	(local)
+@@ -0,0 +1,34 @@
++/* { dg-do compile } */
++/* { dg-options "-O" } */
++
++typedef struct chunk_t chunk_t;
++struct chunk_t
++{
++  unsigned char *ptr;
++  long unsigned int len;
++};
++extern chunk_t asn1_wrap (chunk_t c, ...);
++typedef struct linked_list_t linked_list_t;
++chunk_t ietfAttr_list_encode (linked_list_t * list);
++extern linked_list_t *groups;
++static unsigned char ASN1_group_oid_str[] = {
++    0x06
++};
++static const chunk_t ASN1_group_oid = {
++  ASN1_group_oid_str, sizeof (ASN1_group_oid_str)
++};
++static chunk_t
++build_attribute_type (const chunk_t type, chunk_t content)
++{
++  return type;
++}
++static chunk_t
++build_attributes (void)
++{
++  return asn1_wrap (build_attribute_type (ASN1_group_oid,
++					  ietfAttr_list_encode (groups)));
++}
++void build_attr_cert (void)
++{
++  asn1_wrap (build_attributes ());
++}
+--- gcc/testsuite/gcc.dg/tree-ssa/pr32901.c	(revision 130934)
++++ gcc/testsuite/gcc.dg/tree-ssa/pr32901.c	(local)
+@@ -7,7 +7,7 @@ struct foo {
+         unsigned : 4;
+ };
+ 
+-extern struct foo thefoo;
++extern struct foo thefoo, theotherfoo;
+ 
+ void setup_foo(void)
+ {
+@@ -15,10 +15,16 @@ void setup_foo(void)
+                 .a1 = 1,
+                 .a2 = 5,
+         };
++	volatile const struct foo volinit = {
++		.a1 = 0,
++		.a2 = 6
++	};
+         thefoo = init;
++	theotherfoo = volinit;
+ }
+ 
+-/* { dg-final { scan-tree-dump-times "thefoo.0 = \{\}" 1 "gimple"} } */
+-/* { dg-final { scan-tree-dump-times "thefoo.0.a1 = 1" 1 "gimple"} } */
+-/* { dg-final { scan-tree-dump-times "thefoo.0.a2 = 5" 1 "gimple"} } */
++/* { dg-final { scan-tree-dump-times "thefoo.* = {}" 1 "gimple"} } */
++/* { dg-final { scan-tree-dump-times "thefoo.* = 1" 1 "gimple"} } */
++/* { dg-final { scan-tree-dump-times "thefoo.* = 5" 1 "gimple"} } */
++/* { dg-final { scan-tree-dump-times "theotherfoo = volinit" 1 "gimple"} } */
+ /* { dg-final { cleanup-tree-dump "gimple" } } */

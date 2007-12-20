@@ -328,7 +328,7 @@ Requires: libart_lgpl >= 2.1.0
 %if %{build_java}
 BuildRequires: gtk2-devel >= 2.4.0
 BuildRequires: glib2-devel >= 2.4.0
-BuildRequires: firefox-devel
+BuildRequires: xulrunner-devel
 BuildRequires: libart_lgpl-devel >= 2.1.0
 BuildRequires: alsa-lib-devel
 BuildRequires: libXtst-devel
