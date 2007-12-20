@@ -1,6 +1,6 @@
-%define DATE 20071212
+%define DATE 20071220
 %define gcc_version 4.3.0
-%define gcc_release 0.3
+%define gcc_release 0.4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -136,15 +136,12 @@ Patch6: gcc43-ppc64-ia64-GNU-stack.patch
 Patch7: gcc43-pr27898.patch
 Patch8: gcc43-pr32139.patch
 Patch9: gcc43-pr33763.patch
-Patch10: gcc43-pr32636.patch
+Patch10: gcc43-pr29484.patch
 Patch11: gcc43-rh330771.patch
 Patch12: gcc43-rh341221.patch
-Patch13: gcc43-libjava-test.patch
-Patch14: gcc43-pr34427.patch
-Patch15: gcc43-libjava-gcjpath.patch
-Patch16: gcc43-pr34003.patch
-Patch17: gcc43-ada-profiledbootstrap.patch
-Patch18: gcc43-pr29978.patch
+Patch13: gcc43-pr34281.patch
+Patch14: gcc43-pr34448.patch
+Patch15: gcc43-pr34535.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -437,15 +434,12 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .pr27898~
 %patch8 -p0 -b .pr32139~
 %patch9 -p0 -b .pr33763~
-%patch10 -p0 -b .pr32636~
+%patch10 -p0 -b .pr29484~
 %patch11 -p0 -b .rh330771~
 %patch12 -p0 -b .rh341221~
-%patch13 -p0 -b .libjava-test~
-%patch14 -p0 -E -b .pr34427~
-%patch15 -p0 -b .libjava-gcjpath~
-%patch16 -p0 -b .pr34003~
-%patch17 -p0 -b .ada-profiledbootstrap~
-%patch18 -p0 -b .pr29978~
+%patch13 -p0 -b .pr34281~
+%patch14 -p0 -b .pr34448~
+%patch15 -p0 -b .pr34535~
 
 tar xzf %{SOURCE4}
 
@@ -1653,6 +1647,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Dec 20 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.4
+- update from the trunk
+
 * Fri Dec 14 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.3
 - build fastjar, gjar is uncomparably worse
 - fix profiledbootstrap and use it
