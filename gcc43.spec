@@ -442,7 +442,7 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .pr34281~
 %patch14 -p0 -b .pr34448~
 %patch15 -p0 -b .pr34535~
-%patch16 -p0 -b .libjava-xulrunner~
+#%patch16 -p0 -b .libjava-xulrunner~
 %patch17 -p0 -b .pr34111~
 
 tar xzf %{SOURCE4}
