@@ -1,6 +1,6 @@
-%define DATE 20071220
+%define DATE 20080110
 %define gcc_version 4.3.0
-%define gcc_release 0.4
+%define gcc_release 0.5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -136,14 +136,8 @@ Patch6: gcc43-ppc64-ia64-GNU-stack.patch
 Patch7: gcc43-pr27898.patch
 Patch8: gcc43-pr32139.patch
 Patch9: gcc43-pr33763.patch
-Patch10: gcc43-pr29484.patch
-Patch11: gcc43-rh330771.patch
-Patch12: gcc43-rh341221.patch
-Patch13: gcc43-pr34281.patch
-Patch14: gcc43-pr34448.patch
-Patch15: gcc43-pr34535.patch
-Patch16: gcc43-libjava-xulrunner.patch
-Patch17: gcc43-pr34111.patch
+Patch10: gcc43-rh330771.patch
+Patch11: gcc43-rh341221.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -436,14 +430,8 @@ which are required to run programs compiled with the GNAT.
 %patch7 -p0 -b .pr27898~
 %patch8 -p0 -b .pr32139~
 %patch9 -p0 -b .pr33763~
-%patch10 -p0 -b .pr29484~
-%patch11 -p0 -b .rh330771~
-%patch12 -p0 -b .rh341221~
-%patch13 -p0 -b .pr34281~
-%patch14 -p0 -b .pr34448~
-%patch15 -p0 -b .pr34535~
-#%patch16 -p0 -b .libjava-xulrunner~
-%patch17 -p0 -b .pr34111~
+%patch10 -p0 -b .rh330771~
+%patch11 -p0 -b .rh341221~
 
 tar xzf %{SOURCE4}
 
@@ -911,8 +899,11 @@ ln -sf ../../../../../lib64/libobjc.so.2 64/libobjc.so
 ln -sf ../`echo ../../../../lib/libstdc++.so.6.* | sed s~/lib/~/lib64/~` 64/libstdc++.so
 ln -sf ../`echo ../../../../lib/libgfortran.so.3.* | sed s~/lib/~/lib64/~` 64/libgfortran.so
 ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgomp.so
-ln -sf ../`echo ../../../../lib/libmudflap.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflap.so
-ln -sf ../`echo ../../../../lib/libmudflapth.so.0.* | sed s~/lib/~/lib64/~` 64/libmudflapth.so
+rm -f libmudflap.so libmudflapth.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflap.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflapth.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflap.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflapth.so
 %if %{build_java}
 ln -sf ../`echo ../../../../lib/libgcj.so.9.* | sed s~/lib/~/lib64/~` 64/libgcj.so
 ln -sf ../`echo ../../../../lib/libgcj-tools.so.9.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
@@ -937,8 +928,11 @@ ln -sf ../../../../libobjc.so.2 32/libobjc.so
 ln -sf ../`echo ../../../../lib64/libstdc++.so.6.* | sed s~/../lib64/~/~` 32/libstdc++.so
 ln -sf ../`echo ../../../../lib64/libgfortran.so.3.* | sed s~/../lib64/~/~` 32/libgfortran.so
 ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgomp.so
-ln -sf ../`echo ../../../../lib64/libmudflap.so.0.* | sed s~/../lib64/~/~` 32/libmudflap.so
-ln -sf ../`echo ../../../../lib64/libmudflapth.so.0.* | sed s~/../lib64/~/~` 32/libmudflapth.so
+rm -f libmudflap.so libmudflapth.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflap.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflapth.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflap.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflapth.so
 %if %{build_java}
 ln -sf ../`echo ../../../../lib64/libgcj.so.9.* | sed s~/../lib64/~/~` 32/libgcj.so
 ln -sf ../`echo ../../../../lib64/libgcj-tools.so.9.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
@@ -1651,6 +1645,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Jan 10 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.5
+- update from the trunk
+- don't require on ppc/ppc64 libmudflap in gcc subpackage
+
 * Thu Dec 20 2007 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.4
 - update from the trunk
 - adjustments to build against xulrunner-devel
