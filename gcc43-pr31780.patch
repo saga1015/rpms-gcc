@@ -1,0 +1,97 @@
+2008-01-25  Jason Merrill  <jason@redhat.com>
+	    Mark Mitchell  <mark@codesourcery.com>
+
+	PR c++/31780
+	* call.c (standard_conversion): Allow conversion from integer/real
+	to complex.
+	(compare_ics): Such a conversion is worse than a normal arithmetic
+	conversion.
+
+--- gcc/cp/call.c	(revision 131825)
++++ gcc/cp/call.c	(revision 131833)
+@@ -846,8 +846,8 @@ standard_conversion (tree to, tree from,
+     }
+   /* We don't check for ENUMERAL_TYPE here because there are no standard
+      conversions to enum type.  */
+-  else if (tcode == INTEGER_TYPE || tcode == BOOLEAN_TYPE
+-	   || tcode == REAL_TYPE)
++  /* As an extension, allow conversion to complex type.  */
++  else if (ARITHMETIC_TYPE_P (to))
+     {
+       if (! (INTEGRAL_CODE_P (fcode) || fcode == REAL_TYPE))
+ 	return NULL;
+@@ -5937,6 +5937,10 @@ compare_ics (conversion *ics1, conversio
+       from_type2 = t2->type;
+     }
+ 
++  /* One sequence can only be a subsequence of the other if they start with
++     the same type.  They can start with different types when comparing the
++     second standard conversion sequence in two user-defined conversion
++     sequences.  */
+   if (same_type_p (from_type1, from_type2))
+     {
+       if (is_subseq (ics1, ics2))
+@@ -5944,10 +5948,6 @@ compare_ics (conversion *ics1, conversio
+       if (is_subseq (ics2, ics1))
+ 	return -1;
+     }
+-  /* Otherwise, one sequence cannot be a subsequence of the other; they
+-     don't start with the same type.  This can happen when comparing the
+-     second standard conversion sequence in two user-defined conversion
+-     sequences.  */
+ 
+   /* [over.ics.rank]
+ 
+@@ -5977,6 +5977,21 @@ compare_ics (conversion *ics1, conversio
+   to_type1 = ics1->type;
+   to_type2 = ics2->type;
+ 
++  /* A conversion from scalar arithmetic type to complex is worse than a
++     conversion between scalar arithmetic types.  */
++  if (same_type_p (from_type1, from_type2)
++      && ARITHMETIC_TYPE_P (from_type1)
++      && ARITHMETIC_TYPE_P (to_type1)
++      && ARITHMETIC_TYPE_P (to_type2)
++      && ((TREE_CODE (to_type1) == COMPLEX_TYPE)
++	  != (TREE_CODE (to_type2) == COMPLEX_TYPE)))
++    {
++      if (TREE_CODE (to_type1) == COMPLEX_TYPE)
++	return -1;
++      else
++	return 1;
++    }
++
+   if (TYPE_PTR_P (from_type1)
+       && TYPE_PTR_P (from_type2)
+       && TYPE_PTR_P (to_type1)
+--- gcc/testsuite/g++.dg/ext/complex3.C	(revision 0)
++++ gcc/testsuite/g++.dg/ext/complex3.C	(revision 131833)
+@@ -0,0 +1,28 @@
++// PR c++/31780
++// { dg-do run }
++// { dg-options "" }
++
++// Test that we can implicitly convert to _Complex, but that it's worse
++// than a scalar arithmetic conversion.
++
++extern "C" void exit (int);
++
++int r = 0;
++
++void f (_Complex int) { ++r; }
++void f (double) { }
++
++void g (_Complex int) { }
++
++int main()
++{
++  f (1);
++  g (1);
++
++  return r;
++}
++
++void bar()
++{
++  r ? 0i : 0;
++}

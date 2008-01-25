@@ -141,6 +141,9 @@ Patch11: gcc43-rh341221.patch
 Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
 Patch14: gcc43-pr34965.patch
+Patch15: gcc43-late-visibility.patch
+Patch16: gcc43-pr31780.patch
+Patch17: gcc43-pr32244.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -438,6 +441,9 @@ which are required to run programs compiled with the GNAT.
 %patch12 -p0 -b .cpp-pragma~
 %patch13 -p0 -b .java-debug-iface-type~
 %patch14 -p0 -b .pr34965~
+%patch15 -p0 -b .late-visibility~
+%patch16 -p0 -b .pr31780~
+%patch17 -p0 -b .pr32244~
 
 tar xzf %{SOURCE4}
 
