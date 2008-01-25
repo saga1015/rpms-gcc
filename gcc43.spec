@@ -1,6 +1,6 @@
-%define DATE 20080110
+%define DATE 20080125
 %define gcc_version 4.3.0
-%define gcc_release 0.5
+%define gcc_release 0.6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -138,6 +138,8 @@ Patch8: gcc43-pr32139.patch
 Patch9: gcc43-pr33763.patch
 Patch10: gcc43-rh330771.patch
 Patch11: gcc43-rh341221.patch
+Patch12: gcc43-cpp-pragma.patch
+Patch13: gcc43-java-debug-iface-type.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -432,6 +434,8 @@ which are required to run programs compiled with the GNAT.
 %patch9 -p0 -b .pr33763~
 %patch10 -p0 -b .rh330771~
 %patch11 -p0 -b .rh341221~
+%patch12 -p0 -b .cpp-pragma.patch
+%patch13 -p0 -b .java-debug-iface-type
 
 tar xzf %{SOURCE4}
 
@@ -1645,6 +1649,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Jan 10 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.6
+- update from the trunk
+
 * Thu Jan 10 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.5
 - update from the trunk
 - don't require on ppc/ppc64 libmudflap in gcc subpackage
