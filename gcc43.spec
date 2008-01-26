@@ -1,4 +1,4 @@
-%define DATE 20080125
+%define DATE 20080126
 %define gcc_version 4.3.0
 %define gcc_release 0.6
 %define _unpackaged_files_terminate_build 0
@@ -141,9 +141,7 @@ Patch11: gcc43-rh341221.patch
 Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
 Patch14: gcc43-pr34965.patch
-Patch15: gcc43-late-visibility.patch
-Patch16: gcc43-pr31780.patch
-Patch17: gcc43-pr32244.patch
+Patch15: gcc43-pr34966-test.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -441,9 +439,7 @@ which are required to run programs compiled with the GNAT.
 %patch12 -p0 -b .cpp-pragma~
 %patch13 -p0 -b .java-debug-iface-type~
 %patch14 -p0 -b .pr34965~
-%patch15 -p0 -b .late-visibility~
-%patch16 -p0 -b .pr31780~
-%patch17 -p0 -b .pr32244~
+%patch15 -p0 -b .pr34966-test~
 
 tar xzf %{SOURCE4}
 
@@ -702,8 +698,8 @@ rm -fr $RPM_BUILD_ROOT
 
 perl -pi -e \
   's~href="l(ibstdc|atest)~href="http://gcc.gnu.org/onlinedocs/libstdc++/l\1~' \
-  libstdc++-v3/docs/html/documentation.html
-ln -sf documentation.html libstdc++-v3/docs/html/index.html
+  libstdc++-v3/doc/html/documentation.html
+ln -sf documentation.html libstdc++-v3/doc/html/index.html
 
 cd obj-%{gcc_target_platform}
 
@@ -1376,7 +1372,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
 %endif
-%doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README* libstdc++-v3/docs/html/
+%doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README* libstdc++-v3/doc/html/
 
 %files objc
 %defattr(-,root,root)
