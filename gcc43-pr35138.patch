@@ -1,0 +1,67 @@
+2008-02-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/35138
+	* parser.c (cp_parser_pseudo_destructor_name): If next token
+	is CPP_NAME, not followed by template argument list nor
+	::~, return before calling cp_parser_type_name.
+
+	* g++.dg/template/member8.C: New test.
+
+--- gcc/cp/parser.c.jj	2008-02-12 14:49:55.000000000 +0100
++++ gcc/cp/parser.c	2008-02-12 20:47:09.000000000 +0100
+@@ -5164,6 +5164,27 @@ cp_parser_pseudo_destructor_name (cp_par
+      additional qualification.  */
+   else if (cp_lexer_next_token_is_not (parser->lexer, CPP_COMPL))
+     {
++      /* If postfix-expression before . or -> token was dependent,
++	 this might be actually a normal class access rather than
++	 pseudo destructor.  As cp_parser_type_name can report
++	 errors, first make sure the type name is followed
++	 by `::~'.  */
++      cp_token *token = cp_lexer_peek_token (parser->lexer);
++      if (token->type != CPP_NAME && token->type != CPP_TEMPLATE_ID)
++	{
++	  cp_parser_error (parser, "expected class-name");
++	  return;
++	}
++
++      if (token->type == CPP_NAME
++	  && !cp_parser_nth_token_starts_template_argument_list_p (parser, 2)
++	  && (cp_lexer_peek_nth_token (parser->lexer, 2)->type != CPP_SCOPE
++	      || cp_lexer_peek_nth_token (parser->lexer, 3)->type != CPP_COMPL))
++	{
++	  cp_parser_error (parser, "not a pseudo destructor");
++	  return;
++	}
++
+       /* Look for the type-name.  */
+       *scope = TREE_TYPE (cp_parser_type_name (parser));
+ 
+--- gcc/testsuite/g++.dg/template/member8.C.jj	2008-02-12 18:32:14.000000000 +0100
++++ gcc/testsuite/g++.dg/template/member8.C	2008-02-12 18:19:23.000000000 +0100
+@@ -0,0 +1,25 @@
++// PR c++/35138
++// { dg-do compile }
++
++namespace N1 { struct A { }; }
++namespace N2 { struct A { }; }
++using namespace N1;
++using namespace N2;
++
++template <typename T> int
++foo (T const &t)
++{
++  return t.A;
++}
++
++struct B
++{
++  int A;
++};
++
++int
++main ()
++{
++  B b;
++  foo (b);
++}

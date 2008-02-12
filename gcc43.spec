@@ -1,6 +1,6 @@
-%define DATE 20080130
+%define DATE 20080212
 %define gcc_version 4.3.0
-%define gcc_release 0.7
+%define gcc_release 0.8
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,6 +140,8 @@ Patch10: gcc43-rh330771.patch
 Patch11: gcc43-rh341221.patch
 Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
+Patch14: gcc43-pr35130.patch
+Patch15: gcc43-pr35138.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -436,6 +438,8 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .rh341221~
 %patch12 -p0 -b .cpp-pragma~
 %patch13 -p0 -b .java-debug-iface-type~
+%patch14 -p0 -b .pr35130~
+%patch15 -p0 -b .pr35138~
 
 tar xzf %{SOURCE4}
 
@@ -1649,6 +1653,30 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 12 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.8
+- update to trunk
+  - PRs bootstrap/33781, bootstrap/34922, bootstrap/35051, bootstrap/35115,
+	c++/29048, c++/33553, c++/33916, c++/33964, c++/34052, c++/34094,
+	c++/34314, c++/34776, c++/34862, c++/34891, c++/34935, c++/34936,
+	c++/35049, c++/35056, c++/35074, c++/35077, c++/35096, c++/35097,
+	c++/35113, c++/35116, c/29326, c/34993, documentation/30330,
+	fortran/32315, fortran/32760, fortran/34910, fortran/34945,
+	fortran/35037, fortran/35093, java/35035, libffi/34612,
+	libfortran/35001, libfortran/35063, libgcj/30071, libstdc++/16251,
+	middle-end/33631, middle-end/34627, middle-end/35043,
+	middle-end/35136, middle-end/35163, middle_end/34150, objc++/34193,
+	other/29972, other/31405, other/32754, other/35042, other/35070,
+	other/35107, rtl-opt/33410, rtl-optimization/34773,
+	rtl-optimization/34995, rtl-optimization/34998, target/23322,
+	target/34900, target/34982, target/35045, target/35083,
+	target/35084, testsuite/33946, testsuite/35047,
+	tree-optimization/33992, tree-optimization/35085, tree-optimization/35171
+  - inline asm optimization fix (#432146, PR inline-asm/35160)
+  - SRA fix (#432090, PR c++/35144)
+- fix #pragma omp parallel body calling nested functions which store
+  into shared parent variables (PR middle-end/35130)
+- ./-> after dependent expr parsing fix (PR c++/35138)
+
 * Wed Jan 30 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.7
 - update from trunk
   - fix ISO C99 6.7.4p3 diagnostics (#427634, PR c/35017)
