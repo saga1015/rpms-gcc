@@ -54,7 +54,7 @@
 +		$(SHLIB_DIR)/$(SHLIB_SONAME).backup; \
 +	else true; fi && \
 +	gcc -O2 -o $(SHLIB_DIR)/$(SHLIB_SONAME).tweak \
-+	  $(srcdir)/config/ia64/change-symver.c -lelf && \
++	  $$(gcc_srcdir)/config/ia64/change-symver.c -lelf && \
 +	$(SHLIB_DIR)/$(SHLIB_SONAME).tweak $(SHLIB_DIR)/$(SHLIB_SONAME).tmp \
 +	GCC_3.4.2 _GLOBAL_ \
 +	_Unwind_GetGR _Unwind_RaiseException _Unwind_GetRegionStart _Unwind_SetIP \
