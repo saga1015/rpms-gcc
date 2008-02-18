@@ -1,0 +1,39 @@
+2008-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	* doc/cp-tools.texinfo (@direntry): Prefix info name with cp-.
+	* doc/cp-hacking.texinfo (@direntry): Likewise.
+	* doc/cp-vmintegration.texinfo (@direntry): Likewise.
+
+--- gcc/libjava/classpath/doc/cp-tools.texinfo.jj	2007-04-01 20:16:54.000000000 +0200
++++ gcc/libjava/classpath/doc/cp-tools.texinfo	2008-02-18 15:19:12.000000000 +0100
+@@ -27,7 +27,7 @@ Copyright (C) 2006, 2007 Free Software F
+ @ifnotplaintext
+ @dircategory GNU Libraries
+ @direntry
+-* Classpath Tools: (tools).       GNU Classpath Tools Guide
++* Classpath Tools: (cp-tools).  GNU Classpath Tools Guide
+ @end direntry
+ @end ifnotplaintext
+ @end ifinfo
+--- gcc/libjava/classpath/doc/cp-hacking.texinfo.jj	2007-06-06 12:54:50.000000000 +0200
++++ gcc/libjava/classpath/doc/cp-hacking.texinfo	2008-02-18 15:19:00.000000000 +0100
+@@ -16,7 +16,7 @@ Copyright (C) 1998,1999,2000,2001,2002,2
+ @ifnotplaintext
+ @dircategory GNU Libraries
+ @direntry
+-* Classpath Hacking: (hacking).   GNU Classpath Hacker's Guide
++* Classpath Hacking: (cp-hacking).  GNU Classpath Hacker's Guide
+ @end direntry
+ @end ifnotplaintext
+ @end ifinfo
+--- gcc/libjava/classpath/doc/cp-vmintegration.texinfo.jj	2007-06-06 12:54:50.000000000 +0200
++++ gcc/libjava/classpath/doc/cp-vmintegration.texinfo	2008-02-18 15:19:29.000000000 +0100
+@@ -17,7 +17,7 @@ Copyright (C) 1998-2002, 2004, 2005, 200
+ @ifnotplaintext
+ @dircategory GNU Libraries
+ @direntry
+-* VM Integration: (vmintegration).   GNU Classpath VM Integration Guide
++* VM Integration: (cp-vmintegration).  GNU Classpath VM Integration Guide
+ @end direntry
+ @end ifnotplaintext
+ @end ifinfo
