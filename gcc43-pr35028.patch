@@ -1,0 +1,50 @@
+2008-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/35028
+	* cp-gimplify.c (cxx_omp_clause_apply_fn): Handle vararg copy ctors.
+
+	* g++.dg/gomp/pr35028.C: New test.
+
+--- gcc/cp/cp-gimplify.c.jj	2008-02-11 14:45:57.000000000 +0100
++++ gcc/cp/cp-gimplify.c	2008-02-18 14:27:59.000000000 +0100
+@@ -844,7 +844,8 @@ cxx_omp_clause_apply_fn (tree fn, tree a
+       if (arg2)
+ 	argarray[i++] = p2;
+       /* Handle default arguments.  */
+-      for (parm = defparm; parm != void_list_node; parm = TREE_CHAIN (parm), i++)
++      for (parm = defparm; parm && parm != void_list_node;
++	   parm = TREE_CHAIN (parm), i++)
+ 	argarray[i] = convert_default_arg (TREE_VALUE (parm),
+ 					   TREE_PURPOSE (parm), fn, i);
+       t = build_call_a (fn, i, argarray);
+@@ -875,7 +876,7 @@ cxx_omp_clause_apply_fn (tree fn, tree a
+       if (arg2)
+ 	argarray[i++] = build_fold_addr_expr (arg2);
+       /* Handle default arguments.  */
+-      for (parm = defparm; parm != void_list_node;
++      for (parm = defparm; parm && parm != void_list_node;
+ 	   parm = TREE_CHAIN (parm), i++)
+ 	argarray[i] = convert_default_arg (TREE_VALUE (parm),
+ 					   TREE_PURPOSE (parm),
+--- gcc/testsuite/g++.dg/gomp/pr35028.C.jj	2008-02-18 14:40:42.000000000 +0100
++++ gcc/testsuite/g++.dg/gomp/pr35028.C	2008-02-18 14:40:10.000000000 +0100
+@@ -0,0 +1,19 @@
++// PR c++/35028
++// { dg-do compile }
++// { dg-options "-fopenmp" }
++
++struct A
++{
++  A ();
++  A (const A &, ...);
++  ~A ();
++  A operator++ (int);
++};
++
++void
++foo ()
++{
++  A a;
++  #pragma omp parallel firstprivate (a)
++    a++;
++}
