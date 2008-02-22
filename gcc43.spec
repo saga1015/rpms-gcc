@@ -1,6 +1,6 @@
-%define DATE 20080218
+%define DATE 20080222
 %define gcc_version 4.3.0
-%define gcc_release 0.10
+%define gcc_release 0.11
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -143,7 +143,6 @@ Patch13: gcc43-java-debug-iface-type.patch
 Patch14: gcc43-pr34964.patch
 Patch15: gcc43-pr35028.patch
 Patch16: gcc43-pr35078.patch
-Patch17: gcc43-rh433222.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -443,7 +442,6 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .pr34964~
 %patch15 -p0 -b .pr35028~
 %patch16 -p0 -b .pr35078~
-%patch17 -p0 -b .rh433222~
 
 tar xzf %{SOURCE4}
 
@@ -1657,6 +1655,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb 22 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.11
+- update from gcc-4_3-branch
+  - 4.3.0 rc1
+  - PRs bootstrap/35218, bootstrap/35273, c++/34950, c++/35282,
+	middle-end/35265, rtl-optimization/35232, target/34526,
+	target/35071, target/35239, target/35264
+
 * Mon Feb 18 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.10
 - update to trunk
   - PRs c++/11159, c++/28743, c++/34050, c++/35023, c++/35024, c++/35026,
