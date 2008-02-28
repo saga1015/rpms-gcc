@@ -1,4 +1,4 @@
-2008-01-24  Jakub Jelinek  <jakub@redhat.com>
+2008-02-26  Jakub Jelinek  <jakub@redhat.com>
 
 	* c-ppoutput.c (scan_translation_unit): Handle CPP_PRAGMA
 	and CPP_PRAGMA_EOL.
@@ -19,8 +19,8 @@
 
 	* gcc.dg/gomp/preprocess-1.c: New test.
 
---- gcc/c-ppoutput.c.jj	2007-09-07 10:29:37.000000000 +0200
-+++ gcc/c-ppoutput.c	2008-01-24 12:27:31.000000000 +0100
+--- gcc/c-ppoutput.c.jj	2008-01-26 18:01:16.000000000 +0100
++++ gcc/c-ppoutput.c	2008-02-26 22:54:57.000000000 +0100
 @@ -1,6 +1,6 @@
  /* Preprocess only, using cpplib.
 -   Copyright (C) 1995, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2007
@@ -56,8 +56,8 @@
  
        if (token->type == CPP_COMMENT)
  	account_for_newlines (token->val.str.text, token->val.str.len);
---- gcc/c-pragma.c.jj	2007-08-13 15:11:18.000000000 +0200
-+++ gcc/c-pragma.c	2008-01-24 11:58:18.000000000 +0100
+--- gcc/c-pragma.c.jj	2008-02-15 18:43:03.000000000 +0100
++++ gcc/c-pragma.c	2008-02-26 22:59:44.000000000 +0100
 @@ -1,6 +1,6 @@
  /* Handle #pragma, system V.4 style.  Supports #pragma weak and #pragma pack.
     Copyright (C) 1992, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
@@ -66,7 +66,7 @@
  
  This file is part of GCC.
  
-@@ -871,6 +871,59 @@ DEF_VEC_ALLOC_O (pragma_handler, heap);
+@@ -872,6 +872,61 @@ DEF_VEC_ALLOC_O (pragma_handler, heap);
  
  static VEC(pragma_handler, heap) *registered_pragmas;
  
@@ -81,33 +81,35 @@
 +
 +static VEC(pragma_ns_name, heap) *registered_pp_pragmas;
 +
++struct omp_pragma_def { const char *name; unsigned int id; };
++static const struct omp_pragma_def omp_pragmas[] = {
++  { "atomic", PRAGMA_OMP_ATOMIC },
++  { "barrier", PRAGMA_OMP_BARRIER },
++  { "critical", PRAGMA_OMP_CRITICAL },
++  { "flush", PRAGMA_OMP_FLUSH },
++  { "for", PRAGMA_OMP_FOR },
++  { "master", PRAGMA_OMP_MASTER },
++  { "ordered", PRAGMA_OMP_ORDERED },
++  { "parallel", PRAGMA_OMP_PARALLEL },
++  { "section", PRAGMA_OMP_SECTION },
++  { "sections", PRAGMA_OMP_SECTIONS },
++  { "single", PRAGMA_OMP_SINGLE },
++  { "threadprivate", PRAGMA_OMP_THREADPRIVATE }
++};
++
 +void
 +c_pp_lookup_pragma (unsigned int id, const char **space, const char **name)
 +{
-+  *space = NULL;
-+  *name = NULL;
-+  switch (id)
-+    {
-+    case PRAGMA_OMP_ATOMIC: *name = "atomic"; break;
-+    case PRAGMA_OMP_BARRIER: *name = "barrier"; break;
-+    case PRAGMA_OMP_CRITICAL: *name = "critical"; break;
-+    case PRAGMA_OMP_FLUSH: *name = "flush"; break;
-+    case PRAGMA_OMP_FOR: *name = "for"; break;
-+    case PRAGMA_OMP_MASTER: *name = "master"; break;
-+    case PRAGMA_OMP_ORDERED: *name = "ordered"; break;
-+    case PRAGMA_OMP_PARALLEL: *name = "parallel"; break;
-+    case PRAGMA_OMP_SECTION: *name = "section"; break;
-+    case PRAGMA_OMP_SECTIONS: *name = "sections"; break;
-+    case PRAGMA_OMP_SINGLE: *name = "single"; break;
-+    case PRAGMA_OMP_THREADPRIVATE: *name = "threadprivate"; break;
-+    default: break;
-+    }
++  const int n_omp_pragmas = sizeof (omp_pragmas) / sizeof (*omp_pragmas);
++  int i;
 +
-+  if (*name)
-+    {
-+      *space = "omp";
-+      return;
-+    }
++  for (i = 0; i < n_omp_pragmas; ++i)
++    if (omp_pragmas[i].id == id)
++      {
++	*space = "omp";
++	*name = omp_pragmas[i].name;
++	return;
++      }
 +
 +  if (id >= PRAGMA_FIRST_EXTERNAL
 +      && (id < PRAGMA_FIRST_EXTERNAL
@@ -126,7 +128,7 @@
  /* Front-end wrappers for pragma registration to avoid dragging
     cpplib.h in almost everywhere.  */
  
-@@ -880,13 +933,29 @@ c_register_pragma_1 (const char *space, 
+@@ -881,13 +936,29 @@ c_register_pragma_1 (const char *space, 
  {
    unsigned id;
  
@@ -163,16 +165,33 @@
  
    cpp_register_deferred_pragma (parse_in, space, name, id,
  				allow_expansion, false);
-@@ -920,7 +989,7 @@ c_invoke_pragma_handler (unsigned int id
+@@ -921,24 +992,8 @@ c_invoke_pragma_handler (unsigned int id
  void
  init_pragma (void)
  {
 -  if (flag_openmp && !flag_preprocess_only)
 +  if (flag_openmp)
      {
-       struct omp_pragma_def { const char *name; unsigned int id; };
-       static const struct omp_pragma_def omp_pragmas[] = {
-@@ -946,8 +1015,9 @@ init_pragma (void)
+-      struct omp_pragma_def { const char *name; unsigned int id; };
+-      static const struct omp_pragma_def omp_pragmas[] = {
+-	{ "atomic", PRAGMA_OMP_ATOMIC },
+-	{ "barrier", PRAGMA_OMP_BARRIER },
+-	{ "critical", PRAGMA_OMP_CRITICAL },
+-	{ "flush", PRAGMA_OMP_FLUSH },
+-	{ "for", PRAGMA_OMP_FOR },
+-	{ "master", PRAGMA_OMP_MASTER },
+-	{ "ordered", PRAGMA_OMP_ORDERED },
+-	{ "parallel", PRAGMA_OMP_PARALLEL },
+-	{ "section", PRAGMA_OMP_SECTION },
+-	{ "sections", PRAGMA_OMP_SECTIONS },
+-	{ "single", PRAGMA_OMP_SINGLE },
+-	{ "threadprivate", PRAGMA_OMP_THREADPRIVATE }
+-      };
+-
+       const int n_omp_pragmas = sizeof (omp_pragmas) / sizeof (*omp_pragmas);
+       int i;
+ 
+@@ -947,8 +1002,9 @@ init_pragma (void)
  				      omp_pragmas[i].id, true, true);
      }
  
@@ -184,8 +203,8 @@
  
  #ifdef HANDLE_PRAGMA_PACK
  #ifdef HANDLE_PRAGMA_PACK_WITH_EXPANSION
---- gcc/c-opts.c.jj	2008-01-22 15:12:11.000000000 +0100
-+++ gcc/c-opts.c	2008-01-24 11:50:39.000000000 +0100
+--- gcc/c-opts.c.jj	2008-02-26 22:53:23.000000000 +0100
++++ gcc/c-opts.c	2008-02-26 22:54:57.000000000 +0100
 @@ -1,5 +1,5 @@
  /* C/ObjC/C++ command line option handling.
 -   Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007
@@ -193,7 +212,7 @@
     Free Software Foundation, Inc.
     Contributed by Neil Booth.
  
-@@ -1238,6 +1238,9 @@ c_common_init (void)
+@@ -1239,6 +1239,9 @@ c_common_init (void)
    if (version_flag)
      c_common_print_pch_checksum (stderr);
  
@@ -203,7 +222,7 @@
    if (flag_preprocess_only)
      {
        finish_options ();
-@@ -1245,9 +1248,6 @@ c_common_init (void)
+@@ -1246,9 +1249,6 @@ c_common_init (void)
        return false;
      }
  
@@ -213,8 +232,8 @@
    return true;
  }
  
---- gcc/c-pragma.h.jj	2007-09-14 11:54:36.000000000 +0200
-+++ gcc/c-pragma.h	2008-01-24 11:50:28.000000000 +0100
+--- gcc/c-pragma.h.jj	2008-01-26 18:01:16.000000000 +0100
++++ gcc/c-pragma.h	2008-02-26 22:54:57.000000000 +0100
 @@ -1,6 +1,6 @@
  /* Pragma related interfaces.
     Copyright (C) 1995, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
@@ -230,8 +249,8 @@
 +extern void c_pp_lookup_pragma (unsigned int, const char **, const char **);
 +
  #endif /* GCC_C_PRAGMA_H */
---- gcc/config/darwin.h.jj	2007-10-11 10:54:22.000000000 +0200
-+++ gcc/config/darwin.h	2008-01-24 11:48:48.000000000 +0100
+--- gcc/config/darwin.h.jj	2008-02-11 14:48:12.000000000 +0100
++++ gcc/config/darwin.h	2008-02-26 22:54:57.000000000 +0100
 @@ -892,8 +892,9 @@ enum machopic_addr_class {
  
  #define DARWIN_REGISTER_TARGET_PRAGMAS()			\
@@ -244,8 +263,8 @@
      c_register_pragma (0, "options", darwin_pragma_options);	\
      c_register_pragma (0, "segment", darwin_pragma_ignore);	\
      c_register_pragma (0, "unused", darwin_pragma_unused);	\
---- gcc/testsuite/gcc.dg/gomp/preprocess-1.c.jj	2008-01-24 12:32:02.000000000 +0100
-+++ gcc/testsuite/gcc.dg/gomp/preprocess-1.c	2008-01-24 12:35:40.000000000 +0100
+--- gcc/testsuite/gcc.dg/gomp/preprocess-1.c.jj	2008-02-26 22:54:57.000000000 +0100
++++ gcc/testsuite/gcc.dg/gomp/preprocess-1.c	2008-02-26 22:54:57.000000000 +0100
 @@ -0,0 +1,16 @@
 +/* { dg-do preprocess } */
 +
