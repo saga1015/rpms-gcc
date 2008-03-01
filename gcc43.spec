@@ -1,6 +1,6 @@
-%define DATE 20080228
+%define DATE 20080229
 %define gcc_version 4.3.0
-%define gcc_release 0.12
+%define gcc_release 0.13
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -467,19 +467,19 @@ perl -pi -e 's/^check: check-recursive/ifeq (\$(MULTISUBDIR),)\ncheck: check-rec
 ./contrib/gcc_update --touch
 
 %ifarch ppc
-if [ -d libstdc++-v3/config/abi/powerpc64-linux-gnu ]; then
-  mkdir -p libstdc++-v3/config/abi/powerpc64-linux-gnu/64
-  mv libstdc++-v3/config/abi/powerpc64-linux-gnu/{,64/}baseline_symbols.txt
-  mv libstdc++-v3/config/abi/powerpc64-linux-gnu/{32/,}baseline_symbols.txt
-  rm -rf libstdc++-v3/config/abi/powerpc64-linux-gnu/32
+if [ -d libstdc++-v3/config/abi/post/powerpc64-linux-gnu ]; then
+  mkdir -p libstdc++-v3/config/abi/post/powerpc64-linux-gnu/64
+  mv libstdc++-v3/config/abi/post/powerpc64-linux-gnu/{,64/}baseline_symbols.txt
+  mv libstdc++-v3/config/abi/post/powerpc64-linux-gnu/{32/,}baseline_symbols.txt
+  rm -rf libstdc++-v3/config/abi/post/powerpc64-linux-gnu/32
 fi
 %endif
 %ifarch sparc
-if [ -d libstdc++-v3/config/abi/sparc64-linux-gnu ]; then
-  mkdir -p libstdc++-v3/config/abi/sparc64-linux-gnu/64
-  mv libstdc++-v3/config/abi/sparc64-linux-gnu/{,64/}baseline_symbols.txt
-  mv libstdc++-v3/config/abi/sparc64-linux-gnu/{32/,}baseline_symbols.txt
-  rm -rf libstdc++-v3/config/abi/sparc64-linux-gnu/32
+if [ -d libstdc++-v3/config/abi/post/sparc64-linux-gnu ]; then
+  mkdir -p libstdc++-v3/config/abi/post/sparc64-linux-gnu/64
+  mv libstdc++-v3/config/abi/post/sparc64-linux-gnu/{,64/}baseline_symbols.txt
+  mv libstdc++-v3/config/abi/post/sparc64-linux-gnu/{32/,}baseline_symbols.txt
+  rm -rf libstdc++-v3/config/abi/post/sparc64-linux-gnu/32
 fi
 %endif
 
@@ -1657,6 +1657,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb 29 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.13
+- update from gcc-4_3-branch
+  - PRs middle-end/19984, target/25477
+  - remove <system_error>, fix ppc/ppc64
+    std::{,tr1::}hash<long double>::operator() ABI
+
 * Thu Feb 28 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-0.12
 - update from gcc-4_3-branch
   - PRs c++/34715, c++/35368, libfortran/24685, middle-end/34971,

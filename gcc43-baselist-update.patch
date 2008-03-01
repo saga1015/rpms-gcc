@@ -1,4 +1,15 @@
---- libstdc++-v3/config/abi/post/x86_64-linux-gnu/32/baseline_symbols.txt	(revision 131826)
+2008-02-29  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/abi/post/x86_64-linux-gnu/32/baseline_symbols.txt: Update.
+	* config/abi/post/x86_64-linux-gnu/baseline_symbols.txt: Likewise.
+	* config/abi/post/powerpc-linux-gnu/baseline_symbols.txt: Likewise.
+	* config/abi/post/i386-linux-gnu/baseline_symbols.txt: Likewise.
+	* config/abi/post/powerpc64-linux-gnu/32/baseline_symbols.txt:
+	Likewise.
+	* config/abi/post/powerpc64-linux-gnu/baseline_symbols.txt: Likewise.
+	* config/abi/post/i486-linux-gnu/baseline_symbols.txt: Likewise.
+
+--- libstdc++-v3/config/abi/post/x86_64-linux-gnu/32/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/x86_64-linux-gnu/32/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -84,7 +95,7 @@
  FUNC:_ZNKSt13basic_filebufIcSt11char_traitsIcEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_filebufIwSt11char_traitsIwEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_fstreamIcSt11char_traitsIcEE5rdbufEv@@GLIBCXX_3.4
-@@ -353,6 +389,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +389,16 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -97,12 +108,11 @@
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +562,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +561,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -110,7 +120,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +639,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +638,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayIjE4sizeEv@@GLIBCXX_3.4
@@ -118,7 +128,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +823,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +822,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -136,7 +146,7 @@
  FUNC:_ZNSi3getEPci@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPcic@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -833,6 +893,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +892,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKci@@GLIBCXX_3.4
@@ -151,17 +161,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -1131,6 +1199,9 @@ FUNC:_ZNSt12strstreambufC2Ei@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1277,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1273,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -179,7 +179,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwiw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1265,6 +1347,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1343,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwi@@GLIBCXX_3.4
@@ -194,7 +194,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1386,6 +1476,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1472,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -202,7 +202,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1515,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1511,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -210,7 +210,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1547,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1543,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -218,7 +218,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1564,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1560,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -226,7 +226,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1660,10 +1754,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
+@@ -1660,10 +1750,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -243,7 +243,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1776,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
+@@ -1676,6 +1772,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -251,7 +251,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +1854,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +1850,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -261,7 +261,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +1935,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
+@@ -1832,6 +1931,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjEixEj@@GLIBCXX_3.4
@@ -273,7 +273,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1913,8 +2021,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
+@@ -1913,8 +2017,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14set_unexpectedPFvvE@@GLIBCXX_3.4
  FUNC:_ZSt15set_new_handlerPFvvE@@GLIBCXX_3.4
@@ -287,7 +287,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2043,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2039,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -296,7 +296,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -2164,12 +2279,20 @@ FUNC:__dynamic_cast@@CXXABI_1.3
+@@ -2164,12 +2275,20 @@ FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
  OBJECT:0:CXXABI_1.3
  OBJECT:0:CXXABI_1.3.1
@@ -317,54 +317,7 @@
  OBJECT:12:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2198,6 +2321,7 @@ OBJECT:12:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:12:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:12:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:12:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2336,6 +2460,7 @@ OBJECT:16:_ZTTSt19basic_ostringstreamIwS
- OBJECT:16:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:16:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2344,12 +2469,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2592,6 +2719,7 @@ OBJECT:20:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:20:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:20:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:20:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -3018,6 +3146,7 @@ OBJECT:4:_ZNSt9money_getIcSt19istreambuf
- OBJECT:4:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:4:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:4:_ZTSPKa@@CXXABI_1.3
- OBJECT:4:_ZTSPKb@@CXXABI_1.3
- OBJECT:4:_ZTSPKc@@CXXABI_1.3
-@@ -3113,11 +3242,14 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
+@@ -3113,6 +3232,8 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
  OBJECT:8:_ZGVNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
@@ -373,13 +326,7 @@
  OBJECT:8:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:8:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:8:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt8ios_base@@GLIBCXX_3.4
---- libstdc++-v3/config/abi/post/x86_64-linux-gnu/baseline_symbols.txt	(revision 131826)
+--- libstdc++-v3/config/abi/post/x86_64-linux-gnu/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/x86_64-linux-gnu/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -465,7 +412,7 @@
  FUNC:_ZNKSt13basic_filebufIcSt11char_traitsIcEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_filebufIwSt11char_traitsIwEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_fstreamIcSt11char_traitsIcEE5rdbufEv@@GLIBCXX_3.4
-@@ -353,6 +389,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +389,16 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -478,12 +425,11 @@
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +562,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +561,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -491,7 +437,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +639,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +638,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayImE4sizeEv@@GLIBCXX_3.4
@@ -499,7 +445,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +823,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +822,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -517,7 +463,7 @@
  FUNC:_ZNSi3getEPcl@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPclc@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -833,6 +893,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +892,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKcl@@GLIBCXX_3.4
@@ -532,17 +478,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -1131,6 +1199,9 @@ FUNC:_ZNSt12strstreambufC2El@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1277,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1273,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -560,7 +496,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwl@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwlw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1265,6 +1347,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1343,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwl@@GLIBCXX_3.4
@@ -575,7 +511,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1386,6 +1476,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1472,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPcl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -583,7 +519,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPcl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKcl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1515,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1511,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -591,7 +527,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1547,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1543,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -599,7 +535,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1564,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1560,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -607,7 +543,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1660,10 +1754,16 @@ FUNC:_ZNSt5ctypeIwEC2Em@@GLIBCXX_3.4
+@@ -1660,10 +1750,16 @@ FUNC:_ZNSt5ctypeIwEC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -624,7 +560,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1776,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_m@@GLIBCX
+@@ -1676,6 +1772,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_m@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -632,7 +568,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +1854,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +1850,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -642,7 +578,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +1935,11 @@ FUNC:_ZNSt8valarrayImEC2Em@@GLIBCXX_3.4
+@@ -1832,6 +1931,11 @@ FUNC:_ZNSt8valarrayImEC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayImED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayImED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayImEixEm@@GLIBCXX_3.4
@@ -654,7 +590,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1913,8 +2021,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
+@@ -1913,8 +2017,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14set_unexpectedPFvvE@@GLIBCXX_3.4
  FUNC:_ZSt15set_new_handlerPFvvE@@GLIBCXX_3.4
@@ -668,7 +604,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2043,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2039,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -677,7 +613,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -2164,12 +2279,18 @@ FUNC:__dynamic_cast@@CXXABI_1.3
+@@ -2164,12 +2275,18 @@ FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
  OBJECT:0:CXXABI_1.3
  OBJECT:0:CXXABI_1.3.1
@@ -696,7 +632,7 @@
  OBJECT:104:_ZTVSt10moneypunctIcLb0EE@@GLIBCXX_3.4
  OBJECT:104:_ZTVSt10moneypunctIcLb1EE@@GLIBCXX_3.4
  OBJECT:104:_ZTVSt10moneypunctIwLb0EE@@GLIBCXX_3.4
-@@ -2222,11 +2343,14 @@ OBJECT:15:_ZTSSt8messagesIcE@@GLIBCXX_3.
+@@ -2222,6 +2339,8 @@ OBJECT:15:_ZTSSt8messagesIcE@@GLIBCXX_3.
  OBJECT:15:_ZTSSt8messagesIwE@@GLIBCXX_3.4
  OBJECT:15:_ZTSSt8numpunctIcE@@GLIBCXX_3.4
  OBJECT:15:_ZTSSt8numpunctIwE@@GLIBCXX_3.4
@@ -705,28 +641,7 @@
  OBJECT:16:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:16:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:16:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:16:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:16:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:16:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:16:_ZTISt8ios_base@@GLIBCXX_3.4
-@@ -2261,12 +2385,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2514,6 +2640,8 @@ OBJECT:23:_ZTSSt15messages_bynameIcE@@GL
+@@ -2514,6 +2633,8 @@ OBJECT:23:_ZTSSt15messages_bynameIcE@@GL
  OBJECT:23:_ZTSSt15messages_bynameIwE@@GLIBCXX_3.4
  OBJECT:23:_ZTSSt15numpunct_bynameIcE@@GLIBCXX_3.4
  OBJECT:23:_ZTSSt15numpunct_bynameIwE@@GLIBCXX_3.4
@@ -735,39 +650,7 @@
  OBJECT:24:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:24:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:24:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2542,6 +2670,7 @@ OBJECT:24:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:24:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:24:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:24:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:24:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:24:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:24:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:24:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2694,6 +2823,7 @@ OBJECT:32:_ZTTSt19basic_ostringstreamIwS
- OBJECT:32:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:32:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:32:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2752,6 +2882,7 @@ OBJECT:40:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:40:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:40:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:40:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -3141,6 +3272,7 @@ OBJECT:8:_ZNSt9money_getIcSt19istreambuf
- OBJECT:8:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:8:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:8:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:8:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:96:_ZTVSt12ctype_bynameIcE@@GLIBCXX_3.4
- OBJECT:96:_ZTVSt5ctypeIcE@@GLIBCXX_3.4
- OBJECT:96:_ZTVSt7num_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE@@GLIBCXX_3.4
---- libstdc++-v3/config/abi/post/powerpc-linux-gnu/baseline_symbols.txt	(revision 131826)
+--- libstdc++-v3/config/abi/post/powerpc-linux-gnu/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/powerpc-linux-gnu/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -1000,7 +883,7 @@
  FUNC:_ZNKSt18basic_stringstreamIcSt11char_traitsIcESaIcEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt18basic_stringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt18basic_stringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
-@@ -353,6 +529,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +529,18 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -1008,17 +891,18 @@
 +FUNC:_ZNKSt3tr14hashIRKSsEclES2_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt3tr14hashISbIwSt11char_traitsIwESaIwEEEclES4_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt3tr14hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt3tr14hashIgEclEg@@GLIBCXX_3.4.10
++FUNC:_ZNKSt3tr14hashIeEclEe@@GLIBCXX_3.4.10
++FUNC:_ZNKSt3tr14hashIgEclEg@@GLIBCXX_LDBL_3.4.10
 +FUNC:_ZNKSt4hashIRKSbIwSt11char_traitsIwESaIwEEEclES5_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashIgEclEg@@GLIBCXX_3.4.10
++FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
++FUNC:_ZNKSt4hashIgEclEg@@GLIBCXX_LDBL_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +702,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +703,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -1026,7 +910,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +779,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +780,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayIjE4sizeEv@@GLIBCXX_3.4
@@ -1034,7 +918,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +963,18 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +964,18 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -1053,7 +937,7 @@
  FUNC:_ZNSi3getEPci@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPcic@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -814,6 +1015,7 @@ FUNC:_ZNSirsERb@@GLIBCXX_3.4
+@@ -814,6 +1016,7 @@ FUNC:_ZNSirsERb@@GLIBCXX_3.4
  FUNC:_ZNSirsERd@@GLIBCXX_3.4
  FUNC:_ZNSirsERe@@GLIBCXX_3.4
  FUNC:_ZNSirsERf@@GLIBCXX_3.4
@@ -1061,7 +945,7 @@
  FUNC:_ZNSirsERi@@GLIBCXX_3.4
  FUNC:_ZNSirsERj@@GLIBCXX_3.4
  FUNC:_ZNSirsERl@@GLIBCXX_3.4
-@@ -833,6 +1035,15 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +1036,15 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKci@@GLIBCXX_3.4
@@ -1077,7 +961,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -849,6 +1060,7 @@ FUNC:_ZNSolsEb@@GLIBCXX_3.4
+@@ -849,6 +1061,7 @@ FUNC:_ZNSolsEb@@GLIBCXX_3.4
  FUNC:_ZNSolsEd@@GLIBCXX_3.4
  FUNC:_ZNSolsEe@@GLIBCXX_3.4
  FUNC:_ZNSolsEf@@GLIBCXX_3.4
@@ -1085,17 +969,7 @@
  FUNC:_ZNSolsEi@@GLIBCXX_3.4
  FUNC:_ZNSolsEj@@GLIBCXX_3.4
  FUNC:_ZNSolsEl@@GLIBCXX_3.4
-@@ -1131,6 +1343,9 @@ FUNC:_ZNSt12strstreambufC2Ei@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1421,18 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1419,18 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -1114,7 +988,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwiw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1246,6 +1473,7 @@ FUNC:_ZNSt13basic_istreamIwSt11char_trai
+@@ -1246,6 +1471,7 @@ FUNC:_ZNSt13basic_istreamIwSt11char_trai
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERd@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERe@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERf@@GLIBCXX_3.4
@@ -1122,7 +996,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERj@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERl@@GLIBCXX_3.4
-@@ -1265,6 +1493,15 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1491,15 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwi@@GLIBCXX_3.4
@@ -1138,7 +1012,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1281,6 +1518,7 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1281,6 +1516,7 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEd@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEe@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEf@@GLIBCXX_3.4
@@ -1146,7 +1020,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEj@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEl@@GLIBCXX_3.4
-@@ -1386,6 +1624,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1622,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -1154,7 +1028,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1663,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1661,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -1162,7 +1036,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1695,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1693,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -1170,7 +1044,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1712,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1710,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -1178,7 +1052,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1538,6 +1780,46 @@ FUNC:_ZNSt16invalid_argumentC1ERKSs@@GLI
+@@ -1538,6 +1778,46 @@ FUNC:_ZNSt16invalid_argumentC1ERKSs@@GLI
  FUNC:_ZNSt16invalid_argumentC2ERKSs@@GLIBCXX_3.4
  FUNC:_ZNSt16invalid_argumentD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt16invalid_argumentD1Ev@@GLIBCXX_3.4
@@ -1225,7 +1099,7 @@
  FUNC:_ZNSt17__timepunct_cacheIcEC1Ej@@GLIBCXX_3.4
  FUNC:_ZNSt17__timepunct_cacheIcEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt17__timepunct_cacheIcED0Ev@@GLIBCXX_3.4
-@@ -1660,10 +1942,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
+@@ -1660,10 +1940,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -1242,7 +1116,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1964,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
+@@ -1676,6 +1962,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -1250,7 +1124,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +2042,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +2040,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -1260,7 +1134,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +2123,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
+@@ -1832,6 +2121,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjEixEj@@GLIBCXX_3.4
@@ -1272,7 +1146,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1911,10 +2207,16 @@ FUNC:_ZSt13set_terminatePFvvE@@GLIBCXX_3
+@@ -1911,10 +2205,16 @@ FUNC:_ZSt13set_terminatePFvvE@@GLIBCXX_3
  FUNC:_ZSt14__convert_to_vIdEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
@@ -1289,7 +1163,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2232,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2230,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -1298,7 +1172,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -1949,6 +2253,14 @@ FUNC:_ZSt7getlineIcSt11char_traitsIcESaI
+@@ -1949,6 +2251,14 @@ FUNC:_ZSt7getlineIcSt11char_traitsIcESaI
  FUNC:_ZSt7getlineIcSt11char_traitsIcESaIcEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_ES4_@@GLIBCXX_3.4
  FUNC:_ZSt7getlineIwSt11char_traitsIwESaIwEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_E@@GLIBCXX_3.4
  FUNC:_ZSt7getlineIwSt11char_traitsIwESaIwEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_ES4_@@GLIBCXX_3.4
@@ -1313,7 +1187,7 @@
  FUNC:_ZSt9has_facetISt10moneypunctIcLb0EEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt10moneypunctIwLb0EEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt11__timepunctIcEEbRKSt6locale@@GLIBCXX_3.4
-@@ -1976,6 +2288,14 @@ FUNC:_ZSt9has_facetISt9money_getIwSt19is
+@@ -1976,6 +2286,14 @@ FUNC:_ZSt9has_facetISt9money_getIwSt19is
  FUNC:_ZSt9has_facetISt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9terminatev@@GLIBCXX_3.4
@@ -1328,7 +1202,7 @@
  FUNC:_ZSt9use_facetISt10moneypunctIcLb0EEERKT_RKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9use_facetISt10moneypunctIcLb1EEERKT_RKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9use_facetISt10moneypunctIwLb0EEERKT_RKSt6locale@@GLIBCXX_3.4
-@@ -2023,6 +2343,8 @@ FUNC:_ZStlsIecSt11char_traitsIcEERSt13ba
+@@ -2023,6 +2341,8 @@ FUNC:_ZStlsIecSt11char_traitsIcEERSt13ba
  FUNC:_ZStlsIewSt11char_traitsIwEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStlsIfcSt11char_traitsIcEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStlsIfwSt11char_traitsIwEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
@@ -1337,7 +1211,7 @@
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_PKS3_@@GLIBCXX_3.4
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_PKc@@GLIBCXX_3.4
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_S3_@@GLIBCXX_3.4
-@@ -2059,6 +2381,8 @@ FUNC:_ZStrsIecSt11char_traitsIcEERSt13ba
+@@ -2059,6 +2379,8 @@ FUNC:_ZStrsIecSt11char_traitsIcEERSt13ba
  FUNC:_ZStrsIewSt11char_traitsIwEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStrsIfcSt11char_traitsIcEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStrsIfwSt11char_traitsIwEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
@@ -1346,7 +1220,7 @@
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_PS3_@@GLIBCXX_3.4
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_RS3_@@GLIBCXX_3.4
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_St12_Setiosflags@@GLIBCXX_3.4
-@@ -2162,36 +2486,47 @@ FUNC:__cxa_vec_new3@@CXXABI_1.3
+@@ -2162,36 +2484,48 @@ FUNC:__cxa_vec_new3@@CXXABI_1.3
  FUNC:__cxa_vec_new@@CXXABI_1.3
  FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
@@ -1410,13 +1284,14 @@
 +OBJECT:0:GLIBCXX_3.4.8
 +OBJECT:0:GLIBCXX_3.4.9
 +OBJECT:0:GLIBCXX_LDBL_3.4
++OBJECT:0:GLIBCXX_LDBL_3.4.10
 +OBJECT:0:GLIBCXX_LDBL_3.4.7
 +OBJECT:1028:_ZNSt3tr18__detail12__prime_listE@@GLIBCXX_3.4.10
 +OBJECT:1028:_ZNSt8__detail12__prime_listE@@GLIBCXX_3.4.10
  OBJECT:12:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2206,6 +2541,14 @@ OBJECT:12:_ZTIN9__gnu_cxx13stdio_filebuf
+@@ -2206,6 +2540,14 @@ OBJECT:12:_ZTIN9__gnu_cxx13stdio_filebuf
  OBJECT:12:_ZTIN9__gnu_cxx13stdio_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
  OBJECT:12:_ZTIN9__gnu_cxx18stdio_sync_filebufIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:12:_ZTIN9__gnu_cxx18stdio_sync_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -1431,15 +1306,7 @@
  OBJECT:12:_ZTINSt8ios_base7failureE@@GLIBCXX_3.4
  OBJECT:12:_ZTISt10bad_typeid@@GLIBCXX_3.4
  OBJECT:12:_ZTISt10istrstream@@GLIBCXX_3.4
-@@ -2220,6 +2563,7 @@ OBJECT:12:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:12:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:12:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:12:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2315,6 +2659,7 @@ OBJECT:16:_ZTIPKc@@CXXABI_1.3
+@@ -2315,6 +2657,7 @@ OBJECT:16:_ZTIPKc@@CXXABI_1.3
  OBJECT:16:_ZTIPKd@@CXXABI_1.3
  OBJECT:16:_ZTIPKe@@CXXABI_1.3
  OBJECT:16:_ZTIPKf@@CXXABI_1.3
@@ -1447,7 +1314,7 @@
  OBJECT:16:_ZTIPKh@@CXXABI_1.3
  OBJECT:16:_ZTIPKi@@CXXABI_1.3
  OBJECT:16:_ZTIPKj@@CXXABI_1.3
-@@ -2332,6 +2677,7 @@ OBJECT:16:_ZTIPc@@CXXABI_1.3
+@@ -2332,6 +2675,7 @@ OBJECT:16:_ZTIPc@@CXXABI_1.3
  OBJECT:16:_ZTIPd@@CXXABI_1.3
  OBJECT:16:_ZTIPe@@CXXABI_1.3
  OBJECT:16:_ZTIPf@@CXXABI_1.3
@@ -1455,30 +1322,7 @@
  OBJECT:16:_ZTIPh@@CXXABI_1.3
  OBJECT:16:_ZTIPi@@CXXABI_1.3
  OBJECT:16:_ZTIPj@@CXXABI_1.3
-@@ -2358,6 +2704,7 @@ OBJECT:16:_ZTTSt19basic_ostringstreamIwS
- OBJECT:16:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:16:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2366,12 +2713,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2456,6 +2805,19 @@ OBJECT:1:_ZNSt14numeric_limitsIfE8is_exa
+@@ -2456,6 +2800,19 @@ OBJECT:1:_ZNSt14numeric_limitsIfE8is_exa
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_iec559E@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_moduloE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_signedE@@GLIBCXX_3.4
@@ -1498,15 +1342,7 @@
  OBJECT:1:_ZNSt14numeric_limitsIhE10is_boundedE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIhE10is_integerE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIhE12has_infinityE@@GLIBCXX_3.4
-@@ -2614,6 +2976,7 @@ OBJECT:20:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:20:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:20:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:20:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -2650,6 +3013,10 @@ OBJECT:28:_ZTSSt7codecvtIcc11__mbstate_t
+@@ -2650,6 +3007,10 @@ OBJECT:28:_ZTSSt7codecvtIcc11__mbstate_t
  OBJECT:28:_ZTSSt7codecvtIwc11__mbstate_tE@@GLIBCXX_3.4
  OBJECT:28:_ZTTSd@@GLIBCXX_3.4
  OBJECT:28:_ZTTSt14basic_iostreamIwSt11char_traitsIwEE@@GLIBCXX_3.4
@@ -1517,7 +1353,7 @@
  OBJECT:28:_ZTVSt14collate_bynameIcE@@GLIBCXX_3.4
  OBJECT:28:_ZTVSt14collate_bynameIwE@@GLIBCXX_3.4
  OBJECT:28:_ZTVSt15messages_bynameIcE@@GLIBCXX_3.4
-@@ -2681,6 +3048,7 @@ OBJECT:2:_ZTSc@@CXXABI_1.3
+@@ -2681,6 +3042,7 @@ OBJECT:2:_ZTSc@@CXXABI_1.3
  OBJECT:2:_ZTSd@@CXXABI_1.3
  OBJECT:2:_ZTSe@@CXXABI_1.3
  OBJECT:2:_ZTSf@@CXXABI_1.3
@@ -1525,7 +1361,7 @@
  OBJECT:2:_ZTSh@@CXXABI_1.3
  OBJECT:2:_ZTSi@@CXXABI_1.3
  OBJECT:2:_ZTSj@@CXXABI_1.3
-@@ -2743,6 +3111,7 @@ OBJECT:3:_ZTSPc@@CXXABI_1.3
+@@ -2743,6 +3105,7 @@ OBJECT:3:_ZTSPc@@CXXABI_1.3
  OBJECT:3:_ZTSPd@@CXXABI_1.3
  OBJECT:3:_ZTSPe@@CXXABI_1.3
  OBJECT:3:_ZTSPf@@CXXABI_1.3
@@ -1533,7 +1369,7 @@
  OBJECT:3:_ZTSPh@@CXXABI_1.3
  OBJECT:3:_ZTSPi@@CXXABI_1.3
  OBJECT:3:_ZTSPj@@CXXABI_1.3
-@@ -2879,6 +3248,15 @@ OBJECT:4:_ZNSt14numeric_limitsIfE14min_e
+@@ -2879,6 +3242,15 @@ OBJECT:4:_ZNSt14numeric_limitsIfE14min_e
  OBJECT:4:_ZNSt14numeric_limitsIfE5radixE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIfE6digitsE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIfE8digits10E@@GLIBCXX_3.4
@@ -1549,7 +1385,7 @@
  OBJECT:4:_ZNSt14numeric_limitsIhE10has_denormE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIhE11round_styleE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIhE12max_exponentE@@GLIBCXX_3.4
-@@ -2969,6 +3347,14 @@ OBJECT:4:_ZNSt14numeric_limitsIyE14min_e
+@@ -2969,6 +3341,14 @@ OBJECT:4:_ZNSt14numeric_limitsIyE14min_e
  OBJECT:4:_ZNSt14numeric_limitsIyE5radixE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIyE6digitsE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIyE8digits10E@@GLIBCXX_3.4
@@ -1564,14 +1400,7 @@
  OBJECT:4:_ZNSt21__numeric_limits_base10has_denormE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt21__numeric_limits_base11round_styleE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt21__numeric_limits_base12max_exponentE@@GLIBCXX_3.4
-@@ -3040,12 +3426,14 @@ OBJECT:4:_ZNSt9money_getIcSt19istreambuf
- OBJECT:4:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:4:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:4:_ZTSPKa@@CXXABI_1.3
- OBJECT:4:_ZTSPKb@@CXXABI_1.3
- OBJECT:4:_ZTSPKc@@CXXABI_1.3
+@@ -3046,6 +3426,7 @@ OBJECT:4:_ZTSPKc@@CXXABI_1.3
  OBJECT:4:_ZTSPKd@@CXXABI_1.3
  OBJECT:4:_ZTSPKe@@CXXABI_1.3
  OBJECT:4:_ZTSPKf@@CXXABI_1.3
@@ -1579,7 +1408,7 @@
  OBJECT:4:_ZTSPKh@@CXXABI_1.3
  OBJECT:4:_ZTSPKi@@CXXABI_1.3
  OBJECT:4:_ZTSPKj@@CXXABI_1.3
-@@ -3061,6 +3449,8 @@ OBJECT:50:_ZTSSt19basic_istringstreamIcS
+@@ -3061,6 +3442,8 @@ OBJECT:50:_ZTSSt19basic_istringstreamIcS
  OBJECT:50:_ZTSSt19basic_istringstreamIwSt11char_traitsIwESaIwEE@@GLIBCXX_3.4
  OBJECT:50:_ZTSSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE@@GLIBCXX_3.4
  OBJECT:50:_ZTSSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE@@GLIBCXX_3.4
@@ -1588,7 +1417,7 @@
  OBJECT:52:_ZTVSt10moneypunctIcLb0EE@@GLIBCXX_3.4
  OBJECT:52:_ZTVSt10moneypunctIcLb1EE@@GLIBCXX_3.4
  OBJECT:52:_ZTVSt10moneypunctIwLb0EE@@GLIBCXX_3.4
-@@ -3096,6 +3486,8 @@ OBJECT:60:_ZTVSt7num_getIwSt19istreambuf
+@@ -3096,6 +3479,8 @@ OBJECT:60:_ZTVSt7num_getIwSt19istreambuf
  OBJECT:60:_ZTVSt9strstream@@GLIBCXX_3.4
  OBJECT:64:_ZTVN9__gnu_cxx18stdio_sync_filebufIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:64:_ZTVN9__gnu_cxx18stdio_sync_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -1597,7 +1426,7 @@
  OBJECT:64:_ZTVSt12ctype_bynameIwE@@GLIBCXX_3.4
  OBJECT:64:_ZTVSt12strstreambuf@@GLIBCXX_3.4
  OBJECT:64:_ZTVSt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -3111,12 +3503,28 @@ OBJECT:67:_ZTSSt15time_get_bynameIcSt19i
+@@ -3111,12 +3496,28 @@ OBJECT:67:_ZTSSt15time_get_bynameIcSt19i
  OBJECT:67:_ZTSSt15time_get_bynameIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE@@GLIBCXX_3.4
  OBJECT:67:_ZTSSt15time_put_bynameIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:67:_ZTSSt15time_put_bynameIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -1626,7 +1455,7 @@
  OBJECT:8:_ZGVNSt7collateIcE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt7collateIwE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt7num_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
-@@ -3135,11 +3543,14 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
+@@ -3135,6 +3536,8 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
  OBJECT:8:_ZGVNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
@@ -1635,13 +1464,7 @@
  OBJECT:8:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:8:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:8:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt8ios_base@@GLIBCXX_3.4
-@@ -3152,6 +3563,7 @@ OBJECT:8:_ZTIc@@CXXABI_1.3
+@@ -3152,6 +3555,7 @@ OBJECT:8:_ZTIc@@CXXABI_1.3
  OBJECT:8:_ZTId@@CXXABI_1.3
  OBJECT:8:_ZTIe@@CXXABI_1.3
  OBJECT:8:_ZTIf@@CXXABI_1.3
@@ -1649,7 +1472,7 @@
  OBJECT:8:_ZTIh@@CXXABI_1.3
  OBJECT:8:_ZTIi@@CXXABI_1.3
  OBJECT:8:_ZTIj@@CXXABI_1.3
---- libstdc++-v3/config/abi/post/i386-linux-gnu/baseline_symbols.txt	(revision 131826)
+--- libstdc++-v3/config/abi/post/i386-linux-gnu/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/i386-linux-gnu/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -1735,7 +1558,7 @@
  FUNC:_ZNKSt13basic_filebufIcSt11char_traitsIcEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_filebufIwSt11char_traitsIwEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_fstreamIcSt11char_traitsIcEE5rdbufEv@@GLIBCXX_3.4
-@@ -353,6 +389,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +389,16 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -1748,12 +1571,11 @@
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +562,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +561,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -1761,7 +1583,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +639,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +638,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayIjE4sizeEv@@GLIBCXX_3.4
@@ -1769,7 +1591,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +823,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +822,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -1787,7 +1609,7 @@
  FUNC:_ZNSi3getEPci@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPcic@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -833,6 +893,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +892,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKci@@GLIBCXX_3.4
@@ -1802,17 +1624,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -1131,6 +1199,9 @@ FUNC:_ZNSt12strstreambufC2Ei@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1277,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1273,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -1830,7 +1642,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwiw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1265,6 +1347,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1343,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwi@@GLIBCXX_3.4
@@ -1845,7 +1657,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1386,6 +1476,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1472,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -1853,7 +1665,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1515,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1511,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -1861,7 +1673,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1547,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1543,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -1869,7 +1681,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1564,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1560,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -1877,7 +1689,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1660,10 +1754,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
+@@ -1660,10 +1750,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -1894,7 +1706,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1776,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
+@@ -1676,6 +1772,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -1902,7 +1714,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +1854,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +1850,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -1912,7 +1724,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +1935,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
+@@ -1832,6 +1931,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjEixEj@@GLIBCXX_3.4
@@ -1924,7 +1736,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1913,8 +2021,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
+@@ -1913,8 +2017,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14set_unexpectedPFvvE@@GLIBCXX_3.4
  FUNC:_ZSt15set_new_handlerPFvvE@@GLIBCXX_3.4
@@ -1938,7 +1750,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2043,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2039,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -1947,7 +1759,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -2164,12 +2279,20 @@ FUNC:__dynamic_cast@@CXXABI_1.3
+@@ -2164,12 +2275,20 @@ FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
  OBJECT:0:CXXABI_1.3
  OBJECT:0:CXXABI_1.3.1
@@ -1968,54 +1780,7 @@
  OBJECT:12:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2198,6 +2321,7 @@ OBJECT:12:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:12:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:12:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:12:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2336,6 +2460,7 @@ OBJECT:16:_ZTTSt19basic_ostringstreamIwS
- OBJECT:16:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:16:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2344,12 +2469,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2592,6 +2719,7 @@ OBJECT:20:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:20:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:20:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:20:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -3018,6 +3146,7 @@ OBJECT:4:_ZNSt9money_getIcSt19istreambuf
- OBJECT:4:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:4:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:4:_ZTSPKa@@CXXABI_1.3
- OBJECT:4:_ZTSPKb@@CXXABI_1.3
- OBJECT:4:_ZTSPKc@@CXXABI_1.3
-@@ -3113,11 +3242,14 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
+@@ -3113,6 +3232,8 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
  OBJECT:8:_ZGVNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
@@ -2024,13 +1789,7 @@
  OBJECT:8:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:8:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:8:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt8ios_base@@GLIBCXX_3.4
---- libstdc++-v3/config/abi/post/powerpc64-linux-gnu/32/baseline_symbols.txt	(revision 131826)
+--- libstdc++-v3/config/abi/post/powerpc64-linux-gnu/32/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/powerpc64-linux-gnu/32/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -2263,7 +2022,7 @@
  FUNC:_ZNKSt18basic_stringstreamIcSt11char_traitsIcESaIcEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt18basic_stringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt18basic_stringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
-@@ -353,6 +529,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +529,18 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -2271,17 +2030,18 @@
 +FUNC:_ZNKSt3tr14hashIRKSsEclES2_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt3tr14hashISbIwSt11char_traitsIwESaIwEEEclES4_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt3tr14hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt3tr14hashIgEclEg@@GLIBCXX_3.4.10
++FUNC:_ZNKSt3tr14hashIeEclEe@@GLIBCXX_3.4.10
++FUNC:_ZNKSt3tr14hashIgEclEg@@GLIBCXX_LDBL_3.4.10
 +FUNC:_ZNKSt4hashIRKSbIwSt11char_traitsIwESaIwEEEclES5_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashIgEclEg@@GLIBCXX_3.4.10
++FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
++FUNC:_ZNKSt4hashIgEclEg@@GLIBCXX_LDBL_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +702,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +703,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -2289,7 +2049,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +779,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +780,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayIjE4sizeEv@@GLIBCXX_3.4
@@ -2297,7 +2057,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +963,18 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +964,18 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -2316,7 +2076,7 @@
  FUNC:_ZNSi3getEPci@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPcic@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -814,6 +1015,7 @@ FUNC:_ZNSirsERb@@GLIBCXX_3.4
+@@ -814,6 +1016,7 @@ FUNC:_ZNSirsERb@@GLIBCXX_3.4
  FUNC:_ZNSirsERd@@GLIBCXX_3.4
  FUNC:_ZNSirsERe@@GLIBCXX_3.4
  FUNC:_ZNSirsERf@@GLIBCXX_3.4
@@ -2324,7 +2084,7 @@
  FUNC:_ZNSirsERi@@GLIBCXX_3.4
  FUNC:_ZNSirsERj@@GLIBCXX_3.4
  FUNC:_ZNSirsERl@@GLIBCXX_3.4
-@@ -833,6 +1035,15 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +1036,15 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKci@@GLIBCXX_3.4
@@ -2340,7 +2100,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -849,6 +1060,7 @@ FUNC:_ZNSolsEb@@GLIBCXX_3.4
+@@ -849,6 +1061,7 @@ FUNC:_ZNSolsEb@@GLIBCXX_3.4
  FUNC:_ZNSolsEd@@GLIBCXX_3.4
  FUNC:_ZNSolsEe@@GLIBCXX_3.4
  FUNC:_ZNSolsEf@@GLIBCXX_3.4
@@ -2348,17 +2108,7 @@
  FUNC:_ZNSolsEi@@GLIBCXX_3.4
  FUNC:_ZNSolsEj@@GLIBCXX_3.4
  FUNC:_ZNSolsEl@@GLIBCXX_3.4
-@@ -1131,6 +1343,9 @@ FUNC:_ZNSt12strstreambufC2Ei@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1421,18 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1419,18 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -2377,7 +2127,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwiw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1246,6 +1473,7 @@ FUNC:_ZNSt13basic_istreamIwSt11char_trai
+@@ -1246,6 +1471,7 @@ FUNC:_ZNSt13basic_istreamIwSt11char_trai
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERd@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERe@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERf@@GLIBCXX_3.4
@@ -2385,7 +2135,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERj@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERl@@GLIBCXX_3.4
-@@ -1265,6 +1493,15 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1491,15 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwi@@GLIBCXX_3.4
@@ -2401,7 +2151,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1281,6 +1518,7 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1281,6 +1516,7 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEd@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEe@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEf@@GLIBCXX_3.4
@@ -2409,7 +2159,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEj@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEl@@GLIBCXX_3.4
-@@ -1386,6 +1624,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1622,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -2417,7 +2167,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1663,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1661,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -2425,7 +2175,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1695,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1693,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -2433,7 +2183,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1712,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1710,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -2441,7 +2191,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1538,6 +1780,46 @@ FUNC:_ZNSt16invalid_argumentC1ERKSs@@GLI
+@@ -1538,6 +1778,46 @@ FUNC:_ZNSt16invalid_argumentC1ERKSs@@GLI
  FUNC:_ZNSt16invalid_argumentC2ERKSs@@GLIBCXX_3.4
  FUNC:_ZNSt16invalid_argumentD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt16invalid_argumentD1Ev@@GLIBCXX_3.4
@@ -2488,7 +2238,7 @@
  FUNC:_ZNSt17__timepunct_cacheIcEC1Ej@@GLIBCXX_3.4
  FUNC:_ZNSt17__timepunct_cacheIcEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt17__timepunct_cacheIcED0Ev@@GLIBCXX_3.4
-@@ -1660,10 +1942,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
+@@ -1660,10 +1940,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -2505,7 +2255,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1964,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
+@@ -1676,6 +1962,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -2513,7 +2263,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +2042,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +2040,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -2523,7 +2273,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +2123,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
+@@ -1832,6 +2121,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjEixEj@@GLIBCXX_3.4
@@ -2535,7 +2285,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1911,10 +2207,16 @@ FUNC:_ZSt13set_terminatePFvvE@@GLIBCXX_3
+@@ -1911,10 +2205,16 @@ FUNC:_ZSt13set_terminatePFvvE@@GLIBCXX_3
  FUNC:_ZSt14__convert_to_vIdEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
@@ -2552,7 +2302,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2232,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2230,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -2561,7 +2311,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -1949,6 +2253,14 @@ FUNC:_ZSt7getlineIcSt11char_traitsIcESaI
+@@ -1949,6 +2251,14 @@ FUNC:_ZSt7getlineIcSt11char_traitsIcESaI
  FUNC:_ZSt7getlineIcSt11char_traitsIcESaIcEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_ES4_@@GLIBCXX_3.4
  FUNC:_ZSt7getlineIwSt11char_traitsIwESaIwEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_E@@GLIBCXX_3.4
  FUNC:_ZSt7getlineIwSt11char_traitsIwESaIwEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_ES4_@@GLIBCXX_3.4
@@ -2576,7 +2326,7 @@
  FUNC:_ZSt9has_facetISt10moneypunctIcLb0EEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt10moneypunctIwLb0EEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt11__timepunctIcEEbRKSt6locale@@GLIBCXX_3.4
-@@ -1976,6 +2288,14 @@ FUNC:_ZSt9has_facetISt9money_getIwSt19is
+@@ -1976,6 +2286,14 @@ FUNC:_ZSt9has_facetISt9money_getIwSt19is
  FUNC:_ZSt9has_facetISt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9terminatev@@GLIBCXX_3.4
@@ -2591,7 +2341,7 @@
  FUNC:_ZSt9use_facetISt10moneypunctIcLb0EEERKT_RKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9use_facetISt10moneypunctIcLb1EEERKT_RKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9use_facetISt10moneypunctIwLb0EEERKT_RKSt6locale@@GLIBCXX_3.4
-@@ -2023,6 +2343,8 @@ FUNC:_ZStlsIecSt11char_traitsIcEERSt13ba
+@@ -2023,6 +2341,8 @@ FUNC:_ZStlsIecSt11char_traitsIcEERSt13ba
  FUNC:_ZStlsIewSt11char_traitsIwEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStlsIfcSt11char_traitsIcEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStlsIfwSt11char_traitsIwEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
@@ -2600,7 +2350,7 @@
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_PKS3_@@GLIBCXX_3.4
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_PKc@@GLIBCXX_3.4
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_S3_@@GLIBCXX_3.4
-@@ -2059,6 +2381,8 @@ FUNC:_ZStrsIecSt11char_traitsIcEERSt13ba
+@@ -2059,6 +2379,8 @@ FUNC:_ZStrsIecSt11char_traitsIcEERSt13ba
  FUNC:_ZStrsIewSt11char_traitsIwEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStrsIfcSt11char_traitsIcEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStrsIfwSt11char_traitsIwEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
@@ -2609,7 +2359,7 @@
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_PS3_@@GLIBCXX_3.4
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_RS3_@@GLIBCXX_3.4
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_St12_Setiosflags@@GLIBCXX_3.4
-@@ -2162,36 +2486,47 @@ FUNC:__cxa_vec_new3@@CXXABI_1.3
+@@ -2162,36 +2484,48 @@ FUNC:__cxa_vec_new3@@CXXABI_1.3
  FUNC:__cxa_vec_new@@CXXABI_1.3
  FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
@@ -2673,13 +2423,14 @@
 +OBJECT:0:GLIBCXX_3.4.8
 +OBJECT:0:GLIBCXX_3.4.9
 +OBJECT:0:GLIBCXX_LDBL_3.4
++OBJECT:0:GLIBCXX_LDBL_3.4.10
 +OBJECT:0:GLIBCXX_LDBL_3.4.7
 +OBJECT:1028:_ZNSt3tr18__detail12__prime_listE@@GLIBCXX_3.4.10
 +OBJECT:1028:_ZNSt8__detail12__prime_listE@@GLIBCXX_3.4.10
  OBJECT:12:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2206,6 +2541,14 @@ OBJECT:12:_ZTIN9__gnu_cxx13stdio_filebuf
+@@ -2206,6 +2540,14 @@ OBJECT:12:_ZTIN9__gnu_cxx13stdio_filebuf
  OBJECT:12:_ZTIN9__gnu_cxx13stdio_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
  OBJECT:12:_ZTIN9__gnu_cxx18stdio_sync_filebufIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:12:_ZTIN9__gnu_cxx18stdio_sync_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -2694,15 +2445,7 @@
  OBJECT:12:_ZTINSt8ios_base7failureE@@GLIBCXX_3.4
  OBJECT:12:_ZTISt10bad_typeid@@GLIBCXX_3.4
  OBJECT:12:_ZTISt10istrstream@@GLIBCXX_3.4
-@@ -2220,6 +2563,7 @@ OBJECT:12:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:12:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:12:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:12:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2315,6 +2659,7 @@ OBJECT:16:_ZTIPKc@@CXXABI_1.3
+@@ -2315,6 +2657,7 @@ OBJECT:16:_ZTIPKc@@CXXABI_1.3
  OBJECT:16:_ZTIPKd@@CXXABI_1.3
  OBJECT:16:_ZTIPKe@@CXXABI_1.3
  OBJECT:16:_ZTIPKf@@CXXABI_1.3
@@ -2710,7 +2453,7 @@
  OBJECT:16:_ZTIPKh@@CXXABI_1.3
  OBJECT:16:_ZTIPKi@@CXXABI_1.3
  OBJECT:16:_ZTIPKj@@CXXABI_1.3
-@@ -2332,6 +2677,7 @@ OBJECT:16:_ZTIPc@@CXXABI_1.3
+@@ -2332,6 +2675,7 @@ OBJECT:16:_ZTIPc@@CXXABI_1.3
  OBJECT:16:_ZTIPd@@CXXABI_1.3
  OBJECT:16:_ZTIPe@@CXXABI_1.3
  OBJECT:16:_ZTIPf@@CXXABI_1.3
@@ -2718,30 +2461,7 @@
  OBJECT:16:_ZTIPh@@CXXABI_1.3
  OBJECT:16:_ZTIPi@@CXXABI_1.3
  OBJECT:16:_ZTIPj@@CXXABI_1.3
-@@ -2358,6 +2704,7 @@ OBJECT:16:_ZTTSt19basic_ostringstreamIwS
- OBJECT:16:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:16:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2366,12 +2713,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2456,6 +2805,19 @@ OBJECT:1:_ZNSt14numeric_limitsIfE8is_exa
+@@ -2456,6 +2800,19 @@ OBJECT:1:_ZNSt14numeric_limitsIfE8is_exa
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_iec559E@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_moduloE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_signedE@@GLIBCXX_3.4
@@ -2761,15 +2481,7 @@
  OBJECT:1:_ZNSt14numeric_limitsIhE10is_boundedE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIhE10is_integerE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIhE12has_infinityE@@GLIBCXX_3.4
-@@ -2614,6 +2976,7 @@ OBJECT:20:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:20:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:20:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:20:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -2650,6 +3013,10 @@ OBJECT:28:_ZTSSt7codecvtIcc11__mbstate_t
+@@ -2650,6 +3007,10 @@ OBJECT:28:_ZTSSt7codecvtIcc11__mbstate_t
  OBJECT:28:_ZTSSt7codecvtIwc11__mbstate_tE@@GLIBCXX_3.4
  OBJECT:28:_ZTTSd@@GLIBCXX_3.4
  OBJECT:28:_ZTTSt14basic_iostreamIwSt11char_traitsIwEE@@GLIBCXX_3.4
@@ -2780,7 +2492,7 @@
  OBJECT:28:_ZTVSt14collate_bynameIcE@@GLIBCXX_3.4
  OBJECT:28:_ZTVSt14collate_bynameIwE@@GLIBCXX_3.4
  OBJECT:28:_ZTVSt15messages_bynameIcE@@GLIBCXX_3.4
-@@ -2681,6 +3048,7 @@ OBJECT:2:_ZTSc@@CXXABI_1.3
+@@ -2681,6 +3042,7 @@ OBJECT:2:_ZTSc@@CXXABI_1.3
  OBJECT:2:_ZTSd@@CXXABI_1.3
  OBJECT:2:_ZTSe@@CXXABI_1.3
  OBJECT:2:_ZTSf@@CXXABI_1.3
@@ -2788,7 +2500,7 @@
  OBJECT:2:_ZTSh@@CXXABI_1.3
  OBJECT:2:_ZTSi@@CXXABI_1.3
  OBJECT:2:_ZTSj@@CXXABI_1.3
-@@ -2743,6 +3111,7 @@ OBJECT:3:_ZTSPc@@CXXABI_1.3
+@@ -2743,6 +3105,7 @@ OBJECT:3:_ZTSPc@@CXXABI_1.3
  OBJECT:3:_ZTSPd@@CXXABI_1.3
  OBJECT:3:_ZTSPe@@CXXABI_1.3
  OBJECT:3:_ZTSPf@@CXXABI_1.3
@@ -2796,7 +2508,7 @@
  OBJECT:3:_ZTSPh@@CXXABI_1.3
  OBJECT:3:_ZTSPi@@CXXABI_1.3
  OBJECT:3:_ZTSPj@@CXXABI_1.3
-@@ -2879,6 +3248,15 @@ OBJECT:4:_ZNSt14numeric_limitsIfE14min_e
+@@ -2879,6 +3242,15 @@ OBJECT:4:_ZNSt14numeric_limitsIfE14min_e
  OBJECT:4:_ZNSt14numeric_limitsIfE5radixE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIfE6digitsE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIfE8digits10E@@GLIBCXX_3.4
@@ -2812,7 +2524,7 @@
  OBJECT:4:_ZNSt14numeric_limitsIhE10has_denormE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIhE11round_styleE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIhE12max_exponentE@@GLIBCXX_3.4
-@@ -2969,6 +3347,14 @@ OBJECT:4:_ZNSt14numeric_limitsIyE14min_e
+@@ -2969,6 +3341,14 @@ OBJECT:4:_ZNSt14numeric_limitsIyE14min_e
  OBJECT:4:_ZNSt14numeric_limitsIyE5radixE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIyE6digitsE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIyE8digits10E@@GLIBCXX_3.4
@@ -2827,14 +2539,7 @@
  OBJECT:4:_ZNSt21__numeric_limits_base10has_denormE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt21__numeric_limits_base11round_styleE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt21__numeric_limits_base12max_exponentE@@GLIBCXX_3.4
-@@ -3040,12 +3426,14 @@ OBJECT:4:_ZNSt9money_getIcSt19istreambuf
- OBJECT:4:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:4:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:4:_ZTSPKa@@CXXABI_1.3
- OBJECT:4:_ZTSPKb@@CXXABI_1.3
- OBJECT:4:_ZTSPKc@@CXXABI_1.3
+@@ -3046,6 +3426,7 @@ OBJECT:4:_ZTSPKc@@CXXABI_1.3
  OBJECT:4:_ZTSPKd@@CXXABI_1.3
  OBJECT:4:_ZTSPKe@@CXXABI_1.3
  OBJECT:4:_ZTSPKf@@CXXABI_1.3
@@ -2842,7 +2547,7 @@
  OBJECT:4:_ZTSPKh@@CXXABI_1.3
  OBJECT:4:_ZTSPKi@@CXXABI_1.3
  OBJECT:4:_ZTSPKj@@CXXABI_1.3
-@@ -3061,6 +3449,8 @@ OBJECT:50:_ZTSSt19basic_istringstreamIcS
+@@ -3061,6 +3442,8 @@ OBJECT:50:_ZTSSt19basic_istringstreamIcS
  OBJECT:50:_ZTSSt19basic_istringstreamIwSt11char_traitsIwESaIwEE@@GLIBCXX_3.4
  OBJECT:50:_ZTSSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE@@GLIBCXX_3.4
  OBJECT:50:_ZTSSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE@@GLIBCXX_3.4
@@ -2851,7 +2556,7 @@
  OBJECT:52:_ZTVSt10moneypunctIcLb0EE@@GLIBCXX_3.4
  OBJECT:52:_ZTVSt10moneypunctIcLb1EE@@GLIBCXX_3.4
  OBJECT:52:_ZTVSt10moneypunctIwLb0EE@@GLIBCXX_3.4
-@@ -3096,6 +3486,8 @@ OBJECT:60:_ZTVSt7num_getIwSt19istreambuf
+@@ -3096,6 +3479,8 @@ OBJECT:60:_ZTVSt7num_getIwSt19istreambuf
  OBJECT:60:_ZTVSt9strstream@@GLIBCXX_3.4
  OBJECT:64:_ZTVN9__gnu_cxx18stdio_sync_filebufIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:64:_ZTVN9__gnu_cxx18stdio_sync_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -2860,7 +2565,7 @@
  OBJECT:64:_ZTVSt12ctype_bynameIwE@@GLIBCXX_3.4
  OBJECT:64:_ZTVSt12strstreambuf@@GLIBCXX_3.4
  OBJECT:64:_ZTVSt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -3111,12 +3503,28 @@ OBJECT:67:_ZTSSt15time_get_bynameIcSt19i
+@@ -3111,12 +3496,28 @@ OBJECT:67:_ZTSSt15time_get_bynameIcSt19i
  OBJECT:67:_ZTSSt15time_get_bynameIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE@@GLIBCXX_3.4
  OBJECT:67:_ZTSSt15time_put_bynameIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:67:_ZTSSt15time_put_bynameIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -2889,7 +2594,7 @@
  OBJECT:8:_ZGVNSt7collateIcE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt7collateIwE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt7num_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
-@@ -3135,11 +3543,14 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
+@@ -3135,6 +3536,8 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
  OBJECT:8:_ZGVNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
@@ -2898,13 +2603,7 @@
  OBJECT:8:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:8:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:8:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt8ios_base@@GLIBCXX_3.4
-@@ -3152,6 +3563,7 @@ OBJECT:8:_ZTIc@@CXXABI_1.3
+@@ -3152,6 +3555,7 @@ OBJECT:8:_ZTIc@@CXXABI_1.3
  OBJECT:8:_ZTId@@CXXABI_1.3
  OBJECT:8:_ZTIe@@CXXABI_1.3
  OBJECT:8:_ZTIf@@CXXABI_1.3
@@ -2912,7 +2611,7 @@
  OBJECT:8:_ZTIh@@CXXABI_1.3
  OBJECT:8:_ZTIi@@CXXABI_1.3
  OBJECT:8:_ZTIj@@CXXABI_1.3
---- libstdc++-v3/config/abi/post/powerpc64-linux-gnu/baseline_symbols.txt	(revision 131826)
+--- libstdc++-v3/config/abi/post/powerpc64-linux-gnu/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/powerpc64-linux-gnu/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -3145,7 +2844,7 @@
  FUNC:_ZNKSt18basic_stringstreamIcSt11char_traitsIcESaIcEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt18basic_stringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt18basic_stringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
-@@ -353,6 +529,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +529,18 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -3153,17 +2852,18 @@
 +FUNC:_ZNKSt3tr14hashIRKSsEclES2_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt3tr14hashISbIwSt11char_traitsIwESaIwEEEclES4_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt3tr14hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt3tr14hashIgEclEg@@GLIBCXX_3.4.10
++FUNC:_ZNKSt3tr14hashIeEclEe@@GLIBCXX_3.4.10
++FUNC:_ZNKSt3tr14hashIgEclEg@@GLIBCXX_LDBL_3.4.10
 +FUNC:_ZNKSt4hashIRKSbIwSt11char_traitsIwESaIwEEEclES5_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashIgEclEg@@GLIBCXX_3.4.10
++FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
++FUNC:_ZNKSt4hashIgEclEg@@GLIBCXX_LDBL_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +702,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +703,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -3171,7 +2871,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +779,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +780,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayImE4sizeEv@@GLIBCXX_3.4
@@ -3179,7 +2879,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +963,18 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +964,18 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -3198,7 +2898,7 @@
  FUNC:_ZNSi3getEPcl@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPclc@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -814,6 +1015,7 @@ FUNC:_ZNSirsERb@@GLIBCXX_3.4
+@@ -814,6 +1016,7 @@ FUNC:_ZNSirsERb@@GLIBCXX_3.4
  FUNC:_ZNSirsERd@@GLIBCXX_3.4
  FUNC:_ZNSirsERe@@GLIBCXX_3.4
  FUNC:_ZNSirsERf@@GLIBCXX_3.4
@@ -3206,7 +2906,7 @@
  FUNC:_ZNSirsERi@@GLIBCXX_3.4
  FUNC:_ZNSirsERj@@GLIBCXX_3.4
  FUNC:_ZNSirsERl@@GLIBCXX_3.4
-@@ -833,6 +1035,15 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +1036,15 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKcl@@GLIBCXX_3.4
@@ -3222,7 +2922,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -849,6 +1060,7 @@ FUNC:_ZNSolsEb@@GLIBCXX_3.4
+@@ -849,6 +1061,7 @@ FUNC:_ZNSolsEb@@GLIBCXX_3.4
  FUNC:_ZNSolsEd@@GLIBCXX_3.4
  FUNC:_ZNSolsEe@@GLIBCXX_3.4
  FUNC:_ZNSolsEf@@GLIBCXX_3.4
@@ -3230,17 +2930,7 @@
  FUNC:_ZNSolsEi@@GLIBCXX_3.4
  FUNC:_ZNSolsEj@@GLIBCXX_3.4
  FUNC:_ZNSolsEl@@GLIBCXX_3.4
-@@ -1131,6 +1343,9 @@ FUNC:_ZNSt12strstreambufC2El@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1421,18 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1419,18 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -3259,7 +2949,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwl@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwlw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1246,6 +1473,7 @@ FUNC:_ZNSt13basic_istreamIwSt11char_trai
+@@ -1246,6 +1471,7 @@ FUNC:_ZNSt13basic_istreamIwSt11char_trai
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERd@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERe@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERf@@GLIBCXX_3.4
@@ -3267,7 +2957,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERj@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEErsERl@@GLIBCXX_3.4
-@@ -1265,6 +1493,15 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1491,15 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwl@@GLIBCXX_3.4
@@ -3283,7 +2973,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1281,6 +1518,7 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1281,6 +1516,7 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEd@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEe@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEf@@GLIBCXX_3.4
@@ -3291,7 +2981,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEj@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEElsEl@@GLIBCXX_3.4
-@@ -1386,6 +1624,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1622,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPcl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -3299,7 +2989,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPcl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKcl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1663,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1661,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -3307,7 +2997,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwl@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1695,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1693,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -3315,7 +3005,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1712,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1710,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -3323,7 +3013,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1538,6 +1780,46 @@ FUNC:_ZNSt16invalid_argumentC1ERKSs@@GLI
+@@ -1538,6 +1778,46 @@ FUNC:_ZNSt16invalid_argumentC1ERKSs@@GLI
  FUNC:_ZNSt16invalid_argumentC2ERKSs@@GLIBCXX_3.4
  FUNC:_ZNSt16invalid_argumentD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt16invalid_argumentD1Ev@@GLIBCXX_3.4
@@ -3370,7 +3060,7 @@
  FUNC:_ZNSt17__timepunct_cacheIcEC1Em@@GLIBCXX_3.4
  FUNC:_ZNSt17__timepunct_cacheIcEC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt17__timepunct_cacheIcED0Ev@@GLIBCXX_3.4
-@@ -1660,10 +1942,16 @@ FUNC:_ZNSt5ctypeIwEC2Em@@GLIBCXX_3.4
+@@ -1660,10 +1940,16 @@ FUNC:_ZNSt5ctypeIwEC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -3387,7 +3077,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1964,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_m@@GLIBCX
+@@ -1676,6 +1962,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_m@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -3395,7 +3085,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +2042,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +2040,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -3405,7 +3095,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +2123,11 @@ FUNC:_ZNSt8valarrayImEC2Em@@GLIBCXX_3.4
+@@ -1832,6 +2121,11 @@ FUNC:_ZNSt8valarrayImEC2Em@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayImED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayImED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayImEixEm@@GLIBCXX_3.4
@@ -3417,7 +3107,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1911,10 +2207,16 @@ FUNC:_ZSt13set_terminatePFvvE@@GLIBCXX_3
+@@ -1911,10 +2205,16 @@ FUNC:_ZSt13set_terminatePFvvE@@GLIBCXX_3
  FUNC:_ZSt14__convert_to_vIdEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
@@ -3434,7 +3124,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2232,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2230,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -3443,7 +3133,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -1949,6 +2253,14 @@ FUNC:_ZSt7getlineIcSt11char_traitsIcESaI
+@@ -1949,6 +2251,14 @@ FUNC:_ZSt7getlineIcSt11char_traitsIcESaI
  FUNC:_ZSt7getlineIcSt11char_traitsIcESaIcEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_ES4_@@GLIBCXX_3.4
  FUNC:_ZSt7getlineIwSt11char_traitsIwESaIwEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_E@@GLIBCXX_3.4
  FUNC:_ZSt7getlineIwSt11char_traitsIwESaIwEERSt13basic_istreamIT_T0_ES7_RSbIS4_S5_T1_ES4_@@GLIBCXX_3.4
@@ -3458,7 +3148,7 @@
  FUNC:_ZSt9has_facetISt10moneypunctIcLb0EEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt10moneypunctIwLb0EEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt11__timepunctIcEEbRKSt6locale@@GLIBCXX_3.4
-@@ -1976,6 +2288,14 @@ FUNC:_ZSt9has_facetISt9money_getIwSt19is
+@@ -1976,6 +2286,14 @@ FUNC:_ZSt9has_facetISt9money_getIwSt19is
  FUNC:_ZSt9has_facetISt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9has_facetISt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEEEbRKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9terminatev@@GLIBCXX_3.4
@@ -3473,7 +3163,7 @@
  FUNC:_ZSt9use_facetISt10moneypunctIcLb0EEERKT_RKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9use_facetISt10moneypunctIcLb1EEERKT_RKSt6locale@@GLIBCXX_3.4
  FUNC:_ZSt9use_facetISt10moneypunctIwLb0EEERKT_RKSt6locale@@GLIBCXX_3.4
-@@ -2023,6 +2343,8 @@ FUNC:_ZStlsIecSt11char_traitsIcEERSt13ba
+@@ -2023,6 +2341,8 @@ FUNC:_ZStlsIecSt11char_traitsIcEERSt13ba
  FUNC:_ZStlsIewSt11char_traitsIwEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStlsIfcSt11char_traitsIcEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStlsIfwSt11char_traitsIwEERSt13basic_ostreamIT0_T1_ES6_RKSt7complexIT_E@@GLIBCXX_3.4
@@ -3482,7 +3172,7 @@
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_PKS3_@@GLIBCXX_3.4
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_PKc@@GLIBCXX_3.4
  FUNC:_ZStlsIwSt11char_traitsIwEERSt13basic_ostreamIT_T0_ES6_S3_@@GLIBCXX_3.4
-@@ -2059,6 +2381,8 @@ FUNC:_ZStrsIecSt11char_traitsIcEERSt13ba
+@@ -2059,6 +2379,8 @@ FUNC:_ZStrsIecSt11char_traitsIcEERSt13ba
  FUNC:_ZStrsIewSt11char_traitsIwEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStrsIfcSt11char_traitsIcEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
  FUNC:_ZStrsIfwSt11char_traitsIwEERSt13basic_istreamIT0_T1_ES6_RSt7complexIT_E@@GLIBCXX_3.4
@@ -3491,7 +3181,7 @@
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_PS3_@@GLIBCXX_3.4
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_RS3_@@GLIBCXX_3.4
  FUNC:_ZStrsIwSt11char_traitsIwEERSt13basic_istreamIT_T0_ES6_St12_Setiosflags@@GLIBCXX_3.4
-@@ -2162,36 +2486,47 @@ FUNC:__cxa_vec_new3@@CXXABI_1.3
+@@ -2162,36 +2484,48 @@ FUNC:__cxa_vec_new3@@CXXABI_1.3
  FUNC:__cxa_vec_new@@CXXABI_1.3
  FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
@@ -3555,13 +3245,14 @@
 +OBJECT:0:GLIBCXX_3.4.8
 +OBJECT:0:GLIBCXX_3.4.9
 +OBJECT:0:GLIBCXX_LDBL_3.4
++OBJECT:0:GLIBCXX_LDBL_3.4.10
 +OBJECT:0:GLIBCXX_LDBL_3.4.7
 +OBJECT:104:_ZTVNSt17__gnu_cxx_ldbl1287num_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEEE@@GLIBCXX_LDBL_3.4
 +OBJECT:104:_ZTVNSt17__gnu_cxx_ldbl1287num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEEE@@GLIBCXX_LDBL_3.4
  OBJECT:104:_ZTVSt10moneypunctIcLb0EE@@GLIBCXX_3.4
  OBJECT:104:_ZTVSt10moneypunctIcLb1EE@@GLIBCXX_3.4
  OBJECT:104:_ZTVSt10moneypunctIwLb0EE@@GLIBCXX_3.4
-@@ -2213,6 +2548,8 @@ OBJECT:120:_ZTVSt7num_getIwSt19istreambu
+@@ -2213,6 +2547,8 @@ OBJECT:120:_ZTVSt7num_getIwSt19istreambu
  OBJECT:120:_ZTVSt9strstream@@GLIBCXX_3.4
  OBJECT:128:_ZTVN9__gnu_cxx18stdio_sync_filebufIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:128:_ZTVN9__gnu_cxx18stdio_sync_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -3570,7 +3261,7 @@
  OBJECT:128:_ZTVSt12ctype_bynameIwE@@GLIBCXX_3.4
  OBJECT:128:_ZTVSt12strstreambuf@@GLIBCXX_3.4
  OBJECT:128:_ZTVSt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -2244,11 +2581,14 @@ OBJECT:15:_ZTSSt8messagesIcE@@GLIBCXX_3.
+@@ -2244,6 +2580,8 @@ OBJECT:15:_ZTSSt8messagesIcE@@GLIBCXX_3.
  OBJECT:15:_ZTSSt8messagesIwE@@GLIBCXX_3.4
  OBJECT:15:_ZTSSt8numpunctIcE@@GLIBCXX_3.4
  OBJECT:15:_ZTSSt8numpunctIwE@@GLIBCXX_3.4
@@ -3579,13 +3270,7 @@
  OBJECT:16:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:16:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:16:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:16:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:16:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:16:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:16:_ZTISt8ios_base@@GLIBCXX_3.4
-@@ -2261,6 +2601,7 @@ OBJECT:16:_ZTIc@@CXXABI_1.3
+@@ -2261,6 +2599,7 @@ OBJECT:16:_ZTIc@@CXXABI_1.3
  OBJECT:16:_ZTId@@CXXABI_1.3
  OBJECT:16:_ZTIe@@CXXABI_1.3
  OBJECT:16:_ZTIf@@CXXABI_1.3
@@ -3593,22 +3278,7 @@
  OBJECT:16:_ZTIh@@CXXABI_1.3
  OBJECT:16:_ZTIi@@CXXABI_1.3
  OBJECT:16:_ZTIj@@CXXABI_1.3
-@@ -2283,12 +2624,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2373,6 +2716,19 @@ OBJECT:1:_ZNSt14numeric_limitsIfE8is_exa
+@@ -2373,6 +2712,19 @@ OBJECT:1:_ZNSt14numeric_limitsIfE8is_exa
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_iec559E@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_moduloE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIfE9is_signedE@@GLIBCXX_3.4
@@ -3628,7 +3298,7 @@
  OBJECT:1:_ZNSt14numeric_limitsIhE10is_boundedE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIhE10is_integerE@@GLIBCXX_3.4
  OBJECT:1:_ZNSt14numeric_limitsIhE12has_infinityE@@GLIBCXX_3.4
-@@ -2536,6 +2892,8 @@ OBJECT:23:_ZTSSt15messages_bynameIcE@@GL
+@@ -2536,6 +2888,8 @@ OBJECT:23:_ZTSSt15messages_bynameIcE@@GL
  OBJECT:23:_ZTSSt15messages_bynameIwE@@GLIBCXX_3.4
  OBJECT:23:_ZTSSt15numpunct_bynameIcE@@GLIBCXX_3.4
  OBJECT:23:_ZTSSt15numpunct_bynameIwE@@GLIBCXX_3.4
@@ -3637,7 +3307,7 @@
  OBJECT:24:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:24:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:24:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2550,6 +2908,14 @@ OBJECT:24:_ZTIN9__gnu_cxx13stdio_filebuf
+@@ -2550,6 +2904,14 @@ OBJECT:24:_ZTIN9__gnu_cxx13stdio_filebuf
  OBJECT:24:_ZTIN9__gnu_cxx13stdio_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
  OBJECT:24:_ZTIN9__gnu_cxx18stdio_sync_filebufIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:24:_ZTIN9__gnu_cxx18stdio_sync_filebufIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -3652,15 +3322,7 @@
  OBJECT:24:_ZTINSt8ios_base7failureE@@GLIBCXX_3.4
  OBJECT:24:_ZTISt10bad_typeid@@GLIBCXX_3.4
  OBJECT:24:_ZTISt10istrstream@@GLIBCXX_3.4
-@@ -2564,6 +2930,7 @@ OBJECT:24:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:24:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:24:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:24:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:24:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:24:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:24:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:24:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2656,6 +3023,7 @@ OBJECT:2:_ZTSc@@CXXABI_1.3
+@@ -2656,6 +3018,7 @@ OBJECT:2:_ZTSc@@CXXABI_1.3
  OBJECT:2:_ZTSd@@CXXABI_1.3
  OBJECT:2:_ZTSe@@CXXABI_1.3
  OBJECT:2:_ZTSf@@CXXABI_1.3
@@ -3668,7 +3330,7 @@
  OBJECT:2:_ZTSh@@CXXABI_1.3
  OBJECT:2:_ZTSi@@CXXABI_1.3
  OBJECT:2:_ZTSj@@CXXABI_1.3
-@@ -2675,6 +3043,7 @@ OBJECT:32:_ZTIPKc@@CXXABI_1.3
+@@ -2675,6 +3038,7 @@ OBJECT:32:_ZTIPKc@@CXXABI_1.3
  OBJECT:32:_ZTIPKd@@CXXABI_1.3
  OBJECT:32:_ZTIPKe@@CXXABI_1.3
  OBJECT:32:_ZTIPKf@@CXXABI_1.3
@@ -3676,7 +3338,7 @@
  OBJECT:32:_ZTIPKh@@CXXABI_1.3
  OBJECT:32:_ZTIPKi@@CXXABI_1.3
  OBJECT:32:_ZTIPKj@@CXXABI_1.3
-@@ -2692,6 +3061,7 @@ OBJECT:32:_ZTIPc@@CXXABI_1.3
+@@ -2692,6 +3056,7 @@ OBJECT:32:_ZTIPc@@CXXABI_1.3
  OBJECT:32:_ZTIPd@@CXXABI_1.3
  OBJECT:32:_ZTIPe@@CXXABI_1.3
  OBJECT:32:_ZTIPf@@CXXABI_1.3
@@ -3684,15 +3346,7 @@
  OBJECT:32:_ZTIPh@@CXXABI_1.3
  OBJECT:32:_ZTIPi@@CXXABI_1.3
  OBJECT:32:_ZTIPj@@CXXABI_1.3
-@@ -2716,6 +3086,7 @@ OBJECT:32:_ZTTSt19basic_ostringstreamIwS
- OBJECT:32:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:32:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:32:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:32:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2743,6 +3114,7 @@ OBJECT:3:_ZTSPc@@CXXABI_1.3
+@@ -2743,6 +3108,7 @@ OBJECT:3:_ZTSPc@@CXXABI_1.3
  OBJECT:3:_ZTSPd@@CXXABI_1.3
  OBJECT:3:_ZTSPe@@CXXABI_1.3
  OBJECT:3:_ZTSPf@@CXXABI_1.3
@@ -3700,15 +3354,7 @@
  OBJECT:3:_ZTSPh@@CXXABI_1.3
  OBJECT:3:_ZTSPi@@CXXABI_1.3
  OBJECT:3:_ZTSPj@@CXXABI_1.3
-@@ -2774,6 +3146,7 @@ OBJECT:40:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:40:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:40:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:40:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:40:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -2857,6 +3230,15 @@ OBJECT:4:_ZNSt14numeric_limitsIfE14min_e
+@@ -2857,6 +3223,15 @@ OBJECT:4:_ZNSt14numeric_limitsIfE14min_e
  OBJECT:4:_ZNSt14numeric_limitsIfE5radixE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIfE6digitsE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIfE8digits10E@@GLIBCXX_3.4
@@ -3724,7 +3370,7 @@
  OBJECT:4:_ZNSt14numeric_limitsIhE10has_denormE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIhE11round_styleE@@GLIBCXX_3.4
  OBJECT:4:_ZNSt14numeric_limitsIhE12max_exponentE@@GLIBCXX_3.4
-@@ -3001,6 +3383,7 @@ OBJECT:4:_ZTSPKc@@CXXABI_1.3
+@@ -3001,6 +3376,7 @@ OBJECT:4:_ZTSPKc@@CXXABI_1.3
  OBJECT:4:_ZTSPKd@@CXXABI_1.3
  OBJECT:4:_ZTSPKe@@CXXABI_1.3
  OBJECT:4:_ZTSPKf@@CXXABI_1.3
@@ -3732,7 +3378,7 @@
  OBJECT:4:_ZTSPKh@@CXXABI_1.3
  OBJECT:4:_ZTSPKi@@CXXABI_1.3
  OBJECT:4:_ZTSPKj@@CXXABI_1.3
-@@ -3035,6 +3418,10 @@ OBJECT:56:_ZTISt8time_getIcSt19istreambu
+@@ -3035,6 +3411,10 @@ OBJECT:56:_ZTISt8time_getIcSt19istreambu
  OBJECT:56:_ZTISt8time_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE@@GLIBCXX_3.4
  OBJECT:56:_ZTTSd@@GLIBCXX_3.4
  OBJECT:56:_ZTTSt14basic_iostreamIwSt11char_traitsIwEE@@GLIBCXX_3.4
@@ -3743,7 +3389,7 @@
  OBJECT:56:_ZTVSt14collate_bynameIcE@@GLIBCXX_3.4
  OBJECT:56:_ZTVSt14collate_bynameIwE@@GLIBCXX_3.4
  OBJECT:56:_ZTVSt15messages_bynameIcE@@GLIBCXX_3.4
-@@ -3071,6 +3458,10 @@ OBJECT:72:_ZTVSt15numpunct_bynameIcE@@GL
+@@ -3071,6 +3451,10 @@ OBJECT:72:_ZTVSt15numpunct_bynameIcE@@GL
  OBJECT:72:_ZTVSt15numpunct_bynameIwE@@GLIBCXX_3.4
  OBJECT:72:_ZTVSt8numpunctIcE@@GLIBCXX_3.4
  OBJECT:72:_ZTVSt8numpunctIwE@@GLIBCXX_3.4
@@ -3754,7 +3400,7 @@
  OBJECT:80:_ZTTSt13basic_fstreamIcSt11char_traitsIcEE@@GLIBCXX_3.4
  OBJECT:80:_ZTTSt13basic_fstreamIwSt11char_traitsIwEE@@GLIBCXX_3.4
  OBJECT:80:_ZTTSt18basic_stringstreamIcSt11char_traitsIcESaIcEE@@GLIBCXX_3.4
-@@ -3094,6 +3485,10 @@ OBJECT:80:_ZTVSt19basic_ostringstreamIcS
+@@ -3094,6 +3478,10 @@ OBJECT:80:_ZTVSt19basic_ostringstreamIcS
  OBJECT:80:_ZTVSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE@@GLIBCXX_3.4
  OBJECT:80:_ZTVSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE@@GLIBCXX_3.4
  OBJECT:80:_ZTVSt8time_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE@@GLIBCXX_3.4
@@ -3765,7 +3411,7 @@
  OBJECT:88:_ZTVN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
  OBJECT:88:_ZTVN10__cxxabiv120__si_class_type_infoE@@CXXABI_1.3
  OBJECT:88:_ZTVN10__cxxabiv121__vmi_class_type_infoE@@CXXABI_1.3
-@@ -3109,6 +3504,14 @@ OBJECT:8:_ZGVNSt10moneypunctIwLb0EE2idE@
+@@ -3109,6 +3497,14 @@ OBJECT:8:_ZGVNSt10moneypunctIwLb0EE2idE@
  OBJECT:8:_ZGVNSt10moneypunctIwLb1EE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt11__timepunctIcE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt11__timepunctIwE2idE@@GLIBCXX_3.4
@@ -3780,7 +3426,7 @@
  OBJECT:8:_ZGVNSt7collateIcE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt7collateIwE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt7num_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
-@@ -3140,6 +3543,14 @@ OBJECT:8:_ZNSt10moneypunctIwLb0EE2idE@@G
+@@ -3140,6 +3536,14 @@ OBJECT:8:_ZNSt10moneypunctIwLb0EE2idE@@G
  OBJECT:8:_ZNSt10moneypunctIwLb1EE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZNSt11__timepunctIcE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZNSt11__timepunctIwE2idE@@GLIBCXX_3.4
@@ -3795,15 +3441,7 @@
  OBJECT:8:_ZNSt5ctypeIcE10table_sizeE@@GLIBCXX_3.4
  OBJECT:8:_ZNSt5ctypeIcE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZNSt5ctypeIwE2idE@@GLIBCXX_3.4
-@@ -3163,6 +3574,7 @@ OBJECT:8:_ZNSt9money_getIcSt19istreambuf
- OBJECT:8:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:8:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:8:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:8:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:96:_ZTVSt12ctype_bynameIcE@@GLIBCXX_3.4
- OBJECT:96:_ZTVSt5ctypeIcE@@GLIBCXX_3.4
- OBJECT:96:_ZTVSt7num_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE@@GLIBCXX_3.4
---- libstdc++-v3/config/abi/post/i486-linux-gnu/baseline_symbols.txt	(revision 131826)
+--- libstdc++-v3/config/abi/post/i486-linux-gnu/baseline_symbols.txt	(revision 132774)
 +++ libstdc++-v3/config/abi/post/i486-linux-gnu/baseline_symbols.txt	(working copy)
 @@ -33,19 +33,51 @@ FUNC:_ZN10__gnu_norm15_List_node_base4sw
  FUNC:_ZN10__gnu_norm15_List_node_base6unhookEv@@GLIBCXX_3.4
@@ -3889,7 +3527,7 @@
  FUNC:_ZNKSt13basic_filebufIcSt11char_traitsIcEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_filebufIwSt11char_traitsIwEE7is_openEv@@GLIBCXX_3.4
  FUNC:_ZNKSt13basic_fstreamIcSt11char_traitsIcEE5rdbufEv@@GLIBCXX_3.4
-@@ -353,6 +389,17 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
+@@ -353,6 +389,16 @@ FUNC:_ZNKSt19basic_ostringstreamIcSt11ch
  FUNC:_ZNKSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE5rdbufEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE3strEv@@GLIBCXX_3.4
  FUNC:_ZNKSt19basic_ostringstreamIwSt11char_traitsIwESaIwEE5rdbufEv@@GLIBCXX_3.4
@@ -3902,12 +3540,11 @@
 +FUNC:_ZNKSt4hashIRKSsEclES1_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISbIwSt11char_traitsIwESaIwEEEclES3_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashISsEclESs@@GLIBCXX_3.4.10
-+FUNC:_ZNKSt4hashISt10error_codeEclES0_@@GLIBCXX_3.4.10
 +FUNC:_ZNKSt4hashIeEclEe@@GLIBCXX_3.4.10
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEPcPKc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_tolowerEc@@GLIBCXX_3.4
  FUNC:_ZNKSt5ctypeIcE10do_toupperEPcPKc@@GLIBCXX_3.4
-@@ -515,6 +562,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
+@@ -515,6 +561,7 @@ FUNC:_ZNKSt7num_putIwSt19ostreambuf_iter
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewm@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewx@@GLIBCXX_3.4
  FUNC:_ZNKSt7num_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewy@@GLIBCXX_3.4
@@ -3915,7 +3552,7 @@
  FUNC:_ZNKSt8ios_base7failure4whatEv@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE18_M_convert_to_charERKSs@@GLIBCXX_3.4
  FUNC:_ZNKSt8messagesIcE20_M_convert_from_charEPc@@GLIBCXX_3.4
-@@ -591,6 +639,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
+@@ -591,6 +638,7 @@ FUNC:_ZNKSt8time_putIwSt19ostreambuf_ite
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE3putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8time_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE6do_putES3_RSt8ios_basewPK2tmcc@@GLIBCXX_3.4
  FUNC:_ZNKSt8valarrayIjE4sizeEv@@GLIBCXX_3.4
@@ -3923,7 +3560,7 @@
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE10exceptionsEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3badEv@@GLIBCXX_3.4
  FUNC:_ZNKSt9basic_iosIcSt11char_traitsIcEE3eofEv@@GLIBCXX_3.4
-@@ -774,6 +823,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
+@@ -774,6 +822,17 @@ FUNC:_ZNSdC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSdD2Ev@@GLIBCXX_3.4
@@ -3941,7 +3578,7 @@
  FUNC:_ZNSi3getEPci@@GLIBCXX_3.4
  FUNC:_ZNSi3getEPcic@@GLIBCXX_3.4
  FUNC:_ZNSi3getERSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -833,6 +893,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
+@@ -833,6 +892,14 @@ FUNC:_ZNSo6sentryC2ERSo@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSo6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSo8_M_writeEPKci@@GLIBCXX_3.4
@@ -3956,17 +3593,7 @@
  FUNC:_ZNSoC1EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
  FUNC:_ZNSoC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSoC2EPSt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
-@@ -1131,6 +1199,9 @@ FUNC:_ZNSt12strstreambufC2Ei@@GLIBCXX_3.
- FUNC:_ZNSt12strstreambufD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt12strstreambufD2Ev@@GLIBCXX_3.4
-+FUNC:_ZNSt12system_errorD0Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD1Ev@@GLIBCXX_3.4.10
-+FUNC:_ZNSt12system_errorD2Ev@@GLIBCXX_3.4.10
- FUNC:_ZNSt13bad_exceptionD0Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD1Ev@@GLIBCXX_3.4
- FUNC:_ZNSt13bad_exceptionD2Ev@@GLIBCXX_3.4
-@@ -1206,6 +1277,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
+@@ -1206,6 +1273,17 @@ FUNC:_ZNSt13basic_fstreamIwSt11char_trai
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_fstreamIwSt11char_traitsIwEED2Ev@@GLIBCXX_3.4
@@ -3984,7 +3611,7 @@
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getEPwiw@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_istreamIwSt11char_traitsIwEE3getERSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1265,6 +1347,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
+@@ -1265,6 +1343,14 @@ FUNC:_ZNSt13basic_ostreamIwSt11char_trai
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE6sentryD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEE8_M_writeEPKwi@@GLIBCXX_3.4
@@ -3999,7 +3626,7 @@
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt13basic_ostreamIwSt11char_traitsIwEEC2EPSt15basic_streambufIwS1_E@@GLIBCXX_3.4
-@@ -1386,6 +1476,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
+@@ -1386,6 +1472,7 @@ FUNC:_ZNSt15basic_streambufIcSt11char_tr
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6setbufEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6snextcEv@@GLIBCXX_3.4
@@ -4007,7 +3634,7 @@
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsgetnEPci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE6xsputnEPKci@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIcSt11char_traitsIcEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1424,6 +1515,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
+@@ -1424,6 +1511,7 @@ FUNC:_ZNSt15basic_streambufIwSt11char_tr
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6sbumpcEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6setbufEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6snextcEv@@GLIBCXX_3.4
@@ -4015,7 +3642,7 @@
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsgetnEPwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE6xsputnEPKwi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_streambufIwSt11char_traitsIwEE7pubsyncEv@@GLIBCXX_3.4
-@@ -1455,6 +1547,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
+@@ -1455,6 +1543,7 @@ FUNC:_ZNSt15basic_stringbufIcSt11char_tr
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE8overflowEi@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9pbackfailEi@@GLIBCXX_3.4
@@ -4023,7 +3650,7 @@
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ERKSsSt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1471,6 +1564,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
+@@ -1471,6 +1560,7 @@ FUNC:_ZNSt15basic_stringbufIwSt11char_tr
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE7seekposESt4fposI11__mbstate_tESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE8overflowEj@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9pbackfailEj@@GLIBCXX_3.4
@@ -4031,7 +3658,7 @@
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEE9underflowEv@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ERKSbIwS1_S2_ESt13_Ios_Openmode@@GLIBCXX_3.4
  FUNC:_ZNSt15basic_stringbufIwSt11char_traitsIwESaIwEEC1ESt13_Ios_Openmode@@GLIBCXX_3.4
-@@ -1660,10 +1754,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
+@@ -1660,10 +1750,16 @@ FUNC:_ZNSt5ctypeIwEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt5ctypeIwED2Ev@@GLIBCXX_3.4
@@ -4048,7 +3675,7 @@
  FUNC:_ZNSt6locale5_Impl16_M_install_facetEPKNS_2idEPKNS_5facetE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl16_M_replace_facetEPKS0_PKNS_2idE@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_Impl19_M_replace_categoryEPKS0_PKPKNS_2idE@@GLIBCXX_3.4
-@@ -1676,6 +1776,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
+@@ -1676,6 +1772,7 @@ FUNC:_ZNSt6locale5_ImplC2ERKS0_j@@GLIBCX
  FUNC:_ZNSt6locale5_ImplC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5_ImplD2Ev@@GLIBCXX_3.4
@@ -4056,7 +3683,7 @@
  FUNC:_ZNSt6locale5facet15_S_get_c_localeEv@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet17_S_clone_c_localeERP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZNSt6locale5facet18_S_create_c_localeERP15__locale_structPKcS2_@@GLIBCXX_3.4
-@@ -1753,7 +1854,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
+@@ -1753,7 +1850,9 @@ FUNC:_ZNSt8bad_castD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8bad_castD2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base13_M_grow_wordsEib@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base15sync_with_stdioEb@@GLIBCXX_3.4
@@ -4066,7 +3693,7 @@
  FUNC:_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitC2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-@@ -1832,6 +1935,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
+@@ -1832,6 +1931,11 @@ FUNC:_ZNSt8valarrayIjEC2Ej@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjED2Ev@@GLIBCXX_3.4
  FUNC:_ZNSt8valarrayIjEixEj@@GLIBCXX_3.4
@@ -4078,7 +3705,7 @@
  FUNC:_ZNSt9bad_allocD0Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD1Ev@@GLIBCXX_3.4
  FUNC:_ZNSt9bad_allocD2Ev@@GLIBCXX_3.4
-@@ -1913,8 +2021,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
+@@ -1913,8 +2017,13 @@ FUNC:_ZSt14__convert_to_vIeEvPKcRT_RSt12
  FUNC:_ZSt14__convert_to_vIfEvPKcRT_RSt12_Ios_IostateRKP15__locale_struct@@GLIBCXX_3.4
  FUNC:_ZSt14set_unexpectedPFvvE@@GLIBCXX_3.4
  FUNC:_ZSt15set_new_handlerPFvvE@@GLIBCXX_3.4
@@ -4092,7 +3719,7 @@
  FUNC:_ZSt18_Rb_tree_decrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base@@GLIBCXX_3.4
  FUNC:_ZSt18_Rb_tree_incrementPKSt18_Rb_tree_node_base@@GLIBCXX_3.4
-@@ -1930,6 +2043,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
+@@ -1930,6 +2039,8 @@ FUNC:_ZSt20__throw_domain_errorPKc@@GLIB
  FUNC:_ZSt20__throw_length_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt20__throw_out_of_rangePKc@@GLIBCXX_3.4
  FUNC:_ZSt21_Rb_tree_rotate_rightPSt18_Rb_tree_node_baseRS0_@@GLIBCXX_3.4
@@ -4101,7 +3728,7 @@
  FUNC:_ZSt21__throw_bad_exceptionv@@GLIBCXX_3.4
  FUNC:_ZSt21__throw_runtime_errorPKc@@GLIBCXX_3.4
  FUNC:_ZSt22__throw_overflow_errorPKc@@GLIBCXX_3.4
-@@ -2164,12 +2279,20 @@ FUNC:__dynamic_cast@@CXXABI_1.3
+@@ -2164,12 +2275,20 @@ FUNC:__dynamic_cast@@CXXABI_1.3
  FUNC:__gxx_personality_v0@@CXXABI_1.3
  OBJECT:0:CXXABI_1.3
  OBJECT:0:CXXABI_1.3.1
@@ -4122,54 +3749,7 @@
  OBJECT:12:_ZTIN10__cxxabiv116__enum_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__array_type_infoE@@CXXABI_1.3
  OBJECT:12:_ZTIN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-@@ -2198,6 +2321,7 @@ OBJECT:12:_ZTISt12domain_error@@GLIBCXX_
- OBJECT:12:_ZTISt12length_error@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12out_of_range@@GLIBCXX_3.4
- OBJECT:12:_ZTISt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:12:_ZTISt12system_error@@GLIBCXX_3.4.10
- OBJECT:12:_ZTISt13bad_exception@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:12:_ZTISt13basic_filebufIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2336,6 +2460,7 @@ OBJECT:16:_ZTTSt19basic_ostringstreamIwS
- OBJECT:16:_ZTVNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:16:_ZTVSt14error_category@@GLIBCXX_3.4.10
- OBJECT:16:_ZTVSt8ios_base@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:16:_ZTVSt9basic_iosIwSt11char_traitsIwEE@@GLIBCXX_3.4
-@@ -2344,12 +2469,14 @@ OBJECT:17:_ZTSSt12domain_error@@GLIBCXX_
- OBJECT:17:_ZTSSt12length_error@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12out_of_range@@GLIBCXX_3.4
- OBJECT:17:_ZTSSt12strstreambuf@@GLIBCXX_3.4
-+OBJECT:17:_ZTSSt12system_error@@GLIBCXX_3.4.10
- OBJECT:18:_ZTSNSt6locale5facetE@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13bad_exception@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13messages_base@@GLIBCXX_3.4
- OBJECT:18:_ZTSSt13runtime_error@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIcE@@GLIBCXX_3.4
- OBJECT:19:_ZTSSt11__timepunctIwE@@GLIBCXX_3.4
-+OBJECT:19:_ZTSSt14error_category@@GLIBCXX_3.4.10
- OBJECT:19:_ZTSSt14overflow_error@@GLIBCXX_3.4
- OBJECT:1:_ZNSs4_Rep11_S_terminalE@@GLIBCXX_3.4
- OBJECT:1:_ZNSt10moneypunctIcLb0EE4intlE@@GLIBCXX_3.4
-@@ -2592,6 +2719,7 @@ OBJECT:20:_ZTVSt11range_error@@GLIBCXX_3
- OBJECT:20:_ZTVSt12domain_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12length_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt12out_of_range@@GLIBCXX_3.4
-+OBJECT:20:_ZTVSt12system_error@@GLIBCXX_3.4.10
- OBJECT:20:_ZTVSt13bad_exception@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt13runtime_error@@GLIBCXX_3.4
- OBJECT:20:_ZTVSt14overflow_error@@GLIBCXX_3.4
-@@ -3018,6 +3146,7 @@ OBJECT:4:_ZNSt9money_getIcSt19istreambuf
- OBJECT:4:_ZNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
- OBJECT:4:_ZNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
-+OBJECT:4:_ZSt15system_category@@GLIBCXX_3.4.10
- OBJECT:4:_ZTSPKa@@CXXABI_1.3
- OBJECT:4:_ZTSPKb@@CXXABI_1.3
- OBJECT:4:_ZTSPKc@@CXXABI_1.3
-@@ -3113,11 +3242,14 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
+@@ -3113,6 +3232,8 @@ OBJECT:8:_ZGVNSt9money_getIcSt19istreamb
  OBJECT:8:_ZGVNSt9money_getIwSt19istreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE2idE@@GLIBCXX_3.4
  OBJECT:8:_ZGVNSt9money_putIwSt19ostreambuf_iteratorIwSt11char_traitsIwEEE2idE@@GLIBCXX_3.4
@@ -4178,9 +3758,3 @@
  OBJECT:8:_ZTINSt6locale5facetE@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10ctype_base@@GLIBCXX_3.4
  OBJECT:8:_ZTISt10money_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt12codecvt_base@@GLIBCXX_3.4
- OBJECT:8:_ZTISt13messages_base@@GLIBCXX_3.4
-+OBJECT:8:_ZTISt14error_category@@GLIBCXX_3.4.10
- OBJECT:8:_ZTISt15basic_streambufIcSt11char_traitsIcEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt15basic_streambufIwSt11char_traitsIwEE@@GLIBCXX_3.4
- OBJECT:8:_ZTISt8ios_base@@GLIBCXX_3.4
