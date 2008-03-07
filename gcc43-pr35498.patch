@@ -1,0 +1,18 @@
+2008-03-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/35498
+	* config/rs6000/rs6000.c (rs6000_expand_compare_and_swapqhi): Shift
+	wdst back after sync_compare_and_swapqhi_internal.
+
+--- gcc/config/rs6000/rs6000.c.jj	2008-02-29 09:11:54.000000000 +0100
++++ gcc/config/rs6000/rs6000.c	2008-03-07 17:22:27.000000000 +0100
+@@ -13858,6 +13858,9 @@ rs6000_expand_compare_and_swapqhi (rtx d
+   emit_insn (gen_sync_compare_and_swapqhi_internal (wdst, mask,
+ 						    oldval, newval, mem));
+ 
++  /* Shift the result back.  */
++  emit_insn (gen_lshrsi3 (wdst, wdst, shift));
++
+   emit_move_insn (dst, gen_lowpart (mode, wdst));
+ }
+ 

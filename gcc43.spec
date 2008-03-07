@@ -1,6 +1,6 @@
 %define DATE 20080307
 %define gcc_version 4.3.0
-%define gcc_release 1
+%define gcc_release 2
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,6 +140,7 @@ Patch10: gcc43-rh330771.patch
 Patch11: gcc43-rh341221.patch
 Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
+Patch14: gcc43-pr35498.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -436,6 +437,7 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .rh341221~
 %patch12 -p0 -b .cpp-pragma~
 %patch13 -p0 -b .java-debug-iface-type~
+%patch14 -p0 -b .pr35498~
 
 tar xzf %{SOURCE4}
 
@@ -1649,6 +1651,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Mar  7 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-2
+- fix ppc/ppc64 8/16 bit sync builtins (PR target/35498)
+
 * Fri Mar  7 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-1
 - gcc 4.3.0 release
   - PRs c++/35244, c++/35315, c++/35323, c++/35333, c++/35338, driver/35420,
