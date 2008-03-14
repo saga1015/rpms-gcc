@@ -1,6 +1,6 @@
 %define DATE 20080307
 %define gcc_version 4.3.0
-%define gcc_release 2
+%define gcc_release 3
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,7 +140,6 @@ Patch10: gcc43-rh330771.patch
 Patch11: gcc43-rh341221.patch
 Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
-Patch14: gcc43-pr35498.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -437,7 +436,6 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .rh341221~
 %patch12 -p0 -b .cpp-pragma~
 %patch13 -p0 -b .java-debug-iface-type~
-%patch14 -p0 -b .pr35498~
 
 tar xzf %{SOURCE4}
 
@@ -696,8 +694,7 @@ rm -fr $RPM_BUILD_ROOT
 
 perl -pi -e \
   's~href="l(ibstdc|atest)~href="http://gcc.gnu.org/onlinedocs/libstdc++/l\1~' \
-  libstdc++-v3/doc/html/documentation.html
-ln -sf documentation.html libstdc++-v3/doc/html/index.html
+  libstdc++-v3/doc/html/api.html
 
 cd obj-%{gcc_target_platform}
 
@@ -1651,6 +1648,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Mar 14 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-3
+- update from gcc-4_3-branch
+  - PRs c++/33887, c++/35328, c++/35337, c++/35469, c/35438, c/35439,
+	fortran/35474, libstdc++/35541, libstdc++/35566, middle-end/35099,
+	middle-end/35185, middle-end/35456, middle-end/35526,
+	middle-end/35549, target/34000, target/35190, target/35225,
+	target/35350, target/35496, target/35540, target/35553,
+	tree-optimization/34989, tree-optimization/35472
+  - fix eclipse build (#434356)
+- libstdc++ doc fix (#436687)
+
 * Fri Mar  7 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-2
 - fix ppc/ppc64 8/16 bit sync builtins (PR target/35498)
 
