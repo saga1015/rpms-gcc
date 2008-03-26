@@ -1,6 +1,6 @@
-%define DATE 20080314
+%define DATE 20080326
 %define gcc_version 4.3.0
-%define gcc_release 3
+%define gcc_release 4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,6 +140,9 @@ Patch10: gcc43-rh330771.patch
 Patch11: gcc43-rh341221.patch
 Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
+Patch14: gcc43-libgomp-speedup.patch
+Patch15: gcc43-pr35440.patch
+Patch16: gcc43-pr35546.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -270,6 +273,7 @@ Fortran 95 dynamically linked programs.
 %package -n libgomp
 Summary: GCC OpenMP 2.5 shared support library
 Group: System Environment/Libraries
+Prereq: /sbin/install-info
 
 %description -n libgomp
 This package contains GCC shared support library which is needed
@@ -436,6 +440,9 @@ which are required to run programs compiled with the GNAT.
 %patch11 -p0 -b .rh341221~
 %patch12 -p0 -b .cpp-pragma~
 %patch13 -p0 -b .java-debug-iface-type~
+%patch14 -p0 -b .libgomp-speedup~
+%patch15 -p0 -b .pr35440~
+%patch16 -p0 -b .pr35546~
 
 tar xzf %{SOURCE4}
 
@@ -1648,6 +1655,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Mar 26 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-4
+- update from gcc-4_3-branch
+  - PRs c++/35332, c++/35548, debug/31510, fortran/33295, fortran/34813,
+	libfortran/35617, libfortran/35627, libgomp/35625, libstdc++/35256,
+	libstdc++/35637, middle-end/35593, middle-end/35609,
+	middle-end/35611, middle-end/35616, target/35504, testsuite/34168,
+	testsuite/35621
+- backport libgomp speedups from gomp-3_0-branch (#437268)
+- fix diagnostics with compound literals (PR c/35440)
+- fix C++ handling of late template attributes (PR c++/35546)
+- Prereq install-info in libgomp (#437523)
+
 * Fri Mar 14 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-3
 - update from gcc-4_3-branch
   - PRs c++/33887, c++/35328, c++/35337, c++/35469, c/35438, c/35439,
