@@ -543,6 +543,9 @@ OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
 %ifarch sparc sparc64
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcpu=v[78]//g'`
 %endif
+%ifarch %{ix86}
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-march=i386//g'`
+%endif
 %ifarch sparc64
 cat > gcc64 <<"EOF"
 #!/bin/sh
