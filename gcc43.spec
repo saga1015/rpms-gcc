@@ -1,6 +1,6 @@
 %define DATE 20080326
 %define gcc_version 4.3.0
-%define gcc_release 4
+%define gcc_release 5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -143,6 +143,7 @@ Patch13: gcc43-java-debug-iface-type.patch
 Patch14: gcc43-libgomp-speedup.patch
 Patch15: gcc43-pr35440.patch
 Patch16: gcc43-pr35546.patch
+Patch17: gcc43-i386-libgomp.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -443,6 +444,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .libgomp-speedup~
 %patch15 -p0 -b .pr35440~
 %patch16 -p0 -b .pr35546~
+%patch17 -p0 -b .i386-libgomp~
 
 tar xzf %{SOURCE4}
 
@@ -1655,6 +1657,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Mar 27 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-5
+- fix libgomp when sync builtins aren't available
+- on i386 build libgomp and __cxa_guard_* as i486+,
+  NPTL doesn't support pre-i486 anyway and atomic builtins give
+  significant speedups
+
 * Wed Mar 26 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-4
 - update from gcc-4_3-branch
   - PRs c++/35332, c++/35548, debug/31510, fortran/33295, fortran/34813,

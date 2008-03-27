@@ -1,3 +1,20 @@
+2008-03-27  Jakub Jelinek  <jakub@redhat.com>
+
+	* libgomp.h (struct gomp_team_state): Remove single_count field
+	ifndef HAVE_SYNC_BUILTINS.
+	(struct gomp_team): Likewise.  Add work_share_list_free_lock
+	ifndef HAVE_SYNC_BUILTINS.
+	* team.c (gomp_new_team): If HAVE_SYNC_BUILTINS is not defined,
+	don't initialize single_count, but instead initialize
+	work_share_list_free_lock.
+	(free_team): Destroy work_share_list_free_lock ifndef
+	HAVE_SYNC_BUILTINS.
+	(gomp_team_start): Don't initialize ts.single_count ifndef
+	HAVE_SYNC_BUILTINS.
+	* work.c (alloc_work_share, free_work_share): Use
+	work_share_list_free_lock instead of atomic chaining ifndef
+	HAVE_SYNC_BUILTINS.
+
 2008-03-26  Jakub Jelinek  <jakub@redhat.com>
 
 	* loop.c (gomp_loop_init): Fix GFS_DYNAMIC ws->mode setting.
@@ -444,7 +461,7 @@
    /* Not strictly environment related, but ordering constructors is tricky.  */
    pthread_attr_init (&gomp_thread_attr);
 --- libgomp/libgomp.h.jj	2007-12-07 14:41:01.000000000 +0100
-+++ libgomp/libgomp.h	2008-03-26 16:33:57.000000000 +0100
++++ libgomp/libgomp.h	2008-03-27 12:21:51.000000000 +0100
 @@ -50,6 +50,7 @@
  #include "sem.h"
  #include "mutex.h"
@@ -557,7 +574,7 @@
  };
  
  /* This structure contains all of the thread-local data associated with 
-@@ -133,21 +158,22 @@ struct gomp_team_state
+@@ -133,21 +158,24 @@ struct gomp_team_state
  
    /* This is the work share construct which this thread is currently
       processing.  Recall that with NOWAIT, not all threads may be 
@@ -583,12 +600,14 @@
 -     when encountering it for the first time.  This particular number
 -     reflects the generation of the work_share member of this struct.  */
 -  unsigned work_share_generation;
++#ifdef HAVE_SYNC_BUILTINS
 +  /* Number of single stmts encountered.  */
 +  unsigned long single_count;
++#endif
  
    /* For GFS_RUNTIME loops that resolved to GFS_STATIC, this is the
       trip number through the loop.  So first time a particular loop
-@@ -163,41 +189,48 @@ struct gomp_team_state
+@@ -163,41 +191,53 @@ struct gomp_team_state
  
  struct gomp_team
  {
@@ -644,9 +663,14 @@
 +     with alloc_work_share.  */
 +  struct gomp_work_share *work_share_list_free;
 +
++#ifdef HAVE_SYNC_BUILTINS
 +  /* Number of simple single regions encountered by threads in this
 +     team.  */
 +  unsigned long single_count;
++#else
++  /* Mutex protecting addition of workshares to work_share_list_free.  */
++  gomp_mutex_t work_share_list_free_lock;
++#endif
 +
 +  /* This barrier is used for most synchronization of the team.  */
 +  gomp_barrier_t barrier;
@@ -660,7 +684,7 @@
    gomp_sem_t *ordered_release[];
  };
  
-@@ -242,6 +275,11 @@ extern bool gomp_dyn_var;
+@@ -242,6 +282,11 @@ extern bool gomp_dyn_var;
  extern bool gomp_nest_var;
  extern enum gomp_schedule_type gomp_run_sched_var;
  extern unsigned long gomp_run_sched_chunk;
@@ -672,7 +696,7 @@
  
  /* The attributes to be used during thread creation.  */
  extern pthread_attr_t gomp_thread_attr;
-@@ -306,17 +344,27 @@ extern unsigned gomp_dynamic_max_threads
+@@ -306,17 +351,27 @@ extern unsigned gomp_dynamic_max_threads
  
  /* team.c */
  
@@ -761,14 +785,14 @@
      {
        long left = end - start;
 --- libgomp/work.c.jj	2007-12-07 14:41:01.000000000 +0100
-+++ libgomp/work.c	2008-03-26 15:11:32.000000000 +0100
++++ libgomp/work.c	2008-03-27 12:21:51.000000000 +0100
 @@ -1,4 +1,4 @@
 -/* Copyright (C) 2005 Free Software Foundation, Inc.
 +/* Copyright (C) 2005, 2008 Free Software Foundation, Inc.
     Contributed by Richard Henderson <rth@redhat.com>.
  
     This file is part of the GNU OpenMP Library (libgomp).
-@@ -29,39 +29,117 @@
+@@ -29,39 +29,138 @@
     of threads.  */
  
  #include "libgomp.h"
@@ -804,6 +828,7 @@
 -  ws = gomp_malloc_cleared (size);
 -  gomp_mutex_init (&ws->lock);
 -  ws->ordered_owner = -1;
++#ifdef HAVE_SYNC_BUILTINS
 +  ws = team->work_share_list_free;
 +  /* We need atomic read from work_share_list_free,
 +     as free_work_share can be called concurrently.  */
@@ -816,6 +841,18 @@
 +      team->work_share_list_alloc = next->next_free;
 +      return next;
 +    }
++#else
++  gomp_mutex_lock (&team->work_share_list_free_lock);
++  ws = team->work_share_list_free;
++  if (ws)
++    {
++      team->work_share_list_alloc = ws->next_free;
++      team->work_share_list_free = NULL;
++      gomp_mutex_unlock (&team->work_share_list_free_lock);
++      return ws;
++    }
++  gomp_mutex_unlock (&team->work_share_list_free_lock);
++#endif
  
 +  team->work_share_chunk *= 2;
 +  ws = gomp_malloc (team->work_share_chunk * sizeof (struct gomp_work_share));
@@ -888,6 +925,7 @@
 +  else
 +    {
 +      struct gomp_work_share *next_ws;
++#ifdef HAVE_SYNC_BUILTINS
 +      do
 +	{
 +	  next_ws = team->work_share_list_free;
@@ -895,12 +933,19 @@
 +	}
 +      while (!__sync_bool_compare_and_swap (&team->work_share_list_free,
 +					    next_ws, ws));
++#else
++      gomp_mutex_lock (&team->work_share_list_free_lock);
++      next_ws = team->work_share_list_free;
++      ws->next_free = next_ws;
++      team->work_share_list_free = ws;
++      gomp_mutex_unlock (&team->work_share_list_free_lock);
++#endif
 +    }
 +}
  
  /* The current thread is ready to begin the next work sharing construct.
     In all cases, thr->ts.work_share is updated to point to the new
-@@ -74,71 +152,34 @@ gomp_work_share_start (bool ordered)
+@@ -74,71 +173,34 @@ gomp_work_share_start (bool ordered)
    struct gomp_thread *thr = gomp_thread ();
    struct gomp_team *team = thr->ts.team;
    struct gomp_work_share *ws;
@@ -987,7 +1032,7 @@
  /* The current thread is done with its current work sharing construct.
     This version does imply a barrier at the end of the work-share.  */
  
-@@ -147,36 +188,28 @@ gomp_work_share_end (void)
+@@ -147,36 +209,28 @@ gomp_work_share_end (void)
  {
    struct gomp_thread *thr = gomp_thread ();
    struct gomp_team *team = thr->ts.team;
@@ -1033,7 +1078,7 @@
  /* The current thread is done with its current work sharing construct.
     This version does NOT imply a barrier at the end of the work-share.  */
  
-@@ -188,15 +221,17 @@ gomp_work_share_end_nowait (void)
+@@ -188,15 +242,17 @@ gomp_work_share_end_nowait (void)
    struct gomp_work_share *ws = thr->ts.work_share;
    unsigned completed;
  
@@ -1054,7 +1099,7 @@
  #ifdef HAVE_SYNC_BUILTINS
    completed = __sync_add_and_fetch (&ws->threads_completed, 1);
  #else
-@@ -206,18 +241,6 @@ gomp_work_share_end_nowait (void)
+@@ -206,18 +262,6 @@ gomp_work_share_end_nowait (void)
  #endif
  
    if (completed == team->nthreads)
@@ -1372,7 +1417,7 @@
  nodist_noinst_HEADERS = libgomp_f.h
  nodist_libsubinclude_HEADERS = omp.h
 --- libgomp/team.c.jj	2007-12-07 14:41:01.000000000 +0100
-+++ libgomp/team.c	2008-03-26 16:21:37.000000000 +0100
++++ libgomp/team.c	2008-03-27 12:22:26.000000000 +0100
 @@ -94,7 +94,7 @@ gomp_thread_start (void *xdata)
      {
        gomp_barrier_wait (&thr->ts.team->barrier);
@@ -1396,7 +1441,7 @@
  	  gomp_barrier_wait (&gomp_threads_dock);
  
  	  local_fn = thr->fn;
-@@ -133,21 +132,25 @@ gomp_thread_start (void *xdata)
+@@ -133,21 +132,29 @@ gomp_thread_start (void *xdata)
  
  /* Create a new team data structure.  */
  
@@ -1419,7 +1464,11 @@
 -  team->num_live_gen = work_share != NULL;
 -  team->work_shares[0] = work_share;
 +  team->work_share_chunk = 8;
++#ifdef HAVE_SYNC_BUILTINS
 +  team->single_count = 0;
++#else
++  gomp_mutex_init (&team->work_share_list_free_lock);
++#endif
 +  gomp_init_work_share (&team->work_shares[0], false, nthreads);
 +  team->work_shares[0].next_alloc = NULL;
 +  team->work_share_list_free = NULL;
@@ -1430,7 +1479,7 @@
  
    team->nthreads = nthreads;
    gomp_barrier_init (&team->barrier, nthreads);
-@@ -164,8 +167,17 @@ new_team (unsigned nthreads, struct gomp
+@@ -164,10 +171,22 @@ new_team (unsigned nthreads, struct gomp
  static void
  free_team (struct gomp_team *team)
  {
@@ -1449,8 +1498,13 @@
 +    }
    gomp_barrier_destroy (&team->barrier);
    gomp_sem_destroy (&team->master_release);
++#ifndef HAVE_SYNC_BUILTINS
++  gomp_mutex_destroy (&team->work_share_list_free_lock);
++#endif
    free (team);
-@@ -176,11 +188,10 @@ free_team (struct gomp_team *team)
+ }
+ 
+@@ -176,11 +195,10 @@ free_team (struct gomp_team *team)
  
  void
  gomp_team_start (void (*fn) (void *), void *data, unsigned nthreads,
@@ -1463,7 +1517,7 @@
    bool nested;
    unsigned i, n, old_threads_used = 0;
    pthread_attr_t thread_attr, *attr;
-@@ -188,17 +199,16 @@ gomp_team_start (void (*fn) (void *), vo
+@@ -188,17 +206,18 @@ gomp_team_start (void (*fn) (void *), vo
    thr = gomp_thread ();
    nested = thr->ts.team != NULL;
  
@@ -1480,11 +1534,13 @@
 -  thr->ts.work_share_generation = 0;
 +  thr->ts.work_share = &team->work_shares[0];
 +  thr->ts.last_work_share = NULL;
++#ifdef HAVE_SYNC_BUILTINS
 +  thr->ts.single_count = 0;
++#endif
    thr->ts.static_trip = 0;
  
    if (nthreads == 1)
-@@ -241,9 +251,10 @@ gomp_team_start (void (*fn) (void *), vo
+@@ -241,9 +260,12 @@ gomp_team_start (void (*fn) (void *), vo
  	{
  	  nthr = gomp_threads[i];
  	  nthr->ts.team = team;
@@ -1493,11 +1549,13 @@
 +	  nthr->ts.last_work_share = NULL;
  	  nthr->ts.team_id = i;
 -	  nthr->ts.work_share_generation = 0;
++#ifdef HAVE_SYNC_BUILTINS
 +	  nthr->ts.single_count = 0;
++#endif
  	  nthr->ts.static_trip = 0;
  	  nthr->fn = fn;
  	  nthr->data = data;
-@@ -266,8 +277,24 @@ gomp_team_start (void (*fn) (void *), vo
+@@ -266,8 +288,24 @@ gomp_team_start (void (*fn) (void *), vo
  	}
      }
  
@@ -1523,7 +1581,7 @@
      {
        size_t stacksize;
        pthread_attr_init (&thread_attr);
-@@ -287,9 +314,10 @@ gomp_team_start (void (*fn) (void *), vo
+@@ -287,9 +325,12 @@ gomp_team_start (void (*fn) (void *), vo
        int err;
  
        start_data->ts.team = team;
@@ -1532,11 +1590,13 @@
 +      start_data->ts.last_work_share = NULL;
        start_data->ts.team_id = i;
 -      start_data->ts.work_share_generation = 0;
++#ifdef HAVE_SYNC_BUILTINS
 +      start_data->ts.single_count = 0;
++#endif
        start_data->ts.static_trip = 0;
        start_data->fn = fn;
        start_data->fn_data = data;
-@@ -303,7 +331,7 @@ gomp_team_start (void (*fn) (void *), vo
+@@ -303,7 +344,7 @@ gomp_team_start (void (*fn) (void *), vo
  	gomp_fatal ("Thread creation failed: %s", strerror (err));
      }
  
@@ -1545,7 +1605,7 @@
      pthread_attr_destroy (&thread_attr);
  
   do_release:
-@@ -313,8 +341,20 @@ gomp_team_start (void (*fn) (void *), vo
+@@ -313,8 +354,20 @@ gomp_team_start (void (*fn) (void *), vo
       that should arrive back at the end of this team.  The extra
       threads should be exiting.  Note that we arrange for this test
       to never be true for nested teams.  */
@@ -1568,7 +1628,7 @@
  }
  
  
-@@ -329,8 +369,21 @@ gomp_team_end (void)
+@@ -329,8 +382,21 @@ gomp_team_end (void)
  
    gomp_barrier_wait (&team->barrier);
  
