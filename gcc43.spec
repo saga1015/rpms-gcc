@@ -1,6 +1,6 @@
-%define DATE 20080326
+%define DATE 20080404
 %define gcc_version 4.3.0
-%define gcc_release 5
+%define gcc_release 6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -142,8 +142,9 @@ Patch12: gcc43-cpp-pragma.patch
 Patch13: gcc43-java-debug-iface-type.patch
 Patch14: gcc43-libgomp-speedup.patch
 Patch15: gcc43-pr35440.patch
-Patch16: gcc43-pr35546.patch
-Patch17: gcc43-i386-libgomp.patch
+Patch16: gcc43-i386-libgomp.patch
+Patch17: gcc43-pr35751.patch
+Patch18: gcc43-rh251682.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -443,8 +444,9 @@ which are required to run programs compiled with the GNAT.
 %patch13 -p0 -b .java-debug-iface-type~
 %patch14 -p0 -b .libgomp-speedup~
 %patch15 -p0 -b .pr35440~
-%patch16 -p0 -b .pr35546~
-%patch17 -p0 -b .i386-libgomp~
+%patch16 -p0 -b .i386-libgomp~
+%patch17 -p0 -b .pr35751~
+%patch18 -p0 -b .rh251682~
 
 tar xzf %{SOURCE4}
 
@@ -1660,6 +1662,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Apr  4 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-6
+- update from gcc-4_3-branch
+  - PRs ada/33857, c++/35245, c++/35741, c/35738, fortran/35698,
+	fortran/35699, fortran/35702, fortran/35724, fortran/35740,
+	fortran/35786, libfortran/35699, libstdc++/35725, middle-end/35429,
+	middle-end/35705, middle-end/35818, target/31110, target/31232,
+	target/35657, tree-opt/35431
+- fix OpenMP ICE on invalid extern/static VLA (PR c/35751)
+- fix PCH failure if a precompiled header is included more than
+  once (#251682, PR pch/13675)
+
 * Thu Mar 27 2008 Jakub Jelinek <jakub@redhat.com> 4.3.0-5
 - fix libgomp when sync builtins aren't available
 - on i386 build libgomp and __cxa_guard_* as i486+,
