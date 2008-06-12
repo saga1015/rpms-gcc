@@ -1,6 +1,6 @@
-%define DATE 20080609
+%define DATE 20080612
 %define gcc_version 4.3.1
-%define gcc_release 1
+%define gcc_release 2
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -143,6 +143,7 @@ Patch13: gcc43-i386-libgomp.patch
 Patch14: gcc43-rh251682.patch
 Patch15: gcc43-sparc-config-detection.patch
 Patch16: gcc43-libgomp-omp_h-multilib.patch
+Patch17: gcc43-pr36507.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -443,6 +444,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .rh251682~
 %patch15 -p0 -b .sparc-config-detection~
 %patch16 -p0 -b .libgomp-omp_h-multilib~
+%patch17 -p0 -b .pr36507~
 
 tar xzf %{SOURCE4}
 
@@ -1664,7 +1666,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Mon Jun 9  2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-1
+* Thu Jun 12 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-2
+- update from gcc-4_3-branch
+  - PRs c++/36408, middle-end/35336, middle-end/36506, testsuite/36443,
+	tree-optimization/36474
+- OpenMP 3.0 bugfixes from trunk
+  - fix a thinko in task dispatching on barriers
+  - PRs libgomp/36469, libgomp/36471
+- fix nested inline functions in -std=gnu99 mode (#450967, PR c/36507)
+
+* Mon Jun  9 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-1
 - update from gcc-4_3-branch
   - 4.3.1 release
   - PRs ada/24880, ada/26635, bootstrap/35169, bootstrap/36452, c++/35578,
