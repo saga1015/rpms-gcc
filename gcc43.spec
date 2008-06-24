@@ -1,6 +1,6 @@
-%define DATE 20080612
+%define DATE 20080624
 %define gcc_version 4.3.1
-%define gcc_release 2
+%define gcc_release 3
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -143,7 +143,6 @@ Patch13: gcc43-i386-libgomp.patch
 Patch14: gcc43-rh251682.patch
 Patch15: gcc43-sparc-config-detection.patch
 Patch16: gcc43-libgomp-omp_h-multilib.patch
-Patch17: gcc43-pr36507.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -444,7 +443,6 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .rh251682~
 %patch15 -p0 -b .sparc-config-detection~
 %patch16 -p0 -b .libgomp-omp_h-multilib~
-%patch17 -p0 -b .pr36507~
 
 tar xzf %{SOURCE4}
 
@@ -1666,6 +1664,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jun 24 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-3
+- update from gcc-4_3-branch
+  - PRs c++/35317, c++/35320, documentation/30739, fortran/34908,
+	fortran/36276, fortran/36538, java/36247, middle-end/36584,
+	rtl-optimization/35604, target/36336, target/36424,
+	tree-optimization/36493, tree-optimization/36498,
+	tree-optimization/36504, tree-optimization/36519
+  - don't mark hard registers as reg pointers (#451068, target/36533)
+  - allow more compute_antic iterations (#450889, tree-optimization/36508)
+- fix #pragma omp task copyfn registration with cgraph (c++/36523)
+
 * Thu Jun 12 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-2
 - update from gcc-4_3-branch
   - PRs c++/36408, middle-end/35336, middle-end/36506, testsuite/36443,
