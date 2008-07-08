@@ -1,6 +1,6 @@
-%define DATE 20080624
+%define DATE 20080708
 %define gcc_version 4.3.1
-%define gcc_release 3
+%define gcc_release 4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -1664,6 +1664,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jul  8 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-4
+- update from gcc-4_3-branch
+  - PRs c++/34963, c++/36662, fortran/36546, fortran/36657, fortran/36676,
+	libstdc++/36612, libstdc++/36616, rtl-optimization/34744,
+	target/34780, target/34856, target/36510, target/36634,
+	target/36684, target/36698, target/36736, testsuite/36620,
+	tree-optimization/36648
+  - fix -frepo (#448390, PR c++/36364)
+- improve OpenMP debug info (PRs debug/36617, middle-end/36726)
+
 * Tue Jun 24 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-3
 - update from gcc-4_3-branch
   - PRs c++/35317, c++/35320, documentation/30739, fortran/34908,
