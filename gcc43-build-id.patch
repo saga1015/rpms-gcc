@@ -10,8 +10,8 @@
 
 --- gcc/config/rs6000/sysv4.h.~1~
 +++ gcc/config/rs6000/sysv4.h
-@@ -1044,7 +1044,7 @@ extern int fixuplabelno;
-   %{!dynamic-linker:-dynamic-linker /lib/ld.so.1}}}"
+@@ -906,7 +906,7 @@ extern int fixuplabelno;
+   %{!dynamic-linker:-dynamic-linker " LINUX_DYNAMIC_LINKER "}}}"
  
  #if defined(HAVE_LD_EH_FRAME_HDR)
 -# define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
