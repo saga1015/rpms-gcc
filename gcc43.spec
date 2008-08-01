@@ -1,6 +1,6 @@
-%define DATE 20080728
+%define DATE 20080801
 %define gcc_version 4.3.1
-%define gcc_release 5
+%define gcc_release 6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -1664,6 +1664,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug  1 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-6
+- update from gcc-4_3-branch
+  - PRs c++/36405, c++/36767, c++/36852, debug/36278, preprocessor/36649,
+	rtl-optimization/36929
+  - fix the last -Os -fasynchronous-unwind-tables known issue (#447912,
+    PR rtl-optimization/36419)
+- don't loop > 230000 times in make_temp_file if /tmp is full (#203231)
+
 * Mon Jul 28 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-5
 - update from gcc-4_3-branch
   - PRs c++/36407, fortran/36132, fortran/36366, fortran/36824, fortran/36852,
