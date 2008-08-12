@@ -1,6 +1,6 @@
-%define DATE 20080801
+%define DATE 20080812
 %define gcc_version 4.3.1
-%define gcc_release 6
+%define gcc_release 7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -1664,6 +1664,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Aug 12 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-7
+- update from gcc-4_3-branch
+  - PRs bootstrap/35752, c++/36688, c++/36999, c++/37016, c/35746,
+	fortran/36582, libgcj/31890, middle-end/35432, middle-end/36691,
+	middle-end/37014, middle-end/37026, middle-end/37042,
+	rtl-optimization/35542, rtl-optimization/36998, target/35659,
+	target/36613, tree-optimization/36991
+
 * Fri Aug  1 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-6
 - update from gcc-4_3-branch
   - PRs c++/36405, c++/36767, c++/36852, debug/36278, preprocessor/36649,
