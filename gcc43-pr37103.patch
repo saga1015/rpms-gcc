@@ -1,0 +1,56 @@
+2008-08-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/37103
+	* fold-const.c (fold_widened_comparison): Do not allow
+	sign changes that change the result even if shorter type
+	is wider than arg1_unw's type.
+
+	* gcc.c-torture/execute/20080813-1.c: New test.
+
+--- gcc/fold-const.c.jj	2008-08-13 19:46:11.000000000 +0200
++++ gcc/fold-const.c	2008-08-13 20:18:21.000000000 +0200
+@@ -6733,10 +6733,8 @@ fold_widened_comparison (enum tree_code 
+   if ((code == EQ_EXPR || code == NE_EXPR
+        || TYPE_UNSIGNED (TREE_TYPE (arg0)) == TYPE_UNSIGNED (shorter_type))
+       && (TREE_TYPE (arg1_unw) == shorter_type
+-	  || (TYPE_PRECISION (shorter_type)
+-	      > TYPE_PRECISION (TREE_TYPE (arg1_unw)))
+ 	  || ((TYPE_PRECISION (shorter_type)
+-	       == TYPE_PRECISION (TREE_TYPE (arg1_unw)))
++	       >= TYPE_PRECISION (TREE_TYPE (arg1_unw)))
+ 	      && (TYPE_UNSIGNED (shorter_type)
+ 		  == TYPE_UNSIGNED (TREE_TYPE (arg1_unw))))
+ 	  || (TREE_CODE (arg1_unw) == INTEGER_CST
+--- gcc/testsuite/gcc.c-torture/execute/20080813-1.c.jj	2008-08-13 20:22:56.000000000 +0200
++++ gcc/testsuite/gcc.c-torture/execute/20080813-1.c	2008-08-13 20:22:10.000000000 +0200
+@@ -0,0 +1,30 @@
++/* PR middle-end/37103 */
++
++extern void abort (void);
++
++void
++foo (unsigned short x)
++{
++  signed char y = -1;
++  if (x == y)
++    abort ();
++}
++
++void
++bar (unsigned short x)
++{
++  unsigned char y = -1;
++  if (x == y)
++    abort ();
++}
++
++int
++main (void)
++{
++  if (sizeof (int) == sizeof (short))
++    return 0;
++  foo (-1);
++  if (sizeof (short) > 1)
++    bar (-1);
++  return 0;
++}

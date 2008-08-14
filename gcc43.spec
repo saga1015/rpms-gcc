@@ -143,6 +143,7 @@ Patch13: gcc43-i386-libgomp.patch
 Patch14: gcc43-rh251682.patch
 Patch15: gcc43-sparc-config-detection.patch
 Patch16: gcc43-libgomp-omp_h-multilib.patch
+Patch17: gcc43-pr37103.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -443,6 +444,7 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .rh251682~
 %patch15 -p0 -b .sparc-config-detection~
 %patch16 -p0 -b .libgomp-omp_h-multilib~
+%patch17 -p0 -b .pr37103~
 
 tar xzf %{SOURCE4}
 
@@ -1664,13 +1666,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Tue Aug 12 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-7
+* Thu Aug 14 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-7
 - update from gcc-4_3-branch
   - PRs bootstrap/35752, c++/36688, c++/36999, c++/37016, c/35746,
 	fortran/36582, libgcj/31890, middle-end/35432, middle-end/36691,
 	middle-end/37014, middle-end/37026, middle-end/37042,
 	rtl-optimization/35542, rtl-optimization/36998, target/35659,
 	target/36613, tree-optimization/36991
+- fix folding of widened comparisons (PR middle-end/37103)
 
 * Fri Aug  1 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-6
 - update from gcc-4_3-branch
