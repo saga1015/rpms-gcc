@@ -1,0 +1,48 @@
+2008-08-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* dwarf2out.c (gen_formal_parameter_die, gen_variable_die): For
+	DECL_BY_REFERENCE decls don't pass TREE_READONLY and
+	TREE_THIS_VOLATILE to add_type_attribute.
+
+--- gcc/dwarf2out.c.jj	2008-08-22 17:49:10.000000000 +0200
++++ gcc/dwarf2out.c	2008-08-22 18:04:15.000000000 +0200
+@@ -13033,11 +13033,13 @@ gen_formal_parameter_die (tree node, dw_
+ 	  tree type = TREE_TYPE (node);
+ 	  add_name_and_src_coords_attributes (parm_die, node);
+ 	  if (DECL_BY_REFERENCE (node))
+-	    type = TREE_TYPE (type);
+-	  add_type_attribute (parm_die, type,
+-			      TREE_READONLY (node),
+-			      TREE_THIS_VOLATILE (node),
+-			      context_die);
++	    add_type_attribute (parm_die, TREE_TYPE (type), 0, 0,
++				context_die);
++	  else
++	    add_type_attribute (parm_die, type,
++				TREE_READONLY (node),
++				TREE_THIS_VOLATILE (node),
++				context_die);
+ 	  if (DECL_ARTIFICIAL (node))
+ 	    add_AT_flag (parm_die, DW_AT_artificial, 1);
+ 	}
+@@ -13714,14 +13716,15 @@ gen_variable_die (tree decl, dw_die_ref 
+   else
+     {
+       tree type = TREE_TYPE (decl);
++
++      add_name_and_src_coords_attributes (var_die, decl);
+       if ((TREE_CODE (decl) == PARM_DECL
+ 	   || TREE_CODE (decl) == RESULT_DECL)
+ 	  && DECL_BY_REFERENCE (decl))
+-	type = TREE_TYPE (type);
+-
+-      add_name_and_src_coords_attributes (var_die, decl);
+-      add_type_attribute (var_die, type, TREE_READONLY (decl),
+-			  TREE_THIS_VOLATILE (decl), context_die);
++	add_type_attribute (var_die, TREE_TYPE (type), 0, 0, context_die);
++      else
++	add_type_attribute (var_die, type, TREE_READONLY (decl),
++			    TREE_THIS_VOLATILE (decl), context_die);
+ 
+       if (TREE_PUBLIC (decl))
+ 	add_AT_flag (var_die, DW_AT_external, 1);

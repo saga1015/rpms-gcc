@@ -293,14 +293,14 @@
  symbol_attribute gfc_variable_attr (gfc_expr *, gfc_typespec *);
 --- gcc/fortran/symbol.c.jj	2008-08-21 10:19:49.000000000 +0200
 +++ gcc/fortran/symbol.c	2008-08-21 10:21:30.000000000 +0200
-@@ -3042,6 +3042,7 @@ gfc_free_namespace (gfc_namespace *ns)
+@@ -2903,6 +2903,7 @@ gfc_free_namespace (gfc_namespace *ns)
  
    gfc_free_equiv (ns->equiv);
    gfc_free_equiv_lists (ns->equiv_lists);
 +  gfc_free_use_stmts (ns->use_stmts);
  
    for (i = GFC_INTRINSIC_BEGIN; i != GFC_INTRINSIC_END; i++)
-     gfc_free_interface (ns->op[i]);
+     gfc_free_interface (ns->operator[i]);
 --- gcc/fortran/trans-types.c.jj	2008-08-21 10:19:49.000000000 +0200
 +++ gcc/fortran/trans-types.c	2008-08-21 10:21:30.000000000 +0200
 @@ -1934,12 +1934,23 @@ gfc_get_derived_type (gfc_symbol * deriv

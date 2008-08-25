@@ -1,6 +1,6 @@
-%define DATE 20080812
+%define DATE 20080825
 %define gcc_version 4.3.1
-%define gcc_release 7
+%define gcc_release 8
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -143,7 +143,15 @@ Patch13: gcc43-i386-libgomp.patch
 Patch14: gcc43-rh251682.patch
 Patch15: gcc43-sparc-config-detection.patch
 Patch16: gcc43-libgomp-omp_h-multilib.patch
-Patch17: gcc43-pr37103.patch
+Patch17: gcc43-fortran-debug1.patch
+Patch18: gcc43-fortran-debug2.patch
+Patch19: gcc43-fortran-debug3.patch
+Patch20: gcc43-fortran-debug4.patch
+Patch21: gcc43-fortran-debug5.patch
+Patch22: gcc43-fortran-debug6.patch
+Patch23: gcc43-fortran-debug7.patch
+Patch24: gcc43-fortran-debug8.patch
+Patch25: gcc43-fortran-debug9.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -272,13 +280,13 @@ This package contains Fortran 95 shared library which is needed to run
 Fortran 95 dynamically linked programs.
 
 %package -n libgomp
-Summary: GCC OpenMP 2.5 shared support library
+Summary: GCC OpenMP v3.0 shared support library
 Group: System Environment/Libraries
 Prereq: /sbin/install-info
 
 %description -n libgomp
 This package contains GCC shared support library which is needed
-for OpenMP 2.5 support.
+for OpenMP v3.0 support.
 
 %package -n libmudflap
 Summary: GCC mudflap shared support library
@@ -444,7 +452,15 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .rh251682~
 %patch15 -p0 -b .sparc-config-detection~
 %patch16 -p0 -b .libgomp-omp_h-multilib~
-%patch17 -p0 -b .pr37103~
+%patch17 -p0 -b .fortran-debug1~
+%patch18 -p0 -b .fortran-debug2~
+%patch19 -p0 -b .fortran-debug3~
+%patch20 -p0 -b .fortran-debug4~
+%patch21 -p0 -b .fortran-debug5~
+%patch22 -p0 -b .fortran-debug6~
+%patch23 -p0 -b .fortran-debug7~
+%patch24 -p0 -b .fortran-debug8~
+%patch25 -p0 -b .fortran-debug9~
 
 tar xzf %{SOURCE4}
 
@@ -1666,6 +1682,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Aug 25 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-8
+- update from gcc-4_3-branch
+  - PRs debug/37156, libgcj/8995, libstdc++/37100, target/37101
+- backport Fortran debuginfo improvements (PRs debug/35896, fortran/35154,
+  fortran/35724, fortran/35892, fortran/29635, fortran/23057
+  fortran/24790, #457792, #457793, #459374, #459376, #459378)
+
 * Thu Aug 14 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-7
 - update from gcc-4_3-branch
   - PRs bootstrap/35752, c++/36688, c++/36999, c++/37016, c/35746,

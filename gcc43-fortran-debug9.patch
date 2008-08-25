@@ -1,0 +1,144 @@
+2008-08-25  Jakub Jelinek  <jakub@redhat.com>
+
+	* gfortran.h (gfc_use_list): Add where field.
+	* module.c (use_locus): New static variable.
+	(gfc_match_use): Set it.
+	(gfc_use_module): Copy it to gfc_use_list's where field.
+	* trans-decl.c (gfc_generate_module_vars): Call gfc_trans_use_stmts.
+	(gfc_trans_use_stmts): Set backend locus before calling the debug
+	hook.  Allow non-VAR_DECLs to be created even for non-external
+	module.  Don't emit anything so far for renames from different
+	modules.
+
+--- gcc/fortran/gfortran.h.jj	2008-08-22 20:11:22.000000000 +0200
++++ gcc/fortran/gfortran.h	2008-08-25 13:03:42.000000000 +0200
+@@ -1131,6 +1131,7 @@ typedef struct gfc_use_list
+   const char *module_name;
+   int only_flag;
+   struct gfc_use_rename *rename;
++  locus where;
+   /* Next USE statement.  */
+   struct gfc_use_list *next;
+ }
+--- gcc/fortran/module.c.jj	2008-08-22 20:11:22.000000000 +0200
++++ gcc/fortran/module.c	2008-08-25 13:10:57.000000000 +0200
+@@ -188,6 +188,8 @@ static int symbol_number;	/* Counter for
+ /* Tells mio_expr_ref to make symbols for unused equivalence members.  */
+ static bool in_load_equiv;
+ 
++static locus use_locus;
++
+ 
+ 
+ /*****************************************************************/
+@@ -546,6 +548,8 @@ gfc_match_use (void)
+ 	}
+     }
+ 
++  use_locus = gfc_current_locus;
++
+   m = gfc_match_name (module_name);
+   if (m != MATCH_YES)
+     return m;
+@@ -5044,6 +5048,7 @@ gfc_use_module (void)
+   use_stmt->module_name = gfc_get_string (module_name);
+   use_stmt->only_flag = only_flag;
+   use_stmt->rename = gfc_rename_list;
++  use_stmt->where = use_locus;
+   gfc_rename_list = NULL;
+   use_stmt->next = gfc_current_ns->use_stmts;
+   gfc_current_ns->use_stmts = use_stmt;
+--- gcc/fortran/trans-decl.c.jj	2008-08-25 12:44:00.000000000 +0200
++++ gcc/fortran/trans-decl.c	2008-08-25 13:16:17.000000000 +0200
+@@ -3151,26 +3151,7 @@ gfc_create_module_variable (gfc_symbol *
+     }
+ }
+ 
+-
+-/* Generate all the required code for module variables.  */
+-
+-void
+-gfc_generate_module_vars (gfc_namespace * ns)
+-{
+-  module_namespace = ns;
+-  cur_module = gfc_find_module (ns->proc_name->name);
+-
+-  /* Check if the frontend left the namespace in a reasonable state.  */
+-  gcc_assert (ns->proc_name && !ns->proc_name->tlink);
+-
+-  /* Generate COMMON blocks.  */
+-  gfc_trans_common (ns);
+-
+-  /* Create decls for all the module variables.  */
+-  gfc_traverse_ns (ns, gfc_create_module_variable);
+-
+-  cur_module = NULL;
+-}
++/* Emit debug information for USE statements.  */
+ 
+ static void
+ gfc_trans_use_stmts (gfc_namespace * ns)
+@@ -3190,6 +3171,7 @@ gfc_trans_use_stmts (gfc_namespace * ns)
+ 			  void_type_node);
+ 	  DECL_EXTERNAL (entry->namespace_decl) = 1;
+ 	}
++      gfc_set_backend_locus (&use_stmt->where);
+       if (!use_stmt->only_flag)
+ 	(*debug_hooks->imported_module_or_decl) (entry->namespace_decl,
+ 						 NULL_TREE,
+@@ -3214,9 +3196,14 @@ gfc_trans_use_stmts (gfc_namespace * ns)
+ 				     rent->local_name[0]
+ 				     ? rent->local_name : rent->use_name);
+ 	      gcc_assert (st && st->n.sym->attr.use_assoc);
+-	      if (st->n.sym->backend_decl && DECL_P (st->n.sym->backend_decl))
++	      if (st->n.sym->backend_decl
++		  && DECL_P (st->n.sym->backend_decl)
++		  && st->n.sym->module
++		  && strcmp (st->n.sym->module, use_stmt->module_name) == 0)
+ 		{
+-		  gcc_assert (DECL_EXTERNAL (entry->namespace_decl));
++		  gcc_assert (DECL_EXTERNAL (entry->namespace_decl)
++			      || (TREE_CODE (st->n.sym->backend_decl)
++				  != VAR_DECL));
+ 		  decl = copy_node (st->n.sym->backend_decl);
+ 		  DECL_CONTEXT (decl) = entry->namespace_decl;
+ 		  DECL_EXTERNAL (decl) = 1;
+@@ -3236,6 +3223,7 @@ gfc_trans_use_stmts (gfc_namespace * ns)
+ 	    local_name = get_identifier (rent->local_name);
+ 	  else
+ 	    local_name = NULL_TREE;
++	  gfc_set_backend_locus (&rent->where);
+ 	  (*debug_hooks->imported_module_or_decl) (decl, local_name,
+ 						   ns->proc_name->backend_decl,
+ 						   !use_stmt->only_flag);
+@@ -3243,6 +3231,30 @@ gfc_trans_use_stmts (gfc_namespace * ns)
+     }
+ }
+ 
++
++/* Generate all the required code for module variables.  */
++
++void
++gfc_generate_module_vars (gfc_namespace * ns)
++{
++  module_namespace = ns;
++  cur_module = gfc_find_module (ns->proc_name->name);
++
++  /* Check if the frontend left the namespace in a reasonable state.  */
++  gcc_assert (ns->proc_name && !ns->proc_name->tlink);
++
++  /* Generate COMMON blocks.  */
++  gfc_trans_common (ns);
++
++  /* Create decls for all the module variables.  */
++  gfc_traverse_ns (ns, gfc_create_module_variable);
++
++  cur_module = NULL;
++
++  gfc_trans_use_stmts (ns);
++}
++
++
+ static void
+ gfc_generate_contained_functions (gfc_namespace * parent)
+ {
