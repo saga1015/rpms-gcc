@@ -1,0 +1,1010 @@
+2008-08-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/29635
+	PR fortran/23057
+	* debug.h (struct gcc_debug_hooks): Add NAME and CHILD
+	arguments to imported_module_or_decl.
+	(debug_nothing_tree_tree): Removed.
+	(debug_nothing_tree_tree_tree_bool): New prototype.
+	* debug.c (do_nothing_debug_hooks): Adjust.
+	(debug_nothing_tree_tree): Removed.
+	(debug_nothing_tree_tree_tree_bool): New function.
+	* dwarf2out.c (is_symbol_die): Handle DW_TAG_module.
+	(gen_variable_die): Put all common vars for the
+	same COMMON block under one DW_TAG_common_block.
+	(declare_in_namespace): Return new context_die, for Fortran
+	return the module DIE instead of adding extra declarations into
+	the namespace.
+	(gen_type_die_with_usage): Adjust declare_in_namespace caller.
+	(gen_namespace_die): If is_fortran (), generate DW_TAG_module
+	instead of DW_TAG_namespace.  If DECL_EXTERNAL is set, add
+	DW_AT_declaration.
+	(dwarf2out_global_decl): Don't skip Fortran global vars.
+	(gen_decl_die): Likewise.  Adjust declare_in_namespace callers.
+	(dwarf2out_imported_module_or_decl): Add NAME and CHILD arguments.
+	If NAME is non-NULL, add DW_AT_name.  If CHILD is non-NULL, put
+	DW_TAG_imported_declaration as child of previous
+	DW_TAG_imported_module.
+	* dbxout.c (dbx_debug_hooks, xcoff_debug_hooks): Adjust.
+	* sdbout.c (sdb_debug_hooks): Likewise.
+	* vmsdbgout.c (vmsdbg_debug_hooks): Likewise.
+
+	* name-lookup.c (do_using_directive, cp_emit_debug_info_for_using):
+	Adjust debug_hooks->imported_module_or_decl callers.
+
+	* f95-lang.c (gfc_init_ts): New function.
+	(LANG_HOOKS_INIT_TS): Define.
+	* gfortran.h (gfc_use_rename): New type, moved from module.c.
+	(gfc_get_use_rename): New macro, moved from module.c.
+	(gfc_use_list): New type.
+	(gfc_get_use_list): New macro.
+	(gfc_namespace): Add use_stmts field.
+	(gfc_free_use_stmts): New prototype.
+	* Make-lang.in (fortran/trans-decl.o): Depend on debug.h.
+	* module.c (gfc_use_rename, gfc_get_use_rename): Moved to
+	gfortran.h.
+	(gfc_use_module): Chain the USE statement info to
+	ns->use_stmts.
+	(gfc_free_use_stmts): New function.
+	* symbol.c (gfc_free_namespace): Call gfc_free_use_stmts.
+	* trans.h (struct module_htab_entry): New type.
+	(gfc_find_module, gfc_module_add_decl): New functions.
+	* trans.c (gfc_generate_module_code): Create NAMESPACE_DECL for
+	the module, adjust DECL_CONTEXTs of module procedures and
+	call gfc_module_add_decl for them.
+	* trans-common.c (build_common_decl): Set DECL_IGNORED_P
+	on the common variable.
+	(create_common): Set DECL_IGNORED_P for use associated vars.
+	* trans-decl.c: Include debug.h.
+	(gfc_get_symbol_decl): Set DECL_IGNORED_P on use_assoc vars from
+	modules.
+	(build_function_decl): Allow current_function_decl's context
+	to be a NAMESPACE_DECL.
+	(module_htab, cur_module): New variables.
+	(module_htab_do_hash, module_htab_eq, module_htab_decls_hash,
+	module_htab_decls_eq, gfc_find_module, gfc_module_add_decl): New
+	functions.
+	(gfc_create_module_variable): Adjust DECL_CONTEXTs of module
+	variables and types and call gfc_module_add_decl for them.
+	(gfc_generate_module_vars): Temporarily set cur_module.
+	(gfc_trans_use_stmts): New function.
+	(gfc_generate_function_code): Call it.
+	(gfc_generate_block_data): Set DECL_IGNORED_P on decl.
+	* trans-types.c (gfc_get_derived_type): Adjust DECL_CONTEXT
+	and TYPE_CONTEXT of module derived types.
+
+--- gcc/fortran/f95-lang.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/f95-lang.c	2008-08-21 10:21:30.000000000 +0200
+@@ -99,6 +99,7 @@ void insert_block (tree);
+ static void gfc_clear_binding_stack (void);
+ static void gfc_be_parse_file (int);
+ static alias_set_type gfc_get_alias_set (tree);
++static void gfc_init_ts (void);
+ 
+ #undef LANG_HOOKS_NAME
+ #undef LANG_HOOKS_INIT
+@@ -113,6 +114,7 @@ static alias_set_type gfc_get_alias_set 
+ #undef LANG_HOOKS_TYPE_FOR_SIZE
+ #undef LANG_HOOKS_CLEAR_BINDING_STACK
+ #undef LANG_HOOKS_GET_ALIAS_SET
++#undef LANG_HOOKS_INIT_TS
+ #undef LANG_HOOKS_OMP_PRIVATIZE_BY_REFERENCE
+ #undef LANG_HOOKS_OMP_PREDETERMINED_SHARING
+ #undef LANG_HOOKS_OMP_CLAUSE_DEFAULT_CTOR
+@@ -140,6 +142,7 @@ static alias_set_type gfc_get_alias_set 
+ #define LANG_HOOKS_TYPE_FOR_SIZE           gfc_type_for_size
+ #define LANG_HOOKS_CLEAR_BINDING_STACK     gfc_clear_binding_stack
+ #define LANG_HOOKS_GET_ALIAS_SET	   gfc_get_alias_set
++#define LANG_HOOKS_INIT_TS		gfc_init_ts
+ #define LANG_HOOKS_OMP_PRIVATIZE_BY_REFERENCE	gfc_omp_privatize_by_reference
+ #define LANG_HOOKS_OMP_PREDETERMINED_SHARING	gfc_omp_predetermined_sharing
+ #define LANG_HOOKS_OMP_CLAUSE_DEFAULT_CTOR	gfc_omp_clause_default_ctor
+@@ -1184,5 +1187,15 @@ gfc_init_builtin_functions (void)
+ #undef DEFINE_MATH_BUILTIN_C
+ #undef DEFINE_MATH_BUILTIN
+ 
++static void
++gfc_init_ts (void)
++{
++  tree_contains_struct[NAMESPACE_DECL][TS_DECL_NON_COMMON] = 1;
++  tree_contains_struct[NAMESPACE_DECL][TS_DECL_WITH_VIS] = 1;
++  tree_contains_struct[NAMESPACE_DECL][TS_DECL_WRTL] = 1;
++  tree_contains_struct[NAMESPACE_DECL][TS_DECL_COMMON] = 1;
++  tree_contains_struct[NAMESPACE_DECL][TS_DECL_MINIMAL] = 1;
++}
++
+ #include "gt-fortran-f95-lang.h"
+ #include "gtype-fortran.h"
+--- gcc/fortran/trans.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/trans.c	2008-08-21 10:21:30.000000000 +0200
+@@ -1209,6 +1209,19 @@ void
+ gfc_generate_module_code (gfc_namespace * ns)
+ {
+   gfc_namespace *n;
++  struct module_htab_entry *entry;
++
++  gcc_assert (ns->proc_name->backend_decl == NULL);
++  ns->proc_name->backend_decl
++    = build_decl (NAMESPACE_DECL, get_identifier (ns->proc_name->name),
++		  void_type_node);
++  gfc_set_decl_location (ns->proc_name->backend_decl,
++			 &ns->proc_name->declared_at);
++  entry = gfc_find_module (ns->proc_name->name);
++  if (entry->namespace_decl)
++    /* Buggy sourcecode, using a module before defining it?  */
++    htab_empty (entry->decls);
++  entry->namespace_decl = ns->proc_name->backend_decl;
+ 
+   gfc_generate_module_vars (ns);
+ 
+@@ -1216,10 +1229,21 @@ gfc_generate_module_code (gfc_namespace 
+      sibling calls.  */
+   for (n = ns->contained; n; n = n->sibling)
+     {
++      gfc_entry_list *el;
++
+       if (!n->proc_name)
+         continue;
+ 
+       gfc_create_function_decl (n);
++      gcc_assert (DECL_CONTEXT (n->proc_name->backend_decl) == NULL_TREE);
++      DECL_CONTEXT (n->proc_name->backend_decl) = ns->proc_name->backend_decl;
++      gfc_module_add_decl (entry, n->proc_name->backend_decl);
++      for (el = ns->entries; el; el = el->next)
++	{
++	  gcc_assert (DECL_CONTEXT (el->sym->backend_decl) == NULL_TREE);
++	  DECL_CONTEXT (el->sym->backend_decl) = ns->proc_name->backend_decl;
++	  gfc_module_add_decl (entry, el->sym->backend_decl);
++	}
+     }
+ 
+   for (n = ns->contained; n; n = n->sibling)
+--- gcc/fortran/module.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/module.c	2008-08-21 10:21:30.000000000 +0200
+@@ -161,20 +161,6 @@ pointer_info;
+ #define gfc_get_pointer_info() gfc_getmem(sizeof(pointer_info))
+ 
+ 
+-/* Lists of rename info for the USE statement.  */
+-
+-typedef struct gfc_use_rename
+-{
+-  char local_name[GFC_MAX_SYMBOL_LEN + 1], use_name[GFC_MAX_SYMBOL_LEN + 1];
+-  struct gfc_use_rename *next;
+-  int found;
+-  gfc_intrinsic_op operator;
+-  locus where;
+-}
+-gfc_use_rename;
+-
+-#define gfc_get_use_rename() gfc_getmem(sizeof(gfc_use_rename))
+-
+ /* Local variables */
+ 
+ /* The FILE for the module we're reading or writing.  */
+@@ -4749,6 +4735,7 @@ gfc_use_module (void)
+   gfc_state_data *p;
+   int c, line, start;
+   gfc_symtree *mod_symtree;
++  gfc_use_list *use_stmt;
+ 
+   filename = (char *) alloca (strlen (module_name) + strlen (MODULE_EXTENSION)
+ 			      + 1);
+@@ -4841,6 +4828,33 @@ gfc_use_module (void)
+   pi_root = NULL;
+ 
+   fclose (module_fp);
++
++  use_stmt = gfc_get_use_list ();
++  use_stmt->module_name = gfc_get_string (module_name);
++  use_stmt->only_flag = only_flag;
++  use_stmt->rename = gfc_rename_list;
++  gfc_rename_list = NULL;
++  use_stmt->next = gfc_current_ns->use_stmts;
++  gfc_current_ns->use_stmts = use_stmt;
++}
++
++
++void
++gfc_free_use_stmts (gfc_use_list *use_stmts)
++{
++  gfc_use_list *next;
++  for (; use_stmts; use_stmts = next)
++    {
++      gfc_use_rename *next_rename;
++
++      for (; use_stmts->rename; use_stmts->rename = next_rename)
++	{
++	  next_rename = use_stmts->rename->next;
++	  gfc_free (use_stmts->rename);
++	}
++      next = use_stmts->next;
++      gfc_free (use_stmts);
++    }
+ }
+ 
+ 
+--- gcc/fortran/Make-lang.in.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/Make-lang.in	2008-08-21 10:21:30.000000000 +0200
+@@ -310,7 +310,7 @@ fortran/convert.o: $(GFORTRAN_TRANS_DEPS
+ fortran/trans.o: $(GFORTRAN_TRANS_DEPS)
+ fortran/trans-decl.o: $(GFORTRAN_TRANS_DEPS) gt-fortran-trans-decl.h \
+   $(CGRAPH_H) $(TARGET_H) $(FUNCTION_H) $(FLAGS_H) $(RTL_H) $(TREE_GIMPLE_H) \
+-  $(TREE_DUMP_H)
++  $(TREE_DUMP_H) debug.h
+ fortran/trans-types.o: $(GFORTRAN_TRANS_DEPS) gt-fortran-trans-types.h \
+   $(REAL_H) toplev.h $(TARGET_H) $(FLAGS_H) dwarf2out.h
+ fortran/trans-const.o: $(GFORTRAN_TRANS_DEPS)
+--- gcc/fortran/gfortran.h.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/gfortran.h	2008-08-21 10:21:30.000000000 +0200
+@@ -1093,6 +1093,35 @@ gfc_entry_list;
+ #define gfc_get_entry_list() \
+   (gfc_entry_list *) gfc_getmem(sizeof(gfc_entry_list))
+ 
++/* Lists of rename info for the USE statement.  */
++
++typedef struct gfc_use_rename
++{
++  char local_name[GFC_MAX_SYMBOL_LEN + 1], use_name[GFC_MAX_SYMBOL_LEN + 1];
++  struct gfc_use_rename *next;
++  int found;
++  gfc_intrinsic_op operator;
++  locus where;
++}
++gfc_use_rename;
++
++#define gfc_get_use_rename() XCNEW (gfc_use_rename);
++
++/* A list of all USE statements in a namespace.  */
++
++typedef struct gfc_use_list
++{
++  const char *module_name;
++  int only_flag;
++  struct gfc_use_rename *rename;
++  /* Next USE statement.  */
++  struct gfc_use_list *next;
++}
++gfc_use_list;
++
++#define gfc_get_use_list() \
++  (gfc_use_list *) gfc_getmem(sizeof(gfc_use_list))
++
+ /* Within a namespace, symbols are pointed to by symtree nodes that
+    are linked together in a balanced binary tree.  There can be
+    several symtrees pointing to the same symbol node via USE
+@@ -1189,6 +1218,9 @@ typedef struct gfc_namespace
+   /* A list of all alternate entry points to this procedure (or NULL).  */
+   gfc_entry_list *entries;
+ 
++  /* A list of USE statements in this namespace.  */
++  gfc_use_list *use_stmts;
++
+   /* Set to 1 if namespace is a BLOCK DATA program unit.  */
+   int is_block_data;
+ 
+@@ -2340,6 +2372,7 @@ void gfc_module_init_2 (void);
+ void gfc_module_done_2 (void);
+ void gfc_dump_module (const char *, int);
+ bool gfc_check_access (gfc_access, gfc_access);
++void gfc_free_use_stmts (gfc_use_list *);
+ 
+ /* primary.c */
+ symbol_attribute gfc_variable_attr (gfc_expr *, gfc_typespec *);
+--- gcc/fortran/symbol.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/symbol.c	2008-08-21 10:21:30.000000000 +0200
+@@ -3042,6 +3042,7 @@ gfc_free_namespace (gfc_namespace *ns)
+ 
+   gfc_free_equiv (ns->equiv);
+   gfc_free_equiv_lists (ns->equiv_lists);
++  gfc_free_use_stmts (ns->use_stmts);
+ 
+   for (i = GFC_INTRINSIC_BEGIN; i != GFC_INTRINSIC_END; i++)
+     gfc_free_interface (ns->op[i]);
+--- gcc/fortran/trans-types.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/trans-types.c	2008-08-21 10:21:30.000000000 +0200
+@@ -1934,12 +1934,23 @@ gfc_get_derived_type (gfc_symbol * deriv
+ 
+   gfc_finish_type (typenode);
+   gfc_set_decl_location (TYPE_STUB_DECL (typenode), &derived->declared_at);
++  if (derived->module && derived->ns->proc_name->attr.flavor == FL_MODULE)
++    {
++      if (derived->ns->proc_name->backend_decl
++	  && TREE_CODE (derived->ns->proc_name->backend_decl)
++	     == NAMESPACE_DECL)
++	{
++	  TYPE_CONTEXT (typenode) = derived->ns->proc_name->backend_decl;
++	  DECL_CONTEXT (TYPE_STUB_DECL (typenode))
++	    = derived->ns->proc_name->backend_decl;
++	}
++    }
+ 
+   derived->backend_decl = typenode;
+ 
+-    /* Add this backend_decl to all the other, equal derived types.  */
+-    for (dt = gfc_derived_types; dt; dt = dt->next)
+-      copy_dt_decls_ifequal (derived, dt->derived);
++  /* Add this backend_decl to all the other, equal derived types.  */
++  for (dt = gfc_derived_types; dt; dt = dt->next)
++    copy_dt_decls_ifequal (derived, dt->derived);
+ 
+   return derived->backend_decl;
+ }
+--- gcc/fortran/trans.h.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/trans.h	2008-08-21 10:21:30.000000000 +0200
+@@ -429,6 +429,16 @@ void gfc_generate_block_data (gfc_namesp
+ /* Output a decl for a module variable.  */
+ void gfc_generate_module_vars (gfc_namespace *);
+ 
++struct module_htab_entry GTY(())
++{
++  const char *name;
++  tree namespace_decl;
++  htab_t GTY ((param_is (union tree_node))) decls;
++};
++
++struct module_htab_entry *gfc_find_module (const char *);
++void gfc_module_add_decl (struct module_htab_entry *, tree);
++
+ /* Get and set the current location.  */
+ void gfc_set_backend_locus (locus *);
+ void gfc_get_backend_locus (locus *);
+--- gcc/fortran/trans-decl.c	2008-08-21 11:56:09.000000000 +0200
++++ gcc/fortran/trans-decl.c	2008-08-22 21:31:28.000000000 +0200
+@@ -35,6 +35,7 @@ along with GCC; see the file COPYING3.  
+ #include "function.h"
+ #include "flags.h"
+ #include "cgraph.h"
++#include "debug.h"
+ #include "gfortran.h"
+ #include "trans.h"
+ #include "trans-types.h"
+@@ -982,7 +983,11 @@ gfc_get_symbol_decl (gfc_symbol * sym)
+      This is done here rather than in gfc_finish_var_decl because it
+      is different for string length variables.  */
+   if (sym->module)
+-    SET_DECL_ASSEMBLER_NAME (decl, gfc_sym_mangled_identifier (sym));
++    {
++      SET_DECL_ASSEMBLER_NAME (decl, gfc_sym_mangled_identifier (sym));
++      if (sym->attr.use_assoc)
++	DECL_IGNORED_P (decl) = 1;
++    }
+ 
+   if (sym->attr.dimension)
+     {
+@@ -1247,7 +1252,9 @@ build_function_decl (gfc_symbol * sym)
+ 
+   /* Allow only one nesting level.  Allow public declarations.  */
+   gcc_assert (current_function_decl == NULL_TREE
+-	  || DECL_CONTEXT (current_function_decl) == NULL_TREE);
++	      || DECL_CONTEXT (current_function_decl) == NULL_TREE
++	      || TREE_CODE (DECL_CONTEXT (current_function_decl))
++		 == NAMESPACE_DECL);
+ 
+   type = gfc_get_function_type (sym);
+   fndecl = build_decl (FUNCTION_DECL, gfc_sym_identifier (sym), type);
+@@ -2790,6 +2797,88 @@ gfc_trans_deferred_vars (gfc_symbol * pr
+   return gfc_finish_block (&body);
+ }
+ 
++static GTY ((param_is (struct module_htab_entry))) htab_t module_htab;
++
++/* Hash and equality functions for module_htab.  */
++
++static hashval_t
++module_htab_do_hash (const void *x)
++{
++  return htab_hash_string (((const struct module_htab_entry *)x)->name);
++}
++
++static int
++module_htab_eq (const void *x1, const void *x2)
++{
++  return strcmp ((((const struct module_htab_entry *)x1)->name),
++		 (const char *)x2) == 0;
++}
++
++/* Hash and equality functions for module_htab's decls.  */
++
++static hashval_t
++module_htab_decls_hash (const void *x)
++{
++  const_tree t = (const_tree) x;
++  const_tree n = DECL_NAME (t);
++  if (n == NULL_TREE)
++    n = TYPE_NAME (TREE_TYPE (t));
++  return htab_hash_string (IDENTIFIER_POINTER (n));
++}
++
++static int
++module_htab_decls_eq (const void *x1, const void *x2)
++{
++  const_tree t1 = (const_tree) x1;
++  const_tree n1 = DECL_NAME (t1);
++  if (n1 == NULL_TREE)
++    n1 = TYPE_NAME (TREE_TYPE (t1));
++  return strcmp (IDENTIFIER_POINTER (n1), (const char *) x2) == 0;
++}
++
++struct module_htab_entry *
++gfc_find_module (const char *name)
++{
++  void **slot;
++
++  if (! module_htab)
++    module_htab = htab_create_ggc (10, module_htab_do_hash,
++				   module_htab_eq, NULL);
++
++  slot = htab_find_slot_with_hash (module_htab, name,
++				   htab_hash_string (name), INSERT);
++  if (*slot == NULL)
++    {
++      struct module_htab_entry *entry = GGC_CNEW (struct module_htab_entry);
++
++      entry->name = gfc_get_string (name);
++      entry->decls = htab_create_ggc (10, module_htab_decls_hash,
++				      module_htab_decls_eq, NULL);
++      *slot = (void *) entry;
++    }
++  return (struct module_htab_entry *) *slot;
++}
++
++void
++gfc_module_add_decl (struct module_htab_entry *entry, tree decl)
++{
++  void **slot;
++  const char *name;
++
++  if (DECL_NAME (decl))
++    name = IDENTIFIER_POINTER (DECL_NAME (decl));
++  else
++    {
++      gcc_assert (TREE_CODE (decl) == TYPE_DECL);
++      name = IDENTIFIER_POINTER (TYPE_NAME (TREE_TYPE (decl)));
++    }
++  slot = htab_find_slot_with_hash (entry->decls, name,
++				   htab_hash_string (name), INSERT);
++  if (*slot == NULL)
++    *slot = (void *) decl;
++}
++
++static struct module_htab_entry *cur_module;
+ 
+ /* Output an initialized decl for a module variable.  */
+ 
+@@ -2809,6 +2898,22 @@ gfc_create_module_variable (gfc_symbol *
+       && sym->ts.type == BT_DERIVED)
+     sym->backend_decl = gfc_typenode_for_spec (&(sym->ts));
+ 
++  if (sym->attr.flavor == FL_DERIVED
++      && sym->backend_decl
++      && TREE_CODE (sym->backend_decl) == RECORD_TYPE)
++    {
++      decl = sym->backend_decl;
++      gcc_assert (sym->ns->proc_name->attr.flavor == FL_MODULE);
++      gcc_assert (TYPE_CONTEXT (decl) == NULL_TREE
++		  || TYPE_CONTEXT (decl) == sym->ns->proc_name->backend_decl);
++      gcc_assert (DECL_CONTEXT (TYPE_STUB_DECL (decl)) == NULL_TREE
++		  || DECL_CONTEXT (TYPE_STUB_DECL (decl))
++		     == sym->ns->proc_name->backend_decl);
++      TYPE_CONTEXT (decl) = sym->ns->proc_name->backend_decl;
++      DECL_CONTEXT (TYPE_STUB_DECL (decl)) = sym->ns->proc_name->backend_decl;
++      gfc_module_add_decl (cur_module, TYPE_STUB_DECL (decl));
++    }
++
+   /* Only output variables and array valued, or derived type,
+      parameters.  */
+   if (sym->attr.flavor != FL_VARIABLE
+@@ -2816,6 +2921,15 @@ gfc_create_module_variable (gfc_symbol *
+ 	       && (sym->attr.dimension || sym->ts.type == BT_DERIVED)))
+     return;
+ 
++  if ((sym->attr.in_common || sym->attr.in_equivalence) && sym->backend_decl)
++    {
++      decl = sym->backend_decl;
++      gcc_assert (DECL_CONTEXT (decl) == NULL_TREE);
++      gcc_assert (sym->ns->proc_name->attr.flavor == FL_MODULE);
++      DECL_CONTEXT (decl) = sym->ns->proc_name->backend_decl;
++      gfc_module_add_decl (cur_module, decl);
++    }
++
+   /* Don't generate variables from other modules. Variables from
+      COMMONs will already have been generated.  */
+   if (sym->attr.use_assoc || sym->attr.in_common)
+@@ -2823,8 +2937,8 @@ gfc_create_module_variable (gfc_symbol *
+ 
+   /* Equivalenced variables arrive here after creation.  */
+   if (sym->backend_decl
+-	&& (sym->equiv_built || sym->attr.in_equivalence))
+-      return;
++      && (sym->equiv_built || sym->attr.in_equivalence))
++    return;
+ 
+   if (sym->backend_decl)
+     internal_error ("backend decl for module variable %s already exists",
+@@ -2837,7 +2951,11 @@ gfc_create_module_variable (gfc_symbol *
+ 
+   /* Create the variable.  */
+   pushdecl (decl);
++  gcc_assert (DECL_CONTEXT (decl) == NULL_TREE);
++  gcc_assert (sym->ns->proc_name->attr.flavor == FL_MODULE);
++  DECL_CONTEXT (decl) = sym->ns->proc_name->backend_decl;
+   rest_of_decl_compilation (decl, 1, 0);
++  gfc_module_add_decl (cur_module, decl);
+ 
+   /* Also add length of strings.  */
+   if (sym->ts.type == BT_CHARACTER)
+@@ -2860,6 +2978,7 @@ void
+ gfc_generate_module_vars (gfc_namespace * ns)
+ {
+   module_namespace = ns;
++  cur_module = gfc_find_module (ns->proc_name->name);
+ 
+   /* Check if the frontend left the namespace in a reasonable state.  */
+   gcc_assert (ns->proc_name && !ns->proc_name->tlink);
+@@ -2869,6 +2988,79 @@ gfc_generate_module_vars (gfc_namespace 
+ 
+   /* Create decls for all the module variables.  */
+   gfc_traverse_ns (ns, gfc_create_module_variable);
++
++  cur_module = NULL;
++}
++
++static void
++gfc_trans_use_stmts (gfc_namespace * ns)
++{
++  gfc_use_list *use_stmt;
++  for (use_stmt = ns->use_stmts; use_stmt; use_stmt = use_stmt->next)
++    {
++      struct module_htab_entry *entry
++	= gfc_find_module (use_stmt->module_name);
++      gfc_use_rename *rent;
++
++      if (entry->namespace_decl == NULL)
++	{
++	  entry->namespace_decl
++	    = build_decl (NAMESPACE_DECL,
++			  get_identifier (use_stmt->module_name),
++			  void_type_node);
++	  DECL_EXTERNAL (entry->namespace_decl) = 1;
++	}
++      if (!use_stmt->only_flag)
++	(*debug_hooks->imported_module_or_decl) (entry->namespace_decl,
++						 NULL_TREE,
++						 ns->proc_name->backend_decl,
++						 false);
++      for (rent = use_stmt->rename; rent; rent = rent->next)
++	{
++	  tree decl, local_name;
++	  void **slot;
++
++	  if (rent->operator != INTRINSIC_NONE)
++	    continue;
++
++	  slot = htab_find_slot_with_hash (entry->decls, rent->use_name,
++					   htab_hash_string (rent->use_name),
++					   INSERT);
++	  if (*slot == NULL)
++	    {
++	      gfc_symtree *st;
++
++	      st = gfc_find_symtree (ns->sym_root,
++				     rent->local_name[0]
++				     ? rent->local_name : rent->use_name);
++	      gcc_assert (st && st->n.sym->attr.use_assoc);
++	      if (st->n.sym->backend_decl && DECL_P (st->n.sym->backend_decl))
++		{
++		  gcc_assert (DECL_EXTERNAL (entry->namespace_decl));
++		  decl = copy_node (st->n.sym->backend_decl);
++		  DECL_CONTEXT (decl) = entry->namespace_decl;
++		  DECL_EXTERNAL (decl) = 1;
++		  DECL_IGNORED_P (decl) = 0;
++		  DECL_INITIAL (decl) = NULL_TREE;
++		}
++	      else
++		{
++		  *slot = error_mark_node;
++		  htab_clear_slot (entry->decls, slot);
++		  continue;
++		}
++	      *slot = decl;
++	    }
++	  decl = (tree) *slot;
++	  if (rent->local_name[0])
++	    local_name = get_identifier (rent->local_name);
++	  else
++	    local_name = NULL_TREE;
++	  (*debug_hooks->imported_module_or_decl) (decl, local_name,
++						   ns->proc_name->backend_decl,
++						   !use_stmt->only_flag);
++	}
++    }
+ }
+ 
+ static void
+@@ -3373,6 +3567,8 @@ gfc_generate_function_code (gfc_namespac
+       gfc_gimplify_function (fndecl);
+       cgraph_finalize_function (fndecl, false);
+     }
++
++  gfc_trans_use_stmts (ns);
+ }
+ 
+ void
+@@ -3464,6 +3660,7 @@ gfc_generate_block_data (gfc_namespace *
+   decl = build_decl (VAR_DECL, id, gfc_array_index_type);
+   TREE_PUBLIC (decl) = 1;
+   TREE_STATIC (decl) = 1;
++  DECL_IGNORED_P (decl) = 1;
+ 
+   pushdecl (decl);
+   rest_of_decl_compilation (decl, 1, 0);
+--- gcc/fortran/trans-common.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/fortran/trans-common.c	2008-08-21 10:21:30.000000000 +0200
+@@ -416,6 +416,7 @@ build_common_decl (gfc_common_head *com,
+       SET_DECL_ASSEMBLER_NAME (decl, gfc_sym_mangled_common_id (com));
+       TREE_PUBLIC (decl) = 1;
+       TREE_STATIC (decl) = 1;
++      DECL_IGNORED_P (decl) = 1;
+       if (!com->is_bind_c)
+ 	DECL_ALIGN (decl) = BIGGEST_ALIGNMENT;
+       else
+@@ -680,6 +681,8 @@ create_common (gfc_common_head *com, seg
+       TREE_PUBLIC (var_decl) = TREE_PUBLIC (decl);
+       TREE_STATIC (var_decl) = TREE_STATIC (decl);
+       TREE_USED (var_decl) = TREE_USED (decl);
++      if (s->sym->attr.use_assoc)
++	DECL_IGNORED_P (var_decl) = 1;
+       if (s->sym->attr.target)
+ 	TREE_ADDRESSABLE (var_decl) = 1;
+       /* This is a fake variable just for debugging purposes.  */
+--- gcc/cp/name-lookup.c.jj	2008-08-21 10:19:52.000000000 +0200
++++ gcc/cp/name-lookup.c	2008-08-21 10:21:30.000000000 +0200
+@@ -3401,7 +3401,8 @@ do_using_directive (tree namespace)
+ 
+   /* Emit debugging info.  */
+   if (!processing_template_decl)
+-    (*debug_hooks->imported_module_or_decl) (namespace, context);
++    (*debug_hooks->imported_module_or_decl) (namespace, NULL_TREE,
++					     context, false);
+ }
+ 
+ /* Deal with a using-directive seen by the parser.  Currently we only
+@@ -5234,7 +5235,7 @@ cp_emit_debug_info_for_using (tree t, tr
+   /* FIXME: Handle TEMPLATE_DECLs.  */
+   for (t = OVL_CURRENT (t); t; t = OVL_NEXT (t))
+     if (TREE_CODE (t) != TEMPLATE_DECL)
+-      (*debug_hooks->imported_module_or_decl) (t, context);
++      (*debug_hooks->imported_module_or_decl) (t, NULL_TREE, context, false);
+ }
+ 
+ #include "gt-cp-name-lookup.h"
+--- gcc/debug.h.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/debug.h	2008-08-21 10:21:30.000000000 +0200
+@@ -98,7 +98,8 @@ struct gcc_debug_hooks
+   void (* type_decl) (tree decl, int local);
+ 
+   /* Debug information for imported modules and declarations.  */
+-  void (* imported_module_or_decl) (tree decl, tree context);
++  void (* imported_module_or_decl) (tree decl, tree name,
++				    tree context, bool child);
+ 
+   /* DECL is an inline function, whose body is present, but which is
+      not being output at this point.  */
+@@ -139,7 +140,7 @@ extern void debug_nothing_int (unsigned 
+ extern void debug_nothing_int_int (unsigned int, unsigned int);
+ extern void debug_nothing_tree (tree);
+ extern void debug_nothing_tree_int (tree, int);
+-extern void debug_nothing_tree_tree (tree, tree);
++extern void debug_nothing_tree_tree_tree_bool (tree, tree, tree, bool);
+ extern bool debug_true_const_tree (const_tree);
+ extern void debug_nothing_rtx (rtx);
+ 
+--- gcc/vmsdbgout.c.jj	2008-08-21 10:19:48.000000000 +0200
++++ gcc/vmsdbgout.c	2008-08-21 10:21:30.000000000 +0200
+@@ -204,7 +204,7 @@ const struct gcc_debug_hooks vmsdbg_debu
+    vmsdbgout_decl,
+    vmsdbgout_global_decl,
+    debug_nothing_tree_int,	  /* type_decl */
+-   debug_nothing_tree_tree,       /* imported_module_or_decl */
++   debug_nothing_tree_tree_tree_bool, /* imported_module_or_decl */
+    debug_nothing_tree,		  /* deferred_inline_function */
+    vmsdbgout_abstract_function,
+    debug_nothing_rtx,		  /* label */
+--- gcc/dbxout.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/dbxout.c	2008-08-21 10:21:30.000000000 +0200
+@@ -369,7 +369,7 @@ const struct gcc_debug_hooks dbx_debug_h
+   dbxout_function_decl,
+   dbxout_global_decl,		         /* global_decl */
+   dbxout_type_decl,			 /* type_decl */
+-  debug_nothing_tree_tree,               /* imported_module_or_decl */
++  debug_nothing_tree_tree_tree_bool,	 /* imported_module_or_decl */
+   debug_nothing_tree,		         /* deferred_inline_function */
+   debug_nothing_tree,		         /* outlining_inline_function */
+   debug_nothing_rtx,		         /* label */
+@@ -401,7 +401,7 @@ const struct gcc_debug_hooks xcoff_debug
+   debug_nothing_tree,		         /* function_decl */
+   dbxout_global_decl,		         /* global_decl */
+   dbxout_type_decl,			 /* type_decl */
+-  debug_nothing_tree_tree,               /* imported_module_or_decl */
++  debug_nothing_tree_tree_tree_bool,	 /* imported_module_or_decl */
+   debug_nothing_tree,		         /* deferred_inline_function */
+   debug_nothing_tree,		         /* outlining_inline_function */
+   debug_nothing_rtx,		         /* label */
+--- gcc/debug.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/debug.c	2008-08-21 10:21:30.000000000 +0200
+@@ -42,7 +42,7 @@ const struct gcc_debug_hooks do_nothing_
+   debug_nothing_tree,		         /* function_decl */
+   debug_nothing_tree,		         /* global_decl */
+   debug_nothing_tree_int,		 /* type_decl */
+-  debug_nothing_tree_tree,               /* imported_module_or_decl */
++  debug_nothing_tree_tree_tree_bool,	 /* imported_module_or_decl */
+   debug_nothing_tree,		         /* deferred_inline_function */
+   debug_nothing_tree,		         /* outlining_inline_function */
+   debug_nothing_rtx,		         /* label */
+@@ -66,8 +66,10 @@ debug_nothing_tree (tree decl ATTRIBUTE_
+ }
+ 
+ void
+-debug_nothing_tree_tree (tree t1 ATTRIBUTE_UNUSED,
+-			 tree t2 ATTRIBUTE_UNUSED)
++debug_nothing_tree_tree_tree_bool (tree t1 ATTRIBUTE_UNUSED,
++				   tree t2 ATTRIBUTE_UNUSED,
++				   tree t3 ATTRIBUTE_UNUSED,
++				   bool b1 ATTRIBUTE_UNUSED)
+ {
+ }
+ 
+--- gcc/dwarf2out.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/dwarf2out.c	2008-08-21 13:15:41.000000000 +0200
+@@ -3910,7 +3910,7 @@ static void dwarf2out_end_block (unsigne
+ static bool dwarf2out_ignore_block (const_tree);
+ static void dwarf2out_global_decl (tree);
+ static void dwarf2out_type_decl (tree, int);
+-static void dwarf2out_imported_module_or_decl (tree, tree);
++static void dwarf2out_imported_module_or_decl (tree, tree, tree, bool);
+ static void dwarf2out_abstract_function (tree);
+ static void dwarf2out_var_location (rtx);
+ static void dwarf2out_begin_function (tree);
+@@ -4541,7 +4541,7 @@ static void gen_decl_die (tree, dw_die_r
+ static dw_die_ref force_decl_die (tree);
+ static dw_die_ref force_type_die (tree);
+ static dw_die_ref setup_namespace_context (tree, dw_die_ref);
+-static void declare_in_namespace (tree, dw_die_ref);
++static dw_die_ref declare_in_namespace (tree, dw_die_ref);
+ static struct dwarf_file_data * lookup_filename (const char *);
+ static void retry_incomplete_types (void);
+ static void gen_type_die_for_member (tree, tree, dw_die_ref);
+@@ -6621,7 +6621,8 @@ is_symbol_die (dw_die_ref c)
+   return (is_type_die (c)
+ 	  || (get_AT (c, DW_AT_declaration)
+ 	      && !get_AT (c, DW_AT_specification))
+-	  || c->die_tag == DW_TAG_namespace);
++	  || c->die_tag == DW_TAG_namespace
++	  || c->die_tag == DW_TAG_module);
+ }
+ 
+ static char *
+@@ -12898,29 +12899,49 @@ gen_variable_die (tree decl, dw_die_ref 
+   com_decl = fortran_common (decl, &off);
+ 
+   /* Symbol in common gets emitted as a child of the common block, in the form
+-     of a data member.
+-
+-     ??? This creates a new common block die for every common block symbol.
+-     Better to share same common block die for all symbols in that block.  */
++     of a data member.  */
+   if (com_decl)
+     {
+       tree field;
+       dw_die_ref com_die;
+-      const char *cnam = IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (com_decl));
+-      dw_loc_descr_ref loc = loc_descriptor_from_tree (com_decl);
+ 
++      if (lookup_decl_die (decl))
++	return;
+       field = TREE_OPERAND (DECL_VALUE_EXPR (decl), 0);
+-      var_die = new_die (DW_TAG_common_block, context_die, decl);
+-      add_name_and_src_coords_attributes (var_die, field);
+-      add_AT_flag (var_die, DW_AT_external, 1);
+-      add_AT_loc (var_die, DW_AT_location, loc);
++      var_die = lookup_decl_die (com_decl);
++      if (var_die == NULL)
++	{
++	  const char *cnam
++	    = IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (com_decl));
++	  dw_loc_descr_ref loc = loc_descriptor_from_tree (com_decl);
++
++	  var_die = new_die (DW_TAG_common_block, context_die, decl);
++	  add_name_and_src_coords_attributes (var_die, com_decl);
++	  add_AT_flag (var_die, DW_AT_external, 1);
++	  if (loc)
++	    add_AT_loc (var_die, DW_AT_location, loc);
++          else if (DECL_EXTERNAL (decl))
++	    add_AT_flag (var_die, DW_AT_declaration, 1);
++	  add_pubname_string (cnam, var_die); /* ??? needed? */
++	  equate_decl_number_to_die (com_decl, var_die);
++	}
++      else if (get_AT (var_die, DW_AT_location) == NULL)
++	{
++	  dw_loc_descr_ref loc = loc_descriptor_from_tree (com_decl);
++
++	  if (loc)
++	    {
++	      add_AT_loc (var_die, DW_AT_location, loc);
++	      remove_AT (var_die, DW_AT_declaration);
++	    }
++	}
+       com_die = new_die (DW_TAG_member, var_die, decl);
+       add_name_and_src_coords_attributes (com_die, decl);
+       add_type_attribute (com_die, TREE_TYPE (decl), TREE_READONLY (decl),
+ 			  TREE_THIS_VOLATILE (decl), context_die);
+       add_AT_loc (com_die, DW_AT_data_member_location,
+ 		  int_loc_descriptor (off));
+-      add_pubname_string (cnam, var_die); /* ??? needed? */
++      equate_decl_number_to_die (decl, com_die);
+       return;
+     }
+ 
+@@ -13685,7 +13706,7 @@ gen_type_die_with_usage (tree type, dw_d
+ 	}
+       else
+ 	{
+-	  declare_in_namespace (type, context_die);
++	  context_die = declare_in_namespace (type, context_die);
+ 	  need_pop = 0;
+ 	}
+ 
+@@ -14057,29 +14078,32 @@ setup_namespace_context (tree thing, dw_
+    For compatibility with older debuggers, namespace DIEs only contain
+    declarations; all definitions are emitted at CU scope.  */
+ 
+-static void
++static dw_die_ref
+ declare_in_namespace (tree thing, dw_die_ref context_die)
+ {
+   dw_die_ref ns_context;
+ 
+   if (debug_info_level <= DINFO_LEVEL_TERSE)
+-    return;
++    return context_die;
+ 
+   /* If this decl is from an inlined function, then don't try to emit it in its
+      namespace, as we will get confused.  It would have already been emitted
+      when the abstract instance of the inline function was emitted anyways.  */
+   if (DECL_P (thing) && DECL_ABSTRACT_ORIGIN (thing))
+-    return;
++    return context_die;
+ 
+   ns_context = setup_namespace_context (thing, context_die);
+ 
+   if (ns_context != context_die)
+     {
++      if (is_fortran ())
++	return ns_context;
+       if (DECL_P (thing))
+ 	gen_decl_die (thing, ns_context);
+       else
+ 	gen_type_die (thing, ns_context);
+     }
++  return context_die;
+ }
+ 
+ /* Generate a DIE for a namespace or namespace alias.  */
+@@ -14095,8 +14119,11 @@ gen_namespace_die (tree decl)
+     {
+       /* Output a real namespace.  */
+       dw_die_ref namespace_die
+-	= new_die (DW_TAG_namespace, context_die, decl);
++	= new_die (is_fortran () ? DW_TAG_module : DW_TAG_namespace,
++		   context_die, decl);
+       add_name_and_src_coords_attributes (namespace_die, decl);
++      if (DECL_EXTERNAL (decl))
++	add_AT_flag (namespace_die, DW_AT_declaration, 1);
+       equate_decl_number_to_die (decl, namespace_die);
+     }
+   else
+@@ -14186,7 +14213,7 @@ gen_decl_die (tree decl, dw_die_ref cont
+ 	    gen_type_die_for_member (origin, decl, context_die);
+ 
+ 	  /* And its containing namespace.  */
+-	  declare_in_namespace (decl, context_die);
++	  context_die = declare_in_namespace (decl, context_die);
+ 	}
+ 
+       /* Now output a DIE to represent the function itself.  */
+@@ -14231,16 +14258,6 @@ gen_decl_die (tree decl, dw_die_ref cont
+       if (debug_info_level <= DINFO_LEVEL_TERSE)
+ 	break;
+ 
+-      /* If this is the global definition of the Fortran COMMON block, we don't
+-         need to do anything.  Syntactically, the block itself has no identity,
+-         just its constituent identifiers.  */
+-      if (TREE_CODE (decl) == VAR_DECL
+-          && TREE_PUBLIC (decl)
+-          && TREE_STATIC (decl)
+-          && is_fortran ()
+-          && !DECL_HAS_VALUE_EXPR_P (decl))
+-        break;
+-
+       /* Output any DIEs that are needed to specify the type of this data
+ 	 object.  */
+       if (TREE_CODE (decl) == RESULT_DECL && DECL_BY_REFERENCE (decl))
+@@ -14254,7 +14271,7 @@ gen_decl_die (tree decl, dw_die_ref cont
+ 	gen_type_die_for_member (origin, decl, context_die);
+ 
+       /* And its containing namespace.  */
+-      declare_in_namespace (decl, context_die);
++      context_die = declare_in_namespace (decl, context_die);
+ 
+       /* Now output the DIE to represent the data object itself.  This gets
+ 	 complicated because of the possibility that the VAR_DECL really
+@@ -14307,15 +14324,7 @@ dwarf2out_global_decl (tree decl)
+   /* Output DWARF2 information for file-scope tentative data object
+      declarations, file-scope (extern) function declarations (which had no
+      corresponding body) and file-scope tagged type declarations and
+-     definitions which have not yet been forced out.
+-
+-     Ignore the global decl of any Fortran COMMON blocks which also wind up here
+-     though they have already been described in the local scope for the 
+-     procedures using them.  */
+-  if (TREE_CODE (decl) == VAR_DECL
+-      && TREE_PUBLIC (decl) && TREE_STATIC (decl) && is_fortran ())
+-    return;
+-
++     definitions which have not yet been forced out.  */
+   if (TREE_CODE (decl) != FUNCTION_DECL || !DECL_INITIAL (decl))
+     dwarf2out_decl (decl);
+ }
+@@ -14329,10 +14338,14 @@ dwarf2out_type_decl (tree decl, int loca
+     dwarf2out_decl (decl);
+ }
+ 
+-/* Output debug information for imported module or decl.  */
++/* Output debug information for imported module or decl DECL.
++   NAME is non-NULL name in context if the decl has been renamed.
++   CHILD is true if decl is one of the renamed decls as part of
++   importing whole module.  */
+ 
+ static void
+-dwarf2out_imported_module_or_decl (tree decl, tree context)
++dwarf2out_imported_module_or_decl (tree decl, tree name, tree context,
++				   bool child)
+ {
+   dw_die_ref imported_die, at_import_die;
+   dw_die_ref scope_die;
+@@ -14355,6 +14368,14 @@ dwarf2out_imported_module_or_decl (tree 
+     return;
+   scope_die = get_context_die (context);
+ 
++  if (child)
++    {
++      gcc_assert (scope_die->die_child);
++      gcc_assert (scope_die->die_child->die_tag == DW_TAG_imported_module);
++      gcc_assert (TREE_CODE (decl) != NAMESPACE_DECL);
++      scope_die = scope_die->die_child;
++    }
++
+   /* For TYPE_DECL or CONST_DECL, lookup TREE_TYPE.  */
+   if (TREE_CODE (decl) == TYPE_DECL || TREE_CODE (decl) == CONST_DECL)
+     {
+@@ -14405,6 +14426,8 @@ dwarf2out_imported_module_or_decl (tree 
+   xloc = expand_location (input_location);
+   add_AT_file (imported_die, DW_AT_decl_file, lookup_filename (xloc.file));
+   add_AT_unsigned (imported_die, DW_AT_decl_line, xloc.line);
++  if (name)
++    add_AT_string (imported_die, DW_AT_name, IDENTIFIER_POINTER (name));
+   add_AT_die_ref (imported_die, DW_AT_import, at_import_die);
+ }
+ 
+--- gcc/sdbout.c.jj	2008-08-21 10:19:49.000000000 +0200
++++ gcc/sdbout.c	2008-08-21 10:21:30.000000000 +0200
+@@ -329,7 +329,7 @@ const struct gcc_debug_hooks sdb_debug_h
+   debug_nothing_tree,		         /* function_decl */
+   sdbout_global_decl,		         /* global_decl */
+   sdbout_symbol,			 /* type_decl */
+-  debug_nothing_tree_tree,               /* imported_module_or_decl */
++  debug_nothing_tree_tree_tree_bool,	 /* imported_module_or_decl */
+   debug_nothing_tree,		         /* deferred_inline_function */
+   debug_nothing_tree,		         /* outlining_inline_function */
+   sdbout_label,			         /* label */
