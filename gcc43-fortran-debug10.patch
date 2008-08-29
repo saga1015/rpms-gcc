@@ -371,12 +371,13 @@
  /* If we don't have a copy of this variable in memory for some reason (such
     as a C++ member constant that doesn't have an out-of-line definition),
     we should tell the debugger about the constant value.  */
-@@ -11781,6 +11940,18 @@ tree_add_const_value_attribute (dw_die_r
+@@ -11781,6 +11940,19 @@ tree_add_const_value_attribute (dw_die_r
    rtl = rtl_for_decl_init (init, type);
    if (rtl)
      add_const_value_attribute (var_die, rtl);
 +  /* If the host and target are sane, try harder.  */
-+  else if (CHAR_BIT == 8 && BITS_PER_UNIT == 8)
++  else if (CHAR_BIT == 8 && BITS_PER_UNIT == 8
++	   && initializer_constant_valid_p (init, type))
 +    {
 +      HOST_WIDE_INT size = int_size_in_bytes (TREE_TYPE (init));
 +      if (size > 0 && (int) size == size)
