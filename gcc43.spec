@@ -1,6 +1,6 @@
-%define DATE 20080825
-%define gcc_version 4.3.1
-%define gcc_release 8
+%define DATE 20080829
+%define gcc_version 4.3.2
+%define gcc_release 1
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -152,6 +152,9 @@ Patch22: gcc43-fortran-debug6.patch
 Patch23: gcc43-fortran-debug7.patch
 Patch24: gcc43-fortran-debug8.patch
 Patch25: gcc43-fortran-debug9.patch
+Patch26: gcc43-fortran-debug10.patch
+Patch27: gcc43-fortran-debug11.patch
+Patch28: gcc43-pr37248.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -461,6 +464,9 @@ which are required to run programs compiled with the GNAT.
 %patch23 -p0 -b .fortran-debug7~
 %patch24 -p0 -b .fortran-debug8~
 %patch25 -p0 -b .fortran-debug9~
+%patch26 -p0 -b .fortran-debug10~
+%patch27 -p0 -b .fortran-debug11~
+%patch28 -p0 -b .pr37248~
 
 tar xzf %{SOURCE4}
 
@@ -468,7 +474,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.3\.2/4.3.1/' gcc/BASE-VER
+sed -i -e 's/4\.3\.3/4.3.2/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
@@ -1272,6 +1278,10 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/ppc-asm.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/altivec.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/spe.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/paired.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/ppu_intrinsics.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/si2vmx.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/spu2vmx.h
 %endif
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/collect2
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/crt*.o
@@ -1682,6 +1692,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Aug 29 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-1
+- update from gcc-4_3-branch
+  - 4.3.2 release
+  - PRs c++/36741, middle-end/36548, middle-end/36817, middle-end/37125,
+	target/37184, target/37191, target/37197
+- backport further Fortran debuginfo improvements (#460378, #459375)
+- revert removal of adjacent bitfield comparison
+  optimization (PR middle-end/37248)
+- on ppc/ppc64 add paired.h, ppu_instrinsics.h, si2vmx.h and spu2vmx.h
+  headers (#460497)
+
 * Mon Aug 25 2008 Jakub Jelinek <jakub@redhat.com> 4.3.1-8
 - update from gcc-4_3-branch
   - PRs debug/37156, libgcj/8995, libstdc++/37100, target/37101

@@ -266,7 +266,7 @@
  /* Subroutine for fold: determine if VAL is the INTEGER_CONST that
     represents the sign bit of EXP's type.  If EXP represents a sign
     or zero extension, also test VAL against the unextended type.
-@@ -5264,15 +5484,15 @@ fold_truthop (enum tree_code code, tree 
+@@ -5264,16 +5484,16 @@ fold_truthop (enum tree_code code, tree 
    tree ll_inner, lr_inner, rl_inner, rr_inner;
    HOST_WIDE_INT ll_bitsize, ll_bitpos, lr_bitsize, lr_bitpos;
    HOST_WIDE_INT rl_bitsize, rl_bitpos, rr_bitsize, rr_bitpos;
@@ -287,6 +287,7 @@
 +  HOST_WIDE_INT first_bit, end_bit;
    int volatilep;
    tree orig_lhs = lhs, orig_rhs = rhs;
+   enum tree_code orig_code = code;
 @@ -5510,6 +5730,118 @@ fold_truthop (enum tree_code code, tree 
  	}
      }
@@ -427,7 +428,7 @@
  }
  
  /* Optimize T, which is a comparison of a MIN_EXPR or MAX_EXPR with a
-@@ -11914,6 +12258,18 @@ fold_binary (enum tree_code code, tree t
+@@ -11912,6 +12256,18 @@ fold_binary (enum tree_code code, tree t
  	    return omit_one_operand (type, rslt, arg0);
  	}
  
