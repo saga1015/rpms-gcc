@@ -51,7 +51,7 @@ Source3: protoize.1
 %define fastjar_ver 0.95
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
 URL: http://gcc.gnu.org
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n))
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
 # Need binutils which can omit dot symbols and overlap .opd on ppc64 >= 2.15.91.0.2-4
 # Need binutils which handle -msecure-plt on ppc >= 2.16.91.0.2-2
@@ -152,6 +152,8 @@ Patch15: gcc43-sparc-config-detection.patch
 Patch16: gcc43-libgomp-omp_h-multilib.patch
 Patch17: gcc43-x86_64-va_start.patch
 Patch18: gcc43-pr37189.patch
+Patch19: gcc43-altivec-tests.patch
+Patch20: gcc43-libtool-no-rpath.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -454,6 +456,8 @@ which are required to run programs compiled with the GNAT.
 %patch16 -p0 -b .libgomp-omp_h-multilib~
 %patch17 -p0 -b .x86_64-va_start~
 %patch18 -p0 -b .pr37189~
+%patch19 -p0 -b .altivec-tests~
+%patch20 -p0 -b .libtool-no-rpath~
 
 tar xzf %{SOURCE4}
 
@@ -1702,6 +1706,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Sep  6 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-3
+- don't run tests that require Altivec hw on non-Altivec powerpcs
+- make sure none of libgcj binaries/libraries contains /usr/%{lib} in
+  RPATH
+- fix up BuildRoot
+
 * Fri Sep  5 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-2
 - update from gcc-4_3-branch
   - PRs c++/37348, c/37261, fortran/36371, fortran/37193, middle-end/36449,
