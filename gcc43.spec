@@ -1,6 +1,9 @@
-%define DATE 20080829
+%define DATE 20080905
+%define SVNREV 140029
 %define gcc_version 4.3.2
-%define gcc_release 1
+# Note, gcc_release must be integer, if you want to add suffixes to
+# %{release}, append them after %{gcc_release} on Release: line.
+%define gcc_release 2
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -37,6 +40,10 @@ Release: %{gcc_release}
 # restrictions.
 License: GPLv3+ and GPLv2+ with exceptions
 Group: Development/Languages
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_3-branch@%{SVNREV} gcc-%{version}-%{DATE}
+# tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
 Source2: README.libgcjwebplugin.so
@@ -44,7 +51,7 @@ Source3: protoize.1
 %define fastjar_ver 0.95
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
 URL: http://gcc.gnu.org
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n))
 # Need binutils with -pie support >= 2.14.90.0.4-4
 # Need binutils which can omit dot symbols and overlap .opd on ppc64 >= 2.15.91.0.2-4
 # Need binutils which handle -msecure-plt on ppc >= 2.16.91.0.2-2
@@ -103,27 +110,27 @@ Requires: glibc >= 2.3.90-35
 %endif
 Requires: libgcc >= %{version}-%{release}
 Requires: libgomp = %{version}-%{release}
-Obsoletes: gcc3
-Obsoletes: egcs
+#Obsoletes: gcc3
+#Obsoletes: egcs
 %ifarch sparc
-Obsoletes: gcc-sparc32
-Obsoletes: gcc-c++-sparc32
+#Obsoletes: gcc-sparc32
+#Obsoletes: gcc-c++-sparc32
 %endif
 %ifarch ppc
-Obsoletes: gcc-ppc32
-Obsoletes: gcc-c++-ppc32
+#Obsoletes: gcc-ppc32
+#Obsoletes: gcc-c++-ppc32
 %endif
-Obsoletes: gcc-chill
+#Obsoletes: gcc-chill
 %if !%{build_ada}
 Obsoletes: gcc-gnat < %{version}-%{release}
 Obsoletes: libgnat < %{version}-%{release}
 %endif
 %ifarch sparc sparc64
-Obsoletes: egcs64
+#Obsoletes: egcs64
 %endif
-Obsoletes: gcc34
-Obsoletes: gcc35
-Obsoletes: gcc4
+#Obsoletes: gcc34
+#Obsoletes: gcc35
+#Obsoletes: gcc4
 Prereq: /sbin/install-info
 AutoReq: true
 
@@ -143,18 +150,8 @@ Patch13: gcc43-i386-libgomp.patch
 Patch14: gcc43-rh251682.patch
 Patch15: gcc43-sparc-config-detection.patch
 Patch16: gcc43-libgomp-omp_h-multilib.patch
-Patch17: gcc43-fortran-debug1.patch
-Patch18: gcc43-fortran-debug2.patch
-Patch19: gcc43-fortran-debug3.patch
-Patch20: gcc43-fortran-debug4.patch
-Patch21: gcc43-fortran-debug5.patch
-Patch22: gcc43-fortran-debug6.patch
-Patch23: gcc43-fortran-debug7.patch
-Patch24: gcc43-fortran-debug8.patch
-Patch25: gcc43-fortran-debug9.patch
-Patch26: gcc43-fortran-debug10.patch
-Patch27: gcc43-fortran-debug11.patch
-Patch28: gcc43-pr37248.patch
+Patch17: gcc43-x86_64-va_start.patch
+Patch18: gcc43-pr37189.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -190,10 +187,10 @@ Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libstdc++ = %{version}-%{release}
 Requires: libstdc++-devel = %{version}-%{release}
-Obsoletes: gcc3-c++
-Obsoletes: gcc34-c++
-Obsoletes: gcc35-c++
-Obsoletes: gcc4-c++
+#Obsoletes: gcc3-c++
+#Obsoletes: gcc34-c++
+#Obsoletes: gcc35-c++
+#Obsoletes: gcc4-c++
 Autoreq: true
 
 %description c++
@@ -204,8 +201,8 @@ including templates and exception handling.
 %package -n libstdc++
 Summary: GNU Standard C++ Library
 Group: System Environment/Libraries
-Obsoletes: libstdc++3
-Obsoletes: libstdc++34
+#Obsoletes: libstdc++3
+#Obsoletes: libstdc++34
 Autoreq: true
 
 %description -n libstdc++
@@ -216,8 +213,8 @@ C++ Library.
 Summary: Header files and libraries for C++ development
 Group: Development/Libraries
 Requires: libstdc++ = %{version}-%{release}, %{_prefix}/%{_lib}/libstdc++.so.6
-Obsoletes: libstdc++3-devel
-Obsoletes: libstdc++34-devel
+#Obsoletes: libstdc++3-devel
+#Obsoletes: libstdc++34-devel
 Autoreq: true
 
 %description -n libstdc++-devel
@@ -230,7 +227,7 @@ Summary: Objective-C support for GCC
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libobjc = %{version}-%{release}
-Obsoletes: gcc3-objc
+#Obsoletes: gcc3-objc
 Autoreq: true
 
 %description objc
@@ -263,9 +260,9 @@ Requires: gcc = %{version}-%{release}
 Requires: libgfortran = %{version}-%{release}
 BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1
 Prereq: /sbin/install-info
-Obsoletes: gcc3-g77
-Obsoletes: gcc-g77
-Obsoletes: gcc4-gfortran
+#Obsoletes: gcc3-g77
+#Obsoletes: gcc-g77
+#Obsoletes: gcc4-gfortran
 Autoreq: true
 
 %description gfortran
@@ -275,7 +272,7 @@ programs with the GNU Compiler Collection.
 %package -n libgfortran
 Summary: Fortran 95 runtime
 Group: System Environment/Libraries
-Obsoletes: libf2c
+#Obsoletes: libf2c
 Autoreq: true
 
 %description -n libgfortran
@@ -320,10 +317,10 @@ Requires: gcc = %{version}-%{release}
 Requires: libgcj = %{version}-%{release}
 Requires: libgcj-devel = %{version}-%{release}
 Requires: /usr/share/java/eclipse-ecj.jar
-Obsoletes: gcc3-java
-Obsoletes: gcc34-java
-Obsoletes: gcc35-java
-Obsoletes: gcc4-java
+#Obsoletes: gcc3-java
+#Obsoletes: gcc34-java
+#Obsoletes: gcc35-java
+#Obsoletes: gcc4-java
 Prereq: /sbin/install-info
 Autoreq: true
 
@@ -348,10 +345,10 @@ BuildRequires: alsa-lib-devel
 BuildRequires: libXtst-devel
 BuildRequires: libXt-devel
 %endif
-Obsoletes: gcc-libgcj
-Obsoletes: libgcj3
-Obsoletes: libgcj34
-Obsoletes: libgcj4
+#Obsoletes: gcc-libgcj
+#Obsoletes: libgcj3
+#Obsoletes: libgcj34
+#Obsoletes: libgcj4
 Autoreq: true
 
 %description -n libgcj
@@ -364,9 +361,9 @@ Group: Development/Languages
 Requires: libgcj = %{version}-%{release}, %{_prefix}/%{_lib}/libgcj.so.9
 Requires: zlib-devel, %{_prefix}/%{_lib}/libz.so
 Requires: /bin/awk
-Obsoletes: libgcj3-devel
-Obsoletes: libgcj34-devel
-Obsoletes: libgcj4-devel
+#Obsoletes: libgcj3-devel
+#Obsoletes: libgcj34-devel
+#Obsoletes: libgcj4-devel
 Autoreq: false
 Autoprov: false
 
@@ -378,7 +375,7 @@ package to compile your Java programs using the GCC Java compiler (gcj).
 Summary: Java library sources from GCC4 preview
 Group: System Environment/Libraries
 Requires: libgcj = %{version}-%{release}
-Obsoletes: libgcj4-src
+#Obsoletes: libgcj4-src
 Autoreq: true
 
 %description -n libgcj-src
@@ -389,7 +386,7 @@ Summary: The C Preprocessor.
 Group: Development/Languages
 Prereq: /sbin/install-info
 %ifarch ia64
-Obsoletes: gnupro
+#Obsoletes: gnupro
 %endif
 Autoreq: true
 
@@ -419,7 +416,7 @@ macros.
 Summary: Ada 95 support for GCC
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}, libgnat = %{version}-%{release}
-Obsoletes: gnat-devel, gcc3-gnat
+#Obsoletes: gnat-devel, gcc3-gnat
 Prereq: /sbin/install-info
 Autoreq: true
 
@@ -430,7 +427,7 @@ the documents and Ada 95 compiler.
 %package -n libgnat
 Summary: GNU Ada 95 runtime shared libraries
 Group: System Environment/Libraries
-Obsoletes: gnat libgnat3
+#Obsoletes: gnat libgnat3
 Autoreq: true
 
 %description -n libgnat
@@ -455,18 +452,8 @@ which are required to run programs compiled with the GNAT.
 %patch14 -p0 -b .rh251682~
 %patch15 -p0 -b .sparc-config-detection~
 %patch16 -p0 -b .libgomp-omp_h-multilib~
-%patch17 -p0 -b .fortran-debug1~
-%patch18 -p0 -b .fortran-debug2~
-%patch19 -p0 -b .fortran-debug3~
-%patch20 -p0 -b .fortran-debug4~
-%patch21 -p0 -b .fortran-debug5~
-%patch22 -p0 -b .fortran-debug6~
-%patch23 -p0 -b .fortran-debug7~
-%patch24 -p0 -b .fortran-debug8~
-%patch25 -p0 -b .fortran-debug9~
-%patch26 -p0 -b .fortran-debug10~
-%patch27 -p0 -b .fortran-debug11~
-%patch28 -p0 -b .pr37248~
+%patch17 -p0 -b .x86_64-va_start~
+%patch18 -p0 -b .pr37189~
 
 tar xzf %{SOURCE4}
 
@@ -488,6 +475,38 @@ perl -pi -e 's/^install: install-recursive/ifeq (\$(MULTISUBDIR),)\ninstall: ins
 perl -pi -e 's/^check: check-recursive/ifeq (\$(MULTISUBDIR),)\ncheck: check-recursive\nelse\ncheck:\n\techo Multilib libjava check disabled\nendif/' libjava/Makefile.in
 
 ./contrib/gcc_update --touch
+
+# To make rpmlint happy (argh), fix up names in ChangeLog entries to valid UTF-8
+LC_ALL=C sed -i \
+  -e 's/D\(o\|\xf6\)nmez/D\xc3\xb6nmez/' \
+  -e 's/\(Av\|\x81\xc1v\|\xc1v\|\xef\xbf\xbdv\?\|\x81\xc3\x81v\|\xc3v\)ila/\xc3\x81vila/' \
+  -e 's/Esp\(in\|\x81\xedn\|\xedn\|\xef\xbf\xbdn\?\|\xef\xbf\xbd\xadn\|\x81\xc3\xadn\)dola/Esp\xc3\xadndola/' \
+  -e 's/Schl\(u\|\xef\xbf\xbd\|\xfcu\?\|\x81\xfc\|\x81\xc3\xbc\|\xc3\xaf\xc2\xbf\xc2\xbd\|\xef\xbf\xbd\xef\xbf\xbd\xef\xbf\xbd\xc2\xbc\)ter/Schl\xc3\xbcter/' \
+  -e 's/Humi\(e\|\xe8\)res/Humi\xc3\xa8res/' \
+  -e 's/L\(ow\|\xc3\xaf\xc2\xbf\xc2\xbd\|oew\|\xf6w\)is/L\xc3\xb6wis/' \
+  -e 's/G\xfctlein/G\xc3\xbctlein/' \
+  -e 's/G\xe1[b]or/G\xc3\xa1bor/' \
+  -e 's/L\xf3ki/L\xc3\xb3ki/' \
+  -e 's/Fautr\xc3 /Fautr\xc3\xa9 /' \
+  -e 's/S\xe9[b]astian/S\xc3\xa9bastian/' \
+  -e 's/Th\xef\xbf\xbd[d]ore/Th\xc3\xa9odore/' \
+  -e 's/Cors\xc3\xc2\xa9pius/Cors\xc3\xa9pius/' \
+  -e 's/K\xfchl/K\xc3\xbchl/' \
+  -e 's/R\xf6nnerup/R\xc3\xb6nnerup/' \
+  -e 's/L\xf8vset/L\xc3\xb8vset/' \
+  -e 's/Ph\x81\xfb\x81\xf4ng-Th\x81\xe5o/Ph\xc3\xbb\xc3\xb4ng-Th\xc3\xa5o/' \
+  -e 's/V\x81\xf5/V\xc3\xb5/' \
+  -e 's/J\xf6nsson/J\xc3\xb6nsson/' \
+  -e 's/V\xef\xbf\xbdis\xef\xbf\xbdnen/V\xc3\xa4is\xc3\xa4nen/' \
+  -e 's/J\xef\xbf\xbdrg/J\xc3\xb6rg/' \
+  -e 's/M\xef\xbf\xbdsli/M\xc3\xb6sli/' \
+  -e 's/R\xe4ty/R\xc3\xa4ty/' \
+  -e 's/2003\xc2\xad-/2003-/' \
+  -e 's/\xc2\xa0/ /g' \
+  -e 's/ \xa0/  /g' \
+  -e 's/\xa0 //' \
+  `find . -name \*ChangeLog\*`
+LC_ALL=C sed -i -e 's/\xa0/ /' gcc/doc/options.texi
 
 %ifarch ppc
 if [ -d libstdc++-v3/config/abi/post/powerpc64-linux-gnu ]; then
@@ -522,12 +541,6 @@ cd ../../
 rm -fr obj-%{gcc_target_platform}
 mkdir obj-%{gcc_target_platform}
 cd obj-%{gcc_target_platform}
-
-if [ ! -f /usr/lib/locale/de_DE/LC_CTYPE ]; then
-  mkdir locale
-  localedef -f ISO-8859-1 -i de_DE locale/de_DE
-  export LOCPATH=`pwd`/locale:/usr/lib/locale
-fi
 
 %if %{build_java}
 %if !%{bootstrap_java}
@@ -737,10 +750,6 @@ perl -pi -e \
   libstdc++-v3/doc/html/api.html
 
 cd obj-%{gcc_target_platform}
-
-if [ ! -f /usr/lib/locale/de_DE/LC_CTYPE ]; then
-  export LOCPATH=`pwd`/locale:/usr/lib/locale
-fi
 
 %if %{build_java}
 export PATH=`pwd`/../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}${PATH:+:$PATH}
@@ -1073,6 +1082,7 @@ rm -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/{libffi*,libiberty.a}
 rm -f $FULLEPATH/install-tools/{mkheaders,fixincl}
 rm -f $RPM_BUILD_ROOT%{_prefix}/lib/{32,64}/libiberty.a
 rm -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libssp*
+rm -f $RPM_BUILD_ROOT%{_prefix}/bin/gnative2ascii
 
 %ifarch %{multilib_64_archs}
 # Remove libraries for the other arch on multilib arches
@@ -1692,6 +1702,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Sep  5 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-2
+- update from gcc-4_3-branch
+  - PRs c++/37348, c/37261, fortran/36371, fortran/37193, middle-end/36449,
+	target/36332, target/37168
+- make ChangeLog files and gcc.info valid UTF-8, remove gnative2ascii from
+  gcc-gnat, comment out most of the Obsoletes (#225778)
+- on x86_64 decrease frame size in varargs functions that don't need saving
+  gpr or fpr registers
+- fix ICE on implicitly determined firstprivate where copy ctor or dtor
+  needs synthetization (PR c++/37189)
+- document how to recrease the tarball
+
 * Fri Aug 29 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-1
 - update from gcc-4_3-branch
   - 4.3.2 release
