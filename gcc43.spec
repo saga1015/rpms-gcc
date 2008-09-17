@@ -1,9 +1,9 @@
-%define DATE 20080905
-%define SVNREV 140029
+%define DATE 20080917
+%define SVNREV 140410
 %define gcc_version 4.3.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 3
+%define gcc_release 4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -154,6 +154,8 @@ Patch17: gcc43-x86_64-va_start.patch
 Patch18: gcc43-pr37189.patch
 Patch19: gcc43-altivec-tests.patch
 Patch20: gcc43-libtool-no-rpath.patch
+Patch21: gcc43-pr36741-revert.patch
+Patch22: gcc43-pr34037.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -384,7 +386,7 @@ Autoreq: true
 The Java(tm) runtime library sources for use in Eclipse.
 
 %package -n cpp
-Summary: The C Preprocessor.
+Summary: The C Preprocessor
 Group: Development/Languages
 Prereq: /sbin/install-info
 %ifarch ia64
@@ -458,6 +460,8 @@ which are required to run programs compiled with the GNAT.
 %patch18 -p0 -b .pr37189~
 %patch19 -p0 -b .altivec-tests~
 %patch20 -p0 -b .libtool-no-rpath~
+%patch21 -p0 -b .pr36741-revert~
+%patch22 -p0 -b .pr34037~
 
 tar xzf %{SOURCE4}
 
@@ -484,7 +488,7 @@ perl -pi -e 's/^check: check-recursive/ifeq (\$(MULTISUBDIR),)\ncheck: check-rec
 LC_ALL=C sed -i \
   -e 's/D\(o\|\xf6\)nmez/D\xc3\xb6nmez/' \
   -e 's/\(Av\|\x81\xc1v\|\xc1v\|\xef\xbf\xbdv\?\|\x81\xc3\x81v\|\xc3v\)ila/\xc3\x81vila/' \
-  -e 's/Esp\(in\|\x81\xedn\|\xedn\|\xef\xbf\xbdn\?\|\xef\xbf\xbd\xadn\|\x81\xc3\xadn\)dola/Esp\xc3\xadndola/' \
+  -e 's/Esp\(in\|\x81\xedn\|\xedn\|\xef\xbf\xbdn\?\|\xef\xbf\xbd\xadn\|\x81\xc3\xadn\|\xc3\xef\xbf\xbd\xadn\)dola/Esp\xc3\xadndola/' \
   -e 's/Schl\(u\|\xef\xbf\xbd\|\xfcu\?\|\x81\xfc\|\x81\xc3\xbc\|\xc3\xaf\xc2\xbf\xc2\xbd\|\xef\xbf\xbd\xef\xbf\xbd\xef\xbf\xbd\xc2\xbc\)ter/Schl\xc3\xbcter/' \
   -e 's/Humi\(e\|\xe8\)res/Humi\xc3\xa8res/' \
   -e 's/L\(ow\|\xc3\xaf\xc2\xbf\xc2\xbd\|oew\|\xf6w\)is/L\xc3\xb6wis/' \
@@ -1706,6 +1710,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Sep 17 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-4
+- update from 4.3 branch
+  - PRs c++/37389, fortran/35837, fortran/36214, fortran/37099, fortran/37199,
+	rtl-optimization/37408, target/37466, tree-optimization/36630
+- revert PR c++/36741 fix
+- fix VLA debuginfo at -O0 (PR debug/34037)
+
 * Sat Sep  6 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-3
 - don't run tests that require Altivec hw on non-Altivec powerpcs
 - make sure none of libgcj binaries/libraries contains /usr/%{lib} in
