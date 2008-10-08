@@ -1,9 +1,9 @@
-%define DATE 20080917
-%define SVNREV 140410
+%define DATE 20081008
+%define SVNREV 140973
 %define gcc_version 4.3.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 4
+%define gcc_release 5
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -156,6 +156,9 @@ Patch19: gcc43-altivec-tests.patch
 Patch20: gcc43-libtool-no-rpath.patch
 Patch21: gcc43-pr36741-revert.patch
 Patch22: gcc43-pr34037.patch
+Patch23: gcc43-pr37738.patch
+Patch24: gcc43-pr29609.patch
+Patch25: gcc43-aes.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -462,6 +465,9 @@ which are required to run programs compiled with the GNAT.
 %patch20 -p0 -b .libtool-no-rpath~
 %patch21 -p0 -b .pr36741-revert~
 %patch22 -p0 -b .pr34037~
+%patch23 -p0 -b .pr37738~
+%patch24 -p0 -b .pr29609~
+%patch25 -p0 -b .aes~
 
 tar xzf %{SOURCE4}
 
@@ -1284,6 +1290,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/smmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/nmmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/bmmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/wmmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mmintrin-common.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm_malloc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
@@ -1710,8 +1717,22 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Oct  8 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-5
+- update from gcc-4_3-branch
+  - PRs c++/37555, c/35712, c/37645, fortran/35770, fortran/35945,
+	fortran/36374, fortran/36454, fortran/36700, fortran/37274,
+	fortran/37504, fortran/37580, fortran/37583, fortran/37626,
+	fortran/37706, middle-end/36575, middle-end/37236, middle-end/37731,
+	rtl-optimization/37544, target/35620, target/35713, target/37603,
+	tree-opt/35737, tree-optimization/36343, tree-optimization/37539
+- ensure one can put breakpoints on break, continue and goto statements
+  with -g -O0 (#465824, PRs debug/29609, debug/36690, debug/37616)
+- emit one DW_TAG_common_block for each common block in each scope, not
+  one for each common block in one CU (#465974, PR debug/37738)
+- Intel -maes and -mpclmul support
+
 * Wed Sep 17 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-4
-- update from 4.3 branch
+- update from gcc-4_3-branch
   - PRs c++/37389, fortran/35837, fortran/36214, fortran/37099, fortran/37199,
 	rtl-optimization/37408, target/37466, tree-optimization/36630
 - revert PR c++/36741 fix

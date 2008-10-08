@@ -1,0 +1,899 @@
+2008-10-08  Jakub Jelinek  <jakub@redhat.com>
+
+	* cfgexpand.c (expand_gimple_cond_expr): Convert also goto_block and
+	goto_locus of true_edge into RTL locator.
+
+2008-10-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/29609
+	PR debug/36690
+	PR debug/37616
+	* basic-block.h (struct edge_def): Add goto_block field.
+	* cfglayout.c (fixup_reorder_chain): Ensure that there is at least
+	one insn with locus corresponding to edge's goto_locus if !optimize.
+	* profile.c (branch_prob): Copy edge's goto_block.
+	* cfgrtl.c (force_nonfallthru_and_redirect): Use goto_locus for
+	emitted jumps.
+	(cfg_layout_merge_blocks): Emit a nop with edge's goto_locus
+	locator in between the merged basic blocks if !optimize and needed.
+	* cfgexpand.c (expand_gimple_cond_expr): Convert goto_block and
+	goto_locus into RTL locator.  For unconditional jump use that
+	locator for the jump insn.
+	(expand_gimple_basic_block): Convert goto_block and goto_locus into
+	RTL locator for all remaining edges.  For unconditional jump
+	use that locator for the jump insn.
+	* cfgcleanup.c (try_forward_edges): Avoid the optimization if
+	there is more than one edge or insn locator along the forwarding
+	edges and !optimize.  If there is just one, set e->goto_locus.
+	* tree-cfg.c (make_cond_expr_edges, make_goto_expr_edges): Set also
+	edge's goto_block.
+	(move_block_to_fn): Adjust edge's goto_block.
+
+	* gcc.dg/debug/pr29609-1.c: New test.
+	* gcc.dg/debug/pr29609-2.c: New test.
+	* gcc.dg/debug/pr36690-1.c: New test.
+	* gcc.dg/debug/pr36690-2.c: New test.
+	* gcc.dg/debug/pr36690-3.c: New test.
+	* gcc.dg/debug/pr37616.c: New test.
+	* gcc.dg/debug/dwarf2/pr29609-1.c: New test.
+	* gcc.dg/debug/dwarf2/pr29609-2.c: New test.
+	* gcc.dg/debug/dwarf2/pr36690-1.c: New test.
+	* gcc.dg/debug/dwarf2/pr36690-2.c: New test.
+	* gcc.dg/debug/dwarf2/pr36690-3.c: New test.
+	* gcc.dg/debug/dwarf2/pr37616.c: New test.
+
+--- gcc/profile.c	(revision 140947)
++++ gcc/profile.c	(revision 140948)
+@@ -825,7 +825,9 @@ branch_prob (void)
+ #endif
+ 	    {
+ 	      basic_block new = split_edge (e);
+-	      single_succ_edge (new)->goto_locus = e->goto_locus;
++	      edge ne = single_succ_edge (new);
++	      ne->goto_locus = e->goto_locus;
++	      ne->goto_block = e->goto_block;
+ 	    }
+ 	  if ((e->flags & (EDGE_ABNORMAL | EDGE_ABNORMAL_CALL))
+ 	       && e->dest != EXIT_BLOCK_PTR)
+--- gcc/cfgexpand.c	(revision 140947)
++++ gcc/cfgexpand.c	(revision 140948)
+@@ -1316,7 +1316,12 @@ expand_gimple_cond_expr (basic_block bb,
+       add_reg_br_prob_note (last, true_edge->probability);
+       maybe_dump_rtl_for_tree_stmt (stmt, last);
+       if (true_edge->goto_locus)
+-  	set_curr_insn_source_location (location_from_locus (true_edge->goto_locus));
++	{
++	  set_curr_insn_source_location (location_from_locus (true_edge->goto_locus));
++	  set_curr_insn_block (true_edge->goto_block);
++	  true_edge->goto_locus = curr_insn_locator ();
++	}
++      true_edge->goto_block = NULL;
+       false_edge->flags |= EDGE_FALLTHRU;
+       return NULL;
+     }
+@@ -1326,7 +1331,12 @@ expand_gimple_cond_expr (basic_block bb,
+       add_reg_br_prob_note (last, false_edge->probability);
+       maybe_dump_rtl_for_tree_stmt (stmt, last);
+       if (false_edge->goto_locus)
+-  	set_curr_insn_source_location (location_from_locus (false_edge->goto_locus));
++	{
++	  set_curr_insn_source_location (location_from_locus (false_edge->goto_locus));
++	  set_curr_insn_block (false_edge->goto_block);
++	  false_edge->goto_locus = curr_insn_locator ();
++	}
++      false_edge->goto_block = NULL;
+       true_edge->flags |= EDGE_FALLTHRU;
+       return NULL;
+     }
+@@ -1334,6 +1344,13 @@ expand_gimple_cond_expr (basic_block bb,
+   jumpif (pred, label_rtx_for_bb (true_edge->dest));
+   add_reg_br_prob_note (last, true_edge->probability);
+   last = get_last_insn ();
++  if (false_edge->goto_locus)
++    {
++      set_curr_insn_source_location (location_from_locus (false_edge->goto_locus));
++      set_curr_insn_block (false_edge->goto_block);
++      false_edge->goto_locus = curr_insn_locator ();
++    }
++  false_edge->goto_block = NULL;
+   emit_jump (label_rtx_for_bb (false_edge->dest));
+ 
+   BB_END (bb) = last;
+@@ -1356,9 +1373,13 @@ expand_gimple_cond_expr (basic_block bb,
+ 
+   maybe_dump_rtl_for_tree_stmt (stmt, last2);
+ 
+-  if (false_edge->goto_locus)
+-    set_curr_insn_source_location (location_from_locus (false_edge->goto_locus));
+-
++  if (true_edge->goto_locus)
++    {
++      set_curr_insn_source_location (location_from_locus (true_edge->goto_locus));
++      set_curr_insn_block (true_edge->goto_block);
++      true_edge->goto_locus = curr_insn_locator ();
++    }
++  true_edge->goto_block = NULL;
+   return new_bb;
+ }
+ 
+@@ -1613,19 +1634,21 @@ expand_gimple_basic_block (basic_block b
+ 	}
+     }
+ 
+-  /* Expand implicit goto.  */
++  /* Expand implicit goto and convert goto_locus.  */
+   FOR_EACH_EDGE (e, ei, bb->succs)
+     {
+-      if (e->flags & EDGE_FALLTHRU)
+-	break;
+-    }
+-
+-  if (e && e->dest != bb->next_bb)
+-    {
+-      emit_jump (label_rtx_for_bb (e->dest));
+-      if (e->goto_locus)
+-        set_curr_insn_source_location (location_from_locus (e->goto_locus));
+-      e->flags &= ~EDGE_FALLTHRU;
++      if (e->goto_locus && e->goto_block)
++	{
++	  set_curr_insn_source_location (location_from_locus (e->goto_locus));
++	  set_curr_insn_block (e->goto_block);
++	  e->goto_locus = curr_insn_locator ();
++	}
++      e->goto_block = NULL;
++      if ((e->flags & EDGE_FALLTHRU) && e->dest != bb->next_bb)
++	{
++	  emit_jump (label_rtx_for_bb (e->dest));
++	  e->flags &= ~EDGE_FALLTHRU;
++	}
+     }
+ 
+   do_pending_stack_adjust ();
+--- gcc/cfgcleanup.c	(revision 140947)
++++ gcc/cfgcleanup.c	(revision 140948)
+@@ -429,7 +429,7 @@ try_forward_edges (int mode, basic_block
+   for (ei = ei_start (b->succs); (e = ei_safe_edge (ei)); )
+     {
+       basic_block target, first;
+-      int counter;
++      int counter, goto_locus;
+       bool threaded = false;
+       int nthreaded_edges = 0;
+       bool may_thread = first_pass | df_get_bb_dirty (b);
+@@ -447,6 +447,7 @@ try_forward_edges (int mode, basic_block
+ 
+       target = first = e->dest;
+       counter = NUM_FIXED_BLOCKS;
++      goto_locus = e->goto_locus;
+ 
+       /* If we are partitioning hot/cold basic_blocks, we don't want to mess
+ 	 up jumps that cross between hot/cold sections.
+@@ -476,6 +477,27 @@ try_forward_edges (int mode, basic_block
+ 	      new_target = single_succ (target);
+ 	      if (target == new_target)
+ 		counter = n_basic_blocks;
++	      else if (!optimize)
++		{
++		  /* When not optimizing, ensure that edges or forwarder
++		     blocks with different locus are not optimized out.  */
++		  int locus = single_succ_edge (target)->goto_locus;
++
++		  if (locus && goto_locus && locus != goto_locus)
++		    counter = n_basic_blocks;
++		  else if (locus)
++		    goto_locus = locus;
++
++		  if (INSN_P (BB_END (target)))
++		    {
++		      locus = INSN_LOCATOR (BB_END (target));
++
++		      if (locus && goto_locus && locus != goto_locus)
++			counter = n_basic_blocks;
++		      else if (locus)
++			goto_locus = locus;
++		    }
++		}
+ 	    }
+ 
+ 	  /* Allow to thread only over one edge at time to simplify updating
+@@ -539,6 +561,8 @@ try_forward_edges (int mode, basic_block
+ 	  int edge_frequency;
+ 	  int n = 0;
+ 
++	  e->goto_locus = goto_locus;
++
+ 	  /* Don't force if target is exit block.  */
+ 	  if (threaded && target != EXIT_BLOCK_PTR)
+ 	    {
+--- gcc/cfglayout.c	(revision 140947)
++++ gcc/cfglayout.c	(revision 140948)
+@@ -887,6 +887,46 @@ fixup_reorder_chain (void)
+       if (e && !can_fallthru (e->src, e->dest))
+ 	force_nonfallthru (e);
+     }
++
++  /* Ensure goto_locus from edges has some instructions with that locus
++     in RTL.  */
++  if (!optimize)
++    FOR_EACH_BB (bb)
++      {
++        edge e;
++        edge_iterator ei;
++
++        FOR_EACH_EDGE (e, ei, bb->succs)
++	  if (e->goto_locus && !(e->flags & EDGE_ABNORMAL))
++	    {
++	      basic_block nb;
++
++	      if (simplejump_p (BB_END (e->src)))
++		{
++		  if (INSN_LOCATOR (BB_END (e->src)) == (int) e->goto_locus)
++		    continue;
++		  if (INSN_LOCATOR (BB_END (e->src)) == 0)
++		    {
++		      INSN_LOCATOR (BB_END (e->src)) = e->goto_locus;
++		      continue;
++		    }
++		}
++	      if (e->dest != EXIT_BLOCK_PTR)
++		{
++		  insn = BB_HEAD (e->dest);
++		  if (!INSN_P (insn))
++		    insn = next_insn (insn);
++		  if (insn && INSN_P (insn)
++		      && INSN_LOCATOR (insn) == (int) e->goto_locus)
++		    continue;
++		}
++	      nb = split_edge (e);
++	      if (!INSN_P (BB_END (nb)))
++		BB_END (nb) = emit_insn_after_noloc (gen_nop (), BB_END (nb),
++						     nb);
++	      INSN_LOCATOR (BB_END (nb)) = e->goto_locus;
++	    }
++      }
+ }
+ 
+ /* Perform sanity checks on the insn chain.
+--- gcc/basic-block.h	(revision 140947)
++++ gcc/basic-block.h	(revision 140948)
+@@ -129,7 +129,8 @@ struct edge_def GTY(())
+   /* Auxiliary info specific to a pass.  */
+   PTR GTY ((skip (""))) aux;
+ 
+-  /* Location of any goto implicit in the edge, during tree-ssa.  */
++  /* Location of any goto implicit in the edge and associated BLOCK.  */
++  tree goto_block;
+   source_locus goto_locus;
+ 
+   /* The index number corresponding to this edge in the edge vector
+--- gcc/tree-cfg.c	(revision 140947)
++++ gcc/tree-cfg.c	(revision 140948)
+@@ -634,6 +634,7 @@ make_cond_expr_edges (basic_block bb)
+ #else
+   e->goto_locus = EXPR_LOCUS (COND_EXPR_THEN (entry));
+ #endif
++  e->goto_block = TREE_BLOCK (COND_EXPR_THEN (entry));
+   e = make_edge (bb, else_bb, EDGE_FALSE_VALUE);
+   if (e)
+     {
+@@ -642,6 +643,7 @@ make_cond_expr_edges (basic_block bb)
+ #else
+       e->goto_locus = EXPR_LOCUS (COND_EXPR_ELSE (entry));
+ #endif
++      e->goto_block = TREE_BLOCK (COND_EXPR_ELSE (entry));
+     }
+ 
+   /* We do not need the gotos anymore.  */
+@@ -841,6 +843,7 @@ make_goto_expr_edges (basic_block bb)
+ #else
+       e->goto_locus = EXPR_LOCUS (goto_t);
+ #endif
++      e->goto_block = TREE_BLOCK (goto_t);
+       bsi_remove (&last, true);
+       return;
+     }
+@@ -5874,6 +5877,23 @@ move_block_to_fn (struct function *dest_
+       update_stmt (stmt);
+       pop_cfun ();
+     }
++
++  FOR_EACH_EDGE (e, ei, bb->succs)
++    if (e->goto_locus)
++      {
++	tree block = e->goto_block;
++	if (d->orig_block == NULL_TREE
++	    || block == d->orig_block)
++	  e->goto_block = d->new_block;
++#ifdef ENABLE_CHECKING
++	else if (block != d->new_block)
++	  {
++	    while (block && block != d->orig_block)
++	      block = BLOCK_SUPERCONTEXT (block);
++	    gcc_assert (block);
++	  }
++#endif
++      }
+ }
+ 
+ /* Examine the statements in BB (which is in SRC_CFUN); find and return
+--- gcc/cfgrtl.c	(revision 140947)
++++ gcc/cfgrtl.c	(revision 140948)
+@@ -1009,6 +1009,7 @@ force_nonfallthru_and_redirect (edge e, 
+   rtx note;
+   edge new_edge;
+   int abnormal_edge_flags = 0;
++  int loc;
+ 
+   /* In the case the last instruction is conditional jump to the next
+      instruction, first redirect the jump itself and then continue
+@@ -1127,11 +1128,15 @@ force_nonfallthru_and_redirect (edge e, 
+   else
+     jump_block = e->src;
+ 
++  if (e->goto_locus && e->goto_block == NULL)
++    loc = e->goto_locus;
++  else
++    loc = 0;
+   e->flags &= ~EDGE_FALLTHRU;
+   if (target == EXIT_BLOCK_PTR)
+     {
+ #ifdef HAVE_return
+-	emit_jump_insn_after_noloc (gen_return (), BB_END (jump_block));
++	emit_jump_insn_after_setloc (gen_return (), BB_END (jump_block), loc);
+ #else
+ 	gcc_unreachable ();
+ #endif
+@@ -1139,7 +1144,7 @@ force_nonfallthru_and_redirect (edge e, 
+   else
+     {
+       rtx label = block_label (target);
+-      emit_jump_insn_after_noloc (gen_jump (label), BB_END (jump_block));
++      emit_jump_insn_after_setloc (gen_jump (label), BB_END (jump_block), loc);
+       JUMP_LABEL (BB_END (jump_block)) = label;
+       LABEL_NUSES (label)++;
+     }
+@@ -2606,6 +2611,32 @@ cfg_layout_merge_blocks (basic_block a, 
+     try_redirect_by_replacing_jump (EDGE_SUCC (a, 0), b, true);
+   gcc_assert (!JUMP_P (BB_END (a)));
+ 
++  /* When not optimizing and the edge is the only place in RTL which holds
++     some unique locus, emit a nop with that locus in between.  */
++  if (!optimize && EDGE_SUCC (a, 0)->goto_locus)
++    {
++      rtx insn = BB_END (a);
++      int goto_locus = EDGE_SUCC (a, 0)->goto_locus;
++
++      if (NOTE_P (insn))
++	insn = prev_nonnote_insn (insn);
++      if (insn && INSN_P (insn) && INSN_LOCATOR (insn) == goto_locus)
++	goto_locus = 0;
++      else
++	{
++	  insn = BB_HEAD (b);
++	  if (!INSN_P (insn))
++	    insn = next_insn (insn);
++	  if (insn && INSN_P (insn) && INSN_LOCATOR (insn) == goto_locus)
++	    goto_locus = 0;
++	}
++      if (goto_locus)
++	{
++	  BB_END (a) = emit_insn_after_noloc (gen_nop (), BB_END (a), a);
++	  INSN_LOCATOR (BB_END (a)) = goto_locus;
++	}
++    }
++
+   /* Possible line number notes should appear in between.  */
+   if (b->il.rtl->header)
+     {
+--- gcc/testsuite/gcc.dg/debug/pr36690-1.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/pr36690-1.c	(revision 140948)
+@@ -0,0 +1,23 @@
++/* PR debug/36690 */
++/* Verify that break func is hit.  
++   This version of the test just checks that it can be compiled, linked
++   and executed, further testing is done in corresponding gcc.dg/dwarf2/
++   test and hopefully in gdb testsuite.  */
++/* { dg-do run } */
++/* { dg-options "-O0 -g -dA" } */
++
++int i;
++
++void
++func (void)
++{
++  while (i == 1)
++    i = 0;
++}
++
++int
++main (void)
++{
++  func ();
++  return 0;
++}
+--- gcc/testsuite/gcc.dg/debug/pr36690-2.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/pr36690-2.c	(revision 140948)
+@@ -0,0 +1,40 @@
++/* PR debug/36690 */
++/* Verify that breakpoint can be put on goto f1, it is hit and
++   varz at that spot is defined and contains 5.  Nowhere else
++   in the function should be varz in the scope.
++   This version of the test just checks that it can be compiled, linked
++   and executed, further testing is done in corresponding gcc.dg/dwarf2/
++   test and hopefully in gdb testsuite.  */
++/* { dg-do run } */
++/* { dg-options "-O0 -g -dA" } */
++
++int cnt;
++
++void
++bar (int i)
++{
++  cnt += i;
++}
++
++void
++foo (int i)
++{
++  if (!i)
++    bar (0);
++  else
++    {
++      static int varz = 5;
++      goto f1;
++    }
++  bar (1);
++f1:
++  bar (2);
++}
++
++int
++main (void)
++{
++  foo (0);
++  foo (1);
++  return 0;
++}
+--- gcc/testsuite/gcc.dg/debug/pr29609-1.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/pr29609-1.c	(revision 140948)
+@@ -0,0 +1,33 @@
++/* PR debug/29609 */
++/* Verify that breakpoint on the break is hit.
++   This version of the test just checks that it can be compiled, linked
++   and executed, further testing is done in corresponding gcc.dg/dwarf2/
++   test and hopefully in gdb testsuite.  */
++/* { dg-do run } */
++/* { dg-options "-O0 -g -dA" } */
++
++extern void abort (void);
++
++int
++foo (void)
++{
++  int a, i;
++
++  for (i = 1; i <= 10; i++)
++    {
++      if (i < 3)
++	a = 1;
++      else
++	break;
++      a = 5;
++    }
++  return a;
++}
++
++int
++main (void)
++{
++  if (foo () != 5)
++    abort ();
++  return 0;
++}
+--- gcc/testsuite/gcc.dg/debug/pr36690-3.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/pr36690-3.c	(revision 140948)
+@@ -0,0 +1,47 @@
++/* PR debug/36690 */
++/* { dg-do run } */
++/* { dg-options "-O0 -g -dA" } */
++
++int cnt;
++
++void
++bar (int i)
++{
++  cnt += i;
++}
++
++void
++foo (int i, int j)
++{
++  if (j)
++    {
++      bar (i + 1);
++      goto f1;
++    }
++  bar (i + 2);
++  goto f2;
++f1:
++  if (i > 10)
++    goto f3;
++f2:
++  if (i > 40)
++    goto f4;
++  else
++    goto f5;
++f3:
++  bar (i);
++f4:
++  bar (i);
++f5:
++  bar (i);
++}
++
++int
++main (void)
++{
++  foo (0, 1);
++  foo (11, 1);
++  foo (21, 0);
++  foo (41, 0);
++  return 0;
++}
+--- gcc/testsuite/gcc.dg/debug/pr29609-2.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/pr29609-2.c	(revision 140948)
+@@ -0,0 +1,53 @@
++/* PR debug/29609 */
++/* Verify that breakpoint on both goto failure; stmts is hit.
++   This version of the test just checks that it can be compiled, linked
++   and executed, further testing is done in corresponding gcc.dg/dwarf2/
++   test and hopefully in gdb testsuite.  */
++/* { dg-do run } */
++/* { dg-options "-O0 -g -dA" } */
++
++extern void abort (void);
++int x;
++
++int
++foo (void)
++{
++  return 0 ^ x;
++}
++
++int
++bar (void)
++{
++  return 1 ^ x;
++}
++
++int
++baz (void)
++{
++  int c;
++
++  if (!foo ())
++    goto failure;
++
++  if (!bar ())
++    goto failure;
++
++  return 0;
++
++failure:
++  return 1;
++}
++
++int
++main (void)
++{
++  if (baz () != 1)
++    abort ();
++  x = 1;
++  if (baz () != 1)
++    abort ();
++  x = 2;
++  if (baz () != 0)
++    abort ();
++  return 0;
++}
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr36690-1.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr36690-1.c	(revision 140948)
+@@ -0,0 +1,22 @@
++/* PR debug/36690 */
++/* Verify that break func is hit.  */
++/* { dg-do compile } */
++/* { dg-options "-O0 -gdwarf-2 -dA" } */
++
++int i;
++
++void
++func (void)
++{
++  while (i == 1)
++    i = 0;
++}
++
++int
++main (void)
++{
++  func ();
++  return 0;
++}
++
++/* { dg-final { scan-assembler "pr36690-1.c:11" } } */
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr36690-2.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr36690-2.c	(revision 140948)
+@@ -0,0 +1,39 @@
++/* PR debug/36690 */
++/* Verify that breakpoint can be put on goto f1, it is hit and
++   varz at that spot is defined and contains 5.  Nowhere else
++   in the function should be varz in the scope.  */
++/* { dg-do compile } */
++/* { dg-options "-O0 -gdwarf-2 -dA" } */
++
++int cnt;
++
++void
++bar (int i)
++{
++  cnt += i;
++}
++
++void
++foo (int i)
++{
++  if (!i)
++    bar (0);
++  else
++    {
++      static int varz = 5;
++      goto f1;
++    }
++  bar (1);
++f1:
++  bar (2);
++}
++
++int
++main (void)
++{
++  foo (0);
++  foo (1);
++  return 0;
++}
++
++/* { dg-final { scan-assembler "pr36690-2.c:24" } } */
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr29609-1.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr29609-1.c	(revision 140948)
+@@ -0,0 +1,32 @@
++/* PR debug/29609 */
++/* Verify that breakpoint on the break is hit.  */
++/* { dg-do compile } */
++/* { dg-options "-O0 -gdwarf-2 -dA" } */
++
++void abort (void);
++
++int
++foo (void)
++{
++  int a, i;
++
++  for (i = 1; i <= 10; i++)
++    {
++      if (i < 3)
++	a = 1;
++      else
++	break;
++      a = 5;
++    }
++  return a;
++}
++
++int
++main (void)
++{
++  if (foo () != 5)
++    abort ();
++  return 0;
++}
++
++/* { dg-final { scan-assembler "pr29609-1.c:18" } } */
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr36690-3.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr36690-3.c	(revision 140948)
+@@ -0,0 +1,53 @@
++/* PR debug/36690 */
++/* { dg-do compile } */
++/* { dg-options "-O0 -gdwarf-2 -dA" } */
++
++int cnt;
++
++void
++bar (int i)
++{
++  cnt += i;
++}
++
++void
++foo (int i, int j)
++{
++  if (j)
++    {
++      bar (i + 1);
++      goto f1;
++    }
++  bar (i + 2);
++  goto f2;
++f1:
++  if (i > 10)
++    goto f3;
++f2:
++  if (i > 40)
++    goto f4;
++  else
++    goto f5;
++f3:
++  bar (i);
++f4:
++  bar (i);
++f5:
++  bar (i);
++}
++
++int
++main (void)
++{
++  foo (0, 1);
++  foo (11, 1);
++  foo (21, 0);
++  foo (41, 0);
++  return 0;
++}
++
++/* { dg-final { scan-assembler "pr36690-3.c:19" } } */
++/* { dg-final { scan-assembler "pr36690-3.c:22" } } */
++/* { dg-final { scan-assembler "pr36690-3.c:25" } } */
++/* { dg-final { scan-assembler "pr36690-3.c:28" } } */
++/* { dg-final { scan-assembler "pr36690-3.c:30" } } */
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr29609-2.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr29609-2.c	(revision 140948)
+@@ -0,0 +1,53 @@
++/* PR debug/29609 */
++/* Verify that breakpoint on both goto failure; stmts is hit.  */
++/* { dg-do compile } */
++/* { dg-options "-O0 -gdwarf-2 -dA" } */
++
++extern void abort (void);
++int x;
++
++int
++foo (void)
++{
++  return 0 ^ x;
++}
++
++int
++bar (void)
++{
++  return 1 ^ x;
++}
++
++int
++baz (void)
++{
++  int c;
++
++  if (!foo ())
++    goto failure;
++
++  if (!bar ())
++    goto failure;
++
++  return 0;
++
++failure:
++  return 1;
++}
++
++int
++main (void)
++{
++  if (baz () != 1)
++    abort ();
++  x = 1;
++  if (baz () != 1)
++    abort ();
++  x = 2;
++  if (baz () != 0)
++    abort ();
++  return 0;
++}
++
++/* { dg-final { scan-assembler "pr29609-2.c:27" } } */
++/* { dg-final { scan-assembler "pr29609-2.c:30" } } */
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr37616.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr37616.c	(revision 140948)
+@@ -0,0 +1,41 @@
++/* PR debug/37616 */
++/* Test that one can put breakpoints onto continue, exitlab and break
++   and actually see program reaching those breakpoints.  */
++/* { dg-do compile } */
++/* { dg-options "-O0 -gdwarf-2 -dA" } */
++
++extern void abort (void);
++
++int
++foo (int parm)
++{
++  int varj, varm;
++
++  for (varj = 0; varj < 10; varj++)
++    {
++      if (varj == 5)
++	continue;
++      if (varj == 7 && !parm)
++	goto exitlab;
++      if (varj == 9)
++	break;
++      varm = varj;
++    }
++
++exitlab:
++  return varm;
++}
++
++int
++main (void)
++{
++  if (foo (0) != 6)
++    abort ();
++  if (foo (1) != 8)
++    abort ();
++  return 0;
++}
++
++/* { dg-final { scan-assembler "pr37616.c:17" } } */
++/* { dg-final { scan-assembler "pr37616.c:19" } } */
++/* { dg-final { scan-assembler "pr37616.c:21" } } */
+--- gcc/testsuite/gcc.dg/debug/pr37616.c	(revision 0)
++++ gcc/testsuite/gcc.dg/debug/pr37616.c	(revision 140948)
+@@ -0,0 +1,40 @@
++/* PR debug/37616 */
++/* Test that one can put breakpoints onto continue, exitlab and break
++   and actually see program reaching those breakpoints.
++   This version of the test just checks that it can be compiled, linked
++   and executed, further testing is done in corresponding gcc.dg/dwarf2/
++   test and hopefully in gdb testsuite.  */
++/* { dg-do run } */
++/* { dg-options "-O0 -g -dA" } */
++
++extern void abort (void);
++
++int
++foo (int parm)
++{
++  int varj, varm;
++
++  for (varj = 0; varj < 10; varj++)
++    {
++      if (varj == 5)
++	continue;
++      if (varj == 7 && !parm)
++	goto exitlab;
++      if (varj == 9)
++	break;
++      varm = varj;
++    }
++
++exitlab:
++  return varm;
++}
++
++int
++main (void)
++{
++  if (foo (0) != 6)
++    abort ();
++  if (foo (1) != 8)
++    abort ();
++  return 0;
++}

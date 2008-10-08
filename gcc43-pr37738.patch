@@ -1,0 +1,276 @@
+2008-10-07  Jakub Jelinek  <jakub@redhat.com>
+
+	* f95-lang.c (poplevel): Don't clear BLOCK_VARS if functionbody.
+	* trans-decl.c (gfc_build_qualified_array): Build accurate debug type
+	even if nest.
+	(build_entry_thunks, gfc_generate_function_code,
+	gfc_generate_constructors): Ensure DECL_SAVED_TREE is a BIND_EXPR
+	with DECL_INITIAL as its BLOCK.
+
+	PR debug/37738
+	* dwarf2out.c (common_block_die_table): New variable.
+	(common_block_die_table_hash, common_block_die_table_eq): New
+	functions.
+	(gen_variable_die): Look up a DW_TAG_common_block die for a particular
+	COMMON block in the current scope rather than globally.  Optimize
+	DW_OP_addr SYMBOL_REF DW_OP_plus_uconst off into
+	DW_OP_addr SYMBOL_REF+off.
+
+	* gfortran.dg/debug/pr37738.f: New test.
+
+--- gcc/testsuite/gfortran.dg/debug/pr37738.f	(revision 0)
++++ gcc/testsuite/gfortran.dg/debug/pr37738.f	(revision 140945)
+@@ -0,0 +1,30 @@
++C PR debug/37738
++C { dg-do compile }
++C { dg-skip-if "DWARF-2 only" { "*-*-*" } { "*" } { "-gdwarf-2" } }
++C { dg-options "-dA" }
++
++      subroutine a
++      integer*4 a_i, c_i
++      common /block/a_i, c_i
++      a_i = 1
++      c_i = 4
++      end subroutine a
++      subroutine b
++      integer*4 b_i
++      common /block/b_i, d_i
++      b_i = 2
++      d_i = 5
++      end subroutine b
++      subroutine c
++      integer*4 a_i, c_i
++      common /block/a_i, c_i
++      if (a_i .ne. 2) call abort
++      if (c_i .ne. 5) call abort
++      end subroutine c
++      program abc
++      call a
++      call b
++      call c
++      end program abc
++
++C { dg-final { scan-assembler-times "DIE\[^\n\]*DW_TAG_common_block" 3 } }
+--- gcc/dwarf2out.c	(revision 140943)
++++ gcc/dwarf2out.c	(revision 140945)
+@@ -4748,6 +4748,10 @@ static GTY((param_is (struct dwarf_file_
+    The key is a DECL_UID() which is a unique number identifying each decl.  */
+ static GTY ((param_is (struct die_struct))) htab_t decl_die_table;
+ 
++/* A hash table of references to DIE's that describe COMMON blocks.
++   The key is DECL_UID() ^ die_parent.  */
++static GTY ((param_is (struct die_struct))) htab_t common_block_die_table;
++
+ /* Node of the variable location list.  */
+ struct var_loc_node GTY ((chain_next ("%h.next")))
+ {
+@@ -4960,6 +4964,8 @@ static void equate_type_number_to_die (t
+ static hashval_t decl_die_table_hash (const void *);
+ static int decl_die_table_eq (const void *, const void *);
+ static dw_die_ref lookup_decl_die (tree);
++static hashval_t common_block_die_table_hash (const void *);
++static int common_block_die_table_eq (const void *, const void *);
+ static hashval_t decl_loc_table_hash (const void *);
+ static int decl_loc_table_eq (const void *, const void *);
+ static var_loc_list *lookup_decl_loc (const_tree);
+@@ -13812,6 +13818,26 @@ gen_subprogram_die (tree decl, dw_die_re
+ 
+ }
+ 
++/* Returns a hash value for X (which really is a die_struct).  */
++
++static hashval_t
++common_block_die_table_hash (const void *x)
++{
++  const_dw_die_ref d = (const_dw_die_ref) x;
++  return (hashval_t) d->decl_id ^ htab_hash_pointer (d->die_parent);
++}
++
++/* Return nonzero if decl_id and die_parent of die_struct X is the same
++   as decl_id and die_parent of die_struct Y.  */
++
++static int
++common_block_die_table_eq (const void *x, const void *y)
++{
++  const_dw_die_ref d = (const_dw_die_ref) x;
++  const_dw_die_ref e = (const_dw_die_ref) y;
++  return d->decl_id == e->decl_id && d->die_parent == e->die_parent;
++}
++
+ /* Generate a DIE to represent a declared data object.  */
+ 
+ static void
+@@ -13853,6 +13879,7 @@ gen_variable_die (tree decl, dw_die_ref 
+       tree field;
+       dw_die_ref com_die;
+       dw_loc_descr_ref loc;
++      die_node com_die_arg;
+ 
+       var_die = lookup_decl_die (decl);
+       if (var_die)
+@@ -13863,21 +13890,41 @@ gen_variable_die (tree decl, dw_die_ref 
+ 	      if (loc)
+ 		{
+ 		  if (off)
+-		    add_loc_descr (&loc, new_loc_descr (DW_OP_plus_uconst,
++		    {
++		      /* Optimize the common case.  */
++		      if (loc->dw_loc_opc == DW_OP_addr
++			  && loc->dw_loc_next == NULL
++			  && GET_CODE (loc->dw_loc_oprnd1.v.val_addr)
++			     == SYMBOL_REF)
++			loc->dw_loc_oprnd1.v.val_addr
++			  = plus_constant (loc->dw_loc_oprnd1.v.val_addr, off);
++			else
++			  add_loc_descr (&loc,
++					 new_loc_descr (DW_OP_plus_uconst,
+ 							off, 0));
++		    }
+ 		  add_AT_loc (var_die, DW_AT_location, loc);
+ 		  remove_AT (var_die, DW_AT_declaration);
+ 		}
+ 	    }
+ 	  return;
+ 	}
++
++      if (common_block_die_table == NULL)
++	common_block_die_table
++	  = htab_create_ggc (10, common_block_die_table_hash,
++			     common_block_die_table_eq, NULL);
++
+       field = TREE_OPERAND (DECL_VALUE_EXPR (decl), 0);
+-      com_die = lookup_decl_die (com_decl);
++      com_die_arg.decl_id = DECL_UID (com_decl);
++      com_die_arg.die_parent = context_die;
++      com_die = (dw_die_ref) htab_find (common_block_die_table, &com_die_arg);
+       loc = loc_descriptor_from_tree (com_decl);
+       if (com_die == NULL)
+ 	{
+ 	  const char *cnam
+ 	    = IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (com_decl));
++	  void **slot;
+ 
+ 	  com_die = new_die (DW_TAG_common_block, context_die, decl);
+ 	  add_name_and_src_coords_attributes (com_die, com_decl);
+@@ -13891,7 +13938,9 @@ gen_variable_die (tree decl, dw_die_ref 
+           else if (DECL_EXTERNAL (decl))
+ 	    add_AT_flag (com_die, DW_AT_declaration, 1);
+ 	  add_pubname_string (cnam, com_die); /* ??? needed? */
+-	  equate_decl_number_to_die (com_decl, com_die);
++	  com_die->decl_id = DECL_UID (com_decl);
++	  slot = htab_find_slot (common_block_die_table, com_die, INSERT);
++	  *slot = (void *) com_die;
+ 	}
+       else if (get_AT (com_die, DW_AT_location) == NULL && loc)
+ 	{
+@@ -13907,7 +13956,17 @@ gen_variable_die (tree decl, dw_die_ref 
+       if (loc)
+ 	{
+ 	  if (off)
+-	    add_loc_descr (&loc, new_loc_descr (DW_OP_plus_uconst, off, 0));
++	    {
++	      /* Optimize the common case.  */
++	      if (loc->dw_loc_opc == DW_OP_addr
++		  && loc->dw_loc_next == NULL
++		  && GET_CODE (loc->dw_loc_oprnd1.v.val_addr) == SYMBOL_REF)
++		loc->dw_loc_oprnd1.v.val_addr
++		  = plus_constant (loc->dw_loc_oprnd1.v.val_addr, off);
++	      else
++		add_loc_descr (&loc, new_loc_descr (DW_OP_plus_uconst,
++						    off, 0));
++	    }
+ 	  add_AT_loc (var_die, DW_AT_location, loc);
+ 	}
+       else if (DECL_EXTERNAL (decl))
+--- gcc/fortran/f95-lang.c	(revision 140943)
++++ gcc/fortran/f95-lang.c	(revision 140945)
+@@ -457,14 +457,8 @@ poplevel (int keep, int reverse, int fun
+   current_binding_level = current_binding_level->level_chain;
+ 
+   if (functionbody)
+-    {
+-      /* This is the top level block of a function. The ..._DECL chain stored
+-         in BLOCK_VARS are the function's parameters (PARM_DECL nodes). Don't
+-         leave them in the BLOCK because they are found in the FUNCTION_DECL
+-         instead.  */
+-      DECL_INITIAL (current_function_decl) = block_node;
+-      BLOCK_VARS (block_node) = 0;
+-    }
++    /* This is the top level block of a function. */
++    DECL_INITIAL (current_function_decl) = block_node;
+   else if (current_binding_level == global_binding_level)
+     /* When using gfc_start_block/gfc_finish_block from middle-end hooks,
+        don't add newly created BLOCKs as sublocks of global_binding_level.  */
+--- gcc/fortran/trans-decl.c	(revision 140943)
++++ gcc/fortran/trans-decl.c	(revision 140945)
+@@ -704,7 +704,7 @@ gfc_build_qualified_array (tree decl, gf
+       layout_type (type);
+     }
+ 
+-  if (nest || write_symbols == NO_DEBUG)
++  if (write_symbols == NO_DEBUG)
+     return;
+ 
+   if (TYPE_NAME (type) != NULL_TREE
+@@ -1761,7 +1761,7 @@ build_entry_thunks (gfc_namespace * ns)
+ 
+       thunk_fndecl = thunk_sym->backend_decl;
+ 
+-      gfc_start_block (&body);
++      gfc_init_block (&body);
+ 
+       /* Pass extra parameter identifying this entry point.  */
+       tmp = build_int_cst (gfc_array_index_type, el->id);
+@@ -1869,8 +1869,12 @@ build_entry_thunks (gfc_namespace * ns)
+ 
+       /* Finish off this function and send it for code generation.  */
+       DECL_SAVED_TREE (thunk_fndecl) = gfc_finish_block (&body);
++      tmp = getdecls ();
+       poplevel (1, 0, 1);
+       BLOCK_SUPERCONTEXT (DECL_INITIAL (thunk_fndecl)) = thunk_fndecl;
++      DECL_SAVED_TREE (thunk_fndecl)
++	= build3_v (BIND_EXPR, tmp, DECL_SAVED_TREE (thunk_fndecl),
++		    DECL_INITIAL (thunk_fndecl));
+ 
+       /* Output the GENERIC tree.  */
+       dump_function (TDI_original, thunk_fndecl);
+@@ -3652,7 +3656,7 @@ gfc_generate_function_code (gfc_namespac
+ 
+   trans_function_start (sym);
+ 
+-  gfc_start_block (&block);
++  gfc_init_block (&block);
+ 
+   if (ns->entries && ns->proc_name->ts.type == BT_CHARACTER)
+     {
+@@ -3886,11 +3890,16 @@ gfc_generate_function_code (gfc_namespac
+   saved_function_decls = NULL_TREE;
+ 
+   DECL_SAVED_TREE (fndecl) = gfc_finish_block (&block);
++  decl = getdecls ();
+ 
+   /* Finish off this function and send it for code generation.  */
+   poplevel (1, 0, 1);
+   BLOCK_SUPERCONTEXT (DECL_INITIAL (fndecl)) = fndecl;
+ 
++  DECL_SAVED_TREE (fndecl)
++    = build3_v (BIND_EXPR, decl, DECL_SAVED_TREE (fndecl),
++		DECL_INITIAL (fndecl));
++
+   /* Output the GENERIC tree.  */
+   dump_function (TDI_original, fndecl);
+ 
+@@ -3969,9 +3978,13 @@ gfc_generate_constructors (void)
+       DECL_SAVED_TREE (fndecl) = build_stmt (EXPR_STMT, tmp);
+     }
+ 
++  decl = getdecls ();
+   poplevel (1, 0, 1);
+ 
+   BLOCK_SUPERCONTEXT (DECL_INITIAL (fndecl)) = fndecl;
++  DECL_SAVED_TREE (fndecl)
++    = build3_v (BIND_EXPR, decl, DECL_SAVED_TREE (fndecl),
++		DECL_INITIAL (fndecl));
+ 
+   free_after_parsing (cfun);
+   free_after_compilation (cfun);
