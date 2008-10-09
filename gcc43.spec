@@ -3,7 +3,7 @@
 %define gcc_version 4.3.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 5
+%define gcc_release 6
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -159,6 +159,8 @@ Patch22: gcc43-pr34037.patch
 Patch23: gcc43-pr37738.patch
 Patch24: gcc43-pr29609.patch
 Patch25: gcc43-aes.patch
+Patch26: gcc43-pr29609-2.patch
+Patch27: gcc43-pr29609-3.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -468,6 +470,8 @@ which are required to run programs compiled with the GNAT.
 %patch23 -p0 -b .pr37738~
 %patch24 -p0 -b .pr29609~
 %patch25 -p0 -b .aes~
+%patch26 -p0 -b .pr29609-2~
+%patch26 -p0 -b .pr29609-3~
 
 tar xzf %{SOURCE4}
 
@@ -1717,6 +1721,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Oct  9 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-6
+- fix fallouts from the -g -O0 debugging patch (#466169, #466198)
+
 * Wed Oct  8 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-5
 - update from gcc-4_3-branch
   - PRs c++/37555, c/35712, c/37645, fortran/35770, fortran/35945,
