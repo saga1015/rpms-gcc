@@ -1,0 +1,105 @@
+2008-10-09  Jakub Jelinek  <jakub@redhat.com>
+
+	* tree-ssa-live.c (remove_unused_locals): Mark all edge's goto_block
+	as used.
+	* gimple-low.c (lower_return_expr, lower_builtin_setjmp): Set
+	TREE_BLOCK on the newly created stmts.
+	* tree-cfg.c (make_cond_expr_edges, make_goto_expr_edges): Only set
+	goto_block on edges if goto_locus is known.
+
+--- gcc/tree-ssa-live.c.jj	2008-10-07 21:25:57.000000000 +0200
++++ gcc/tree-ssa-live.c	2008-10-09 00:25:20.000000000 +0200
+@@ -591,6 +591,8 @@ remove_unused_locals (void)
+     {
+       block_stmt_iterator bsi;
+       tree phi, def;
++      edge_iterator ei;
++      edge e;
+ 
+       /* Walk the statements.  */
+       for (bsi = bsi_start (bb); !bsi_end_p (bsi); bsi_next (&bsi))
+@@ -614,6 +616,10 @@ remove_unused_locals (void)
+ 	      mark_all_vars_used (&arg, NULL);
+             }
+         }
++
++      FOR_EACH_EDGE (e, ei, bb->succs)
++	if (e->goto_locus)
++	  TREE_USED (e->goto_block) = true;
+     }
+ 
+   /* Remove unmarked local vars from unexpanded_var_list.  */
+--- gcc/gimple-low.c.jj	2008-10-07 21:25:58.000000000 +0200
++++ gcc/gimple-low.c	2008-10-09 00:42:31.000000000 +0200
+@@ -590,6 +590,7 @@ lower_return_expr (tree_stmt_iterator *t
+  found:
+   t = build1 (GOTO_EXPR, void_type_node, label);
+   SET_EXPR_LOCUS (t, EXPR_LOCUS (stmt));
++  TREE_BLOCK (t) = TREE_BLOCK (stmt);
+   tsi_link_before (tsi, t, TSI_SAME_STMT);
+   tsi_delink (tsi);
+ }
+@@ -672,6 +673,7 @@ lower_builtin_setjmp (tree_stmt_iterator
+   t = implicit_built_in_decls[BUILT_IN_SETJMP_SETUP];
+   t = build_call_expr (t, 2, CALL_EXPR_ARG (stmt, 0), arg);
+   SET_EXPR_LOCUS (t, EXPR_LOCUS (stmt));
++  TREE_BLOCK (t) = TREE_BLOCK (stmt);
+   tsi_link_before (tsi, t, TSI_SAME_STMT);
+ 
+   /* Build 'DEST = 0' and insert.  */
+@@ -680,6 +682,7 @@ lower_builtin_setjmp (tree_stmt_iterator
+       t = build_gimple_modify_stmt (dest, fold_convert (TREE_TYPE (dest),
+ 							integer_zero_node));
+       SET_EXPR_LOCUS (t, EXPR_LOCUS (stmt));
++      TREE_BLOCK (t) = TREE_BLOCK (stmt);
+       tsi_link_before (tsi, t, TSI_SAME_STMT);
+     }
+ 
+@@ -696,6 +699,7 @@ lower_builtin_setjmp (tree_stmt_iterator
+   t = implicit_built_in_decls[BUILT_IN_SETJMP_RECEIVER];
+   t = build_call_expr (t, 1, arg);
+   SET_EXPR_LOCUS (t, EXPR_LOCUS (stmt));
++  TREE_BLOCK (t) = TREE_BLOCK (stmt);
+   tsi_link_before (tsi, t, TSI_SAME_STMT);
+ 
+   /* Build 'DEST = 1' and insert.  */
+@@ -704,6 +708,7 @@ lower_builtin_setjmp (tree_stmt_iterator
+       t = build_gimple_modify_stmt (dest, fold_convert (TREE_TYPE (dest),
+ 							integer_one_node));
+       SET_EXPR_LOCUS (t, EXPR_LOCUS (stmt));
++      TREE_BLOCK (t) = TREE_BLOCK (stmt);
+       tsi_link_before (tsi, t, TSI_SAME_STMT);
+     }
+ 
+--- gcc/tree-cfg.c.jj	2008-10-07 21:39:14.000000000 +0200
++++ gcc/tree-cfg.c	2008-10-09 00:00:48.000000000 +0200
+@@ -634,7 +634,8 @@ make_cond_expr_edges (basic_block bb)
+ #else
+   e->goto_locus = EXPR_LOCUS (COND_EXPR_THEN (entry));
+ #endif
+-  e->goto_block = TREE_BLOCK (COND_EXPR_THEN (entry));
++  if (e->goto_locus)
++    e->goto_block = TREE_BLOCK (COND_EXPR_THEN (entry));
+   e = make_edge (bb, else_bb, EDGE_FALSE_VALUE);
+   if (e)
+     {
+@@ -643,7 +644,8 @@ make_cond_expr_edges (basic_block bb)
+ #else
+       e->goto_locus = EXPR_LOCUS (COND_EXPR_ELSE (entry));
+ #endif
+-      e->goto_block = TREE_BLOCK (COND_EXPR_ELSE (entry));
++      if (e->goto_locus)
++	e->goto_block = TREE_BLOCK (COND_EXPR_ELSE (entry));
+     }
+ 
+   /* We do not need the gotos anymore.  */
+@@ -843,7 +845,8 @@ make_goto_expr_edges (basic_block bb)
+ #else
+       e->goto_locus = EXPR_LOCUS (goto_t);
+ #endif
+-      e->goto_block = TREE_BLOCK (goto_t);
++      if (e->goto_locus)
++	e->goto_block = TREE_BLOCK (goto_t);
+       bsi_remove (&last, true);
+       return;
+     }

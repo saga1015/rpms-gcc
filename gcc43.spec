@@ -471,7 +471,7 @@ which are required to run programs compiled with the GNAT.
 %patch24 -p0 -b .pr29609~
 %patch25 -p0 -b .aes~
 %patch26 -p0 -b .pr29609-2~
-%patch26 -p0 -b .pr29609-3~
+%patch27 -p0 -b .pr29609-3~
 
 tar xzf %{SOURCE4}
 
