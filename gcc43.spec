@@ -1,9 +1,9 @@
-%define DATE 20081008
-%define SVNREV 140973
+%define DATE 20081105
+%define SVNREV 141601
 %define gcc_version 4.3.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 6
+%define gcc_release 7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -161,6 +161,10 @@ Patch24: gcc43-pr29609.patch
 Patch25: gcc43-aes.patch
 Patch26: gcc43-pr29609-2.patch
 Patch27: gcc43-pr29609-3.patch
+Patch28: gcc43-pr37870.patch
+Patch29: gcc43-pr37858.patch
+Patch30: gcc43-pr37879.patch
+Patch31: gcc43-pr37924.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -472,6 +476,10 @@ which are required to run programs compiled with the GNAT.
 %patch25 -p0 -b .aes~
 %patch26 -p0 -b .pr29609-2~
 %patch27 -p0 -b .pr29609-3~
+%patch28 -p0 -b .pr37870~
+%patch29 -p0 -b .pr37858~
+%patch30 -p0 -b .pr37879~
+%patch31 -p0 -b .pr37924~
 
 tar xzf %{SOURCE4}
 
@@ -640,7 +648,10 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 %else
 	--enable-java-awt=gtk --disable-dssi --enable-plugin \
 	--with-java-home=%{_prefix}/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre \
-	--enable-libgcj-multifile --enable-java-maintainer-mode \
+	--enable-libgcj-multifile \
+%if !%{bootstrap_java}
+	--enable-java-maintainer-mode \
+%endif
 	--with-ecj-jar=/usr/share/java/eclipse-ecj.jar \
 	--disable-libjava-multilib \
 %endif
@@ -1721,6 +1732,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Nov  5 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-7
+- update from gcc-4_3-branch
+  - PRs c/35437, fortran/35680, fortran/37723, fortran/37749, fortran/37787,
+	fortran/37794, fortran/37903, libfortran/37707, libfortran/37863,
+	middle-end/37882, other/37897, rtl-optimization/37769, target/37909,
+	target/37939, tree-optimization/37102
+- fix ICE in extract_bit_field_1 (PR middle-end/37870)
+- combiner fix for shifts (PR c/37924)
+- fix -fdump-ipa-all -dv (PR middle-end/37858)
+- fix ICE with wrong use of noreturn attribute (PR tree-optimization/37879)
+- fix up --with-java_bootstrap build
+
 * Thu Oct  9 2008 Jakub Jelinek <jakub@redhat.com> 4.3.2-6
 - fix fallouts from the -g -O0 debugging patch (#466169, #466198)
 

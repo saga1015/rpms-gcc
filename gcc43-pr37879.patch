@@ -1,0 +1,59 @@
+2008-10-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/37879
+	* predict.c (tree_estimate_probability): Check if last_stmt is
+	non-NULL before dereferencing it.
+
+	* gcc.dg/pr37879.c: New test.
+
+--- gcc/predict.c	(revision 141389)
++++ gcc/predict.c	(revision 141390)
+@@ -1374,6 +1374,7 @@ tree_estimate_probability (void)
+     {
+       edge e;
+       edge_iterator ei;
++      tree last;
+ 
+       FOR_EACH_EDGE (e, ei, bb->succs)
+ 	{
+@@ -1396,7 +1397,8 @@ tree_estimate_probability (void)
+ 	      && e->dest != EXIT_BLOCK_PTR
+ 	      && single_succ_p (e->dest)
+ 	      && single_succ_edge (e->dest)->dest == EXIT_BLOCK_PTR
+-	      && TREE_CODE (last_stmt (e->dest)) == RETURN_EXPR)
++	      && (last = last_stmt (e->dest)) != NULL_TREE
++	      && TREE_CODE (last) == RETURN_EXPR)
+ 	    {
+ 	      edge e1;
+ 	      edge_iterator ei1;
+--- gcc/testsuite/gcc.dg/pr37879.c	(revision 0)
++++ gcc/testsuite/gcc.dg/pr37879.c	(revision 141390)
+@@ -0,0 +1,28 @@
++/* PR tree-optimization/37879 */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++
++static inline void bar (int) __attribute__ ((noreturn));
++void baz () __attribute__ ((noreturn));
++
++inline int
++foo (int i)
++{
++  return i;
++}
++
++int i = 23;
++static inline void
++bar (int j)
++{
++  if (j)
++    asm ("");
++}		/* { dg-warning "does return" } */
++
++void
++baz ()
++{
++  int j;
++  bar (foo (j = i++));
++  asm ("");
++}
