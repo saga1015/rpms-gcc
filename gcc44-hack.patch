@@ -1,0 +1,113 @@
+--- libada/Makefile.in.jj	2009-01-14 12:07:35.000000000 +0100
++++ libada/Makefile.in	2009-01-15 14:25:33.000000000 +0100
+@@ -66,17 +66,39 @@ target_noncanonical:=@target_noncanonica
+ version := $(shell cat $(srcdir)/../gcc/BASE-VER)
+ libsubdir := $(libdir)/gcc/$(target_noncanonical)/$(version)$(MULTISUBDIR)
+ 
++DEFAULTMULTIFLAGS :=
++ifeq ($(MULTISUBDIR),)
++targ:=$(subst -, ,$(target))
++arch:=$(word 1,$(targ))
++ifeq ($(words $(targ)),2)
++osys:=$(word 2,$(targ))
++else
++osys:=$(word 3,$(targ))
++endif
++ifeq ($(strip $(filter-out i%86 x86_64 powerpc% ppc% s390% sparc% linux%, $(arch) $(osys))),)
++ifeq ($(shell $(CC) $(CFLAGS) -print-multi-os-directory),../lib64)
++DEFAULTMULTIFLAGS := -m64
++else
++ifeq ($(strip $(filter-out s390%, $(arch))),)
++DEFAULTMULTIFLAGS := -m31
++else
++DEFAULTMULTIFLAGS := -m32
++endif
++endif
++endif
++endif
++
+ # exeext should not be used because it's the *host* exeext.  We're building
+ # a *target* library, aren't we?!?  Likewise for CC.  Still, provide bogus
+ # definitions just in case something slips through the safety net provided
+ # by recursive make invocations in gcc/ada/Makefile.in
+ LIBADA_FLAGS_TO_PASS = \
+         "MAKEOVERRIDES=" \
+-        "LDFLAGS=$(LDFLAGS)" \
++        "LDFLAGS=$(strip $(LDFLAGS) $(DEFAULTMULTIFLAGS))" \
+         "LN_S=$(LN_S)" \
+         "SHELL=$(SHELL)" \
+-        "GNATLIBFLAGS=$(GNATLIBFLAGS) $(MULTIFLAGS)" \
+-        "GNATLIBCFLAGS=$(GNATLIBCFLAGS) $(MULTIFLAGS)" \
++        "GNATLIBFLAGS=$(strip $(GNATLIBFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS))" \
++        "GNATLIBCFLAGS=$(strip $(GNATLIBCFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS))" \
+         "TARGET_LIBGCC2_CFLAGS=$(TARGET_LIBGCC2_CFLAGS)" \
+         "THREAD_KIND=$(THREAD_KIND)" \
+         "TRACE=$(TRACE)" \
+@@ -87,7 +109,7 @@ LIBADA_FLAGS_TO_PASS = \
+         "exeext=.exeext.should.not.be.used " \
+ 	'CC=the.host.compiler.should.not.be.needed' \
+ 	"GCC_FOR_TARGET=$(CC)" \
+-        "CFLAGS=$(CFLAGS) $(WARN_CFLAGS)"
++        "CFLAGS=$(strip $(CFLAGS) $(DEFAULTMULTIFLAGS) $(WARN_CFLAGS))"
+ 
+ # Rules to build gnatlib.
+ .PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared oscons
+--- libjava/classpath/native/plugin/gcjwebplugin.cc.jj	2009-01-14 12:08:34.000000000 +0100
++++ libjava/classpath/native/plugin/gcjwebplugin.cc	2009-01-15 21:20:17.000000000 +0100
+@@ -45,7 +45,7 @@ exception statement from your version. *
+ 
+ // Netscape plugin API includes.
+ #include <npapi.h>
+-#include <npupp.h>
++#include <npfunctions.h>
+ 
+ // GLib includes.
+ #include <glib.h>
+@@ -827,7 +827,7 @@ GCJ_URLNotify (NPP instance, const char*
+   PLUGIN_DEBUG ("GCJ_URLNotify return");
+ }
+ 
+-jref
++void *
+ GCJ_GetJavaClass (void)
+ {
+   PLUGIN_DEBUG ("GCJ_GetJavaClass");
+@@ -1669,17 +1669,17 @@ NP_Initialize (NPNetscapeFuncs* browserT
+   // Return to the browser the plugin functions that we implement.
+   pluginTable->version = (NP_VERSION_MAJOR << 8) + NP_VERSION_MINOR;
+   pluginTable->size = sizeof (NPPluginFuncs);
+-  pluginTable->newp = NewNPP_NewProc (GCJ_New);
+-  pluginTable->destroy = NewNPP_DestroyProc (GCJ_Destroy);
+-  pluginTable->setwindow = NewNPP_SetWindowProc (GCJ_SetWindow);
+-  pluginTable->newstream = NewNPP_NewStreamProc (GCJ_NewStream);
+-  pluginTable->destroystream = NewNPP_DestroyStreamProc (GCJ_DestroyStream);
+-  pluginTable->asfile = NewNPP_StreamAsFileProc (GCJ_StreamAsFile);
+-  pluginTable->writeready = NewNPP_WriteReadyProc (GCJ_WriteReady);
+-  pluginTable->write = NewNPP_WriteProc (GCJ_Write);
+-  pluginTable->print = NewNPP_PrintProc (GCJ_Print);
+-  pluginTable->urlnotify = NewNPP_URLNotifyProc (GCJ_URLNotify);
+-  pluginTable->getvalue = NewNPP_GetValueProc (GCJ_GetValue);
++  pluginTable->newp = (NPP_NewProcPtr) (GCJ_New);
++  pluginTable->destroy = (NPP_DestroyProcPtr) (GCJ_Destroy);
++  pluginTable->setwindow = (NPP_SetWindowProcPtr) (GCJ_SetWindow);
++  pluginTable->newstream = (NPP_NewStreamProcPtr) (GCJ_NewStream);
++  pluginTable->destroystream = (NPP_DestroyStreamProcPtr) (GCJ_DestroyStream);
++  pluginTable->asfile = (NPP_StreamAsFileProcPtr) (GCJ_StreamAsFile);
++  pluginTable->writeready = (NPP_WriteReadyProcPtr) (GCJ_WriteReady);
++  pluginTable->write = (NPP_WriteProcPtr) (GCJ_Write);
++  pluginTable->print = (NPP_PrintProcPtr) (GCJ_Print);
++  pluginTable->urlnotify = (NPP_URLNotifyProcPtr) (GCJ_URLNotify);
++  pluginTable->getvalue = (NPP_GetValueProcPtr) (GCJ_GetValue);
+   
+   initialized = true;
+ 
+--- gcc/ada/make.adb	2008-11-07 23:00:32.000000000 +0100
++++ gcc/ada/make.adb	2009-01-16 17:55:02.000000000 +0100
+@@ -8039,6 +8039,7 @@ package body Make is
+              or else Argv (2 .. Argv'Last) = "pg"
+              or else (Argv (2) = 'm' and then Argv'Last > 2)
+              or else (Argv (2) = 'f' and then Argv'Last > 2)
++             or else (Argv'Last >= 8 and then Argv (2 .. 8) = "-param=")
+          then
+             Add_Switch (Argv, Compiler, And_Save => And_Save);
+             Add_Switch (Argv, Linker, And_Save => And_Save);

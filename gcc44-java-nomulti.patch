@@ -16,8 +16,8 @@
  
 --- libjava/configure.jj	2007-12-07 17:55:50.000000000 +0100
 +++ libjava/configure	2007-12-07 18:39:58.000000000 +0100
-@@ -1018,6 +1018,8 @@ Optional Features:
-   --enable-gconf-peer     compile GConf native peers for util.preferences
+@@ -1021,6 +1021,8 @@ Optional Features:
+                           default=yes
    --enable-java-maintainer-mode
                            allow rebuilding of .class and .h files
 +  --enable-libjava-multilib
@@ -25,7 +25,7 @@
    --disable-dependency-tracking  speeds up one-time build
    --enable-dependency-tracking   do not reject slow dependency extractors
    --enable-maintainer-mode  enable make rules and dependencies not useful
-@@ -1848,6 +1850,16 @@ else
+@@ -1973,6 +1975,16 @@ else
  fi
  
  
