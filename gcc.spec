@@ -1722,7 +1722,7 @@ fi
 
 %changelog
 * Sat Jan 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.4
-- enable Ada support on ppc64
+- attempt to enable Ada support on ppc64
 
 * Fri Jan 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.3
 - initial 4.4 package, using newly created redhat/gcc-4_4-branch
