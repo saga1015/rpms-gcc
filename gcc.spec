@@ -3,11 +3,11 @@
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.3
+%define gcc_release 0.4
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
-%ifarch %{ix86} x86_64 ia64 ppc alpha
+%ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
 %define build_ada 1
 %else
 %define build_ada 0
@@ -50,6 +50,8 @@ Source2: README.libgcjwebplugin.so
 Source3: protoize.1
 %define fastjar_ver 0.97
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
+# Temporary bootstrap stuff.
+Source100: ppc64gnat.tar.bz2
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -83,8 +85,10 @@ BuildRequires: glibc >= 2.3.90-35
 BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.so
 %endif
 %if %{build_ada}
+%ifnarch ppc64
 # Ada requires Ada to build
 BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
+%endif
 %endif
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
@@ -478,6 +482,14 @@ rm -fr obj-%{gcc_target_platform}
 mkdir obj-%{gcc_target_platform}
 cd obj-%{gcc_target_platform}
 
+%ifarch ppc64
+mkdir gnat_hacks
+cd gnat_hacks
+tar xjf %{SOURCE100}
+export PATH=`pwd`/bin${PATH:+:$PATH}
+cd ..
+%endif
+
 %if %{build_java}
 %if !%{bootstrap_java}
 # If we don't have gjavah in $PATH, try to build it with the old gij
@@ -599,7 +611,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
 
 # run the tests.
-make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector/--param=ssp-buffer-size=4}'" || :
+make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
 echo ====================TESTING=========================
 ( ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
@@ -1709,5 +1721,8 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Jan 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.4
+- enable Ada support on ppc64
+
 * Fri Jan 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.3
 - initial 4.4 package, using newly created redhat/gcc-4_4-branch

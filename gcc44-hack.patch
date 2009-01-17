@@ -111,3 +111,14 @@
           then
              Add_Switch (Argv, Compiler, And_Save => And_Save);
              Add_Switch (Argv, Linker, And_Save => And_Save);
+--- gcc/ada/gcc-interface/Makefile.in.jj	2009-01-02 19:54:27.000000000 +0100
++++ gcc/ada/gcc-interface/Makefile.in	2009-01-16 18:56:29.848954175 +0100
+@@ -1492,7 +1492,7 @@ ifeq ($(strip $(filter-out powerpc% linu
+   LIBGNAT_TARGET_PAIRS_64 = \
+   system.ads<system-linux-ppc64.ads
+ 
+-  ifeq ($(strip $(MULTISUBDIR)),/64)
++  ifeq ($(strip $(shell $(GCC_FOR_TARGET) $(GNATLIBCFLAGS) -print-multi-os-directory)),../lib64)
+     LIBGNAT_TARGET_PAIRS = \
+     $(LIBGNAT_TARGET_PAIRS_COMMON) $(LIBGNAT_TARGET_PAIRS_64)
+   else
