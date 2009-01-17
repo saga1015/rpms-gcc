@@ -488,6 +488,13 @@ cd gnat_hacks
 tar xjf %{SOURCE100}
 export PATH=`pwd`/bin${PATH:+:$PATH}
 cd ..
+which gcc
+gnatgcc --version || :
+gcc --version || :
+gcc --version -gnatg || :
+gnatgcc -print-multi-os-directory || :
+gcc -print-multi-os-directory || :
+gcc -print-multi-os-directory -gnatg || :
 %endif
 
 %if %{build_java}
