@@ -486,15 +486,9 @@ cd obj-%{gcc_target_platform}
 mkdir gnat_hacks
 cd gnat_hacks
 tar xjf %{SOURCE100}
+sed -i -e 's/gnat\*)/gnat*|*.ad[sb]\\ *|*.ad[sb])/' bin/gcc
 export PATH=`pwd`/bin${PATH:+:$PATH}
 cd ..
-which gcc
-gnatgcc --version || :
-gcc --version || :
-gcc --version -gnatg || :
-gnatgcc -print-multi-os-directory || :
-gcc -print-multi-os-directory || :
-gcc -print-multi-os-directory -gnatg || :
 %endif
 
 %if %{build_java}
@@ -1728,7 +1722,7 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Sat Jan 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.4
+* Tue Jan 20 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.4
 - attempt to enable Ada support on ppc64
 
 * Fri Jan 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.3
