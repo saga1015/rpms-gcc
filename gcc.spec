@@ -3,7 +3,7 @@
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.6
+%define gcc_release 0.7
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -546,7 +546,7 @@ if gcc -m64 -xc -S /dev/null -o - > /dev/null 2>&1; then
 exec /usr/bin/gcc -m64 "$@"
 EOF
   chmod +x gcc64
-  CC=`pwd`/gcc64
+#  CC=`pwd`/gcc64
 fi
 %endif
 OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
@@ -1724,7 +1724,7 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Tue Jan 20 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.6
+* Tue Jan 20 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.7
 - attempt to enable Ada support on ppc64
 
 * Fri Jan 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.3
