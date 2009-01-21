@@ -3,7 +3,7 @@
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.8
+%define gcc_release 0.9
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -50,8 +50,6 @@ Source2: README.libgcjwebplugin.so
 Source3: protoize.1
 %define fastjar_ver 0.97
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
-# Temporary bootstrap stuff.
-Source100: ppc64gnat.tar.bz2
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -85,10 +83,8 @@ BuildRequires: glibc >= 2.3.90-35
 BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.so
 %endif
 %if %{build_ada}
-%ifnarch ppc64
 # Ada requires Ada to build
 BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
-%endif
 %endif
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
@@ -482,15 +478,6 @@ rm -fr obj-%{gcc_target_platform}
 mkdir obj-%{gcc_target_platform}
 cd obj-%{gcc_target_platform}
 
-%ifarch ppc64
-mkdir gnat_hacks
-cd gnat_hacks
-tar xjf %{SOURCE100}
-sed -i -e 's/gnat\*)/gnat*|*.ad[sb]\\ *|*.ad[sb])/' bin/gcc
-export PATH=`pwd`/bin${PATH:+:$PATH}
-cd ..
-%endif
-
 %if %{build_java}
 %if !%{bootstrap_java}
 # If we don't have gjavah in $PATH, try to build it with the old gij
@@ -544,7 +531,7 @@ if gcc -m64 -xc -S /dev/null -o - > /dev/null 2>&1; then
 exec /usr/bin/gcc -m64 "$@"
 EOF
   chmod +x gcc64
-#  CC=`pwd`/gcc64
+  CC=`pwd`/gcc64
 fi
 %endif
 OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
@@ -1722,6 +1709,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jan 21 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.9
+- rebuilt without ppc64 ada bootstrap hacks
+
 * Tue Jan 20 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.8
 - attempt to enable Ada support on ppc64
 
