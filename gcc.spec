@@ -3,7 +3,7 @@
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.12
+%define gcc_release 0.13
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -628,6 +628,10 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 
 #GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+
+%if %{build_cloog}
+cp -a ../cloog-ppl/inst/usr/lib/libcloog.so.0* gcc/
+%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
@@ -1747,6 +1751,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jan 28 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.13
+- fix graphite make check
+
 * Tue Jan 27 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.12
 - update from trunk
 - add graphite support
