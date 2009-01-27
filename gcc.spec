@@ -1,9 +1,9 @@
-%define DATE 20090115
-%define SVNREV 141601
+%define DATE 20090127
+%define SVNREV 143703
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.9
+%define gcc_release 0.10
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -13,6 +13,7 @@
 %define build_ada 0
 %endif
 %define build_java 1
+%define build_cloog 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc41.spec
 # which creates libjava-classes-%{version}-%{release}.tar.bz2
@@ -50,6 +51,7 @@ Source2: README.libgcjwebplugin.so
 Source3: protoize.1
 %define fastjar_ver 0.97
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
+Source5: ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-ppl-0.15.tar.gz
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -88,6 +90,9 @@ BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
 %endif
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
+%endif
+%if %{build_cloog}
+BuildRequires: ppl >= 0.10, ppl-devel >= 0.10
 %endif
 Requires: cpp = %{version}-%{release}
 # Need .eh_frame ld optimizations
@@ -133,6 +138,7 @@ Patch13: gcc44-i386-libgomp.patch
 Patch15: gcc44-sparc-config-detection.patch
 Patch16: gcc44-libgomp-omp_h-multilib.patch
 Patch20: gcc44-libtool-no-rpath.patch
+Patch21: gcc44-cloog-dl.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -415,11 +421,17 @@ which are required to compile with the GNAT.
 %patch15 -p0 -b .sparc-config-detection~
 %patch16 -p0 -b .libgomp-omp_h-multilib~
 %patch20 -p0 -b .libtool-no-rpath~
+%if %{build_cloog}
+%patch21 -p0 -b .cloog-dl~
+%endif
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
 
 tar xzf %{SOURCE4}
+%if %{build_cloog}
+tar xzf %{SOURCE5}
+%endif
 
 %patch1000 -p0 -b .fastjar-0.97-segfault~
 
@@ -472,6 +484,16 @@ cd fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
 make %{?_smp_mflags}
 export PATH=`pwd`${PATH:+:$PATH}
 cd ../../
+%endif
+
+%if %{build_cloog}
+mkdir cloog-ppl/obj-%{gcc_target_platform}
+cd cloog-ppl/obj-%{gcc_target_platform}
+../configure CFLAGS="$RPM_OPT_FLAGS" --prefix=/usr --with-ppl
+make %{?_smp_mflags}
+make check || :
+make install DESTDIR=`cd ../; pwd`/inst/
+cd ../..
 %endif
 
 rm -fr obj-%{gcc_target_platform}
@@ -564,6 +586,9 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-ecj-jar=/usr/share/java/eclipse-ecj.jar \
 	--disable-libjava-multilib \
 %endif
+%if %{build_cloog}
+	--with-ppl --with-cloog=`cd ../cloog-ppl/inst/usr/; pwd` \
+%endif
 %ifarch %{arm}
 	--disable-sjlj-exceptions \
 %endif
@@ -586,10 +611,16 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=default32
 %endif
 %ifarch %{ix86} x86_64
-	--with-cpu=generic \
+	--with-tune=generic \
+%endif
+%ifarch %{ix86}
+	--with-arch=i586 \
+%endif
+%ifarch x86_64
+	--with-arch_32=i586 \
 %endif
 %ifarch s390 s390x
-	--with-tune=z9-109 \
+	--with-arch=z9-109 --with-tune=z10 \
 %endif
 %ifnarch sparc sparcv9 ppc
 	--build=%{gcc_target_platform}
@@ -701,6 +732,10 @@ chmod 644 $RPM_BUILD_ROOT%{_infodir}/gnat*
 
 FULLPATH=$RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 FULLEPATH=$RPM_BUILD_ROOT%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
+
+%if %{build_cloog}
+cp -a ../cloog-ppl/inst/usr/lib/libcloog.so.0* $FULLPATH/
+%endif
 
 # fix some things
 ln -sf gcc $RPM_BUILD_ROOT%{_prefix}/bin/cc
@@ -1276,6 +1311,9 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.so
+%if %{build_cloog}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcloog.so.0*
+%endif
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/crt*.o
@@ -1709,6 +1747,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jan 27 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.10
+- update from trunk
+- add graphite support
+- change gcc default ISA and tuning:
+  i386 and x86_64 -m32:
+  -march=i586 -mtune=generic from -march=i386 -mtune=generic
+  x86_64 -m64 remains at:
+  -march=x86-64 -mtune=generic
+  s390 and s390x -m31:
+  -march=z9-109 -mtune=z10 from -march=g5 -mtune=z9-109
+  s390x -m64:
+  -march=z9-109 -mtune=z10 from -march=z900 -mtune=z9-109
+
 * Wed Jan 21 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.9
 - rebuilt without ppc64 ada bootstrap hacks
 
