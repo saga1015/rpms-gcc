@@ -2,6 +2,7 @@
 
 	* toplev.c (save_argv): No longer static.
 	* Makefile.in (BACKENDLIBS): Link against -ldl instead of -lcloog -lppl.
+	(graphite.o): Force -O, remove -fkeep-inline-functions.
 	* graphite.c: Include <dlfcn.h>.  Reference libcloog and libppl symbols
 	through pointers in cloog_pointers variable.
 	(init_cloog_pointers): New function.
@@ -30,6 +31,16 @@
  # Any system libraries needed just for GNAT.
  SYSLIBS = @GNAT_LIBEXC@
  
+@@ -3076,6 +3076,9 @@ $(out_object_file): $(out_file) $(CONFIG
+ 	$(CC) -c $(ALL_CFLAGS) $(ALL_CPPFLAGS) \
+ 		$(out_file) $(OUTPUT_OPTION)
+ 
++graphite.o : \
++  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
++
+ # Build auxiliary files that support ecoff format.
+ mips-tfile: mips-tfile.o version.o $(LIBDEPS)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ mips-tfile.o version.o $(LIBS)
 --- gcc/graphite.c.jj	2009-01-24 19:59:02.000000000 +0100
 +++ gcc/graphite.c	2009-01-27 14:52:08.000000000 +0100
 @@ -59,6 +59,138 @@ along with GCC; see the file COPYING3.  
