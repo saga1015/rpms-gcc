@@ -1,9 +1,9 @@
-%define DATE 20090127
-%define SVNREV 143703
+%define DATE 20090203
+%define SVNREV 143904
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.13
+%define gcc_release 0.14
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -774,6 +774,14 @@ for i in `find %{gcc_target_platform}/[36]*/libstdc++-v3/include -name c++config
 EOF
     break
   fi
+done
+
+for f in `find $RPM_BUILD_ROOT%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/ -name c++config.h`; do
+  for i in 1 2 4 8; do
+    sed -i -e 's/#define _GLIBCXX_ATOMIC_BUILTINS_'$i' 1/#ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_'$i'\
+&\
+#endif/' $f
+  done
 done
 
 # Nuke bits/stdc++.h.gch dirs
@@ -1751,6 +1759,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb  3 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.14
+- update from trunk
+- when compiling with -march=i386, don't use __sync_* builtins in
+  ext/atomicity.h
+
 * Wed Jan 28 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.13
 - fix graphite make check
 
