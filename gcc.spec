@@ -1,9 +1,9 @@
-%define DATE 20090203
-%define SVNREV 143904
+%define DATE 20090204
+%define SVNREV 143941
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.14
+%define gcc_release 0.15
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -139,6 +139,7 @@ Patch15: gcc44-sparc-config-detection.patch
 Patch16: gcc44-libgomp-omp_h-multilib.patch
 Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
+Patch22: gcc44-raw-string.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -424,6 +425,7 @@ which are required to compile with the GNAT.
 %if %{build_cloog}
 %patch21 -p0 -b .cloog-dl~
 %endif
+%patch22 -p0 -b .raw-string~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1759,6 +1761,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Feb  4 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.15
+- update from trunk
+  - C++ mangling fix (PR c++/39095)
+  - only complain about calling main in C++ if -pedantic
+- add raw string support
+
 * Tue Feb  3 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.14
 - update from trunk
 - when compiling with -march=i386, don't use __sync_* builtins in
