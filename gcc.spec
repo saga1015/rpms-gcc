@@ -1,9 +1,9 @@
-%define DATE 20090204
-%define SVNREV 143941
+%define DATE 20090206
+%define SVNREV 143986
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.15
+%define gcc_release 0.16
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -1761,6 +1761,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb  6 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.16
+- update from trunk
+  - don't emit thunks for versioned functions (PR c++/39106)
+  - fix -fstrict-aliasing miscompilation (PR tree-optimization/39100)
+
 * Wed Feb  4 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.15
 - update from trunk
   - C++ mangling fix (PR c++/39095)
