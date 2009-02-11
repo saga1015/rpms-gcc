@@ -1,0 +1,18 @@
+2009-02-11  Jakub Jelinek  <jakub@redhat.com>
+
+	* dwarf2out.c (dwarf2out_finish): Force output of comp_unit_die
+	for -g3.
+
+--- gcc/dwarf2out.c.jj	2008-12-11 09:46:59.000000000 +0100
++++ gcc/dwarf2out.c	2009-02-11 15:10:06.000000000 +0100
+@@ -16699,7 +16699,9 @@ dwarf2out_finish (const char *filename)
+   for (node = limbo_die_list; node; node = node->next)
+     output_comp_unit (node->die, 0);
+ 
+-  output_comp_unit (comp_unit_die, 0);
++  /* Output the main compilation unit if non-empty or if .debug_macinfo
++     has been emitted.  */
++  output_comp_unit (comp_unit_die, debug_info_level >= DINFO_LEVEL_VERBOSE);
+ 
+   /* Output the abbreviation table.  */
+   switch_to_section (debug_abbrev_section);

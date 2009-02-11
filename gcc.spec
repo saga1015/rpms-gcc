@@ -1,9 +1,9 @@
-%define DATE 20090206
-%define SVNREV 143986
+%define DATE 20090211
+%define SVNREV 144103
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.16
+%define gcc_release 0.17
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,6 +140,7 @@ Patch16: gcc44-libgomp-omp_h-multilib.patch
 Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
+Patch23: gcc44-rh479912.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -426,6 +427,7 @@ which are required to compile with the GNAT.
 %patch21 -p0 -b .cloog-dl~
 %endif
 %patch22 -p0 -b .raw-string~
+%patch23 -p0 -b .rh479912~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1631,7 +1633,6 @@ fi
 
 %files -n libgcj-devel
 %defattr(-,root,root)
-%{_prefix}/bin/addr2name.awk
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -1761,6 +1762,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Feb 11 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.17
+- update from trunk
+  - fix ICE on xen (PR target/39139)
+  - PRs c++/34397, c++/35147, c++/36744, c++/37737, c++/38649, c++/39109,
+	c/35434, c/36432, c/39035, c/39084, middle-end/35202,
+	middle-end/38953, middle-end/38981, middle-end/39124,
+	middle-end/39127, target/39118, target/39119, testsuite/33300,
+	tree-optimization/39132
+- force emitting .debug_info for empty CUs with -g3 (#479912)
+
 * Fri Feb  6 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.16
 - update from trunk
   - don't emit thunks for versioned functions (PR c++/39106)
