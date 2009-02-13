@@ -1,9 +1,9 @@
-%define DATE 20090211
-%define SVNREV 144103
+%define DATE 20090213
+%define SVNREV 144154
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.17
+%define gcc_release 0.18
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -140,7 +140,7 @@ Patch16: gcc44-libgomp-omp_h-multilib.patch
 Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
-Patch23: gcc44-rh479912.patch
+Patch23: gcc44-pr39175.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -427,7 +427,7 @@ which are required to compile with the GNAT.
 %patch21 -p0 -b .cloog-dl~
 %endif
 %patch22 -p0 -b .raw-string~
-%patch23 -p0 -b .rh479912~
+%patch23 -p0 -b .pr39175~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1762,6 +1762,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Feb 13 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.18
+- update from trunk
+  - PRs c++/30111, c++/38950, c++/39153, c/35444, middle-end/39154,
+	target/38824, target/39152
+- fix ICE on ppc32 with -fpic -fvisibility=hidden (#485232, PR target/39175)
+
 * Wed Feb 11 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.17
 - update from trunk
   - fix ICE on xen (PR target/39139)
