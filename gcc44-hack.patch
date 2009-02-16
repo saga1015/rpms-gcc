@@ -52,55 +52,6 @@
  
  # Rules to build gnatlib.
  .PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared oscons
---- libjava/classpath/native/plugin/gcjwebplugin.cc.jj	2009-01-14 12:08:34.000000000 +0100
-+++ libjava/classpath/native/plugin/gcjwebplugin.cc	2009-01-15 21:20:17.000000000 +0100
-@@ -45,7 +45,7 @@ exception statement from your version. *
- 
- // Netscape plugin API includes.
- #include <npapi.h>
--#include <npupp.h>
-+#include <npfunctions.h>
- 
- // GLib includes.
- #include <glib.h>
-@@ -827,7 +827,7 @@ GCJ_URLNotify (NPP instance, const char*
-   PLUGIN_DEBUG ("GCJ_URLNotify return");
- }
- 
--jref
-+void *
- GCJ_GetJavaClass (void)
- {
-   PLUGIN_DEBUG ("GCJ_GetJavaClass");
-@@ -1669,17 +1669,17 @@ NP_Initialize (NPNetscapeFuncs* browserT
-   // Return to the browser the plugin functions that we implement.
-   pluginTable->version = (NP_VERSION_MAJOR << 8) + NP_VERSION_MINOR;
-   pluginTable->size = sizeof (NPPluginFuncs);
--  pluginTable->newp = NewNPP_NewProc (GCJ_New);
--  pluginTable->destroy = NewNPP_DestroyProc (GCJ_Destroy);
--  pluginTable->setwindow = NewNPP_SetWindowProc (GCJ_SetWindow);
--  pluginTable->newstream = NewNPP_NewStreamProc (GCJ_NewStream);
--  pluginTable->destroystream = NewNPP_DestroyStreamProc (GCJ_DestroyStream);
--  pluginTable->asfile = NewNPP_StreamAsFileProc (GCJ_StreamAsFile);
--  pluginTable->writeready = NewNPP_WriteReadyProc (GCJ_WriteReady);
--  pluginTable->write = NewNPP_WriteProc (GCJ_Write);
--  pluginTable->print = NewNPP_PrintProc (GCJ_Print);
--  pluginTable->urlnotify = NewNPP_URLNotifyProc (GCJ_URLNotify);
--  pluginTable->getvalue = NewNPP_GetValueProc (GCJ_GetValue);
-+  pluginTable->newp = (NPP_NewProcPtr) (GCJ_New);
-+  pluginTable->destroy = (NPP_DestroyProcPtr) (GCJ_Destroy);
-+  pluginTable->setwindow = (NPP_SetWindowProcPtr) (GCJ_SetWindow);
-+  pluginTable->newstream = (NPP_NewStreamProcPtr) (GCJ_NewStream);
-+  pluginTable->destroystream = (NPP_DestroyStreamProcPtr) (GCJ_DestroyStream);
-+  pluginTable->asfile = (NPP_StreamAsFileProcPtr) (GCJ_StreamAsFile);
-+  pluginTable->writeready = (NPP_WriteReadyProcPtr) (GCJ_WriteReady);
-+  pluginTable->write = (NPP_WriteProcPtr) (GCJ_Write);
-+  pluginTable->print = (NPP_PrintProcPtr) (GCJ_Print);
-+  pluginTable->urlnotify = (NPP_URLNotifyProcPtr) (GCJ_URLNotify);
-+  pluginTable->getvalue = (NPP_GetValueProcPtr) (GCJ_GetValue);
-   
-   initialized = true;
- 
 --- gcc/ada/make.adb	2008-11-07 23:00:32.000000000 +0100
 +++ gcc/ada/make.adb	2009-01-16 17:55:02.000000000 +0100
 @@ -8039,6 +8039,7 @@ package body Make is

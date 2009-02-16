@@ -1,9 +1,9 @@
-%define DATE 20090213
-%define SVNREV 144154
+%define DATE 20090216
+%define SVNREV 144214
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.18
+%define gcc_release 0.19
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -1762,6 +1762,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Feb 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.19
+- update from trunk
+  - PRs c++/39070, fortran/36528, fortran/36703, fortran/38259,
+	libstdc++/39168, target/37049, target/38056, target/39149,
+	target/39162, target/39196
+  - ix86 peephole fix (#485729, PR target/39152)
+  - uglify function parameter names in gthr*.h (#485619)
+
 * Fri Feb 13 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.18
 - update from trunk
   - PRs c++/30111, c++/38950, c++/39153, c/35444, middle-end/39154,
