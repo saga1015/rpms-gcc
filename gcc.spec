@@ -3,7 +3,7 @@
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.19
+%define gcc_release 0.20
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -30,7 +30,7 @@
 %define multilib_32_arch ppc
 %endif
 %ifarch x86_64
-%define multilib_32_arch i386
+%define multilib_32_arch i586
 %endif
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
@@ -141,6 +141,7 @@ Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch23: gcc44-pr39175.patch
+Patch24: gcc44-diff.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -428,6 +429,7 @@ which are required to compile with the GNAT.
 %endif
 %patch22 -p0 -b .raw-string~
 %patch23 -p0 -b .pr39175~
+%patch24 -p0 -b .diff~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -540,7 +542,7 @@ OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcpu=v[78]//g'`
 %endif
 %ifarch %{ix86}
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-march=i386//g'`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-march=i.86//g'`
 %endif
 %ifarch sparc64
 cat > gcc64 <<"EOF"
@@ -1762,6 +1764,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.20
+- update from trunk
+  - PRs c/35446, middle-end/39214, tree-optimization/39202
+  - fix ICE in compute_attic (#485708, PR tree-optimization/39204)
+  - fix bogus aliasing warning (#485463, tree-optimization/39207)
+- update for i386.rpm -> i586.rpm switch
+
 * Mon Feb 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.19
 - update from trunk
   - PRs c++/39070, fortran/36528, fortran/36703, fortran/38259,
