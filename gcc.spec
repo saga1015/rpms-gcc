@@ -1,5 +1,5 @@
-%define DATE 20090216
-%define SVNREV 144214
+%define DATE 20090219
+%define SVNREV 144300
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
@@ -62,6 +62,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
 # Need binutils which support --build-id >= 2.17.50.0.17-3
 BuildRequires: binutils >= 2.17.50.0.17-3
+# While gcc doesn't include statically linked binaries, during testing
+# -static is used several times.
+BuildRequires: glibc-static
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 %if %{build_java}
 BuildRequires: /usr/share/java/eclipse-ecj.jar, zip, unzip
@@ -141,7 +144,7 @@ Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch23: gcc44-pr39175.patch
-Patch24: gcc44-diff.patch
+Patch24: gcc44-pr39240.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -429,7 +432,7 @@ which are required to compile with the GNAT.
 %endif
 %patch22 -p0 -b .raw-string~
 %patch23 -p0 -b .pr39175~
-%patch24 -p0 -b .diff~
+%patch24 -p0 -b .pr39240~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1764,11 +1767,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Feb 19 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.21
+- update from trunk
+  - PRs c++/39188, c++/39219, c/35447, c/38483, target/34587,
+	target/38891, target/39082, target/39179, target/39224,
+	target/39228, testsuite/38165, testsuite/38166,
+	tree-optimization/36922, tree-optimization/39074,
+  - another bogus aliasing warning fix (#485463, PR tree-optimization/39207)
+- fix tail call optimization on ppc (#485067, PR target/39240)
+
 * Tue Feb 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.20
 - update from trunk
   - PRs c/35446, middle-end/39214, tree-optimization/39202
   - fix ICE in compute_attic (#485708, PR tree-optimization/39204)
-  - fix bogus aliasing warning (#485463, tree-optimization/39207)
+  - fix bogus aliasing warning (#485463, PR tree-optimization/39207)
 - update for i386.rpm -> i586.rpm switch
 
 * Mon Feb 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.19
