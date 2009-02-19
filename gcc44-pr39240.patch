@@ -1,0 +1,156 @@
+2009-02-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/39240
+	* calls.c (expand_call): Clear try_tail_call if caller and callee
+	disagree in promotion of function return value.
+
+	* gcc.c-torture/execute/pr39240.c: New test.
+
+--- gcc/calls.c.jj	2009-02-06 11:17:16.000000000 +0100
++++ gcc/calls.c	2009-02-19 13:36:41.000000000 +0100
+@@ -2333,6 +2333,37 @@ expand_call (tree exp, rtx target, int i
+       || !lang_hooks.decls.ok_for_sibcall (fndecl))
+     try_tail_call = 0;
+ 
++  /* Check if caller and callee disagree in promotion of function
++     return value.  */
++  if (try_tail_call)
++    {
++      enum machine_mode caller_mode, caller_promoted_mode;
++      enum machine_mode callee_mode, callee_promoted_mode;
++      int caller_unsignedp, callee_unsignedp;
++      tree caller_res = DECL_RESULT (current_function_decl);
++
++      caller_unsignedp = TYPE_UNSIGNED (TREE_TYPE (caller_res));
++      caller_mode = caller_promoted_mode = DECL_MODE (caller_res);
++      callee_unsignedp = TYPE_UNSIGNED (TREE_TYPE (funtype));
++      callee_mode = callee_promoted_mode = TYPE_MODE (TREE_TYPE (funtype));
++      if (targetm.calls.promote_function_return (TREE_TYPE (current_function_decl)))
++	caller_promoted_mode
++	  = promote_mode (TREE_TYPE (caller_res), caller_mode,
++			  &caller_unsignedp, 1);
++      if (targetm.calls.promote_function_return (funtype))
++	callee_promoted_mode
++	  = promote_mode (TREE_TYPE (funtype), callee_mode,
++			  &callee_unsignedp, 1);
++      if (caller_mode != VOIDmode
++	  && (caller_promoted_mode != callee_promoted_mode
++	      || ((caller_mode != caller_promoted_mode
++		   || callee_mode != callee_promoted_mode)
++		  && (caller_unsignedp != callee_unsignedp
++		      || GET_MODE_BITSIZE (caller_mode)
++			 < GET_MODE_BITSIZE (callee_mode)))))
++	try_tail_call = 0;
++    }
++
+   /* Ensure current function's preferred stack boundary is at least
+      what we need.  Stack alignment may also increase preferred stack
+      boundary.  */
+--- gcc/testsuite/gcc.c-torture/execute/pr39240.c.jj	2009-02-19 13:38:23.000000000 +0100
++++ gcc/testsuite/gcc.c-torture/execute/pr39240.c	2009-02-19 13:39:14.000000000 +0100
+@@ -0,0 +1,105 @@
++/* PR target/39240 */
++
++extern void abort (void);
++
++__attribute__ ((noinline))
++static int foo1 (int x)
++{
++  return x;
++}
++
++__attribute__ ((noinline))
++unsigned int bar1 (int x)
++{
++  return foo1 (x + 6);
++}
++
++volatile unsigned long l1 = (unsigned int) -4;
++
++__attribute__ ((noinline))
++static short int foo2 (int x)
++{
++  return x;
++}
++
++__attribute__ ((noinline))
++unsigned short int bar2 (int x)
++{
++  return foo2 (x + 6);
++}
++
++volatile unsigned long l2 = (unsigned short int) -4;
++
++__attribute__ ((noinline))
++static signed char foo3 (int x)
++{
++  return x;
++}
++
++__attribute__ ((noinline))
++unsigned char bar3 (int x)
++{
++  return foo3 (x + 6);
++}
++
++volatile unsigned long l3 = (unsigned char) -4;
++
++__attribute__ ((noinline))
++static unsigned int foo4 (int x)
++{
++  return x;
++}
++
++__attribute__ ((noinline))
++int bar4 (int x)
++{
++  return foo4 (x + 6);
++}
++
++volatile unsigned long l4 = (int) -4;
++
++__attribute__ ((noinline))
++static unsigned short int foo5 (int x)
++{
++  return x;
++}
++
++__attribute__ ((noinline))
++short int bar5 (int x)
++{
++  return foo5 (x + 6);
++}
++
++volatile unsigned long l5 = (short int) -4;
++
++__attribute__ ((noinline))
++static unsigned char foo6 (int x)
++{
++  return x;
++}
++
++__attribute__ ((noinline))
++signed char bar6 (int x)
++{
++  return foo6 (x + 6);
++}
++
++volatile unsigned long l6 = (signed char) -4;
++
++int
++main (void)
++{
++  if (bar1 (-10) != l1)
++    abort ();
++  if (bar2 (-10) != l2)
++    abort ();
++  if (bar3 (-10) != l3)
++    abort ();
++  if (bar4 (-10) != l4)
++    abort ();
++  if (bar5 (-10) != l5)
++    abort ();
++  if (bar6 (-10) != l6)
++    abort ();
++  return 0;
++}
