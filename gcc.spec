@@ -35,7 +35,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}
+Release: %{gcc_release}.1
 # libgcc, libgfortran, libmudflap and crtstuff have an exception which allows
 # linking it into any kind of programs or shared libraries without
 # restrictions.
@@ -1767,6 +1767,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.4.0-0.21.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Thu Feb 19 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.21
 - update from trunk
   - PRs c++/39188, c++/39219, c/35447, c/38483, target/34587,
