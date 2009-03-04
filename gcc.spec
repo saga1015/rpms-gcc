@@ -1,9 +1,9 @@
-%define DATE 20090219
-%define SVNREV 144300
+%define DATE 20090304
+%define SVNREV 144601
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.21
+%define gcc_release 0.22
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -35,7 +35,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}.1
+Release: %{gcc_release}
 # libgcc, libgfortran, libmudflap and crtstuff have an exception which allows
 # linking it into any kind of programs or shared libraries without
 # restrictions.
@@ -144,7 +144,9 @@ Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch23: gcc44-pr39175.patch
-Patch24: gcc44-pr39240.patch
+Patch24: gcc44-atom.patch
+Patch25: gcc44-pr39226.patch
+Patch26: gcc44-pr39358.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -432,7 +434,9 @@ which are required to compile with the GNAT.
 %endif
 %patch22 -p0 -b .raw-string~
 %patch23 -p0 -b .pr39175~
-%patch24 -p0 -b .pr39240~
+%patch24 -p0 -b .atom~
+%patch25 -p0 -b .pr39226~
+%patch26 -p0 -b .pr39358~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1767,8 +1771,27 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.4.0-0.21.1
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+* Wed Mar  4 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.22
+- update from trunk
+  - PRs ada/39172, ada/39264, bootstrap/39257, c++/36411, c++/37789,
+	c++/38880, c++/39225, c++/39242, c/12245, classpath/38417,
+	classpath/38912, debug/39267, debug/39285, fortran/38914,
+	fortran/39292, fortran/39295, fortran/39309, fortran/39354,
+	libgcj/38861, middle-end/10109, middle-end/34443,
+	middle-end/39157, middle-end/39272, middle-end/39308,
+	middle-end/39335, middle-end/39345, rtl-optimization/39241,
+	target/33785, target/35965, target/39256, target/39261,
+	target/39327, testsuite/38164, tree-optimization/37709,
+	tree-optimization/39248, tree-optimization/39259,
+	tree-optimization/39260, tree-optimization/39318,
+	tree-optimization/39331, tree-optimizations/39259,
+	tree-optimization/39358
+  - fix ivopts (#486088, PR tree-optimization/39233)
+  - fix SRA (#487795, PR tree-optimization/39339)
+  - fix __builtin_object_size with unions (#487702,
+    PR tree-optimization/39343)
+- fix ppc -m64 -O2 -mtune=cell and patterns (#485067, PR target/39226)
+- -march=atom/-mtune=atom support from ix86/atom branch
 
 * Thu Feb 19 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.21
 - update from trunk
