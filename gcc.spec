@@ -143,7 +143,6 @@ Patch16: gcc44-libgomp-omp_h-multilib.patch
 Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
-Patch23: gcc44-pr39175.patch
 Patch24: gcc44-atom.patch
 Patch25: gcc44-pr39226.patch
 Patch26: gcc44-pr39358.patch
@@ -433,7 +432,6 @@ which are required to compile with the GNAT.
 %patch21 -p0 -b .cloog-dl~
 %endif
 %patch22 -p0 -b .raw-string~
-%patch23 -p0 -b .pr39175~
 %patch24 -p0 -b .atom~
 %patch25 -p0 -b .pr39226~
 %patch26 -p0 -b .pr39358~
