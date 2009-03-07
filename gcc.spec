@@ -1,9 +1,9 @@
-%define DATE 20090304
-%define SVNREV 144601
+%define DATE 20090307
+%define SVNREV 144693
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.22
+%define gcc_release 0.23
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -145,7 +145,7 @@ Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch24: gcc44-atom.patch
 Patch25: gcc44-pr39226.patch
-Patch26: gcc44-pr39358.patch
+Patch26: gcc44-power7.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -434,7 +434,7 @@ which are required to compile with the GNAT.
 %patch22 -p0 -b .raw-string~
 %patch24 -p0 -b .atom~
 %patch25 -p0 -b .pr39226~
-%patch26 -p0 -b .pr39358~
+%patch26 -p0 -b .power7~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1769,6 +1769,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Mar  7 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.23
+- update from trunk
+  - PRs c++/13549, c++/29469, c++/29607, c++/33492, c++/37520, c++/38908,
+	c++/9634, debug/39372, middle-end/39360, rtl-optimization/39235,
+	testsuite/39357, tree-optimization/39349
+  - emit DW_TAG_imported* even in main or in lexical blocks that
+    contain no automatic variables (#488547, PR debug/39379)
+  - fix DW_AT_decl_line on DW_TAG_imported* (#488771, PR debug/39387)
+  - fix SCCVN with SSA names occurring in abnormal PHIs (#488061,
+    PR tree-optimization/39362)
+- preliminary Power7 support
+
 * Wed Mar  4 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.22
 - update from trunk
   - PRs ada/39172, ada/39264, bootstrap/39257, c++/36411, c++/37789,
