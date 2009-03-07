@@ -434,7 +434,7 @@ which are required to compile with the GNAT.
 %patch22 -p0 -b .raw-string~
 %patch24 -p0 -b .atom~
 %patch25 -p0 -b .pr39226~
-%patch26 -p0 -b .power7~
+#%patch26 -p0 -b .power7~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1779,7 +1779,6 @@ fi
   - fix DW_AT_decl_line on DW_TAG_imported* (#488771, PR debug/39387)
   - fix SCCVN with SSA names occurring in abnormal PHIs (#488061,
     PR tree-optimization/39362)
-- preliminary Power7 support
 
 * Wed Mar  4 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.22
 - update from trunk
