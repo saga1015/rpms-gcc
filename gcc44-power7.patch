@@ -1,3 +1,10 @@
+2009-03-09  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* config/rs6000/vsx.md (vsx_store<mode>_update64): Use correct
+	registers for store with update.
+	(vsx_store<mode>_update32): Ditto.
+	(vsx_storedf_update<VSbit>): Ditto.
+
 2009-03-06  Michael Meissner  <meissner@linux.vnet.ibm.com>
 
 	* doc/invoke.texi (-mvsx-scalar-memory): New switch, to switch to
@@ -893,7 +900,7 @@ testsuite/
 	* gcc.target/powerpc/popcount-3.c: Ditto.
 
 --- gcc/doc/invoke.texi	(.../trunk)	(revision 144557)
-+++ gcc/doc/invoke.texi	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/doc/invoke.texi	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -712,7 +712,8 @@ See RS/6000 and PowerPC Options.
  -maltivec  -mno-altivec @gol
  -mpowerpc-gpopt  -mno-powerpc-gpopt @gol
@@ -1001,7 +1008,7 @@ testsuite/
  @itemx -mfloat-gprs
  @opindex mfloat-gprs
 --- gcc/doc/md.texi	(.../trunk)	(revision 144557)
-+++ gcc/doc/md.texi	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/doc/md.texi	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -1905,7 +1905,19 @@ Address base register
  Floating point register
  
@@ -1034,7 +1041,7 @@ testsuite/
  
  @item Intel 386---@file{config/i386/constraints.md}
 --- gcc/reload.c	(.../trunk)	(revision 144557)
-+++ gcc/reload.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/reload.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -6255,8 +6255,14 @@ subst_reloads (rtx insn)
  	    *r->where = reloadreg;
  	}
@@ -1053,7 +1060,7 @@ testsuite/
  }
  
 --- gcc/testsuite/gcc.target/powerpc/popcount-3.c	(.../trunk)	(revision 0)
-+++ gcc/testsuite/gcc.target/powerpc/popcount-3.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.target/powerpc/popcount-3.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,9 @@
 +/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
 +/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
@@ -1065,7 +1072,7 @@ testsuite/
 +  return __builtin_popcountl(x);
 +}
 --- gcc/testsuite/gcc.target/powerpc/vsx-vector-1.c	(.../trunk)	(revision 0)
-+++ gcc/testsuite/gcc.target/powerpc/vsx-vector-1.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.target/powerpc/vsx-vector-1.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,74 @@
 +/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
 +/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
@@ -1142,7 +1149,7 @@ testsuite/
 +    a[i] = b[i] / c[i];
 +}
 --- gcc/testsuite/gcc.target/powerpc/vsx-vector-2.c	(.../trunk)	(revision 0)
-+++ gcc/testsuite/gcc.target/powerpc/vsx-vector-2.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.target/powerpc/vsx-vector-2.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,74 @@
 +/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
 +/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
@@ -1219,7 +1226,7 @@ testsuite/
 +    a[i] = b[i] / c[i];
 +}
 --- gcc/testsuite/gcc.target/powerpc/vsx-vector-3.c	(.../trunk)	(revision 0)
-+++ gcc/testsuite/gcc.target/powerpc/vsx-vector-3.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.target/powerpc/vsx-vector-3.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,48 @@
 +/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
 +/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
@@ -1270,7 +1277,7 @@ testsuite/
 +  a = b / c;
 +}
 --- gcc/testsuite/gcc.target/powerpc/popcount-2.c	(.../trunk)	(revision 0)
-+++ gcc/testsuite/gcc.target/powerpc/popcount-2.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.target/powerpc/popcount-2.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,9 @@
 +/* { dg-do compile { target { ilp32 } } } */
 +/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
@@ -1282,7 +1289,7 @@ testsuite/
 +  return __builtin_popcount(x);
 +}
 --- gcc/testsuite/gcc.target/powerpc/vsx-vector-4.c	(.../trunk)	(revision 0)
-+++ gcc/testsuite/gcc.target/powerpc/vsx-vector-4.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.target/powerpc/vsx-vector-4.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,48 @@
 +/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
 +/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
@@ -1333,7 +1340,7 @@ testsuite/
 +  a = b / c;
 +}
 --- gcc/testsuite/gcc.dg/vmx/vmx.exp	(.../trunk)	(revision 144557)
-+++ gcc/testsuite/gcc.dg/vmx/vmx.exp	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/gcc.dg/vmx/vmx.exp	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -31,7 +31,7 @@ if {![istarget powerpc*-*-*]
  # nothing but extensions.
  global DEFAULT_VMXCFLAGS
@@ -1344,7 +1351,7 @@ testsuite/
  
  # If the target system supports AltiVec instructions, the default action
 --- gcc/testsuite/lib/target-supports.exp	(.../trunk)	(revision 144557)
-+++ gcc/testsuite/lib/target-supports.exp	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/testsuite/lib/target-supports.exp	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -873,6 +873,32 @@ proc check_sse2_hw_available { } {
      }]
  }
@@ -1430,7 +1437,7 @@ testsuite/
  
  proc check_effective_target_powerpc_ppu_ok { } {
 --- gcc/config.in	(.../trunk)	(revision 144557)
-+++ gcc/config.in	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config.in	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -334,12 +334,18 @@
  #endif
  
@@ -1452,7 +1459,7 @@ testsuite/
  #ifndef USED_FOR_TARGET
  #undef HAVE_AS_REGISTER_PSEUDO_OP
 --- gcc/configure.ac	(.../trunk)	(revision 144557)
-+++ gcc/configure.ac	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/configure.ac	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -2,7 +2,7 @@
  # Process this file with autoconf to generate a configuration script.
  
@@ -1518,7 +1525,7 @@ testsuite/
        gcc_cv_as_powerpc_gnu_attribute, [2,18,0],,
        [.gnu_attribute 4,1],,
 --- gcc/configure	(.../trunk)	(revision 144557)
-+++ gcc/configure	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/configure	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -23225,7 +23225,7 @@ if test "${gcc_cv_as_powerpc_mfpgpr+set}
  else
    gcc_cv_as_powerpc_mfpgpr=no
@@ -1609,7 +1616,7 @@ testsuite/
  echo $ECHO_N "checking assembler for .gnu_attribute support... $ECHO_C" >&6
  if test "${gcc_cv_as_powerpc_gnu_attribute+set}" = set; then
 --- gcc/config/rs6000/aix53.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/aix53.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/aix53.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -57,20 +57,24 @@ do {									\
  #undef ASM_SPEC
  #define ASM_SPEC "-u %{maix64:-a64 %{!mcpu*:-mppc64}} %(asm_cpu)"
@@ -1638,7 +1645,7 @@ testsuite/
  %{mcpu=rs64a: -mppc} \
  %{mcpu=603: -m603} \
 --- gcc/config/rs6000/vector.md	(.../trunk)	(revision 0)
-+++ gcc/config/rs6000/vector.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/vector.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,518 @@
 +;; Expander definitions for vector support between altivec & vsx.  No
 +;; instructions are in this file, this file provides the generic vector
@@ -2159,7 +2166,7 @@ testsuite/
 +  "VECTOR_UNIT_VSX_P (V2DFmode)"
 +  "")
 --- gcc/config/rs6000/spe.md	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/spe.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/spe.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -99,7 +99,7 @@ (define_insn "*divsf3_gpr"
  
  ;; Floating point conversion instructions.
@@ -2170,7 +2177,7 @@ testsuite/
  	(unsigned_fix:SI (match_operand:DF 1 "gpc_reg_operand" "r")))]
    "TARGET_HARD_FLOAT && TARGET_E500_DOUBLE"
 --- gcc/config/rs6000/constraints.md	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/constraints.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/constraints.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -17,6 +17,8 @@
  ;; along with GCC; see the file COPYING3.  If not see
  ;; <http://www.gnu.org/licenses/>.
@@ -2213,7 +2220,7 @@ testsuite/
 +  "Zero vector constant"
 +  (match_test "(op == const0_rtx || op == CONST0_RTX (GET_MODE (op)))"))
 --- gcc/config/rs6000/predicates.md	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/predicates.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/predicates.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -38,6 +38,37 @@ (define_predicate "altivec_register_oper
  		     || ALTIVEC_REGNO_P (REGNO (op))
  		     || REGNO (op) > LAST_VIRTUAL_REGISTER")))
@@ -2303,7 +2310,7 @@ testsuite/
 +  return 1;
 +})
 --- gcc/config/rs6000/ppc-asm.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/ppc-asm.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/ppc-asm.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -63,7 +63,7 @@
  #define f16	16
  #define f17	17
@@ -2458,7 +2465,7 @@ testsuite/
   * Macros to glue together two tokens.
   */
 --- gcc/config/rs6000/linux64.opt	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/linux64.opt	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/linux64.opt	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -20,5 +20,5 @@
  ; <http://www.gnu.org/licenses/>.
  
@@ -2467,7 +2474,7 @@ testsuite/
 +Target Report Var(TARGET_PROFILE_KERNEL)
  Call mcount for profiling before a function prologue
 --- gcc/config/rs6000/sysv4.opt	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/sysv4.opt	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/sysv4.opt	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -32,7 +32,7 @@ Target RejectNegative Joined
  Specify bit size of immediate TLS offsets
  
@@ -2492,7 +2499,7 @@ testsuite/
  
  ;; FIXME: Does nothing.
 --- gcc/config/rs6000/rs6000-protos.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/rs6000-protos.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/rs6000-protos.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -64,9 +64,14 @@ extern int insvdi_rshift_rlwimi_p (rtx, 
  extern int registers_ok_for_quad_peep (rtx, rtx);
  extern int mems_ok_for_quad_peep (rtx, rtx);
@@ -2525,7 +2532,7 @@ testsuite/
 +extern unsigned char rs6000_hard_regno_nregs[][FIRST_PSEUDO_REGISTER];
  #endif  /* rs6000-protos.h */
 --- gcc/config/rs6000/t-rs6000	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/t-rs6000	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/t-rs6000	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -16,3 +16,33 @@ rs6000-c.o: $(srcdir)/config/rs6000/rs60
  
  # The rs6000 backend doesn't cause warnings in these files.
@@ -2561,7 +2568,7 @@ testsuite/
 +	$(srcdir)/config/rs6000/dfp.md \
 +	$(srcdir)/config/rs6000/paired.md
 --- gcc/config/rs6000/power7.md	(.../trunk)	(revision 0)
-+++ gcc/config/rs6000/power7.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/power7.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,320 @@
 +;; Scheduling description for IBM POWER7 processor.
 +;; Copyright (C) 2009 Free Software Foundation, Inc.
@@ -2884,7 +2891,7 @@ testsuite/
 +
 +
 --- gcc/config/rs6000/rs6000-c.c	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/rs6000-c.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/rs6000-c.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -265,6 +265,8 @@ rs6000_cpu_cpp_builtins (cpp_reader *pfi
      builtin_define ("_ARCH_PWR6X");
    if (! TARGET_POWER && ! TARGET_POWER2 && ! TARGET_POWERPC)
@@ -2904,7 +2911,7 @@ testsuite/
    /* May be overridden by target configuration.  */
    RS6000_CPU_CPP_ENDIAN_BUILTINS();
 --- gcc/config/rs6000/rs6000.opt	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/rs6000.opt	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/rs6000.opt	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -111,24 +111,44 @@ mhard-float
  Target Report RejectNegative InverseMask(SOFT_FLOAT, HARD_FLOAT)
  Use hardware floating point
@@ -2969,7 +2976,7 @@ testsuite/
  
  misel=
 --- gcc/config/rs6000/linux64.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/linux64.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/linux64.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -114,7 +114,7 @@ extern int dot_symbols;
  	    error (INVALID_32BIT, "32");			\
  	  if (TARGET_PROFILE_KERNEL)				\
@@ -2980,7 +2987,7 @@ testsuite/
  	    }							\
  	}							\
 --- gcc/config/rs6000/rs6000.c	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/rs6000.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/rs6000.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -178,9 +178,6 @@ int rs6000_spe;
  /* Nonzero if we want SPE ABI extensions.  */
  int rs6000_spe_abi;
@@ -5686,7 +5693,7 @@ testsuite/
  
    else
 --- gcc/config/rs6000/vsx.md	(.../trunk)	(revision 0)
-+++ gcc/config/rs6000/vsx.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/vsx.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -0,0 +1,864 @@
 +;; VSX patterns.
 +;; Copyright (C) 2009
@@ -5840,7 +5847,7 @@ testsuite/
 +	(plus:DI (match_dup 1)
 +		 (match_dup 2)))]
 +  "TARGET_64BIT && TARGET_UPDATE && VECTOR_MEM_VSX_P (<MODE>mode)"
-+  "stx<VSm>ux %x3,%0,%1"
++  "stx<VSm>ux %x3,%0,%2"
 +  [(set_attr "type" "vecstore")])
 +
 +(define_insn "*vsx_store<mode>_update32"
@@ -5851,7 +5858,7 @@ testsuite/
 +	(plus:SI (match_dup 1)
 +		 (match_dup 2)))]
 +  "TARGET_32BIT && TARGET_UPDATE && VECTOR_MEM_VSX_P (<MODE>mode)"
-+  "stx<VSm>ux %x3,%0,%1"
++  "stx<VSm>ux %x3,%0,%2"
 +  [(set_attr "type" "vecstore")])
 +
 +(define_insn "*vsx_loaddf_update<VSbit>"
@@ -5873,7 +5880,7 @@ testsuite/
 +	(plus:P (match_dup 1)
 +		(match_dup 2)))]
 +  "TARGET_<VSbit>BIT && TARGET_UPDATE && VECTOR_MEM_VSX_P (DFmode)"
-+  "stxsdux %x3,%0,%1"
++  "stxsdux %x3,%0,%2"
 +  [(set_attr "type" "vecstore")])
 +
 +;; We may need to have a varient on the pattern for use in the prologue
@@ -6553,7 +6560,7 @@ testsuite/
 +  "xxmrglw %x0,%x1,%x2"
 +  [(set_attr "type" "vecperm")])
 --- gcc/config/rs6000/rs6000.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/rs6000.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/rs6000.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -1,6 +1,6 @@
  /* Definitions of target machine for GNU compiler, for IBM RS/6000.
     Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
@@ -7286,7 +7293,7 @@ testsuite/
  
  extern GTY(()) tree rs6000_builtin_types[RS6000_BTI_MAX];
 --- gcc/config/rs6000/altivec.md	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/altivec.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/altivec.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -21,18 +21,7 @@
  
  (define_constants
@@ -8250,7 +8257,7 @@ testsuite/
  (define_expand "vec_interleave_high<mode>"
   [(set (match_operand:VI 0 "register_operand" "")
 --- gcc/config/rs6000/aix61.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/aix61.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/aix61.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -57,20 +57,24 @@ do {									\
  #undef ASM_SPEC
  #define ASM_SPEC "-u %{maix64:-a64 %{!mcpu*:-mppc64}} %(asm_cpu)"
@@ -8279,7 +8286,7 @@ testsuite/
  %{mcpu=rs64a: -mppc} \
  %{mcpu=603: -m603} \
 --- gcc/config/rs6000/rs6000.md	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/rs6000.md	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/rs6000.md	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -138,7 +138,7 @@ (define_attr "length" ""
  ;; Processor type -- this attribute must exactly match the processor_type
  ;; enumeration in rs6000.h.
@@ -8448,11 +8455,11 @@ testsuite/
     #"
 -  [(set_attr "type" "compare,compare,compare,delayed_compare,compare,compare,compare,compare")
 +  [(set_attr "type" "compare,fast_compare,fast_compare,delayed_compare,compare,\
-+		     compare,compare,compare")
++		    compare,compare,compare")
     (set_attr "length" "8,4,4,4,8,8,8,8")])
  
- (define_insn "*andsi3_internal5_nomc"
-@@ -3141,7 +3161,7 @@ (define_insn "*boolsi3_internal2"
+ (define_split
+@@ -3127,7 +3147,7 @@ (define_insn "*boolsi3_internal2"
    "@
     %q4. %3,%1,%2
     #"
@@ -8461,7 +8468,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -3170,7 +3190,7 @@ (define_insn "*boolsi3_internal3"
+@@ -3156,7 +3176,7 @@ (define_insn "*boolsi3_internal3"
    "@
     %q4. %0,%1,%2
     #"
@@ -8470,7 +8477,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -3295,7 +3315,7 @@ (define_insn "*boolccsi3_internal2"
+@@ -3281,7 +3301,7 @@ (define_insn "*boolccsi3_internal2"
    "@
     %q4. %3,%1,%2
     #"
@@ -8479,7 +8486,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -3324,7 +3344,7 @@ (define_insn "*boolccsi3_internal3"
+@@ -3310,7 +3330,7 @@ (define_insn "*boolccsi3_internal3"
    "@
     %q4. %0,%1,%2
     #"
@@ -8488,7 +8495,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -5317,7 +5337,7 @@ (define_insn "fres"
+@@ -5303,7 +5323,7 @@ (define_insn "fres"
    "fres %0,%1"
    [(set_attr "type" "fp")])
  
@@ -8497,7 +8504,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(plus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  			  (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5328,7 +5348,7 @@ (define_insn ""
+@@ -5314,7 +5334,7 @@ (define_insn ""
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_maddsub_s")])
  
@@ -8506,7 +8513,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(plus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  			  (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5337,7 +5357,7 @@ (define_insn ""
+@@ -5323,7 +5343,7 @@ (define_insn ""
    "{fma|fmadd} %0,%1,%2,%3"
    [(set_attr "type" "dmul")])
  
@@ -8515,7 +8522,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(minus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  			   (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5348,7 +5368,7 @@ (define_insn ""
+@@ -5334,7 +5354,7 @@ (define_insn ""
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_maddsub_s")])
  
@@ -8524,7 +8531,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(minus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  			   (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5357,7 +5377,7 @@ (define_insn ""
+@@ -5343,7 +5363,7 @@ (define_insn ""
    "{fms|fmsub} %0,%1,%2,%3"
    [(set_attr "type" "dmul")])
  
@@ -8533,7 +8540,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(neg:SF (plus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  				  (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5368,7 +5388,7 @@ (define_insn ""
+@@ -5354,7 +5374,7 @@ (define_insn ""
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_maddsub_s")])
  
@@ -8542,7 +8549,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(minus:SF (mult:SF (neg:SF (match_operand:SF 1 "gpc_reg_operand" "f"))
  			   (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5379,7 +5399,7 @@ (define_insn ""
+@@ -5365,7 +5385,7 @@ (define_insn ""
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_maddsub_s")])
  
@@ -8551,7 +8558,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(neg:SF (plus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  				  (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5388,7 +5408,7 @@ (define_insn ""
+@@ -5374,7 +5394,7 @@ (define_insn ""
    "{fnma|fnmadd} %0,%1,%2,%3"
    [(set_attr "type" "dmul")])
  
@@ -8560,7 +8567,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(minus:SF (mult:SF (neg:SF (match_operand:SF 1 "gpc_reg_operand" "f"))
  			   (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5398,7 +5418,7 @@ (define_insn ""
+@@ -5384,7 +5404,7 @@ (define_insn ""
    "{fnma|fnmadd} %0,%1,%2,%3"
    [(set_attr "type" "dmul")])
  
@@ -8569,7 +8576,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(neg:SF (minus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  				   (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5409,7 +5429,7 @@ (define_insn ""
+@@ -5395,7 +5415,7 @@ (define_insn ""
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_maddsub_s")])
  
@@ -8578,7 +8585,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(minus:SF (match_operand:SF 3 "gpc_reg_operand" "f")
  		  (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
-@@ -5420,7 +5440,7 @@ (define_insn ""
+@@ -5406,7 +5426,7 @@ (define_insn ""
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_maddsub_s")])
  
@@ -8587,7 +8594,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(neg:SF (minus:SF (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
  				   (match_operand:SF 2 "gpc_reg_operand" "f"))
-@@ -5429,7 +5449,7 @@ (define_insn ""
+@@ -5415,7 +5435,7 @@ (define_insn ""
    "{fnms|fnmsub} %0,%1,%2,%3"
    [(set_attr "type" "dmul")])
  
@@ -8596,7 +8603,7 @@ testsuite/
    [(set (match_operand:SF 0 "gpc_reg_operand" "=f")
  	(minus:SF (match_operand:SF 3 "gpc_reg_operand" "f")
  		  (mult:SF (match_operand:SF 1 "gpc_reg_operand" "%f")
-@@ -5510,9 +5530,18 @@ (define_expand "copysigndf3"
+@@ -5496,9 +5516,18 @@ (define_expand "copysigndf3"
  	                     (match_dup 5))
  			 (match_dup 3)
  			 (match_dup 4)))]
@@ -8617,7 +8624,7 @@ testsuite/
       operands[3] = gen_reg_rtx (DFmode);
       operands[4] = gen_reg_rtx (DFmode);
       operands[5] = CONST0_RTX (DFmode);
-@@ -5556,12 +5585,12 @@ (define_split
+@@ -5542,12 +5571,12 @@ (define_split
    DONE;
  }")
  
@@ -8636,7 +8643,7 @@ testsuite/
    "
  {
    if (rs6000_emit_cmove (operands[0], operands[1], operands[2], operands[3]))
-@@ -5578,28 +5607,28 @@ (define_expand "movsicc"
+@@ -5564,28 +5593,28 @@ (define_expand "movsicc"
  ;; leave out the mode in operand 4 and use one pattern, but reload can
  ;; change the mode underneath our feet and then gets confused trying
  ;; to reload the value.
@@ -8677,7 +8684,7 @@ testsuite/
    "*
  { return output_isel (operands); }"
    [(set_attr "length" "4")])
-@@ -5647,7 +5676,8 @@ (define_expand "negdf2"
+@@ -5633,7 +5662,8 @@ (define_expand "negdf2"
  (define_insn "*negdf2_fpr"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(neg:DF (match_operand:DF 1 "gpc_reg_operand" "f")))]
@@ -8687,7 +8694,7 @@ testsuite/
    "fneg %0,%1"
    [(set_attr "type" "fp")])
  
-@@ -5660,14 +5690,16 @@ (define_expand "absdf2"
+@@ -5646,14 +5676,16 @@ (define_expand "absdf2"
  (define_insn "*absdf2_fpr"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(abs:DF (match_operand:DF 1 "gpc_reg_operand" "f")))]
@@ -8706,7 +8713,7 @@ testsuite/
    "fnabs %0,%1"
    [(set_attr "type" "fp")])
  
-@@ -5682,7 +5714,8 @@ (define_insn "*adddf3_fpr"
+@@ -5668,7 +5700,8 @@ (define_insn "*adddf3_fpr"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(plus:DF (match_operand:DF 1 "gpc_reg_operand" "%f")
  		 (match_operand:DF 2 "gpc_reg_operand" "f")))]
@@ -8716,7 +8723,7 @@ testsuite/
    "{fa|fadd} %0,%1,%2"
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_addsub_d")])
-@@ -5698,7 +5731,8 @@ (define_insn "*subdf3_fpr"
+@@ -5684,7 +5717,8 @@ (define_insn "*subdf3_fpr"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(minus:DF (match_operand:DF 1 "gpc_reg_operand" "f")
  		  (match_operand:DF 2 "gpc_reg_operand" "f")))]
@@ -8726,7 +8733,7 @@ testsuite/
    "{fs|fsub} %0,%1,%2"
    [(set_attr "type" "fp")
     (set_attr "fp_type" "fp_addsub_d")])
-@@ -5714,7 +5748,8 @@ (define_insn "*muldf3_fpr"
+@@ -5700,7 +5734,8 @@ (define_insn "*muldf3_fpr"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(mult:DF (match_operand:DF 1 "gpc_reg_operand" "%f")
  		 (match_operand:DF 2 "gpc_reg_operand" "f")))]
@@ -8736,7 +8743,7 @@ testsuite/
    "{fm|fmul} %0,%1,%2"
    [(set_attr "type" "dmul")
     (set_attr "fp_type" "fp_mul_d")])
-@@ -5732,7 +5767,8 @@ (define_insn "*divdf3_fpr"
+@@ -5718,7 +5753,8 @@ (define_insn "*divdf3_fpr"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(div:DF (match_operand:DF 1 "gpc_reg_operand" "f")
  		(match_operand:DF 2 "gpc_reg_operand" "f")))]
@@ -8746,7 +8753,7 @@ testsuite/
    "{fd|fdiv} %0,%1,%2"
    [(set_attr "type" "ddiv")])
  
-@@ -5748,73 +5784,81 @@ (define_expand "recipdf3"
+@@ -5734,73 +5770,81 @@ (define_expand "recipdf3"
     DONE;
  })
  
@@ -8842,7 +8849,7 @@ testsuite/
    "{fnms|fnmsub} %0,%1,%2,%3"
    [(set_attr "type" "dmul")
     (set_attr "fp_type" "fp_maddsub_d")])
-@@ -5823,7 +5867,8 @@ (define_insn "sqrtdf2"
+@@ -5809,7 +5853,8 @@ (define_insn "sqrtdf2"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(sqrt:DF (match_operand:DF 1 "gpc_reg_operand" "f")))]
    "(TARGET_PPC_GPOPT || TARGET_POWER2) && TARGET_HARD_FLOAT && TARGET_FPRS 
@@ -8852,7 +8859,7 @@ testsuite/
    "fsqrt %0,%1"
    [(set_attr "type" "dsqrt")])
  
-@@ -5912,6 +5957,18 @@ (define_expand "fix_truncsfsi2"
+@@ -5898,6 +5943,18 @@ (define_expand "fix_truncsfsi2"
   "TARGET_HARD_FLOAT && !TARGET_FPRS && TARGET_SINGLE_FLOAT"
   "")
  
@@ -8871,7 +8878,7 @@ testsuite/
  ; For each of these conversions, there is a define_expand, a define_insn
  ; with a '#' template, and a define_split (with C code).  The idea is
  ; to allow constant folding with the template of the define_insn,
-@@ -6153,10 +6210,17 @@ (define_insn "fctiwz"
+@@ -6139,10 +6196,17 @@ (define_insn "fctiwz"
    "{fcirz|fctiwz} %0,%1"
    [(set_attr "type" "fp")])
  
@@ -8890,7 +8897,7 @@ testsuite/
    "friz %0,%1"
    [(set_attr "type" "fp")])
  
-@@ -6167,10 +6231,17 @@ (define_insn "btruncsf2"
+@@ -6153,10 +6217,17 @@ (define_insn "btruncsf2"
    "friz %0,%1"
    [(set_attr "type" "fp")])
  
@@ -8910,7 +8917,7 @@ testsuite/
    "frip %0,%1"
    [(set_attr "type" "fp")])
  
-@@ -6181,10 +6252,17 @@ (define_insn "ceilsf2"
+@@ -6167,10 +6238,17 @@ (define_insn "ceilsf2"
    "frip %0,%1"
    [(set_attr "type" "fp")])
  
@@ -8930,7 +8937,7 @@ testsuite/
    "frim %0,%1"
    [(set_attr "type" "fp")])
  
-@@ -6195,6 +6273,7 @@ (define_insn "floorsf2"
+@@ -6181,6 +6259,7 @@ (define_insn "floorsf2"
    "frim %0,%1"
    [(set_attr "type" "fp")])
  
@@ -8938,7 +8945,7 @@ testsuite/
  (define_insn "rounddf2"
    [(set (match_operand:DF 0 "gpc_reg_operand" "=f")
  	(unspec:DF [(match_operand:DF 1 "gpc_reg_operand" "f")] UNSPEC_FRIN))]
-@@ -6209,6 +6288,12 @@ (define_insn "roundsf2"
+@@ -6195,6 +6274,12 @@ (define_insn "roundsf2"
    "frin %0,%1"
    [(set_attr "type" "fp")])
  
@@ -8951,7 +8958,7 @@ testsuite/
  ; An UNSPEC is used so we don't have to support SImode in FP registers.
  (define_insn "stfiwx"
    [(set (match_operand:SI 0 "memory_operand" "=Z")
-@@ -6224,17 +6309,40 @@ (define_expand "floatsisf2"
+@@ -6210,17 +6295,40 @@ (define_expand "floatsisf2"
    "TARGET_HARD_FLOAT && !TARGET_FPRS"
    "")
  
@@ -8996,7 +9003,7 @@ testsuite/
    "fctidz %0,%1"
    [(set_attr "type" "fp")])
  
-@@ -7623,7 +7731,7 @@ (define_insn "anddi3_mc"
+@@ -7609,7 +7717,7 @@ (define_insn "anddi3_mc"
     andi. %0,%1,%b2
     andis. %0,%1,%u2
     #"
@@ -9005,7 +9012,7 @@ testsuite/
     (set_attr "length" "4,4,4,4,4,8")])
  
  (define_insn "anddi3_nomc"
-@@ -7681,7 +7789,9 @@ (define_insn "*anddi3_internal2_mc"
+@@ -7667,7 +7775,9 @@ (define_insn "*anddi3_internal2_mc"
     #
     #
     #"
@@ -9015,8 +9022,8 @@ testsuite/
 +		     compare,compare")
     (set_attr "length" "4,4,4,4,4,8,8,8,8,8,8,12")])
  
- (define_insn "*anddi3_internal2_nomc"
-@@ -7744,7 +7854,9 @@ (define_insn "*anddi3_internal3_mc"
+ (define_split
+@@ -7718,7 +7828,9 @@ (define_insn "*anddi3_internal3_mc"
     #
     #
     #"
@@ -9026,8 +9033,8 @@ testsuite/
 +		     compare,compare")
     (set_attr "length" "4,4,4,4,4,8,8,8,8,8,8,12")])
  
- (define_insn "*anddi3_internal3_nomc"
-@@ -7896,7 +8008,7 @@ (define_insn "*booldi3_internal2"
+ (define_split
+@@ -7858,7 +7970,7 @@ (define_insn "*booldi3_internal2"
    "@
     %q4. %3,%1,%2
     #"
@@ -9036,7 +9043,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -7925,7 +8037,7 @@ (define_insn "*booldi3_internal3"
+@@ -7887,7 +7999,7 @@ (define_insn "*booldi3_internal3"
    "@
     %q4. %0,%1,%2
     #"
@@ -9045,7 +9052,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -7996,7 +8108,7 @@ (define_insn "*boolcdi3_internal2"
+@@ -7958,7 +8070,7 @@ (define_insn "*boolcdi3_internal2"
    "@
     %q4. %3,%2,%1
     #"
@@ -9054,7 +9061,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -8025,7 +8137,7 @@ (define_insn "*boolcdi3_internal3"
+@@ -7987,7 +8099,7 @@ (define_insn "*boolcdi3_internal3"
    "@
     %q4. %0,%2,%1
     #"
@@ -9063,7 +9070,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -8062,7 +8174,7 @@ (define_insn "*boolccdi3_internal2"
+@@ -8024,7 +8136,7 @@ (define_insn "*boolccdi3_internal2"
    "@
     %q4. %3,%1,%2
     #"
@@ -9072,7 +9079,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -8091,7 +8203,7 @@ (define_insn "*boolccdi3_internal3"
+@@ -8053,7 +8165,7 @@ (define_insn "*boolccdi3_internal3"
    "@
     %q4. %0,%1,%2
     #"
@@ -9081,7 +9088,7 @@ testsuite/
     (set_attr "length" "4,8")])
  
  (define_split
-@@ -8108,6 +8220,51 @@ (define_split
+@@ -8070,6 +8182,51 @@ (define_split
  	(compare:CC (match_dup 0)
  		    (const_int 0)))]
    "")
@@ -9133,7 +9140,7 @@ testsuite/
  
  ;; Now define ways of moving data around.
  
-@@ -8511,8 +8668,8 @@ (define_split
+@@ -8473,8 +8630,8 @@ (define_split
  ;; The "??" is a kludge until we can figure out a more reasonable way
  ;; of handling these non-offsettable values.
  (define_insn "*movdf_hardfloat32"
@@ -9144,7 +9151,7 @@ testsuite/
    "! TARGET_POWERPC64 && TARGET_HARD_FLOAT && TARGET_FPRS && TARGET_DOUBLE_FLOAT 
     && (gpc_reg_operand (operands[0], DFmode)
         || gpc_reg_operand (operands[1], DFmode))"
-@@ -8591,19 +8748,30 @@ (define_insn "*movdf_hardfloat32"
+@@ -8553,19 +8710,30 @@ (define_insn "*movdf_hardfloat32"
  	  return \"\";
  	}
      case 3:
@@ -9180,7 +9187,7 @@ testsuite/
  
  (define_insn "*movdf_softfloat32"
    [(set (match_operand:DF 0 "nonimmediate_operand" "=r,r,m,r,r,r")
-@@ -8651,19 +8819,26 @@ (define_insn "*movdf_softfloat32"
+@@ -8613,19 +8781,26 @@ (define_insn "*movdf_softfloat32"
  ; ld/std require word-aligned displacements -> 'Y' constraint.
  ; List Y->r and r->Y before r->r for reload.
  (define_insn "*movdf_hardfloat64_mfpgpr"
@@ -9210,7 +9217,7 @@ testsuite/
     mt%0 %1
     mf%1 %0
     {cror 0,0,0|nop}
-@@ -8672,33 +8847,40 @@ (define_insn "*movdf_hardfloat64_mfpgpr"
+@@ -8634,33 +8809,40 @@ (define_insn "*movdf_hardfloat64_mfpgpr"
     #
     mftgpr %0,%1
     mffgpr %0,%1"
@@ -9258,7 +9265,7 @@ testsuite/
  
  (define_insn "*movdf_softfloat64"
    [(set (match_operand:DF 0 "nonimmediate_operand" "=r,Y,r,cl,r,r,r,r,*h")
-@@ -9275,15 +9457,16 @@ (define_insn "*movti_string"
+@@ -9237,15 +9419,16 @@ (define_insn "*movti_string"
  (define_insn "*movti_ppc64"
    [(set (match_operand:TI 0 "nonimmediate_operand" "=r,o<>,r")
  	(match_operand:TI 1 "input_operand" "r,r,m"))]
@@ -9278,7 +9285,7 @@ testsuite/
    [(set (match_dup 2) (match_dup 4))
     (set (match_dup 3) (match_dup 5))]
    "
-@@ -9309,7 +9492,7 @@ (define_split
+@@ -9271,7 +9454,7 @@ (define_split
  (define_split
    [(set (match_operand:TI 0 "nonimmediate_operand" "")
          (match_operand:TI 1 "input_operand" ""))]
@@ -9287,7 +9294,7 @@ testsuite/
     && gpr_or_gpr_p (operands[0], operands[1])"
    [(pc)]
  { rs6000_split_multireg_move (operands[0], operands[1]); DONE; })
-@@ -14929,6 +15112,8 @@ (define_insn "prefetch"
+@@ -14891,6 +15074,8 @@ (define_insn "prefetch"
  
  
  (include "sync.md")
@@ -9297,7 +9304,7 @@ testsuite/
  (include "spe.md")
  (include "dfp.md")
 --- gcc/config/rs6000/e500.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/e500.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/e500.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -37,6 +37,8 @@
        {									\
  	if (TARGET_ALTIVEC)						\
@@ -9308,7 +9315,7 @@ testsuite/
  	  error ("64-bit E500 not supported");				\
  	if (TARGET_HARD_FLOAT && TARGET_FPRS)				\
 --- gcc/config/rs6000/driver-rs6000.c	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/driver-rs6000.c	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/driver-rs6000.c	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -343,11 +343,115 @@ detect_processor_aix (void)
  #endif /* _AIX */
  
@@ -9490,7 +9497,7 @@ testsuite/
  }
  
 --- gcc/config/rs6000/sysv4.h	(.../trunk)	(revision 144557)
-+++ gcc/config/rs6000/sysv4.h	(.../branches/ibm/power7-meissner)	(revision 144692)
++++ gcc/config/rs6000/sysv4.h	(.../branches/ibm/power7-meissner)	(revision 144730)
 @@ -119,9 +119,9 @@ do {									\
    else if (!strcmp (rs6000_abi_name, "i960-old"))			\
      {									\

@@ -1,9 +1,9 @@
-%define DATE 20090307
-%define SVNREV 144693
+%define DATE 20090310
+%define SVNREV 144741
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.23
+%define gcc_release 0.24
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -51,7 +51,6 @@ Source2: README.libgcjwebplugin.so
 Source3: protoize.1
 %define fastjar_ver 0.97
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
-Source5: ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-ppl-0.15.tar.gz
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -95,7 +94,7 @@ BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
 BuildRequires: libunwind >= 0.98
 %endif
 %if %{build_cloog}
-BuildRequires: ppl >= 0.10, ppl-devel >= 0.10
+BuildRequires: ppl >= 0.10, ppl-devel >= 0.10, cloog-ppl >= 0.15, cloog-ppl-devel >= 0.15
 %endif
 Requires: cpp = %{version}-%{release}
 # Need .eh_frame ld optimizations
@@ -121,6 +120,9 @@ Requires: libgomp = %{version}-%{release}
 %if !%{build_ada}
 Obsoletes: gcc-gnat < %{version}-%{release}
 Obsoletes: libgnat < %{version}-%{release}
+%endif
+%if %{build_cloog}
+Requires: cloog-ppl >= 0.15
 %endif
 Prereq: /sbin/install-info
 AutoReq: true
@@ -434,15 +436,12 @@ which are required to compile with the GNAT.
 %patch22 -p0 -b .raw-string~
 %patch24 -p0 -b .atom~
 %patch25 -p0 -b .pr39226~
-#%patch26 -p0 -b .power7~
+%patch26 -p0 -b .power7~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
 
 tar xzf %{SOURCE4}
-%if %{build_cloog}
-tar xzf %{SOURCE5}
-%endif
 
 %patch1000 -p0 -b .fastjar-0.97-segfault~
 
@@ -495,16 +494,6 @@ cd fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
 make %{?_smp_mflags}
 export PATH=`pwd`${PATH:+:$PATH}
 cd ../../
-%endif
-
-%if %{build_cloog}
-mkdir cloog-ppl/obj-%{gcc_target_platform}
-cd cloog-ppl/obj-%{gcc_target_platform}
-../configure CFLAGS="$RPM_OPT_FLAGS" --prefix=/usr --with-ppl
-make %{?_smp_mflags}
-make check || :
-make install DESTDIR=`cd ../; pwd`/inst/
-cd ../..
 %endif
 
 rm -fr obj-%{gcc_target_platform}
@@ -598,7 +587,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--disable-libjava-multilib \
 %endif
 %if %{build_cloog}
-	--with-ppl --with-cloog=`cd ../cloog-ppl/inst/usr/; pwd` \
+	--with-ppl --with-cloog \
 %endif
 %ifarch %{arm}
 	--disable-sjlj-exceptions \
@@ -639,10 +628,6 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 
 #GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
-
-%if %{build_cloog}
-cp -a ../cloog-ppl/inst/usr/lib/libcloog.so.0* gcc/
-%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
@@ -747,10 +732,6 @@ chmod 644 $RPM_BUILD_ROOT%{_infodir}/gnat*
 
 FULLPATH=$RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 FULLEPATH=$RPM_BUILD_ROOT%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
-
-%if %{build_cloog}
-cp -a ../cloog-ppl/inst/usr/lib/libcloog.so.0* $FULLPATH/
-%endif
 
 # fix some things
 ln -sf gcc $RPM_BUILD_ROOT%{_prefix}/bin/cc
@@ -1334,9 +1315,6 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.so
-%if %{build_cloog}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcloog.so.0*
-%endif
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/crt*.o
@@ -1769,6 +1747,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Mar 10 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.24
+- update from trunk
+  - PRs ada/39221, c++/39060, c++/39367, c++/39371, libfortran/39402,
+	middle-end/38028, target/39361, tree-optimization/39394
+- use system cloog-ppl instead of building a private libcloog.so.0 (#489183)
+- preliminary Power7 support (#463846)
+
 * Sat Mar  7 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.23
 - update from trunk
   - PRs c++/13549, c++/29469, c++/29607, c++/33492, c++/37520, c++/38908,
