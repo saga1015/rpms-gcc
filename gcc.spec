@@ -13,7 +13,11 @@
 %define build_ada 0
 %endif
 %define build_java 1
+%ifarch %{sparc}
+%define build_cloog 0
+%else
 %define build_cloog 1
+%endif
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc41.spec
 # which creates libjava-classes-%{version}-%{release}.tar.bz2
@@ -627,7 +631,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 %endif
 
 #GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+%ifarch sparcv9
+GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+%else
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
@@ -1747,6 +1755,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Mar 12 2009 Dennis Gilmore <dennis@ausil.us> 
+- don't build cloog support on sparc arches
+- missing some deps still
+- build sparcv9  with bootstrap not profiledbootstrap
+
 * Tue Mar 10 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.24
 - update from trunk
   - PRs ada/39221, c++/39060, c++/39367, c++/39371, libfortran/39402,
