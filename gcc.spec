@@ -1,9 +1,9 @@
-%define DATE 20090310
-%define SVNREV 144741
+%define DATE 20090313
+%define SVNREV 144837
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.24
+%define gcc_release 0.25
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -152,6 +152,9 @@ Patch22: gcc44-raw-string.patch
 Patch24: gcc44-atom.patch
 Patch25: gcc44-pr39226.patch
 Patch26: gcc44-power7.patch
+Patch27: gcc44-pr39412.patch
+Patch28: gcc44-pr39443.patch
+Patch29: gcc44-pr39454.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -441,6 +444,9 @@ which are required to compile with the GNAT.
 %patch24 -p0 -b .atom~
 %patch25 -p0 -b .pr39226~
 %patch26 -p0 -b .power7~
+%patch27 -p0 -b .pr39412~
+%patch28 -p0 -b .pr39443~
+%patch29 -p0 -b .pr39454~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -631,11 +637,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 %endif
 
 #GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
-%ifarch sparcv9
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
-%else
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
-%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
@@ -1755,10 +1757,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Mar 13 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.25
+- update from trunk
+  - PRs debug/39086, debug/39432, libobjc/27466, middle-end/37850,
+	target/39137, target/39181, target/39431, target/39445, target/5362,
+	testsuite/39451, tree-optimization/39422
+- fix ICE in gen_tagged_type_instantiation_die (#489308, PR debug/39412)
+- fix memcmp builtin asm redirection (PR middle-end/39443)
+- fix sparcv9 profiledbootstrap (PR bootstrap/39454)
+
 * Thu Mar 12 2009 Dennis Gilmore <dennis@ausil.us> 
-- don't build cloog support on sparc arches
-- missing some deps still
-- build sparcv9  with bootstrap not profiledbootstrap
+- don't build with graphite support on sparc arches
+  - still missing some deps
 
 * Tue Mar 10 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.24
 - update from trunk

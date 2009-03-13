@@ -1,0 +1,131 @@
+2009-03-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/39443
+	* optabs.c (set_user_assembler_libfunc): New function.
+	* expr.h (set_user_assembler_libfunc): New prototype.
+	* c-common.c: Include libfuncs.h.
+	(set_builtin_user_assembler_name): Call set_user_assembler_libfunc
+	for memcmp, memset, memcpy, memmove and abort.
+
+	* gcc.dg/pr39443.c: New test.
+
+--- gcc/optabs.c.jj	2008-11-18 19:24:09.000000000 +0100
++++ gcc/optabs.c	2009-03-12 16:16:56.000000000 +0100
+@@ -6072,6 +6072,24 @@ init_one_libfunc (const char *name)
+   return XEXP (DECL_RTL (decl), 0);
+ }
+ 
++/* Adjust the assembler name of libfunc NAME to ASMSPEC.  */
++
++rtx
++set_user_assembler_libfunc (const char *name, const char *asmspec)
++{
++  tree id, decl;
++  void **slot;
++  hashval_t hash;
++
++  id = get_identifier (name);
++  hash = htab_hash_string (name);
++  slot = htab_find_slot_with_hash (libfunc_decls, id, hash, INSERT);
++  decl = (tree) *slot;
++  gcc_assert (decl);
++  set_user_assembler_name (decl, asmspec);
++  return XEXP (DECL_RTL (decl), 0);
++}
++
+ /* Call this to reset the function entry for one optab (OPTABLE) in mode
+    MODE to NAME, which should be either 0 or a string constant.  */
+ void
+--- gcc/expr.h.jj	2009-02-20 15:33:46.000000000 +0100
++++ gcc/expr.h	2009-03-12 16:17:41.000000000 +0100
+@@ -1,6 +1,6 @@
+ /* Definitions for code generation pass of GNU compiler.
+    Copyright (C) 1987, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+-   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
++   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+    Free Software Foundation, Inc.
+ 
+ This file is part of GCC.
+@@ -786,6 +786,7 @@ extern void init_all_optabs (void);
+ 
+ /* Call this to initialize an optab function entry.  */
+ extern rtx init_one_libfunc (const char *);
++extern rtx set_user_assembler_libfunc (const char *, const char *);
+ 
+ extern int vector_mode_valid_p (enum machine_mode);
+ 
+--- gcc/c-common.c.jj	2009-03-02 09:45:47.000000000 +0100
++++ gcc/c-common.c	2009-03-12 16:20:37.000000000 +0100
+@@ -51,6 +51,7 @@ along with GCC; see the file COPYING3.  
+ #include "target-def.h"
+ #include "gimple.h"
+ #include "fixed-value.h"
++#include "libfuncs.h"
+ 
+ cpp_reader *parse_in;		/* Declared in c-pragma.h.  */
+ 
+@@ -4401,10 +4402,28 @@ set_builtin_user_assembler_name (tree de
+ 
+   builtin = built_in_decls [DECL_FUNCTION_CODE (decl)];
+   set_user_assembler_name (builtin, asmspec);
+-  if (DECL_FUNCTION_CODE (decl) == BUILT_IN_MEMCPY)
+-    init_block_move_fn (asmspec);
+-  else if (DECL_FUNCTION_CODE (decl) == BUILT_IN_MEMSET)
+-    init_block_clear_fn (asmspec);
++  switch (DECL_FUNCTION_CODE (decl))
++    {
++    case BUILT_IN_MEMCPY:
++      init_block_move_fn (asmspec);
++      memcpy_libfunc = set_user_assembler_libfunc ("memcpy", asmspec);
++      break;
++    case BUILT_IN_MEMSET:
++      init_block_clear_fn (asmspec);
++      memset_libfunc = set_user_assembler_libfunc ("memset", asmspec);
++      break;
++    case BUILT_IN_MEMMOVE:
++      memmove_libfunc = set_user_assembler_libfunc ("memmove", asmspec);
++      break;
++    case BUILT_IN_MEMCMP:
++      memcmp_libfunc = set_user_assembler_libfunc ("memcmp", asmspec);
++      break;
++    case BUILT_IN_ABORT:
++      abort_libfunc = set_user_assembler_libfunc ("abort", asmspec);
++      break;
++    default:
++      break;
++    }
+ }
+ 
+ /* The number of named compound-literals generated thus far.  */
+--- gcc/Makefile.in.jj	2009-02-20 15:49:01.000000000 +0100
++++ gcc/Makefile.in	2009-03-12 16:42:47.000000000 +0100
+@@ -1890,7 +1890,7 @@ c-common.o : c-common.c $(CONFIG_H) $(SY
+ 	$(TARGET_H) $(C_TREE_H) tree-iterator.h langhooks.h tree-mudflap.h \
+ 	intl.h opts.h $(REAL_H) $(CPPLIB_H) $(TREE_INLINE_H) $(HASHTAB_H) \
+ 	$(BUILTINS_DEF) $(CGRAPH_H) $(BASIC_BLOCK_H) $(TARGET_DEF_H) \
+-	$(GIMPLE_H)
++	$(GIMPLE_H) libfuncs.h
+ 
+ c-pretty-print.o : c-pretty-print.c $(C_PRETTY_PRINT_H) \
+ 	$(C_TREE_H) $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) $(REAL_H) \
+--- gcc/testsuite/gcc.dg/pr39443.c.jj	2009-03-12 16:33:41.000000000 +0100
++++ gcc/testsuite/gcc.dg/pr39443.c	2009-03-12 16:33:22.000000000 +0100
+@@ -0,0 +1,18 @@
++/* PR middle-end/39443 */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++/* { dg-final { scan-assembler-not "memcmp" } } */
++
++typedef __SIZE_TYPE__ size_t;
++
++extern int memcmp (const void *s1, const void *s2, size_t n)
++  __attribute__ ((__nothrow__, __pure__));
++extern __typeof (memcmp) memcmp __asm__ ("memory_compare");
++
++int
++test (char *s, char *t, int cnt)
++{
++  if (__builtin_expect (cnt, 0))
++    return memcmp (s, t, cnt);
++  return 0;
++}
