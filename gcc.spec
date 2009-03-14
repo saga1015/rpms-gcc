@@ -3,7 +3,7 @@
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.25
+%define gcc_release 0.26
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -155,6 +155,7 @@ Patch26: gcc44-power7.patch
 Patch27: gcc44-pr39412.patch
 Patch28: gcc44-pr39443.patch
 Patch29: gcc44-pr39454.patch
+Patch30: gcc44-power7-2.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -447,6 +448,7 @@ which are required to compile with the GNAT.
 %patch27 -p0 -b .pr39412~
 %patch28 -p0 -b .pr39443~
 %patch29 -p0 -b .pr39454~
+%patch30 -p0 -b .power7-2~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1757,6 +1759,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Mar 14 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.26
+- fix ppc64 regression caused by the power7 backport (#490149,
+  PR target/39457)
+
 * Fri Mar 13 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.25
 - update from trunk
   - PRs debug/39086, debug/39432, libobjc/27466, middle-end/37850,
