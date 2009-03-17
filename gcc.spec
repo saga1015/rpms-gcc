@@ -1,9 +1,9 @@
-%define DATE 20090313
-%define SVNREV 144837
+%define DATE 20090317
+%define SVNREV 144916
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.26
+%define gcc_release 0.27
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -152,10 +152,7 @@ Patch22: gcc44-raw-string.patch
 Patch24: gcc44-atom.patch
 Patch25: gcc44-pr39226.patch
 Patch26: gcc44-power7.patch
-Patch27: gcc44-pr39412.patch
-Patch28: gcc44-pr39443.patch
-Patch29: gcc44-pr39454.patch
-Patch30: gcc44-power7-2.patch
+Patch27: gcc44-power7-2.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -445,10 +442,7 @@ which are required to compile with the GNAT.
 %patch24 -p0 -b .atom~
 %patch25 -p0 -b .pr39226~
 %patch26 -p0 -b .power7~
-%patch27 -p0 -b .pr39412~
-%patch28 -p0 -b .pr39443~
-%patch29 -p0 -b .pr39454~
-%patch30 -p0 -b .power7-2~
+%patch27 -p0 -b .power7-2~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1759,6 +1753,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Mar 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.27
+- update from trunk
+  - PRs debug/37890, debug/39471, debug/39474, libstdc++/39405, target/34299,
+	target/39473, target/39476, target/39477, target/39482,
+	testsuite/37628, testsuite/37630, testsuite/37960, testsuite/38526,
+	tree-optimization/39455
+
 * Sat Mar 14 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.26
 - fix ppc64 regression caused by the power7 backport (#490149,
   PR target/39457)
