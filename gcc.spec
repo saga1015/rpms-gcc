@@ -1,9 +1,9 @@
-%define DATE 20090317
-%define SVNREV 144916
+%define DATE 20090319
+%define SVNREV 144967
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.27
+%define gcc_release 0.28
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -47,7 +47,7 @@ License: GPLv3+ and GPLv2+ with exceptions
 Group: Development/Languages
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_3-branch@%{SVNREV} gcc-%{version}-%{DATE}
+# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_4-branch@%{SVNREV} gcc-%{version}-%{DATE}
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
@@ -153,6 +153,9 @@ Patch24: gcc44-atom.patch
 Patch25: gcc44-pr39226.patch
 Patch26: gcc44-power7.patch
 Patch27: gcc44-power7-2.patch
+Patch28: gcc44-pr38757.patch
+Patch29: gcc44-pr37959.patch
+Patch30: gcc44-memmove-opt.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -443,6 +446,9 @@ which are required to compile with the GNAT.
 %patch25 -p0 -b .pr39226~
 %patch26 -p0 -b .power7~
 %patch27 -p0 -b .power7-2~
+%patch28 -p0 -b .pr38757~
+%patch29 -p0 -b .pr37959~
+%patch30 -p0 -b .memmove-opt~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1753,6 +1759,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Mar 19 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.28
+- update from trunk
+  - PRs c++/39425, c++/39475, c/39495, debug/39485, middle-end/37805,
+	middle-end/38609, middle-end/39378, middle-end/39447,
+	middle-end/39500, target/35180, target/39063, target/39496
+  - fix RA bug with global reg variables (#490509)
+- use DW_LANG_C99 for -std=c99 or -std=gnu99 compiled C code (PR debug/38757)
+- emit DW_AT_explicit when needed (PR debug/37959)
+- optimize memmove into memcpy in more cases when we can prove src and dest
+  don't overlap
+
 * Tue Mar 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.27
 - update from trunk
   - PRs debug/37890, debug/39471, debug/39474, libstdc++/39405, target/34299,
