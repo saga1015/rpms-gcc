@@ -1,9 +1,9 @@
-%define DATE 20090324
-%define SVNREV 145019
+%define DATE 20090328
+%define SVNREV 145167
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.29
+%define gcc_release 0.30
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -137,8 +137,6 @@ Patch2: gcc44-c++-builtin-redecl.patch
 Patch3: gcc44-ia64-libunwind.patch
 Patch4: gcc44-java-nomulti.patch
 Patch5: gcc44-ppc32-retaddr.patch
-Patch7: gcc44-pr27898.patch
-Patch8: gcc44-pr32139.patch
 Patch9: gcc44-pr33763.patch
 Patch10: gcc44-rh330771.patch
 Patch11: gcc44-rh341221.patch
@@ -154,8 +152,10 @@ Patch25: gcc44-pr39226.patch
 Patch26: gcc44-power7.patch
 Patch27: gcc44-power7-2.patch
 Patch28: gcc44-pr38757.patch
-Patch29: gcc44-pr37959.patch
-Patch30: gcc44-memmove-opt.patch
+Patch29: gcc44-altivec-vector.patch
+Patch30: gcc44-pr39543.patch
+Patch31: gcc44-pr39558.patch
+Patch32: gcc44-pr39563.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -428,8 +428,6 @@ which are required to compile with the GNAT.
 %patch3 -p0 -b .ia64-libunwind~
 %patch4 -p0 -b .java-nomulti~
 %patch5 -p0 -b .ppc32-retaddr~
-%patch7 -p0 -b .pr27898~
-%patch8 -p0 -b .pr32139~
 %patch9 -p0 -b .pr33763~
 %patch10 -p0 -b .rh330771~
 %patch11 -p0 -b .rh341221~
@@ -447,8 +445,10 @@ which are required to compile with the GNAT.
 %patch26 -p0 -b .power7~
 %patch27 -p0 -b .power7-2~
 %patch28 -p0 -b .pr38757~
-%patch29 -p0 -b .pr37959~
-%patch30 -p0 -b .memmove-opt~
+%patch29 -p0 -b .altivec-vector~
+%patch30 -p0 -b .pr39543~
+%patch31 -p0 -b .pr39558~
+%patch32 -p0 -b .pr39563~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1759,6 +1759,17 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Mar 28 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.30
+- update from gcc-4_4-branch
+  - PRs c++/39380, c++/28274, c++/29727, c++/35652, c++/36799, c++/37647,
+	c++/38638, c++/39554, libfortran/39528, middle-end/39497,
+	rtl-optimization/39522, target/38034, target/39523,
+	tree-optimization/39529, tree-optimization/39548,
+	tree-optimization/39557
+- emit debuginfo for block local externs in C (PR debug/39563)
+- fix -maltivec conditional vector macro (PR target/39558)
+- teach fwprop to handle asm (PR rtl-optimization/39543)
+
 * Tue Mar 24 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.29
 - update from trunk
   - PRs c++/28879, c++/37729, c++/39526, debug/39524, tree-optimization/39516
