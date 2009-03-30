@@ -1,9 +1,9 @@
-%define DATE 20090328
-%define SVNREV 145167
+%define DATE 20090330
+%define SVNREV 145311
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.30
+%define gcc_release 0.31
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -152,10 +152,7 @@ Patch25: gcc44-pr39226.patch
 Patch26: gcc44-power7.patch
 Patch27: gcc44-power7-2.patch
 Patch28: gcc44-pr38757.patch
-Patch29: gcc44-altivec-vector.patch
 Patch30: gcc44-pr39543.patch
-Patch31: gcc44-pr39558.patch
-Patch32: gcc44-pr39563.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -445,10 +442,7 @@ which are required to compile with the GNAT.
 %patch26 -p0 -b .power7~
 %patch27 -p0 -b .power7-2~
 %patch28 -p0 -b .pr38757~
-%patch29 -p0 -b .altivec-vector~
 %patch30 -p0 -b .pr39543~
-%patch31 -p0 -b .pr39558~
-%patch32 -p0 -b .pr39563~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1759,6 +1753,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Mar 30 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.31
+- update from gcc-4_4-branch
+  - PR target/39545
+  - fix Fortran bind(c) function using RESULT() (#492657)
+- fix bogus warnings on strcmp/strncmp macros (#492846)
+
 * Sat Mar 28 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.30
 - update from gcc-4_4-branch
   - PRs c++/39380, c++/28274, c++/29727, c++/35652, c++/36799, c++/37647,
