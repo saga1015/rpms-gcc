@@ -1,9 +1,9 @@
-%define DATE 20090330
-%define SVNREV 145311
+%define DATE 20090409
+%define SVNREV 145816
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.31
+%define gcc_release 0.32
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -148,7 +148,6 @@ Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch24: gcc44-atom.patch
-Patch25: gcc44-pr39226.patch
 Patch26: gcc44-power7.patch
 Patch27: gcc44-power7-2.patch
 Patch28: gcc44-pr38757.patch
@@ -438,11 +437,10 @@ which are required to compile with the GNAT.
 %endif
 %patch22 -p0 -b .raw-string~
 %patch24 -p0 -b .atom~
-%patch25 -p0 -b .pr39226~
 %patch26 -p0 -b .power7~
 %patch27 -p0 -b .power7-2~
 %patch28 -p0 -b .pr38757~
-%patch30 -p0 -b .pr39543~
+#%patch30 -p0 -b .pr39543~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1753,6 +1751,19 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Apr  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.32
+- update from gcc-4_4-branch
+  - PRs c++/34691, c++/35146, c++/35240, c++/37806, c++/38030, c++/38850,
+	c++/39608, c++/39637, c++/4926, c/37772, fortran/38152,
+	fortran/39519, fortran/39594, libmudflap/38462, libstdc++/39310,
+	middle-end/39573, objc/18456, objc/27377, other/39591,
+	rtl-optimization/39588, rtl-optimization/39607, target/39501,
+	target/39592, target/39634, testsuite/39325, tree-optimization/35011,
+	tree-optimization/39595, tree-optimization/39648
+  - handle .cfi_undefined(%ip) in libgcc_s unwinder (#491542)
+- fix debug info for C++ static data members (#410691)
+- revert fwprop fix, it causes glibc.i586 miscompilation
+
 * Mon Mar 30 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.31
 - update from gcc-4_4-branch
   - PR target/39545
