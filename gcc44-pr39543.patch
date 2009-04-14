@@ -1,4 +1,4 @@
-2009-03-27  Jakub Jelinek  <jakub@redhat.com>
+2009-04-10  Jakub Jelinek  <jakub@redhat.com>
 
 	PR rtl-optimization/39543
 	* fwprop.c (forward_propagate_asm): New function.
@@ -9,8 +9,8 @@
 	* gcc.target/i386/pr39543-2.c: New test.
 	* gcc.target/i386/pr39543-3.c: New test.
 
---- gcc/fwprop.c.jj	2009-03-27 07:55:33.000000000 +0100
-+++ gcc/fwprop.c	2009-03-27 10:00:48.000000000 +0100
+--- gcc/fwprop.c.jj	2009-03-30 12:45:45.000000000 +0200
++++ gcc/fwprop.c	2009-04-10 16:19:36.000000000 +0200
 @@ -1,5 +1,5 @@
  /* RTL-based forward propagation pass for GNU compiler.
 -   Copyright (C) 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
@@ -18,7 +18,7 @@
     Contributed by Paolo Bonzini and Steven Bosscher.
  
  This file is part of GCC.
-@@ -852,6 +852,73 @@ forward_propagate_subreg (df_ref use, rt
+@@ -852,6 +852,80 @@ forward_propagate_subreg (df_ref use, rt
      return false;
  }
  
@@ -50,20 +50,27 @@
 +      asm_operands = use_pat;
 +      break;
 +    case SET:
-+      loc = &SET_DEST (use_pat);
-+      new_rtx = propagate_rtx (*loc, GET_MODE (*loc), reg, src, speed_p);
-+      if (new_rtx)
-+	validate_unshare_change (use_insn, loc, new_rtx, true);
++      if (MEM_P (SET_DEST (use_pat)))
++	{
++	  loc = &SET_DEST (use_pat);
++	  new_rtx = propagate_rtx (*loc, GET_MODE (*loc), reg, src, speed_p);
++	  if (new_rtx)
++	    validate_unshare_change (use_insn, loc, new_rtx, true);
++	}
 +      asm_operands = SET_SRC (use_pat);
 +      break;
 +    case PARALLEL:
 +      for (i = 0; i < XVECLEN (use_pat, 0); i++)
 +	if (GET_CODE (XVECEXP (use_pat, 0, i)) == SET)
 +	  {
-+	    loc = &SET_DEST (XVECEXP (use_pat, 0, i));
-+	    new_rtx = propagate_rtx (*loc, GET_MODE (*loc), reg, src, speed_p);
-+	    if (new_rtx)
-+	      validate_unshare_change (use_insn, loc, new_rtx, true);
++	    if (MEM_P (SET_DEST (XVECEXP (use_pat, 0, i))))
++	      {
++		loc = &SET_DEST (XVECEXP (use_pat, 0, i));
++		new_rtx = propagate_rtx (*loc, GET_MODE (*loc), reg,
++					 src, speed_p);
++		if (new_rtx)
++		  validate_unshare_change (use_insn, loc, new_rtx, true);
++	      }
 +	    asm_operands = SET_SRC (XVECEXP (use_pat, 0, i));
 +	  }
 +	else if (GET_CODE (XVECEXP (use_pat, 0, i)) == ASM_OPERANDS)
@@ -92,7 +99,7 @@
  /* Try to replace USE with SRC (defined in DEF_INSN) and simplify the
     result.  */
  
-@@ -863,12 +930,16 @@ forward_propagate_and_simplify (df_ref u
+@@ -863,12 +937,16 @@ forward_propagate_and_simplify (df_ref u
    rtx src, reg, new_rtx, *loc;
    bool set_reg_equal;
    enum machine_mode mode;
@@ -111,7 +118,7 @@
      return false;
  
    /* If def and use are subreg, check if they match.  */
-@@ -900,7 +971,7 @@ forward_propagate_and_simplify (df_ref u
+@@ -900,7 +978,7 @@ forward_propagate_and_simplify (df_ref u
    if (MEM_P (src) && MEM_READONLY_P (src))
      {
        rtx x = avoid_constant_pool_reference (src);
@@ -120,7 +127,7 @@
  	{
            rtx note = find_reg_note (use_insn, REG_EQUAL, NULL_RTX);
  	  rtx old_rtx = note ? XEXP (note, 0) : SET_SRC (use_set);
-@@ -911,6 +982,9 @@ forward_propagate_and_simplify (df_ref u
+@@ -911,6 +989,9 @@ forward_propagate_and_simplify (df_ref u
        return false;
      }
  
@@ -130,8 +137,8 @@
    /* Else try simplifying.  */
  
    if (DF_REF_TYPE (use) == DF_REF_REG_MEM_STORE)
---- gcc/testsuite/gcc.target/i386/pr39543-1.c.jj	2009-03-25 16:40:18.000000000 +0100
-+++ gcc/testsuite/gcc.target/i386/pr39543-1.c	2009-03-25 16:40:50.000000000 +0100
+--- gcc/testsuite/gcc.target/i386/pr39543-1.c.jj	2009-04-09 09:47:16.000000000 +0200
++++ gcc/testsuite/gcc.target/i386/pr39543-1.c	2009-04-09 09:47:16.000000000 +0200
 @@ -0,0 +1,52 @@
 +/* PR rtl-optimization/39543 */
 +/* { dg-do compile } */
@@ -185,8 +192,8 @@
 +{
 +  bar (s0);
 +}
---- gcc/testsuite/gcc.target/i386/pr39543-2.c.jj	2009-03-25 16:40:18.000000000 +0100
-+++ gcc/testsuite/gcc.target/i386/pr39543-2.c	2009-03-25 16:40:38.000000000 +0100
+--- gcc/testsuite/gcc.target/i386/pr39543-2.c.jj	2009-04-09 09:47:16.000000000 +0200
++++ gcc/testsuite/gcc.target/i386/pr39543-2.c	2009-04-09 09:47:16.000000000 +0200
 @@ -0,0 +1,51 @@
 +/* PR rtl-optimization/39543 */
 +/* { dg-do compile } */
@@ -239,8 +246,8 @@
 +{
 +  bar (s0);
 +}
---- gcc/testsuite/gcc.target/i386/pr39543-3.c.jj	2009-03-25 16:41:29.000000000 +0100
-+++ gcc/testsuite/gcc.target/i386/pr39543-3.c	2009-03-25 16:41:19.000000000 +0100
+--- gcc/testsuite/gcc.target/i386/pr39543-3.c.jj	2009-04-09 09:47:16.000000000 +0200
++++ gcc/testsuite/gcc.target/i386/pr39543-3.c	2009-04-09 09:47:16.000000000 +0200
 @@ -0,0 +1,42 @@
 +/* PR rtl-optimization/39543 */
 +/* { dg-do compile } */

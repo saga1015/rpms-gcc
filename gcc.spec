@@ -1,9 +1,9 @@
-%define DATE 20090409
-%define SVNREV 145816
+%define DATE 20090414
+%define SVNREV 146037
 %define gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%define gcc_release 0.33
+%define gcc_release 0.34
 %define _unpackaged_files_terminate_build 0
 %define multilib_64_archs sparc64 ppc64 s390x x86_64
 %define include_gappletviewer 1
@@ -36,41 +36,13 @@
 %ifarch x86_64
 %define multilib_32_arch i586
 %endif
-
-# java-1.5.0-gcj-compat related definitions
-
-# convert an absolute path to a relative path.  each symbolic link is
-# specified relative to the directory in which it is installed so that
-# it will resolve properly within chrooted installations.
-%define abs2rel %{__perl} -e 'use File::Spec; print File::Spec->abs2rel($ARGV[0], $ARGV[1])'
-
-# python install location
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib().replace('%{_prefix}','',1)")}
-
-# Java version information and alternatives priority
-%define javaver         1.5.0
-%define javabuildver    0
-%define javadirname     java-%{javaver}-gcj-%{javaver}.%{javabuildver}
-%define origin          gcj
-%define priority        1500
-
-# installation directory names corresponding to JPackage specifications
-%define sdklnk          java-%{javaver}-%{origin}
-%define jrelnk          jre-%{javaver}-%{origin}
-%define sdkdir          java-%{javaver}-gcj-%{javaver}.%{javabuildver}
-%define jredir          %{sdkdir}/jre
-%define sdkbindir       %{_jvmdir}/%{sdklnk}/bin
-%define jrebindir       %{_jvmdir}/%{jrelnk}/bin
-%define jvmjardir       %{_jvmjardir}/java-%{javaver}-gcj-%{javaver}.%{javabuildver}
-
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
 Release: %{gcc_release}
-# libgcc, libgfortran, libmudflap and crtstuff have an exception which allows
-# linking it into any kind of programs or shared libraries without
-# restrictions.
-License: GPLv3+ and GPLv2+ with exceptions
+# libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
+# GCC Runtime Exception.
+License: GPLv3+, GPLv3+ with exceptions and GPLv2+ with exceptions
 Group: Development/Languages
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -82,7 +54,6 @@ Source2: README.libgcjwebplugin.so
 Source3: protoize.1
 %define fastjar_ver 0.97
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
-Source5: generate-cacerts.pl
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -177,10 +148,8 @@ Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch24: gcc44-atom.patch
 Patch26: gcc44-power7.patch
-Patch27: gcc44-power7-2.patch
 Patch28: gcc44-pr38757.patch
 Patch30: gcc44-pr39543.patch
-Patch31: gcc44-libjava-i386.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -387,165 +356,6 @@ Autoreq: true
 %description -n libgcj-src
 The Java(tm) runtime library sources for use in Eclipse.
 
-%package -n java-%{javaver}-gcj
-Summary: JPackage runtime compatibility layer for GCJ
-Group:   Development/Languages
-
-BuildRequires: gcc-java >= %{version}
-BuildRequires: libgcj-src >= %{version}
-# required for cacerts generation
-BuildRequires: openssl
-BuildRequires: python-devel
-%if ! %{bootstrap_java}
-# required for javadoc
-BuildRequires: java-1.6.0-openjdk-devel
-%endif
-BuildRequires: unzip
-
-# required for tools and libgcj.jar
-Requires:         libgcj = %{version}
-# required for directory structures
-Requires:         jpackage-utils >= 1.7.3
-# required for java.security symlink
-Requires:         %{_prefix}/%{_lib}/security/classpath.security
-%if ! %{bootstrap_java}
-# required for javadoc symlink
-Requires:         sinjdoc
-%endif
-# post requires alternatives to install tool alternatives
-Requires(post):   %{_sbindir}/alternatives
-# post requires gij to retrieve gcc version
-Requires(post):   %{_bindir}/gij
-# post rebuilds the gcj database
-Requires(post):   %{_bindir}/rebuild-gcj-db
-# rebuild-gcj-db requires gcj-dbtool
-Requires(post):   %{_bindir}/gcj-dbtool
-# rebuild-gcj-db requires findutils
-Requires(post):   findutils
-# postun requires alternatives to uninstall tool alternatives
-Requires(postun): %{_sbindir}/alternatives
-# postun requires gij to retrieve gcc version
-Requires(postun): %{_bindir}/gij
-# postun rebuilds the gcj database
-Requires(postun): %{_bindir}/rebuild-gcj-db
-# rebuild-gcj-db requires gcj-dbtool
-Requires(postun): %{_bindir}/gcj-dbtool
-# rebuild-gcj-db requires findutils
-Requires(postun): findutils
-
-# standard JPackage base provides
-Provides: jre-%{javaver}-%{origin} = %{version}-%{release}
-Provides: jre-%{origin} = %{version}-%{release}
-Provides: jre-%{javaver} = %{version}-%{release}
-Provides: java-%{javaver} = %{version}-%{release}
-Provides: jre = %{javaver}
-Provides: java-%{origin} = %{version}-%{release}
-Provides: java = %{javaver}
-# libgcj provides, translated to JPackage provides
-Provides: jaas = %{version}-%{release}
-Provides: jce = %{version}-%{release}
-Provides: jdbc-stdext = %{version}-%{release}
-Provides: jdbc-stdext = 3.0
-Provides: jndi = %{version}-%{release}
-Provides: jndi-cos = %{version}-%{release}
-Provides: jndi-dns = %{version}-%{release}
-Provides: jndi-ldap = %{version}-%{release}
-Provides: jndi-rmi = %{version}-%{release}
-Provides: jsse = %{version}-%{release}
-Provides: java-sasl = %{version}-%{release}
-Provides: jaxp_parser_impl = %{version}-%{release}
-# java-gcj-compat base provides
-Provides: java-gcj-compat = 1.0.79
-Provides: java-1.4.2-gcj-compat > 1.4.2.0-40jpp.111
-
-Obsoletes: java-1.4.2-gcj-compat <= 1.4.2.0-40jpp.111
-Obsoletes: gnu-crypto <= 2.1.0-2jpp.1
-Obsoletes: gnu-crypto-sasl-jdk1.4 <= 2.1.0-2jpp.1
-Obsoletes: jessie <= 1.0.1-7
-
-%description -n java-%{javaver}-gcj
-This package installs directory structures, shell scripts and symbolic
-links to simulate a JPackage-compatible runtime environment with GCJ.
-
-%package -n java-%{javaver}-gcj-devel
-Summary: JPackage development compatibility layer for GCJ
-Group:   Development/Tools
-
-# require libgcj-src for tools.jar symlink
-Requires:         libgcj-src = %{version}
-# require base package
-Requires:         java-%{javaver}-gcj = %{version}-%{release}
-# require ecj for ecj binary
-Requires:         ecj >= 3.2.1
-# require python for aot-compile
-Requires:         python
-# require gcc-java for gjavah binary
-Requires:         gcc-java = %{version}
-# post requires alternatives to install tool alternatives
-Requires(post):   %{_sbindir}/alternatives
-# post requires gcj to retrieve gcj header file locations
-Requires(post):   %{_bindir}/gcj
-# postun requires alternatives to uninstall tool alternatives
-Requires(postun): %{_sbindir}/alternatives
-
-# standard JPackage devel provides
-Provides: java-sdk-%{javaver}-%{origin} = %{version}
-Provides: java-sdk-%{javaver} = %{version}
-Provides: java-sdk-%{origin} = %{version}
-Provides: java-sdk = %{javaver}
-Provides: java-%{javaver}-devel = %{version}
-Provides: java-devel-%{origin} = %{version}
-Provides: java-devel = %{javaver}
-# java-gcj-compat devel provides
-Provides: java-gcj-compat-devel = 1.0.79
-Provides: java-1.4.2-gcj-compat-devel > 1.4.2.0-40jpp.111
-
-Obsoletes: java-1.4.2-gcj-compat-devel <= 1.4.2.0-40jpp.111
-
-%description -n java-%{javaver}-gcj-devel
-This package installs directory structures, shell scripts and symbolic
-links to simulate a JPackage-compatible development environment with
-GCJ.
-
-%package -n java-%{javaver}-gcj-src
-Summary: Source files for libgcj
-Group:   Development/Libraries
-
-Requires:       java-%{javaver}-gcj = %{version}-%{release}
-Requires:       libgcj-src = %{version}
-# post requires gij to retrieve gcc version
-Requires(post): %{_bindir}/gij
-
-# java-gcj-compat src provides
-Provides: java-1.4.2-gcj-compat-src > 1.4.2.0-40jpp.111
-
-Obsoletes: java-1.4.2-gcj-compat-src <= 1.4.2.0-40jpp.111
-
-%description -n java-%{javaver}-gcj-src
-This package installs a src.zip symbolic link that points to a
-specific version of the libgcj sources.
-
-%if ! %{bootstrap_java}
-%package -n java-%{javaver}-gcj-javadoc
-Summary: API documentation for libgcj
-Group:   Documentation
-
-# require base package
-Requires: java-%{javaver}-gcj = %{version}-%{release}
-
-# standard JPackage javadoc provides
-Provides: java-javadoc = %{version}-%{release}
-Provides: java-%{javaver}-javadoc = %{version}-%{release}
-# java-gcj-compat javadoc provides
-Provides: java-1.4.2-gcj-compat-javadoc > 1.4.2.0-40jpp.111
-
-Obsoletes: java-1.4.2-gcj-compat-javadoc <= 1.4.2.0-40jpp.111
-Obsoletes: gnu-crypto-javadoc <= 2.1.0-2jpp.1
-
-%description -n java-%{javaver}-gcj-javadoc
-This package installs Javadoc API documentation for libgcj.
-%endif
-
 %package -n cpp
 Summary: The C Preprocessor
 Group: Development/Languages
@@ -626,10 +436,8 @@ which are required to compile with the GNAT.
 %patch22 -p0 -b .raw-string~
 %patch24 -p0 -b .atom~
 %patch26 -p0 -b .power7~
-%patch27 -p0 -b .power7-2~
 %patch28 -p0 -b .pr38757~
 #%patch30 -p0 -b .pr39543~
-%patch31 -p0 -b .libjava-i386~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -756,7 +564,6 @@ case "$OPT_FLAGS" in
       ../gcc/Makefile.in
     ;;
 esac
-
 CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" \
 	GCJFLAGS="$OPT_FLAGS" \
 	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
@@ -772,11 +579,8 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--disable-libgcj \
 %else
 	--enable-java-awt=gtk --disable-dssi --enable-plugin \
-	--with-java-home=%{_prefix}/lib/jvm/%{javadirname}/jre \
-	--enable-libgcj-multifile --enable-java-home --enable-aot-compile-rpm \
-	--with-jvm-root-dir=\${prefix}/lib/jvm/%{javadirname} \
-	--with-jvm-jar-dir=\${prefix}/lib/jvm-exports/%{javadirname} \
-	--with-python-dir=%{python_sitelib} \
+	--with-java-home=%{_prefix}/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre \
+	--enable-libgcj-multifile \
 %if !%{bootstrap_java}
 	--enable-java-maintainer-mode \
 %endif
@@ -1305,126 +1109,6 @@ chmod 755 $RPM_BUILD_ROOT%{_prefix}/share/java/gcj-endorsed \
 	  $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gcj-%{version} \
 	  $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 touch $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gcj-%{version}/classmap.db
-
-# versionless symbolic links
-pushd $RPM_BUILD_ROOT%{_jvmdir}
-   ln -s %{jredir} %{jrelnk}
-   ln -s %{sdkdir} %{sdklnk}
-popd
-pushd $RPM_BUILD_ROOT%{_jvmjardir}
-   ln -s %{sdkdir} %{jrelnk}
-   ln -s %{sdkdir} %{sdklnk}
-popd
-
-# create relevant links in jre lib dir for backwards compatibility
-pushd $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib
-for jarname in jaas jce jdbc-stdext jndi jndi-cos jndi-dns \
-    jndi-ldap jndi-rmi jsse sasl; do
-    ln -sf rt.jar $jarname.jar;
-done
-popd
-
-# security directory and provider list
-install -dm 755 $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/security
-pushd $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/security
-  RELATIVE=$(%{abs2rel} %{_prefix}/%{_lib}/security \
-    %{_jvmdir}/%{jredir}/lib/security)
-  ln -sf $RELATIVE/classpath.security java.security
-popd
-# default security providers, provided by libgcj
-install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/java/security/security.d
-for provider in \
-  1000-gnu.java.security.provider.Gnu \
-  1001-gnu.javax.crypto.jce.GnuCrypto \
-  1002-gnu.javax.crypto.jce.GnuSasl \
-  1003-gnu.javax.net.ssl.provider.Jessie \
-  1004-gnu.javax.security.auth.callback.GnuCallbacks
-do
-  cat > $RPM_BUILD_ROOT%{_sysconfdir}/java/security/security.d/$provider << EOF
-# This file's contents are ignored.  Its name, of the form
-# <priority>-<provider name>, is used by post and postun scripts to
-# rebuild the list of security providers in libgcj's
-# classpath.security file.
-EOF
-
-done
-# cacerts
-%{__perl} %{SOURCE5}
-install -m 644 cacerts $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/security
-
-# classmap database directory
-install -dm 755 $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gcj
-
-# set up ecj link
-RELATIVE=$(%{abs2rel} %{_prefix}/bin %{_jvmdir}/%{sdkdir}/bin)
-ln -sf \
-  $RELATIVE/ecj \
-  $RPM_BUILD_ROOT%{_jvmdir}/%{sdkdir}/bin/javac
-
-# source zip
-RELATIVE=$(%{abs2rel} %{_javadir} %{_jvmdir}/%{sdkdir})
-ln -s \
-  $RELATIVE/src-%{version}.zip \
-  $RPM_BUILD_ROOT%{_jvmdir}/%{sdkdir}/src.zip
-
-#use fastjar instead of gjar
-RELATIVE=$(%{abs2rel} %{_prefix}/bin %{_jvmdir}/%{sdkdir}/bin)
-ln -sf \
-  $RELATIVE/fastjar \
-  $RPM_BUILD_ROOT%{_jvmdir}/%{sdkdir}/bin/jar
-
-# use sinjdoc if not bootstrapping
-%if ! %{bootstrap_java}
-ln -sf \
-  $RELATIVE/sinjdoc \
-  $RPM_BUILD_ROOT%{_jvmdir}/%{sdkdir}/bin/javadoc
-%endif
-
-# arch dir for x86_64 should be x86_64, with amd64 being a link (to keep the 
-# package backwards compatible)
-%ifarch x86_64
-if [ -d $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/amd64 ]; then
-
-  mv $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/amd64 \
-     $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/x86_64
-
-  ln -s x86_64 $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/amd64
-fi
-%endif
-
-%if ! %{bootstrap_java}
-# build and install API documentation
-install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/java-%{javaver}-gcj
-pushd $RPM_BUILD_ROOT%{_javadocdir}
-  ln -s java-%{javaver}-gcj java
-popd
-rm -rf docsbuild
-mkdir docsbuild
-pushd docsbuild
-  echo ==== CHECK ZIP ====
-  unzip -tq $RPM_BUILD_ROOT/usr/share/java/src-%{version}.zip || :
-  echo ==== END CHECK ZIP ====
-  if unzip -tq /usr/share/java/src-%{version}.zip
-  then
-    fastjar xvf /usr/share/java/src-%{version}.zip
-    rm -rf gnu
-    find ./ -name \*.java | xargs -n 1 dirname | sort | uniq \
-      | sed -e "s/\.\///" | sed -e "s/\//\./" \
-      | sed -e "s/\//\./" | sed -e "s/\//\./" \
-      | sed -e "s/\//\./" | sed -e "s/\//\./" \
-      | xargs %{_jvmdir}/java-openjdk/bin/javadoc -quiet \
-      -d $RPM_BUILD_ROOT%{_javadocdir}/%{name} \
-      -encoding UTF-8 -breakiterator \
-      -linksource -splitindex -doctitle "GNU libgcj %{version}" \
-      -windowtitle "GNU libgcj %{version} Documentation"
-  else
-    # Work around https://bugzilla.redhat.com/show_bug.cgi?id=404981
-    touch $RPM_BUILD_ROOT%{_javadocdir}/%{name}/package-list
-  fi
-popd
-%endif
-
-
 %endif
 
 install -m644 %{SOURCE3} $RPM_BUILD_ROOT%{_mandir}/man1/protoize.1
@@ -1521,128 +1205,6 @@ if [ $1 = 0 ]; then
 fi
 
 %postun -n libgcj -p /sbin/ldconfig
-
-%post -n java-%{javaver}-gcj
-alternatives \
-  --install %{_bindir}/java java %{jrebindir}/java %{priority} \
-  --slave %{_jvmdir}/jre          jre          %{_jvmdir}/%{jrelnk} \
-  --slave %{_jvmjardir}/jre       jre_exports  %{_jvmjardir}/%{jrelnk} \
-  --slave %{_bindir}/keytool      keytool      %{jrebindir}/keytool \
-  --slave %{_bindir}/rmiregistry  rmiregistry  %{jrebindir}/rmiregistry
-
-alternatives \
-  --install %{_jvmdir}/jre-%{origin} \
-  jre_%{origin} %{_jvmdir}/%{jrelnk} %{priority} \
-  --slave %{_jvmjardir}/jre-%{origin} \
-  jre_%{origin}_exports %{_jvmjardir}/%{jrelnk}
-
-alternatives \
-  --install %{_jvmdir}/jre-%{javaver} \
-  jre_%{javaver} %{_jvmdir}/%{jrelnk} %{priority} \
-  --slave %{_jvmjardir}/jre-%{javaver} \
-  jre_%{javaver}_exports %{_jvmjardir}/%{jrelnk}
-
-alternatives --install %{_javadir}/jaxp_parser_impl.jar \
-  jaxp_parser_impl %{_javadir}/libgcj-%{version}.jar 20
-
-{
-  # Rebuild the list of security providers in classpath.security.
-  # This used to be a standalone script, rebuild-security-providers,
-  # provided by the Fedora version of jpackage-utils.  Now it is
-  # inlined here and removed from Fedora's jpackage-utils for
-  # compatibility with jpackage.org's jpackage-utils.  See:
-  # https://bugzilla.redhat.com/show_bug.cgi?id=260161
-  suffix=security/classpath.security
-  secfiles="/usr/lib/$suffix /usr/lib64/$suffix"
-
-  for secfile in $secfiles
-  do
-    # check if this classpath.security file exists
-    [ -f "$secfile" ] || continue
-
-    sed -i '/^security\.provider\./d' "$secfile"
-
-    count=0
-    for provider in $(ls /etc/java/security/security.d)
-    do
-      count=$((count + 1))
-      echo "security.provider.${count}=${provider#*-}" >> "$secfile"
-    done
-  done
-} || :
-
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
-
-%postun -n java-%{javaver}-gcj
-if [ $1 -eq 0 ]
-then
-  alternatives --remove java %{jrebindir}/java
-  alternatives --remove jre_%{origin} %{_jvmdir}/%{jrelnk}
-  alternatives --remove jre_%{javaver} %{_jvmdir}/%{jrelnk}
-  alternatives --remove jaxp_parser_impl \
-    %{_javadir}/libgcj-%{version}.jar
-fi
-
-{
-  # Rebuild the list of security providers in classpath.security
-  suffix=security/classpath.security
-  secfiles="/usr/lib/$suffix /usr/lib64/$suffix"
-
-  for secfile in $secfiles
-  do
-    # check if this classpath.security file exists
-    [ -f "$secfile" ] || continue
-
-    sed -i '/^security\.provider\./d' "$secfile"
-
-    count=0
-    for provider in $(ls /etc/java/security/security.d)
-    do
-      count=$((count + 1))
-      echo "security.provider.${count}=${provider#*-}" >> "$secfile"
-    done
-  done
-} || :
-
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
-
-%post -n java-%{javaver}-gcj-devel
-alternatives \
-  --install %{_bindir}/javac javac %{sdkbindir}/javac %{priority} \
-  --slave %{_jvmdir}/java         java_sdk          %{_jvmdir}/%{sdklnk} \
-  --slave %{_jvmjardir}/java      java_sdk_exports  %{_jvmjardir}/%{sdklnk} \
-  --slave %{_bindir}/javadoc      javadoc           %{sdkbindir}/javadoc \
-  --slave %{_bindir}/javah        javah             %{sdkbindir}/javah \
-  --slave %{_bindir}/jar          jar               %{sdkbindir}/jar \
-  --slave %{_bindir}/jarsigner    jarsigner         %{sdkbindir}/jarsigner \
-  --slave %{_bindir}/appletviewer appletviewer      %{sdkbindir}/appletviewer \
-  --slave %{_bindir}/rmic         rmic              %{sdkbindir}/rmic
-
-alternatives \
-  --install %{_jvmdir}/java-%{origin} \
-  java_sdk_%{origin} %{_jvmdir}/%{sdklnk} %{priority} \
-  --slave %{_jvmjardir}/java-%{origin} \
-  java_sdk_%{origin}_exports %{_jvmjardir}/%{sdklnk}
-
-alternatives \
-  --install %{_jvmdir}/java-%{javaver} \
-  java_sdk_%{javaver} %{_jvmdir}/%{sdklnk} %{priority} \
-  --slave %{_jvmjardir}/java-%{javaver} \
-  java_sdk_%{javaver}_exports %{_jvmjardir}/%{sdklnk}
-
-%postun -n java-%{javaver}-gcj-devel
-if [ $1 -eq 0 ]
-then
-  alternatives --remove javac %{sdkbindir}/javac
-  alternatives --remove java_sdk_%{origin} %{_jvmdir}/%{sdklnk}
-  alternatives --remove java_sdk_%{javaver} %{_jvmdir}/%{sdklnk}
-fi
 
 %post -n libgfortran -p /sbin/ldconfig
 
@@ -2093,137 +1655,6 @@ fi
 %dir %{_prefix}/share/java
 %{_prefix}/share/java/src*.zip
 %{_prefix}/share/java/libgcj-tools-%{version}.jar
-
-%files -n java-%{javaver}-gcj
-%defattr(-,root,root,-)
-%dir %{_jvmdir}/%{sdkdir}
-%dir %{_jvmdir}/%{jredir}
-%dir %{_jvmdir}/%{jredir}/bin
-%dir %{_jvmdir}/%{jredir}/lib
-%dir %{_jvmdir}/%{jredir}/lib/%{_arch}
-%dir %{_jvmdir}/%{jredir}/lib/%{_arch}/client
-%dir %{_jvmdir}/%{jredir}/lib/%{_arch}/server
-%dir %{_jvmdir}/%{jredir}/lib/security
-%dir %{jvmjardir}
-%dir %{_prefix}/%{_lib}/gcj
-%{_bindir}/rebuild-gcj-db
-%{_jvmdir}/%{jredir}/bin/java
-%{_jvmdir}/%{jredir}/bin/keytool
-%{_jvmdir}/%{jredir}/bin/rmiregistry
-%{_jvmdir}/%{jredir}/bin/orbd
-%{_jvmdir}/%{jredir}/bin/rmid
-%{_jvmdir}/%{jredir}/bin/tnameserv
-%{_jvmdir}/%{jredir}/lib/security/cacerts
-%{_jvmdir}/%{jredir}/lib/security/java.security
-%{_jvmdir}/%{jredir}/lib/jaas.jar
-%{_jvmdir}/%{jredir}/lib/jce.jar
-%{_jvmdir}/%{jredir}/lib/jdbc-stdext.jar
-%{_jvmdir}/%{jredir}/lib/jndi-cos.jar
-%{_jvmdir}/%{jredir}/lib/jndi-dns.jar
-%{_jvmdir}/%{jredir}/lib/jndi-ldap.jar
-%{_jvmdir}/%{jredir}/lib/jndi-rmi.jar
-%{_jvmdir}/%{jredir}/lib/jndi.jar
-%{_jvmdir}/%{jredir}/lib/jsse.jar
-%{_jvmdir}/%{jredir}/lib/sasl.jar
-%ifarch x86_64
-%{_jvmdir}/%{jredir}/lib/amd64
-%endif
-%{_jvmdir}/%{jrelnk}
-%{jvmjardir}/jaas.jar
-%{jvmjardir}/jaas-%{javaver}.jar
-%{jvmjardir}/jaas-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jce.jar
-%{jvmjardir}/jce-%{javaver}.jar
-%{jvmjardir}/jce-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jdbc-stdext.jar
-%{jvmjardir}/jdbc-stdext-%{javaver}.jar
-%{jvmjardir}/jdbc-stdext-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jndi.jar
-%{jvmjardir}/jndi-%{javaver}.jar
-%{jvmjardir}/jndi-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jndi-cos.jar
-%{jvmjardir}/jndi-cos-%{javaver}.jar
-%{jvmjardir}/jndi-cos-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jndi-dns.jar
-%{jvmjardir}/jndi-dns-%{javaver}.jar
-%{jvmjardir}/jndi-dns-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jndi-ldap.jar
-%{jvmjardir}/jndi-ldap-%{javaver}.jar
-%{jvmjardir}/jndi-ldap-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jndi-rmi.jar
-%{jvmjardir}/jndi-rmi-%{javaver}.jar
-%{jvmjardir}/jndi-rmi-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/jsse.jar
-%{jvmjardir}/jsse-%{javaver}.jar
-%{jvmjardir}/jsse-%{javaver}.%{javabuildver}.jar
-%{jvmjardir}/sasl.jar
-%{jvmjardir}/sasl-%{javaver}.jar
-%{jvmjardir}/sasl-%{javaver}.%{javabuildver}.jar
-%{_jvmjardir}/%{jrelnk}
-%{_jvmdir}/%{sdkdir}/jre/lib/rt.jar
-%{_jvmdir}/%{jredir}/lib/%{_arch}/libjawt.so
-%{_jvmdir}/%{jredir}/lib/%{_arch}/client/libjvm.so
-%{_jvmdir}/%{jredir}/lib/%{_arch}/server/libjvm.so
-# These must not be marked %config(noreplace).  Their file names are
-# used in post and postun.  Their contents are ignored, so replacing
-# them doesn't matter.  .rpmnew files are harmful since they're
-# interpreted by post and postun as classnames ending in rpmnew.
-%{_sysconfdir}/java/security/security.d/1000-gnu.java.security.provider.Gnu
-%{_sysconfdir}/java/security/security.d/1001-gnu.javax.crypto.jce.GnuCrypto
-%{_sysconfdir}/java/security/security.d/1002-gnu.javax.crypto.jce.GnuSasl
-%{_sysconfdir}/java/security/security.d/1003-gnu.javax.net.ssl.provider.Jessie
-%{_sysconfdir}/java/security/security.d/1004-gnu.javax.security.auth.callback.GnuCallbacks
-
-%files -n java-%{javaver}-gcj-devel
-%defattr(-,root,root,-)
-%dir %{_jvmdir}/%{sdkdir}/bin
-%dir %{_jvmdir}/%{sdkdir}/include
-%dir %{_jvmdir}/%{sdkdir}/include/linux
-%dir %{_jvmdir}/%{sdkdir}/lib
-%{_bindir}/aot-compile
-%{_bindir}/aot-compile-rpm
-%{_prefix}/%{python_sitelib}/aotcompile.py*
-%{_prefix}/%{python_sitelib}/classfile.py*
-%{_jvmdir}/%{sdkdir}/bin/appletviewer
-%{_jvmdir}/%{sdkdir}/bin/jar
-%{_jvmdir}/%{sdkdir}/bin/jarsigner
-%{_jvmdir}/%{sdkdir}/bin/java
-%{_jvmdir}/%{sdkdir}/bin/javac
-%{_jvmdir}/%{sdkdir}/bin/javadoc
-%{_jvmdir}/%{sdkdir}/bin/javah
-%{_jvmdir}/%{sdkdir}/bin/keytool
-%{_jvmdir}/%{sdkdir}/bin/native2ascii
-%{_jvmdir}/%{sdkdir}/bin/orbd
-%{_jvmdir}/%{sdkdir}/bin/rmic
-%{_jvmdir}/%{sdkdir}/bin/rmid
-%{_jvmdir}/%{sdkdir}/bin/rmiregistry
-%{_jvmdir}/%{sdkdir}/bin/serialver
-%{_jvmdir}/%{sdkdir}/bin/tnameserv
-%{_jvmdir}/%{sdklnk}
-%{_jvmjardir}/%{sdklnk}
-%{_jvmdir}/%{sdkdir}/include/jawt.h
-%{_jvmdir}/%{sdkdir}/include/jni.h
-%{_jvmdir}/%{sdkdir}/include/linux/jawt_md.h
-%{_jvmdir}/%{sdkdir}/include/linux/jni_md.h
-%{_jvmdir}/%{sdkdir}/lib/tools.jar
-
-%files -n java-%{javaver}-gcj-src
-%defattr(-,root,root,-)
-%{_jvmdir}/%{sdkdir}/src.zip
-
-%if ! %{bootstrap_java}
-%files -n java-%{javaver}-gcj-javadoc
-%defattr(-,root,root,-)
-%doc %{_javadocdir}/java-%{javaver}-gcj
-# A JPackage that "provides" this directory will, in its %post script,
-# remove the existing directory and install a new symbolic link to its
-# versioned directory.  For Fedora we want clear file ownership so we
-# make java-1.5.0-gcj-javadoc own this file.  Installing the
-# corresponding JPackage over java-1.5.0-gcj-javadoc will work but
-# will invalidate this file.
-%doc %{_javadocdir}/java
-%endif
-
 %endif
 
 %if %{build_ada}
@@ -2317,8 +1748,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
-* Fri Apr 10 2009 Deepak Bhole <dbhole@redhat.com> 4.4.0-0.33
-- create new java-1.5.0-gcj* packages to install JPackage compliant links
+* Tue Apr 14 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.34
+- update from gcc-4_4-branch
+  - GCC 4.4.0-rc1
+  - license changes to GPLv3+ with GCC Runtime Exception for most of the
+    lib* files
+  - PRs c++/28301, c++/39480, c++/39742, c++/39750, c/39613, c/39614, c/39673,
+	libobjc/36610, target/39740, testsuite/35621, tree-optimization/39713
 
 * Thu Apr  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.32
 - update from gcc-4_4-branch
