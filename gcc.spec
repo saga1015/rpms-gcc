@@ -150,6 +150,7 @@ Patch24: gcc44-atom.patch
 Patch26: gcc44-power7.patch
 Patch28: gcc44-pr38757.patch
 Patch30: gcc44-pr39543.patch
+Patch31: gcc44-pr39763.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -438,6 +439,7 @@ which are required to compile with the GNAT.
 %patch26 -p0 -b .power7~
 %patch28 -p0 -b .pr38757~
 #%patch30 -p0 -b .pr39543~
+%patch31 -p0 -b .pr39763~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1755,6 +1757,7 @@ fi
     lib* files
   - PRs c++/28301, c++/39480, c++/39742, c++/39750, c/39613, c/39614, c/39673,
 	libobjc/36610, target/39740, testsuite/35621, tree-optimization/39713
+- fix another -Wshadow C++ issue (PR c++/39763)
 
 * Thu Apr  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-0.32
 - update from gcc-4_4-branch
