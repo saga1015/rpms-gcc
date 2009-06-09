@@ -1,9 +1,9 @@
-%global DATE 20090514
-%global SVNREV 147523
+%global DATE 20090609
+%global SVNREV 148308
 %global gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -157,9 +157,13 @@ Patch25: gcc44-power7.patch
 Patch26: gcc44-power7-2.patch
 Patch27: gcc44-power7-3.patch
 Patch28: gcc44-pr38757.patch
-Patch29: gcc44-pr39856.patch
-Patch30: gcc44-libstdc++-docs.patch
-Patch31: gcc44-pr39942.patch
+Patch29: gcc44-libstdc++-docs.patch
+Patch30: gcc44-atom-mnative.patch
+Patch31: gcc44-atom-movbe.patch
+Patch32: gcc44-ix86-insn-length.patch
+Patch33: gcc44-builtin-object-size.patch
+Patch34: gcc44-epilogue-unwind.patch
+Patch35: gcc44-unwind-debug-hook.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -464,11 +468,15 @@ which are required to compile with the GNAT.
 %patch26 -p0 -b .power7-2~
 %patch27 -p0 -b .power7-3~
 %patch28 -p0 -b .pr38757~
-%patch29 -p0 -b .pr39856~
 %if %{build_libstdcxx_docs}
-%patch30 -p0 -b .libstdc++-docs~
+%patch29 -p0 -b .libstdc++-docs~
 %endif
-%patch31 -p0 -b .pr39942~
+%patch30 -p0 -b .atom-mnative~
+%patch31 -p0 -b .atom-movbe~
+%patch32 -p0 -b .ix86-insn-length~
+%patch33 -p0 -b .builtin-object-size~
+%patch34 -p0 -b .epilogue-unwind~
+%patch35 -p0 -b .unwind-debug-hook~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1803,6 +1811,29 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jun  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-7
+- update from gcc-4_4-branch
+  - PRs ada/40166, bootstrap/40027, c++/38064, c++/39754, c++/40007,
+	c++/40139, c/40172, c++/40306, c++/40307, c++/40308, c++/40311,
+	c++/40370, c++/40372, c++/40373, debug/40109, fortran/22423,
+	fortran/38654, fortran/39893, fortran/40019, fortran/40195,
+	libfortran/25561, libfortran/37754, libfortran/38668,
+	libfortran/39665, libfortran/39667, libfortran/39702,
+	libfortran/39709, libfortran/39782, libfortran/40334,
+	libgfortran/39664, libgomp/40174, libstdc++/36211, libstdc++/40192,
+	libstdc++/40296, libstdc++/40299, middle-end/32950, middle-end/40147,
+	middle-end/40204, middle-end/40233, middle-end/40252,
+	middle-end/40291, middle-end/40328, middle-end/40340,
+	rtl-optimization/40105, target/40017, target/40153, target/40266,
+	testsuite/39907, tree-optimization/39999, tree-optimization/40087,
+	tree-optimization/40238, tree-optimization/40254
+- support Atom for -march=native
+- add -mmovbe support for Atom
+- improve ix86 instruction length computation, remove some unneeded padding
+- -D_FORTIFY_SOURCE improvements
+- emit accurate epilogue unwinding information
+- add unwind debug hook for gdb
+
 * Thu May 14 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-5
 - update from gcc-4_4-branch
   - PRs c++/17395, c/39983, fortran/38863, fortran/38956, fortran/39879,
