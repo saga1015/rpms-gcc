@@ -359,6 +359,49 @@
  }
  
  #ifdef HAVE_ATTR_length
+--- gcc/config/i386/i386.h.jj	2009-06-09 17:54:57.000000000 +0200
++++ gcc/config/i386/i386.h	2009-06-09 11:20:00.000000000 +0200
+@@ -2209,6 +2210,22 @@ do {									\
+ #define ASM_OUTPUT_OPCODE(STREAM, PTR) \
+   ASM_OUTPUT_AVX_PREFIX ((STREAM), (PTR))
+ 
++/* A C statement to output to the stdio stream FILE an assembler
++   command to pad the location counter to a multiple of 1<<LOG
++   bytes if it is within MAX_SKIP bytes.  */
++
++#ifdef HAVE_GAS_MAX_SKIP_P2ALIGN
++#undef  ASM_OUTPUT_MAX_SKIP_PAD
++#define ASM_OUTPUT_MAX_SKIP_PAD(FILE, LOG, MAX_SKIP)			\
++  if ((LOG) != 0)							\
++    {									\
++      if ((MAX_SKIP) == 0)						\
++        fprintf ((FILE), "\t.p2align %d\n", (LOG));			\
++      else								\
++        fprintf ((FILE), "\t.p2align %d,,%d\n", (LOG), (MAX_SKIP));	\
++    }
++#endif
++
+ /* Under some conditions we need jump tables in the text section,
+    because the assembler cannot handle label differences between
+    sections.  This is the case for x86_64 on Mach-O for example.  */
+--- gcc/config/i386/x86-64.h	(revision 147670)
++++ gcc/config/i386/x86-64.h	(revision 147671)
+@@ -81,6 +81,15 @@ see the files COPYING3 and COPYING.RUNTI
+       }									\
+     }									\
+   } while (0)
++#undef  ASM_OUTPUT_MAX_SKIP_PAD
++#define ASM_OUTPUT_MAX_SKIP_PAD(FILE, LOG, MAX_SKIP)			\
++  if ((LOG) != 0)							\
++    {									\
++      if ((MAX_SKIP) == 0)						\
++        fprintf ((FILE), "\t.p2align %d\n", (LOG));			\
++      else								\
++        fprintf ((FILE), "\t.p2align %d,,%d\n", (LOG), (MAX_SKIP));	\
++    }
+ #endif
+ 
+ 
 --- gcc/config/i386/i386.c.jj	2009-06-09 10:24:35.000000000 +0200
 +++ gcc/config/i386/i386.c	2009-06-09 12:10:01.000000000 +0200
 @@ -8884,6 +8884,10 @@ ix86_decompose_address (rtx addr, struct
@@ -4611,6 +4654,27 @@
     (set_attr "atom_unit" "jeu")
     (set_attr "length_immediate" "0")
     (set_attr "prefix_rep" "1")
+@@ -15317,16 +15682,16 @@ (define_insn "nop"
+    (set_attr "length_immediate" "0")
+    (set_attr "modrm" "0")])
+ 
+-;; Align to 16-byte boundary, max skip in op0.  Used to avoid
++;; Pad to 16-byte boundary, max skip in op0.  Used to avoid
+ ;; branch prediction penalty for the third jump in a 16-byte
+ ;; block on K8.
+ 
+-(define_insn "align"
++(define_insn "pad"
+   [(unspec_volatile [(match_operand 0 "" "")] UNSPECV_ALIGN)]
+   ""
+ {
+-#ifdef ASM_OUTPUT_MAX_SKIP_ALIGN
+-  ASM_OUTPUT_MAX_SKIP_ALIGN (asm_out_file, 4, (int)INTVAL (operands[0]));
++#ifdef ASM_OUTPUT_MAX_SKIP_PAD
++  ASM_OUTPUT_MAX_SKIP_PAD (asm_out_file, 4, (int)INTVAL (operands[0]));
+ #else
+   /* It is tempting to use ASM_OUTPUT_ALIGN here, but we don't want to do that.
+      The align insn is used to avoid 3 jump instructions in the row to improve
 @@ -15367,7 +15732,8 @@ (define_insn "set_got_rex64"
    "TARGET_64BIT"
    "lea{q}\t{_GLOBAL_OFFSET_TABLE_(%%rip), %0|%0, _GLOBAL_OFFSET_TABLE_[rip]}"
