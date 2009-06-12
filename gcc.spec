@@ -1,9 +1,9 @@
-%global DATE 20090609
-%global SVNREV 148308
+%global DATE 20090612
+%global SVNREV 148427
 %global gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -152,18 +152,12 @@ Patch16: gcc44-libgomp-omp_h-multilib.patch
 Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
-Patch24: gcc44-atom.patch
+Patch24: gcc44-unwind-debug-hook.patch
 Patch25: gcc44-power7.patch
 Patch26: gcc44-power7-2.patch
 Patch27: gcc44-power7-3.patch
 Patch28: gcc44-pr38757.patch
 Patch29: gcc44-libstdc++-docs.patch
-Patch30: gcc44-atom-mnative.patch
-Patch31: gcc44-atom-movbe.patch
-Patch32: gcc44-ix86-insn-length.patch
-Patch33: gcc44-builtin-object-size.patch
-Patch34: gcc44-epilogue-unwind.patch
-Patch35: gcc44-unwind-debug-hook.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -463,7 +457,7 @@ which are required to compile with the GNAT.
 %patch21 -p0 -b .cloog-dl~
 %endif
 %patch22 -p0 -b .raw-string~
-%patch24 -p0 -b .atom~
+%patch24 -p0 -b .unwind-debug-hook~
 %patch25 -p0 -b .power7~
 %patch26 -p0 -b .power7-2~
 %patch27 -p0 -b .power7-3~
@@ -471,12 +465,6 @@ which are required to compile with the GNAT.
 %if %{build_libstdcxx_docs}
 %patch29 -p0 -b .libstdc++-docs~
 %endif
-%patch30 -p0 -b .atom-mnative~
-%patch31 -p0 -b .atom-movbe~
-%patch32 -p0 -b .ix86-insn-length~
-%patch33 -p0 -b .builtin-object-size~
-%patch34 -p0 -b .epilogue-unwind~
-%patch35 -p0 -b .unwind-debug-hook~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1811,6 +1799,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Jun 12 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-8
+- update from gcc-4_4-branch
+  - PRs c++/40381, libfortran/40330
+- add -mcrc32 support on ix86
+- support -gdwarf-3 and default to it, emit DW_OP_call_frame_cfa
+- fix up ix86 padding for branch mispredicts
+- improve .debug_loc generation
+
 * Tue Jun  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-7
 - update from gcc-4_4-branch
   - PRs ada/40166, bootstrap/40027, c++/38064, c++/39754, c++/40007,
