@@ -480,6 +480,10 @@ tar xjf %{SOURCE10}
 sed -i -e 's/4\.4\.1/4.4.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
+# Default to -gdwarf-3 rather than -gdwarf-2
+sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
+sed -i 's/\(may be either 2 or 3; the default version is \)2\./\13./' gcc/doc/invoke.texi
+
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
 # Hack to avoid building multilib libjava
