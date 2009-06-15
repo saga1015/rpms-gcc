@@ -1,9 +1,9 @@
-%global DATE 20090612
-%global SVNREV 148427
+%global DATE 20090615
+%global SVNREV 148501
 %global gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 8
+%global gcc_release 9
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -158,6 +158,7 @@ Patch26: gcc44-power7-2.patch
 Patch27: gcc44-power7-3.patch
 Patch28: gcc44-pr38757.patch
 Patch29: gcc44-libstdc++-docs.patch
+Patch30: gcc44-rh506099.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -465,6 +466,7 @@ which are required to compile with the GNAT.
 %if %{build_libstdcxx_docs}
 %patch29 -p0 -b .libstdc++-docs~
 %endif
+%patch30 -p0 -b .rh506099~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1803,6 +1805,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Mon Jun 15 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-9
+- update from gcc-4_4-branch
+  - PR fortran/40168
+- fix up debug.exp testsuite (PR testsuite/40426)
+- fix up a pasto in recent -D_FORTIFY_SOURCE changes (#506099)
+
 * Fri Jun 12 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-8
 - update from gcc-4_4-branch
   - PRs c++/40381, libfortran/40330
