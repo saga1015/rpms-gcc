@@ -1,5 +1,5 @@
-%global DATE 20090615
-%global SVNREV 148501
+%global DATE 20090623
+%global SVNREV 148856
 %global gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
@@ -158,7 +158,8 @@ Patch26: gcc44-power7-2.patch
 Patch27: gcc44-power7-3.patch
 Patch28: gcc44-pr38757.patch
 Patch29: gcc44-libstdc++-docs.patch
-Patch30: gcc44-rh506099.patch
+Patch30: gcc44-rh503816-1.patch
+Patch31: gcc44-rh503816-2.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -466,7 +467,8 @@ which are required to compile with the GNAT.
 %if %{build_libstdcxx_docs}
 %patch29 -p0 -b .libstdc++-docs~
 %endif
-%patch30 -p0 -b .rh506099~
+%patch30 -p0 -b .rh503816-1~
+%patch31 -p0 -b .rh503816-2~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1805,6 +1807,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jun 23 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-10
+- update from gcc-4_4-branch
+  - PRs fortran/39800, fortran/40402, libstdc++/40497, middle-end/40389,
+	middle-end/40404, middle-end/40446, middle-end/40460, objc/28050,
+	target/40470, tree-optimization/40492
+- decrease memory consumption and speed up var-tracking pass (#503816)
+- __builtin_object_size fix for C++ (#506952)
+
 * Mon Jun 15 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-9
 - update from gcc-4_4-branch
   - PR fortran/40168
