@@ -1,9 +1,9 @@
-%global DATE 20090623
-%global SVNREV 148856
+%global DATE 20090707
+%global SVNREV 149339
 %global gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 10
+%global gcc_release 11
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -1807,6 +1807,23 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Jul  7 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-11
+- update from gcc-4_4-branch
+  - PRs c++/40274, c++/40342, c++/40566, c++/40595, c++/40619, c/39902,
+	fortran/40443, fortran/40551, fortran/40576, fortran/40594,
+	fortran/40638, libfortran/40576, libstdc++/40297, libstdc++/40600,
+	middle-end/40585, middle-end/40669, other/40024, target/40587,
+	tree-optimization/40493, tree-optimization/40542,
+	tree-optimization/40550, tree-optimization/40579,
+	tree-optimization/40582, tree-optimization/40640
+- backports from trunk
+  - fix debuginfo in dynamically realigned functions (PR debug/40596)
+  - speed up polyhedron NF (PR middle-end/34163)
+  - epilogue unwinding fixes (PRs bootstrap/40347, debug/40462)
+  - fix debug info for inlines (PR debug/40573)
+  - optimize assuming allocatable arrays in the innermost
+    dimension are always stride 1 (PR fortran/32131)
+
 * Tue Jun 23 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-10
 - update from gcc-4_4-branch
   - PRs fortran/39800, fortran/40402, libstdc++/40497, middle-end/40389,
