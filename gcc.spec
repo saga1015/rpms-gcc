@@ -1,9 +1,9 @@
-%global DATE 20090707
-%global SVNREV 149339
+%global DATE 20090708
+%global SVNREV 149391
 %global gcc_version 4.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 11
+%global gcc_release 12
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -1807,6 +1807,12 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jul  8 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-12
+- update from gcc-4_4-branch
+  - PRs c++/35828, c++/37816, c++/37946, c++/40557, c++/40633, c++/40639,
+	debug/40666, target/38900
+- use more compact DW_AT_member_location for constant offsets (PR debug/40659)
+
 * Tue Jul  7 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-11
 - update from gcc-4_4-branch
   - PRs c++/40274, c++/40342, c++/40566, c++/40595, c++/40619, c/39902,
