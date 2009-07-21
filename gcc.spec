@@ -35,7 +35,7 @@
 %global multilib_32_arch ppc
 %endif
 %ifarch x86_64
-%global multilib_32_arch i586
+%global multilib_32_arch i686
 %endif
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
@@ -652,10 +652,10 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-tune=generic \
 %endif
 %ifarch %{ix86}
-	--with-arch=i586 \
+	--with-arch=i686 \
 %endif
 %ifarch x86_64
-	--with-arch_32=i586 \
+	--with-arch_32=i686 \
 %endif
 %ifarch s390 s390x
 	--with-arch=z9-109 --with-tune=z10 \
@@ -1818,6 +1818,8 @@ fi
   constructs (#512689, #511573)
 - vectorize unsigned int -> {float,double} conversions on x86/x86_64
   (PR target/40811)
+- update for i586.rpm -> i686.rpm switch (default to -march=i686 -mtune=generic
+  in i686.rpm gcc and also with -m32 in x86_64.rpm gcc)
 
 * Fri Jul 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-14
 - update from gcc-4_4-branch
