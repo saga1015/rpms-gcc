@@ -1,9 +1,9 @@
-%global DATE 20090721
-%global SVNREV 149860
-%global gcc_version 4.4.0
+%global DATE 20090722
+%global SVNREV 149928
+%global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 15
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -160,7 +160,6 @@ Patch28: gcc44-pr38757.patch
 Patch29: gcc44-libstdc++-docs.patch
 Patch30: gcc44-rh503816-1.patch
 Patch31: gcc44-rh503816-2.patch
-Patch32: gcc44-pr40811.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -470,7 +469,6 @@ which are required to compile with the GNAT.
 %endif
 %patch30 -p0 -b .rh503816-1~
 %patch31 -p0 -b .rh503816-2~
-%patch32 -p0 -b .pr40811~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -483,7 +481,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.4\.1/4.4.0/' gcc/BASE-VER
+sed -i -e 's/4\.4\.2/4.4.1/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 # Default to -gdwarf-3 rather than -gdwarf-2
@@ -1809,6 +1807,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jul 22 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-1
+- update from gcc-4_4-branch
+  - GCC 4.4.1 release
+
 * Tue Jul 21 2009 Jakub Jelinek <jakub@redhat.com> 4.4.0-15
 - update from gcc-4_4-branch
   - PRs libfortran/40714, target/39943, target/40809, tree-optimization/40792
