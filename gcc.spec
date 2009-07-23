@@ -1,9 +1,9 @@
-%global DATE 20090722
-%global SVNREV 149928
+%global DATE 20090723
+%global SVNREV 150015
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -64,7 +64,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils which support --hash-style=gnu >= 2.17.50.0.2-7
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
 # Need binutils which support --build-id >= 2.17.50.0.17-3
-BuildRequires: binutils >= 2.17.50.0.17-3
+# Need binutils which support %gnu_unique_object >= 2.19.51.0.14
+BuildRequires: binutils >= 2.19.51.0.14
 # While gcc doesn't include statically linked binaries, during testing
 # -static is used several times.
 BuildRequires: glibc-static
@@ -115,7 +116,8 @@ Requires: cpp = %{version}-%{release}
 # Need binutils that supports --hash-style=gnu
 # Need binutils that support mffgpr/mftgpr
 # Need binutils that support --build-id
-Requires: binutils >= 2.17.50.0.17-3
+# Need binutils which support %gnu_unique_object
+Requires: binutils >= 2.19.51.0.14
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
@@ -160,6 +162,7 @@ Patch28: gcc44-pr38757.patch
 Patch29: gcc44-libstdc++-docs.patch
 Patch30: gcc44-rh503816-1.patch
 Patch31: gcc44-rh503816-2.patch
+Patch32: gcc44-unique-object.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -469,6 +472,7 @@ which are required to compile with the GNAT.
 %endif
 %patch30 -p0 -b .rh503816-1~
 %patch31 -p0 -b .rh503816-2~
+%patch32 -p0 -b .unique-object~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1807,6 +1811,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Jul 23 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-3
+- update from gcc-4_4-branch
+  - PRs rtl-optimization/40710, target/40832, tree-optimization/40321
+- use STB_GNU_UNIQUE symbols for inline fn local statics and
+  template static data members
+- use strcmp for C++ typeinfo comparisons instead of pointer comparison
+
 * Wed Jul 22 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-1
 - update from gcc-4_4-branch
   - GCC 4.4.1 release
