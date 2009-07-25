@@ -1,5 +1,5 @@
 %global DATE 20090725
-%global SVNREV 150077
+%global SVNREV 150088
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
@@ -40,7 +40,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}.1
+Release: %{gcc_release}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+, GPLv3+ with exceptions and GPLv2+ with exceptions
