@@ -1,9 +1,9 @@
-%global DATE 20090725
-%global SVNREV 150088
+%global DATE 20090805
+%global SVNREV 150492
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -163,6 +163,8 @@ Patch29: gcc44-libstdc++-docs.patch
 Patch30: gcc44-rh503816-1.patch
 Patch31: gcc44-rh503816-2.patch
 Patch32: gcc44-unique-object.patch
+Patch33: gcc44-builtin-unreachable.patch
+Patch34: gcc44-pr40971.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -474,6 +476,8 @@ which are required to compile with the GNAT.
 %patch30 -p0 -b .rh503816-1~
 %patch31 -p0 -b .rh503816-2~
 %patch32 -p0 -b .unique-object~
+%patch33 -p0 -b .builtin-unreachable~
+%patch34 -p0 -b .pr40971~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1812,6 +1816,16 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Aug  5 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-4
+- update from gcc-4_4-branch
+  - PRs build/40010, c++/39987, c++/40749, c++/40834, c++/40948, debug/39706,
+	fortran/40822, fortran/40848, fortran/40851, fortran/40878,
+	libfortran/40853, middle-end/40943, rtl-optimization/40924,
+	target/40577, testsuite/40829, testsuite/40891,
+	tree-optimization/40570
+- backport __builtin_unreachable () support
+- fix powerpc ICE in memory_address (#515672, PR target/40971)
+
 * Sat Jul 25 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-3
 - update from gcc-4_4-branch
   - PR fortran/40727

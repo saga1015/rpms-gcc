@@ -1,0 +1,385 @@
+2009-07-25  David Daney  <ddaney@caviumnetworks.com>
+
+	PR rtl-optimization/40445
+	* emit-rtl.c (next_nonnote_insn_bb): New function.
+	* rtl.h (next_nonnote_insn_bb): Declare new function.
+	* cfgcleanup.c (try_optimize_cfg): Don't remove an empty block
+	with no successors that is the successor of the ENTRY_BLOCK.
+	Continue from the top after removing an empty fallthrough block.
+	* cfgrtl.c (get_last_bb_insn): Call next_nonnote_insn_bb instead
+	of next_nonnote_insn.
+
+	* g++.dg/other/builtin-unreachable-1.C: New testcase.
+
+2009-07-25  David Daney  <ddaney@caviumnetworks.com>
+
+	* cfgcleanup.c (old_insns_match_p): Handle the case of empty
+	blocks.
+
+	* gcc.dg/builtin-unreachable-4.c: New test.
+
+2009-06-17  David Daney  <ddaney@caviumnetworks.com>
+
+	* jump.c (cleanup_barriers): Handle case of no insns before a
+	barrier.
+
+	* gcc.dg/builtin-unreachable-3.c: New test.
+
+2009-06-17  David Daney  <ddaney@caviumnetworks.com>
+
+	* gcc.target/i386/builtin-unreachable.c: New test.
+
+2009-06-11  David Daney  <ddaney@caviumnetworks.com>
+
+	PR c/39252
+	* doc/extend.texi ( __builtin_unreachable): Document new builtin.
+	* builtins.c (expand_builtin_unreachable): New function.
+	(expand_builtin): Handle BUILT_IN_UNREACHABLE case.
+	* builtins.def (BUILT_IN_UNREACHABLE): Add new builtin.
+	* cfgcleanup.c (try_optimize_cfg): Delete empty blocks with no
+	successors.
+	* cfgrtl.c (rtl_verify_flow_info): Handle empty blocks when
+	searching for missing barriers.
+
+	* gcc.dg/builtin-unreachable-1.c: New test.
+	* gcc.dg/builtin-unreachable-2.c: Same.
+
+--- gcc/doc/extend.texi	(revision 148402)
++++ gcc/doc/extend.texi	(revision 148404)
+@@ -6815,6 +6815,61 @@ intentionally executing an illegal instr
+ you should not rely on any particular implementation.
+ @end deftypefn
+ 
++@deftypefn {Built-in Function} void __builtin_unreachable (void)
++If control flow reaches the point of the @code{__builtin_unreachable},
++the program is undefined.  It is useful in situations where the
++compiler cannot deduce the unreachability of the code.
++
++One such case is immediately following an @code{asm} statement that
++will either never terminate, or one that transfers control elsewhere
++and never returns.  In this example, without the
++@code{__builtin_unreachable}, GCC would issue a warning that control
++reaches the end of a non-void function.  It would also generate code
++to return after the @code{asm}.
++
++@smallexample
++int f (int c, int v)
++@{
++  if (c)
++    @{
++      return v;
++    @}
++  else
++    @{
++      asm("jmp error_handler");
++      __builtin_unreachable ();
++    @}
++@}
++@end smallexample
++
++Because the @code{asm} statement unconditionally transfers control out
++of the function, control will never reach the end of the function
++body.  The @code{__builtin_unreachable} is in fact unreachable and
++communicates this fact to the compiler.
++
++Another use for @code{__builtin_unreachable} is following a call a
++function that never returns but that is not declared
++@code{__attribute__((noreturn))}, as in this example:
++
++@smallexample
++void function_that_never_returns (void);
++
++int g (int c)
++@{
++  if (c)
++    @{
++      return 1;
++    @}
++  else
++    @{
++      function_that_never_returns ();
++      __builtin_unreachable ();
++    @}
++@}
++@end smallexample
++
++@end deftypefn
++
+ @deftypefn {Built-in Function} void __builtin___clear_cache (char *@var{begin}, char *@var{end})
+ This function is used to flush the processor's instruction cache for
+ the region of memory between @var{begin} inclusive and @var{end}
+--- gcc/builtins.c	(revision 148402)
++++ gcc/builtins.c	(revision 148404)
+@@ -5298,6 +5298,17 @@ expand_builtin_trap (void)
+   emit_barrier ();
+ }
+ 
++/* Expand a call to __builtin_unreachable.  We do nothing except emit
++   a barrier saying that control flow will not pass here.
++
++   It is the responsibility of the program being compiled to ensure
++   that control flow does never reach __builtin_unreachable.  */
++static void
++expand_builtin_unreachable (void)
++{
++  emit_barrier ();
++}
++
+ /* Expand EXP, a call to fabs, fabsf or fabsl.
+    Return NULL_RTX if a normal call should be emitted rather than expanding
+    the function inline.  If convenient, the result should be placed
+@@ -6795,6 +6806,10 @@ expand_builtin (tree exp, rtx target, rt
+       expand_builtin_trap ();
+       return const0_rtx;
+ 
++    case BUILT_IN_UNREACHABLE:
++      expand_builtin_unreachable ();
++      return const0_rtx;
++
+     case BUILT_IN_PRINTF:
+       target = expand_builtin_printf (exp, target, mode, false);
+       if (target)
+--- gcc/builtins.def	(revision 148402)
++++ gcc/builtins.def	(revision 148404)
+@@ -698,6 +698,7 @@ DEF_GCC_BUILTIN        (BUILT_IN_SETJMP,
+ DEF_EXT_LIB_BUILTIN    (BUILT_IN_STRFMON, "strfmon", BT_FN_SSIZE_STRING_SIZE_CONST_STRING_VAR, ATTR_FORMAT_STRFMON_NOTHROW_3_4)
+ DEF_LIB_BUILTIN        (BUILT_IN_STRFTIME, "strftime", BT_FN_SIZE_STRING_SIZE_CONST_STRING_CONST_PTR, ATTR_FORMAT_STRFTIME_NOTHROW_3_0)
+ DEF_GCC_BUILTIN        (BUILT_IN_TRAP, "trap", BT_FN_VOID, ATTR_NORETURN_NOTHROW_LIST)
++DEF_GCC_BUILTIN        (BUILT_IN_UNREACHABLE, "unreachable", BT_FN_VOID, ATTR_NORETURN_NOTHROW_LIST)
+ DEF_GCC_BUILTIN        (BUILT_IN_UNWIND_INIT, "unwind_init", BT_FN_VOID, ATTR_NULL)
+ DEF_GCC_BUILTIN        (BUILT_IN_UPDATE_SETJMP_BUF, "update_setjmp_buf", BT_FN_VOID_PTR_INT, ATTR_NULL)
+ DEF_GCC_BUILTIN        (BUILT_IN_VA_COPY, "va_copy", BT_FN_VOID_VALIST_REF_VALIST_ARG, ATTR_NULL)
+--- gcc/cfgcleanup.c	(revision 148402)
++++ gcc/cfgcleanup.c	(revision 148404)
+@@ -953,7 +953,12 @@ old_insns_match_p (int mode ATTRIBUTE_UN
+   if (GET_CODE (i1) != GET_CODE (i2))
+     return false;
+ 
+-  p1 = PATTERN (i1);
++  /* __builtin_unreachable() may lead to empty blocks (ending with
++     NOTE_INSN_BASIC_BLOCK).  They may be crossjumped. */
++  if (NOTE_INSN_BASIC_BLOCK_P (i1) && NOTE_INSN_BASIC_BLOCK_P (i2))
++    return true;
++
++   p1 = PATTERN (i1);
+   p2 = PATTERN (i2);
+ 
+   if (GET_CODE (p1) != GET_CODE (p2))
+@@ -1873,8 +1878,18 @@ try_optimize_cfg (int mode)
+ 	      edge s;
+ 	      bool changed_here = false;
+ 
+-	      /* Delete trivially dead basic blocks.  */
+-	      if (EDGE_COUNT (b->preds) == 0)
++	      /* Delete trivially dead basic blocks.  This is either
++		 blocks with no predecessors, or empty blocks with no
++		 successors.  However if the empty block with no
++		 successors is the successor of the ENTRY_BLOCK, it is
++		 kept.  This ensures that the ENTRY_BLOCK will have a
++		 successor which is a precondition for many RTL
++		 passes.  Empty blocks may result from expanding
++		 __builtin_unreachable ().  */
++	      if (EDGE_COUNT (b->preds) == 0
++		  || (EDGE_COUNT (b->succs) == 0
++		      && BB_HEAD (b) == BB_END (b)
++		      && single_succ_edge (ENTRY_BLOCK_PTR)->dest != b))
+ 		{
+ 		  c = b->prev_bb;
+ 		  if (dump_file)
+@@ -1946,6 +1961,7 @@ try_optimize_cfg (int mode)
+ 		  delete_basic_block (b);
+ 		  changed = true;
+ 		  b = c;
++		  continue;
+ 		}
+ 
+ 	      if (single_succ_p (b)
+--- gcc/cfgrtl.c	(revision 148402)
++++ gcc/cfgrtl.c	(revision 148404)
+@@ -1708,11 +1708,11 @@ get_last_bb_insn (basic_block bb)
+     end = tmp;
+ 
+   /* Include any barriers that may follow the basic block.  */
+-  tmp = next_nonnote_insn (end);
++  tmp = next_nonnote_insn_bb (end);
+   while (tmp && BARRIER_P (tmp))
+     {
+       end = tmp;
+-      tmp = next_nonnote_insn (end);
++      tmp = next_nonnote_insn_bb (end);
+     }
+ 
+   return end;
+@@ -2040,15 +2040,17 @@ rtl_verify_flow_info (void)
+ 	  rtx insn;
+ 
+ 	  /* Ensure existence of barrier in BB with no fallthru edges.  */
+-	  for (insn = BB_END (bb); !insn || !BARRIER_P (insn);
+-	       insn = NEXT_INSN (insn))
+-	    if (!insn
+-		|| NOTE_INSN_BASIC_BLOCK_P (insn))
++	  for (insn = NEXT_INSN (BB_END (bb)); ; insn = NEXT_INSN (insn))
++	    {
++	      if (!insn || NOTE_INSN_BASIC_BLOCK_P (insn))
+ 		{
+ 		  error ("missing barrier after block %i", bb->index);
+ 		  err = 1;
+ 		  break;
+ 		}
++	      if (BARRIER_P (insn))
++		break;
++	    }
+ 	}
+       else if (e->src != ENTRY_BLOCK_PTR
+ 	       && e->dest != EXIT_BLOCK_PTR)
+--- gcc/jump.c	(revision 148623)
++++ gcc/jump.c	(revision 148624)
+@@ -113,6 +113,8 @@ cleanup_barriers (void)
+       if (BARRIER_P (insn))
+ 	{
+ 	  prev = prev_nonnote_insn (insn);
++	  if (!prev)
++	    continue;
+ 	  if (BARRIER_P (prev))
+ 	    delete_insn (insn);
+ 	  else if (prev != PREV_INSN (insn))
+--- gcc/emit-rtl.c	(revision 150088)
++++ gcc/emit-rtl.c	(revision 150090)
+@@ -2998,6 +2998,25 @@ next_nonnote_insn (rtx insn)
+   return insn;
+ }
+ 
++/* Return the next insn after INSN that is not a NOTE, but stop the
++   search before we enter another basic block.  This routine does not
++   look inside SEQUENCEs.  */
++
++rtx
++next_nonnote_insn_bb (rtx insn)
++{
++  while (insn)
++    {
++      insn = NEXT_INSN (insn);
++      if (insn == 0 || !NOTE_P (insn))
++	break;
++      if (NOTE_INSN_BASIC_BLOCK_P (insn))
++	return NULL_RTX;
++    }
++
++  return insn;
++}
++
+ /* Return the previous insn before INSN that is not a NOTE.  This routine does
+    not look inside SEQUENCEs.  */
+ 
+--- gcc/rtl.h	(revision 150088)
++++ gcc/rtl.h	(revision 150090)
+@@ -1626,6 +1626,7 @@ extern rtx previous_insn (rtx);
+ extern rtx next_insn (rtx);
+ extern rtx prev_nonnote_insn (rtx);
+ extern rtx next_nonnote_insn (rtx);
++extern rtx next_nonnote_insn_bb (rtx);
+ extern rtx prev_real_insn (rtx);
+ extern rtx next_real_insn (rtx);
+ extern rtx prev_active_insn (rtx);
+--- gcc/testsuite/gcc.dg/builtin-unreachable-2.c	(revision 0)
++++ gcc/testsuite/gcc.dg/builtin-unreachable-2.c	(revision 148404)
+@@ -0,0 +1,20 @@
++/* Check that __builtin_unreachable() is a no-return function thus
++   causing the dead call to foo() to be removed.  The comparison is
++   dead too, and should be removed.  */
++/* { dg-do compile } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-rtl-cse1" } */
++void foo (void);
++
++int
++f (int i)
++{
++  if (i > 1)
++    __builtin_unreachable();
++  if (i > 1)
++    foo ();
++  return 1;
++}
++/* { dg-final { scan-tree-dump-not "foo" "optimized" } } */
++/* { dg-final { scan-rtl-dump-not "\\(if_then_else" "cse1" } } */
++/* { dg-final { cleanup-tree-dump "optimized" } } */
++/* { dg-final { cleanup-rtl-dump "cse1" } } */
+--- gcc/testsuite/gcc.dg/builtin-unreachable-1.c	(revision 0)
++++ gcc/testsuite/gcc.dg/builtin-unreachable-1.c	(revision 148404)
+@@ -0,0 +1,17 @@
++/* Check that __builtin_unreachable() prevents the 'control reaches
++   end of non-void function' diagnostic.  */
++/* { dg-do compile } */
++/* { dg-options "-O2 -Wreturn-type" } */
++int
++f(int a, int b)
++{
++  if (a)
++    {
++      return b;
++    }
++  else
++    {
++      asm ("bug");
++      __builtin_unreachable();
++    }
++}
+--- gcc/testsuite/gcc.dg/builtin-unreachable-3.c	(revision 0)
++++ gcc/testsuite/gcc.dg/builtin-unreachable-3.c	(revision 148624)
+@@ -0,0 +1,9 @@
++/* Check that a function containing only __builtin_unreachable()
++   doesn't ICE.  */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++const char *
++f (void)
++{
++  __builtin_unreachable ();
++}
+--- gcc/testsuite/gcc.target/i386/builtin-unreachable.c	(revision 0)
++++ gcc/testsuite/gcc.target/i386/builtin-unreachable.c	(revision 148622)
+@@ -0,0 +1,13 @@
++/* This should return 1 without setting up a stack frame or
++   jumping.  */
++/* { dg-do compile } */
++/* { dg-require-effective-target ilp32 } */
++/* { dg-options "-O2 -fomit-frame-pointer" } */
++int h (char *p)
++{
++  if (*p)
++    __builtin_unreachable ();
++  return p ? 1 : 0;
++}
++/* { dg-final { scan-assembler-not "%e\[bs\]p" } } */
++/* { dg-final { scan-assembler-not "\[\\t \]+j" } } */
+--- gcc/testsuite/gcc.dg/builtin-unreachable-4.c	(revision 0)
++++ gcc/testsuite/gcc.dg/builtin-unreachable-4.c	(revision 150090)
+@@ -0,0 +1,14 @@
++/* Check that this valid code doesn't ICE.  */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++void
++g (int a, int b, int c, int d)
++{
++  if (d)
++    {
++      ((void)
++       (!(a && b && c) ? __builtin_unreachable (), 0 : 0));
++    }
++  ((void)
++   (!(a && b && c) ? __builtin_unreachable (), 0 : 0));
++}
+--- gcc/testsuite/g++.dg/other/builtin-unreachable-1.C	(revision 0)
++++ gcc/testsuite/g++.dg/other/builtin-unreachable-1.C	(revision 150090)
+@@ -0,0 +1,11 @@
++// PR c++/40445
++// Check that a function containing only __builtin_unreachable()
++// doesn't ICE.
++
++// { dg-do compile }
++// { dg-options "-O0" }
++const char *
++f (void)
++{
++  __builtin_unreachable ();
++}
