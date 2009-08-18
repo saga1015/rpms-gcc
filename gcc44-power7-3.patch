@@ -1028,7 +1028,7 @@ testsuite/
  
  	case V4SImode:
  	  if (VECTOR_UNIT_NONE_P (V4SImode) || VECTOR_UNIT_NONE_P (V4SFmode))
-@@ -3785,15 +3846,28 @@ rs6000_expand_vector_init (rtx target, r
+@@ -3780,15 +3841,28 @@ rs6000_expand_vector_init (rtx target, r
  	}
      }
  
@@ -1063,7 +1063,7 @@ testsuite/
        return;
      }
  
-@@ -3856,10 +3930,12 @@ rs6000_expand_vector_set (rtx target, rt
+@@ -3851,10 +3925,12 @@ rs6000_expand_vector_set (rtx target, rt
    int width = GET_MODE_SIZE (inner_mode);
    int i;
  
@@ -1078,7 +1078,7 @@ testsuite/
        return;
      }
  
-@@ -3900,10 +3976,12 @@ rs6000_expand_vector_extract (rtx target
+@@ -3895,10 +3971,12 @@ rs6000_expand_vector_extract (rtx target
    enum machine_mode inner_mode = GET_MODE_INNER (mode);
    rtx mem, x;
  
@@ -1093,7 +1093,7 @@ testsuite/
        return;
      }
  
-@@ -4323,9 +4401,7 @@ avoiding_indexed_address_p (enum machine
+@@ -4318,9 +4396,7 @@ avoiding_indexed_address_p (enum machine
  {
    /* Avoid indexed addressing for modes that have non-indexed
       load/store instruction forms.  */
@@ -1104,8 +1104,8 @@ testsuite/
  }
  
  inline bool
-@@ -4427,6 +4503,16 @@ rs6000_legitimize_address (rtx x, rtx ol
- 	ret = rs6000_legitimize_tls_address (x, model);
+@@ -4443,6 +4519,16 @@ rs6000_legitimize_address (rtx x, rtx ol
+       ret = rs6000_legitimize_tls_address (x, model);
      }
  
 +  else if (VECTOR_MEM_ALTIVEC_OR_VSX_P (mode))
@@ -1121,7 +1121,7 @@ testsuite/
    else if (GET_CODE (x) == PLUS
  	   && GET_CODE (XEXP (x, 0)) == REG
  	   && GET_CODE (XEXP (x, 1)) == CONST_INT
-@@ -4436,8 +4522,6 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -4452,8 +4538,6 @@ rs6000_legitimize_address (rtx x, rtx ol
  		 && (mode == DImode || mode == TImode)
  		 && (INTVAL (XEXP (x, 1)) & 3) != 0)
  		|| (TARGET_SPE && SPE_VECTOR_MODE (mode))
@@ -1130,7 +1130,7 @@ testsuite/
  		|| (TARGET_E500_DOUBLE && (mode == DFmode || mode == TFmode
  					   || mode == DImode || mode == DDmode
  					   || mode == TDmode))))
-@@ -4467,15 +4551,6 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -4485,15 +4569,6 @@ rs6000_legitimize_address (rtx x, rtx ol
        ret = gen_rtx_PLUS (Pmode, XEXP (x, 0),
  			  force_reg (Pmode, force_operand (XEXP (x, 1), 0)));
      }
@@ -1146,7 +1146,7 @@ testsuite/
    else if ((TARGET_SPE && SPE_VECTOR_MODE (mode))
  	   || (TARGET_E500_DOUBLE && (mode == DFmode || mode == TFmode
  				      || mode == DDmode || mode == TDmode
-@@ -5113,7 +5188,7 @@ rs6000_legitimate_address (enum machine_
+@@ -5131,7 +5206,7 @@ rs6000_legitimate_address (enum machine_
      ret = 1;
    else if (rs6000_legitimate_offset_address_p (mode, x, reg_ok_strict))
      ret = 1;
@@ -1155,7 +1155,7 @@ testsuite/
  	   && mode != TFmode
  	   && mode != TDmode
  	   && ((TARGET_HARD_FLOAT && TARGET_FPRS)
-@@ -5953,7 +6028,13 @@ rs6000_emit_move (rtx dest, rtx source, 
+@@ -5971,7 +6046,13 @@ rs6000_emit_move (rtx dest, rtx source, 
  
      case TImode:
        if (VECTOR_MEM_ALTIVEC_OR_VSX_P (TImode))
@@ -1170,7 +1170,7 @@ testsuite/
  
        rs6000_eliminate_indexed_memrefs (operands);
  
-@@ -7869,7 +7950,8 @@ def_builtin (int mask, const char *name,
+@@ -7888,7 +7969,8 @@ def_builtin (int mask, const char *name,
    if ((mask & target_flags) || TARGET_PAIRED_FLOAT)
      {
        if (rs6000_builtin_decls[code])
@@ -1180,7 +1180,7 @@ testsuite/
  
        rs6000_builtin_decls[code] =
          add_builtin_function (name, type, code, BUILT_IN_MD,
-@@ -7934,6 +8016,34 @@ static const struct builtin_description 
+@@ -7953,6 +8035,34 @@ static const struct builtin_description 
    { MASK_VSX, CODE_FOR_vsx_fnmaddv4sf4, "__builtin_vsx_xvnmaddsp", VSX_BUILTIN_XVNMADDSP },
    { MASK_VSX, CODE_FOR_vsx_fnmsubv4sf4, "__builtin_vsx_xvnmsubsp", VSX_BUILTIN_XVNMSUBSP },
  
@@ -1215,7 +1215,7 @@ testsuite/
    { 0, CODE_FOR_paired_msub, "__builtin_paired_msub", PAIRED_BUILTIN_MSUB },
    { 0, CODE_FOR_paired_madd, "__builtin_paired_madd", PAIRED_BUILTIN_MADD },
    { 0, CODE_FOR_paired_madds0, "__builtin_paired_madds0", PAIRED_BUILTIN_MADDS0 },
-@@ -8083,6 +8193,9 @@ static struct builtin_description bdesc_
+@@ -8102,6 +8212,9 @@ static struct builtin_description bdesc_
    { MASK_VSX, CODE_FOR_sminv2df3, "__builtin_vsx_xvmindp", VSX_BUILTIN_XVMINDP },
    { MASK_VSX, CODE_FOR_smaxv2df3, "__builtin_vsx_xvmaxdp", VSX_BUILTIN_XVMAXDP },
    { MASK_VSX, CODE_FOR_vsx_tdivv2df3, "__builtin_vsx_xvtdivdp", VSX_BUILTIN_XVTDIVDP },
@@ -1225,7 +1225,7 @@ testsuite/
  
    { MASK_VSX, CODE_FOR_addv4sf3, "__builtin_vsx_xvaddsp", VSX_BUILTIN_XVADDSP },
    { MASK_VSX, CODE_FOR_subv4sf3, "__builtin_vsx_xvsubsp", VSX_BUILTIN_XVSUBSP },
-@@ -8091,6 +8204,21 @@ static struct builtin_description bdesc_
+@@ -8110,6 +8223,21 @@ static struct builtin_description bdesc_
    { MASK_VSX, CODE_FOR_sminv4sf3, "__builtin_vsx_xvminsp", VSX_BUILTIN_XVMINSP },
    { MASK_VSX, CODE_FOR_smaxv4sf3, "__builtin_vsx_xvmaxsp", VSX_BUILTIN_XVMAXSP },
    { MASK_VSX, CODE_FOR_vsx_tdivv4sf3, "__builtin_vsx_xvtdivsp", VSX_BUILTIN_XVTDIVSP },
@@ -1247,7 +1247,7 @@ testsuite/
  
    { MASK_ALTIVEC|MASK_VSX, CODE_FOR_nothing, "__builtin_vec_add", ALTIVEC_BUILTIN_VEC_ADD },
    { MASK_ALTIVEC|MASK_VSX, CODE_FOR_nothing, "__builtin_vec_vaddfp", ALTIVEC_BUILTIN_VEC_VADDFP },
-@@ -8508,6 +8636,47 @@ static struct builtin_description bdesc_
+@@ -8527,6 +8655,47 @@ static struct builtin_description bdesc_
    { MASK_VSX, CODE_FOR_vsx_tsqrtv4sf2, "__builtin_vsx_xvtsqrtsp", VSX_BUILTIN_XVTSQRTSP },
    { MASK_VSX, CODE_FOR_vsx_frev4sf2, "__builtin_vsx_xvresp", VSX_BUILTIN_XVRESP },
  
@@ -1295,7 +1295,7 @@ testsuite/
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_abs", ALTIVEC_BUILTIN_VEC_ABS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_abss", ALTIVEC_BUILTIN_VEC_ABSS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_ceil", ALTIVEC_BUILTIN_VEC_CEIL },
-@@ -8533,15 +8702,6 @@ static struct builtin_description bdesc_
+@@ -8552,15 +8721,6 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC|MASK_VSX, CODE_FOR_fix_truncv4sfv4si2, "__builtin_vec_fix_sfsi", VECTOR_BUILTIN_FIX_V4SF_V4SI },
    { MASK_ALTIVEC|MASK_VSX, CODE_FOR_fixuns_truncv4sfv4si2, "__builtin_vec_fixuns_sfsi", VECTOR_BUILTIN_FIXUNS_V4SF_V4SI },
  
@@ -1311,7 +1311,7 @@ testsuite/
    /* The SPE unary builtins must start with SPE_BUILTIN_EVABS and
       end with SPE_BUILTIN_EVSUBFUSIAAW.  */
    { 0, CODE_FOR_spe_evabs, "__builtin_spe_evabs", SPE_BUILTIN_EVABS },
-@@ -9046,11 +9206,12 @@ rs6000_expand_ternop_builtin (enum insn_
+@@ -9065,11 +9225,12 @@ rs6000_expand_ternop_builtin (enum insn_
        || arg2 == error_mark_node)
      return const0_rtx;
  
@@ -1328,7 +1328,7 @@ testsuite/
        /* Only allow 4-bit unsigned literals.  */
        STRIP_NOPS (arg2);
        if (TREE_CODE (arg2) != INTEGER_CST
-@@ -9059,6 +9220,40 @@ rs6000_expand_ternop_builtin (enum insn_
+@@ -9078,6 +9239,40 @@ rs6000_expand_ternop_builtin (enum insn_
  	  error ("argument 3 must be a 4-bit unsigned literal");
  	  return const0_rtx;
  	}
@@ -1369,7 +1369,7 @@ testsuite/
      }
  
    if (target == 0
-@@ -9366,8 +9561,10 @@ altivec_expand_builtin (tree exp, rtx ta
+@@ -9385,8 +9580,10 @@ altivec_expand_builtin (tree exp, rtx ta
    enum machine_mode tmode, mode0;
    unsigned int fcode = DECL_FUNCTION_CODE (fndecl);
  
@@ -1382,7 +1382,7 @@ testsuite/
      {
        *expandedp = true;
        error ("unresolved overload for Altivec builtin %qF", fndecl);
-@@ -10156,6 +10353,7 @@ rs6000_init_builtins (void)
+@@ -10175,6 +10372,7 @@ rs6000_init_builtins (void)
    unsigned_V16QI_type_node = build_vector_type (unsigned_intQI_type_node, 16);
    unsigned_V8HI_type_node = build_vector_type (unsigned_intHI_type_node, 8);
    unsigned_V4SI_type_node = build_vector_type (unsigned_intSI_type_node, 4);
@@ -1390,7 +1390,7 @@ testsuite/
  
    opaque_V2SF_type_node = build_opaque_vector_type (float_type_node, 2);
    opaque_V2SI_type_node = build_opaque_vector_type (intSI_type_node, 2);
-@@ -10169,6 +10367,7 @@ rs6000_init_builtins (void)
+@@ -10188,6 +10386,7 @@ rs6000_init_builtins (void)
    bool_char_type_node = build_distinct_type_copy (unsigned_intQI_type_node);
    bool_short_type_node = build_distinct_type_copy (unsigned_intHI_type_node);
    bool_int_type_node = build_distinct_type_copy (unsigned_intSI_type_node);
@@ -1398,7 +1398,7 @@ testsuite/
    pixel_type_node = build_distinct_type_copy (unsigned_intHI_type_node);
  
    long_integer_type_internal_node = long_integer_type_node;
-@@ -10201,6 +10400,7 @@ rs6000_init_builtins (void)
+@@ -10220,6 +10419,7 @@ rs6000_init_builtins (void)
    bool_V16QI_type_node = build_vector_type (bool_char_type_node, 16);
    bool_V8HI_type_node = build_vector_type (bool_short_type_node, 8);
    bool_V4SI_type_node = build_vector_type (bool_int_type_node, 4);
@@ -1406,7 +1406,7 @@ testsuite/
    pixel_V8HI_type_node = build_vector_type (pixel_type_node, 8);
  
    (*lang_hooks.decls.pushdecl) (build_decl (TYPE_DECL,
-@@ -10241,9 +10441,17 @@ rs6000_init_builtins (void)
+@@ -10260,9 +10460,17 @@ rs6000_init_builtins (void)
  					    pixel_V8HI_type_node));
  
    if (TARGET_VSX)
@@ -1427,7 +1427,7 @@ testsuite/
  
    if (TARGET_PAIRED_FLOAT)
      paired_init_builtins ();
-@@ -10818,8 +11026,10 @@ altivec_init_builtins (void)
+@@ -10837,8 +11045,10 @@ altivec_init_builtins (void)
      {
        enum machine_mode mode1;
        tree type;
@@ -1440,7 +1440,7 @@ testsuite/
  
        if (is_overloaded)
  	mode1 = VOIDmode;
-@@ -10982,592 +11192,302 @@ altivec_init_builtins (void)
+@@ -11001,592 +11211,302 @@ altivec_init_builtins (void)
  	       ALTIVEC_BUILTIN_VEC_EXT_V4SF);
  }
  
@@ -2273,7 +2273,7 @@ testsuite/
  
        def_builtin (d->mask, d->name, type, d->code);
      }
-@@ -12618,12 +12538,12 @@ rs6000_secondary_reload_inner (rtx reg, 
+@@ -12637,12 +12557,12 @@ rs6000_secondary_reload_inner (rtx reg, 
  	}
  
        if (GET_CODE (addr) == PLUS
@@ -2288,7 +2288,7 @@ testsuite/
  
  	  if (!REG_P (addr_op2)
  	      && (GET_CODE (addr_op2) != CONST_INT
-@@ -12642,8 +12562,8 @@ rs6000_secondary_reload_inner (rtx reg, 
+@@ -12661,8 +12581,8 @@ rs6000_secondary_reload_inner (rtx reg, 
  	  addr = scratch_or_premodify;
  	  scratch_or_premodify = scratch;
  	}
@@ -2299,7 +2299,7 @@ testsuite/
  	{
  	  rs6000_emit_move (scratch_or_premodify, addr, Pmode);
  	  addr = scratch_or_premodify;
-@@ -12672,24 +12592,24 @@ rs6000_secondary_reload_inner (rtx reg, 
+@@ -12691,24 +12611,24 @@ rs6000_secondary_reload_inner (rtx reg, 
        if (GET_CODE (addr) == PRE_MODIFY
  	  && (!VECTOR_MEM_VSX_P (mode)
  	      || and_op2 != NULL_RTX
@@ -2329,7 +2329,7 @@ testsuite/
  	;
  
        else if (GET_CODE (addr) == PLUS)
-@@ -12709,7 +12629,7 @@ rs6000_secondary_reload_inner (rtx reg, 
+@@ -12728,7 +12648,7 @@ rs6000_secondary_reload_inner (rtx reg, 
  	}
  
        else if (GET_CODE (addr) == SYMBOL_REF || GET_CODE (addr) == CONST
@@ -2338,7 +2338,7 @@ testsuite/
  	{
  	  rs6000_emit_move (scratch_or_premodify, addr, Pmode);
  	  addr = scratch_or_premodify;
-@@ -12741,7 +12661,7 @@ rs6000_secondary_reload_inner (rtx reg, 
+@@ -12760,7 +12680,7 @@ rs6000_secondary_reload_inner (rtx reg, 
       andi. instruction.  */
    if (and_op2 != NULL_RTX)
      {
@@ -2347,7 +2347,7 @@ testsuite/
  	{
  	  emit_insn (gen_rtx_SET (VOIDmode, scratch, addr));
  	  addr = scratch;
-@@ -12776,6 +12696,26 @@ rs6000_secondary_reload_inner (rtx reg, 
+@@ -12795,6 +12715,26 @@ rs6000_secondary_reload_inner (rtx reg, 
    return;
  }
  
@@ -2374,7 +2374,7 @@ testsuite/
  /* Allocate a 64-bit stack slot to be used for copying SDmode
     values through if this function has any SDmode references.  */
  
-@@ -12849,13 +12789,15 @@ rs6000_preferred_reload_class (rtx x, en
+@@ -12868,13 +12808,15 @@ rs6000_preferred_reload_class (rtx x, en
    enum machine_mode mode = GET_MODE (x);
    enum reg_class ret;
  
@@ -2395,7 +2395,7 @@ testsuite/
  
    else if (CONSTANT_P (x) && reg_classes_intersect_p (rclass, FLOAT_REGS))
      ret = NO_REGS;
-@@ -13074,8 +13016,10 @@ rs6000_cannot_change_mode_class (enum ma
+@@ -13093,8 +13035,10 @@ rs6000_cannot_change_mode_class (enum ma
  		       || (((to) == TDmode) + ((from) == TDmode)) == 1
  		       || (((to) == DImode) + ((from) == DImode)) == 1))
  		  || (TARGET_VSX
@@ -2407,7 +2407,7 @@ testsuite/
  		      && (ALTIVEC_VECTOR_MODE (from)
  			  + ALTIVEC_VECTOR_MODE (to)) == 1)
  		  || (TARGET_SPE
-@@ -14953,7 +14897,7 @@ rs6000_emit_vector_cond_expr (rtx dest, 
+@@ -14972,7 +14916,7 @@ rs6000_emit_vector_cond_expr (rtx dest, 
    if (!mask)
      return 0;
  
@@ -2416,7 +2416,7 @@ testsuite/
        || (TARGET_ALTIVEC && ALTIVEC_VECTOR_MODE (dest_mode)))
      {
        rtx cond2 = gen_rtx_fmt_ee (NE, VOIDmode, mask, const0_rtx);
-@@ -22044,7 +21988,8 @@ rs6000_handle_altivec_attribute (tree *n
+@@ -22161,7 +22105,8 @@ rs6000_handle_altivec_attribute (tree *n
    mode = TYPE_MODE (type);
  
    /* Check for invalid AltiVec type qualifiers.  */
@@ -2426,7 +2426,7 @@ testsuite/
      {
      if (TARGET_64BIT)
        error ("use of %<long%> in AltiVec types is invalid for 64-bit code");
-@@ -22082,6 +22027,7 @@ rs6000_handle_altivec_attribute (tree *n
+@@ -22199,6 +22144,7 @@ rs6000_handle_altivec_attribute (tree *n
  	  break;
  	case SFmode: result = V4SF_type_node; break;
  	case DFmode: result = V2DF_type_node; break;
@@ -2434,7 +2434,7 @@ testsuite/
  	  /* If the user says 'vector int bool', we may be handed the 'bool'
  	     attribute _before_ the 'vector' attribute, and so select the
  	     proper type in the 'b' case below.  */
-@@ -22093,6 +22039,7 @@ rs6000_handle_altivec_attribute (tree *n
+@@ -22210,6 +22156,7 @@ rs6000_handle_altivec_attribute (tree *n
      case 'b':
        switch (mode)
  	{
@@ -2442,7 +2442,7 @@ testsuite/
  	case SImode: case V4SImode: result = bool_V4SI_type_node; break;
  	case HImode: case V8HImode: result = bool_V8HI_type_node; break;
  	case QImode: case V16QImode: result = bool_V16QI_type_node;
-@@ -22137,6 +22084,7 @@ rs6000_mangle_type (const_tree type)
+@@ -22254,6 +22201,7 @@ rs6000_mangle_type (const_tree type)
    if (type == bool_short_type_node) return "U6__bools";
    if (type == pixel_type_node) return "u7__pixel";
    if (type == bool_int_type_node) return "U6__booli";
@@ -2450,7 +2450,7 @@ testsuite/
  
    /* Mangle IBM extended float long double as `g' (__float128) on
       powerpc*-linux where long-double-64 previously was the default.  */
-@@ -23647,6 +23595,8 @@ int
+@@ -23781,6 +23729,8 @@ int
  rs6000_register_move_cost (enum machine_mode mode,
  			   enum reg_class from, enum reg_class to)
  {
@@ -2459,7 +2459,7 @@ testsuite/
    /*  Moves from/to GENERAL_REGS.  */
    if (reg_classes_intersect_p (to, GENERAL_REGS)
        || reg_classes_intersect_p (from, GENERAL_REGS))
-@@ -23655,39 +23605,47 @@ rs6000_register_move_cost (enum machine_
+@@ -23789,39 +23739,47 @@ rs6000_register_move_cost (enum machine_
  	from = to;
  
        if (from == FLOAT_REGS || from == ALTIVEC_REGS || from == VSX_REGS)
@@ -2519,7 +2519,7 @@ testsuite/
  }
  
  /* A C expressions returning the cost of moving data of MODE from a register to
-@@ -23697,14 +23655,23 @@ int
+@@ -23831,14 +23789,23 @@ int
  rs6000_memory_move_cost (enum machine_mode mode, enum reg_class rclass,
  			 int in ATTRIBUTE_UNUSED)
  {
@@ -2547,7 +2547,7 @@ testsuite/
  }
  
  /* Returns a code for a target-specific builtin that implements
-@@ -24424,4 +24391,24 @@ rs6000_final_prescan_insn (rtx insn, rtx
+@@ -24546,4 +24513,24 @@ rs6000_final_prescan_insn (rtx insn, rtx
      }
  }
  
