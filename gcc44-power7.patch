@@ -4651,7 +4651,7 @@
  
    switch (code)
      {
-@@ -2336,14 +2899,14 @@ rs6000_handle_option (size_t code, const
+@@ -2331,14 +2894,14 @@ rs6000_handle_option (size_t code, const
        rs6000_parse_yes_no_option ("vrsave", arg, &(TARGET_ALTIVEC_VRSAVE));
        break;
  
@@ -4673,7 +4673,7 @@
        break;
  
      case OPT_mspe:
-@@ -2972,6 +3535,9 @@ output_vec_const_move (rtx *operands)
+@@ -2967,6 +3530,9 @@ output_vec_const_move (rtx *operands)
    vec = operands[1];
    mode = GET_MODE (dest);
  
@@ -4683,7 +4683,7 @@
    if (TARGET_ALTIVEC)
      {
        rtx splat_vec;
-@@ -3195,20 +3761,21 @@ rs6000_expand_vector_init (rtx target, r
+@@ -3190,20 +3756,21 @@ rs6000_expand_vector_init (rtx target, r
    if (n_var == 0)
      {
        rtx const_vec = gen_rtx_CONST_VECTOR (mode, XVEC (vals, 0));
@@ -4708,7 +4708,7 @@
  	;	/* Splat vector element.  */
        else
  	{
-@@ -3218,6 +3785,18 @@ rs6000_expand_vector_init (rtx target, r
+@@ -3213,6 +3780,18 @@ rs6000_expand_vector_init (rtx target, r
  	}
      }
  
@@ -4727,7 +4727,7 @@
    /* Store value to stack temp.  Load vector element.  Splat.  */
    if (all_same)
      {
-@@ -3277,6 +3856,13 @@ rs6000_expand_vector_set (rtx target, rt
+@@ -3272,6 +3851,13 @@ rs6000_expand_vector_set (rtx target, rt
    int width = GET_MODE_SIZE (inner_mode);
    int i;
  
@@ -4741,7 +4741,7 @@
    /* Load single variable value.  */
    mem = assign_stack_temp (mode, GET_MODE_SIZE (inner_mode), 0);
    emit_move_insn (adjust_address_nv (mem, inner_mode, 0), val);
-@@ -3314,6 +3900,13 @@ rs6000_expand_vector_extract (rtx target
+@@ -3309,6 +3895,13 @@ rs6000_expand_vector_extract (rtx target
    enum machine_mode inner_mode = GET_MODE_INNER (mode);
    rtx mem, x;
  
@@ -4755,7 +4755,7 @@
    /* Allocate mode-sized buffer.  */
    mem = assign_stack_temp (mode, GET_MODE_SIZE (mode), 0);
  
-@@ -3632,9 +4225,13 @@ rs6000_legitimate_offset_address_p (enum
+@@ -3627,9 +4220,13 @@ rs6000_legitimate_offset_address_p (enum
      case V8HImode:
      case V4SFmode:
      case V4SImode:
@@ -4771,7 +4771,7 @@
  
      case V4HImode:
      case V2SImode:
-@@ -3651,6 +4248,11 @@ rs6000_legitimate_offset_address_p (enum
+@@ -3646,6 +4243,11 @@ rs6000_legitimate_offset_address_p (enum
        if (TARGET_E500_DOUBLE)
  	return SPE_CONST_OFFSET_OK (offset);
  
@@ -4783,7 +4783,7 @@
      case DDmode:
      case DImode:
        /* On e500v2, we may have:
-@@ -3721,7 +4323,9 @@ avoiding_indexed_address_p (enum machine
+@@ -3716,7 +4318,9 @@ avoiding_indexed_address_p (enum machine
  {
    /* Avoid indexed addressing for modes that have non-indexed
       load/store instruction forms.  */
@@ -4794,25 +4794,33 @@
  }
  
  inline bool
-@@ -3813,25 +4417,30 @@ rtx
+@@ -3808,15 +4412,10 @@ rtx
  rs6000_legitimize_address (rtx x, rtx oldx ATTRIBUTE_UNUSED,
  			   enum machine_mode mode)
  {
 +  rtx ret = NULL_RTX;
 +  rtx orig_x = x;
-+
-   if (GET_CODE (x) == SYMBOL_REF)
-     {
-       enum tls_model model = SYMBOL_REF_TLS_MODEL (x);
-       if (model != 0)
+   unsigned int extra = 0;
+ 
+-  if (GET_CODE (x) == SYMBOL_REF)
+-    {
+-      enum tls_model model = SYMBOL_REF_TLS_MODEL (x);
+-      if (model != 0)
 -	return rs6000_legitimize_tls_address (x, model);
-+	ret = rs6000_legitimize_tls_address (x, model);
+-    }
+-
+   switch (mode)
+     {
+     case DFmode:
+@@ -3838,19 +4437,26 @@ rs6000_legitimize_address (rtx x, rtx ol
+       break;
      }
  
 -  if (GET_CODE (x) == PLUS
 -      && GET_CODE (XEXP (x, 0)) == REG
 -      && GET_CODE (XEXP (x, 1)) == CONST_INT
--      && (unsigned HOST_WIDE_INT) (INTVAL (XEXP (x, 1)) + 0x8000) >= 0x10000
+-      && ((unsigned HOST_WIDE_INT) (INTVAL (XEXP (x, 1)) + 0x8000)
+-	  >= 0x10000 - extra)
 -      && !((TARGET_POWERPC64
 -	    && (mode == DImode || mode == TImode)
 -	    && (INTVAL (XEXP (x, 1)) & 3) != 0)
@@ -4821,11 +4829,17 @@
 -	   || (TARGET_E500_DOUBLE && (mode == DFmode || mode == TFmode
 -				      || mode == DImode || mode == DDmode
 -				      || mode == TDmode))))
++  if (GET_CODE (x) == SYMBOL_REF && SYMBOL_REF_TLS_MODEL (x))
++    {
++      enum tls_model model = SYMBOL_REF_TLS_MODEL (x);
++      ret = rs6000_legitimize_tls_address (x, model);
++    }
++
 +  else if (GET_CODE (x) == PLUS
 +	   && GET_CODE (XEXP (x, 0)) == REG
 +	   && GET_CODE (XEXP (x, 1)) == CONST_INT
 +	   && ((unsigned HOST_WIDE_INT) (INTVAL (XEXP (x, 1)) + 0x8000)
-+	       >= 0x10000)
++	       >= 0x10000 - extra)
 +	   && !((TARGET_POWERPC64
 +		 && (mode == DImode || mode == TImode)
 +		 && (INTVAL (XEXP (x, 1)) & 3) != 0)
@@ -4838,16 +4852,16 @@
      {
        HOST_WIDE_INT high_int, low_int;
        rtx sum;
-@@ -3839,7 +4448,7 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -3860,7 +4466,7 @@ rs6000_legitimize_address (rtx x, rtx ol
        high_int = INTVAL (XEXP (x, 1)) - low_int;
        sum = force_operand (gen_rtx_PLUS (Pmode, XEXP (x, 0),
  					 GEN_INT (high_int)), 0);
--      return gen_rtx_PLUS (Pmode, sum, GEN_INT (low_int));
-+      ret = gen_rtx_PLUS (Pmode, sum, GEN_INT (low_int));
+-      return plus_constant (sum, low_int);
++      ret = plus_constant (sum, low_int);
      }
    else if (GET_CODE (x) == PLUS
  	   && GET_CODE (XEXP (x, 0)) == REG
-@@ -3855,32 +4464,29 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -3876,32 +4482,29 @@ rs6000_legitimize_address (rtx x, rtx ol
  	   && mode != TFmode
  	   && mode != TDmode)
      {
@@ -4892,7 +4906,7 @@
           rtx op1 = XEXP (x, 0);
           rtx op2 = XEXP (x, 1);
           rtx y;
-@@ -3899,12 +4505,12 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -3920,12 +4523,12 @@ rs6000_legitimize_address (rtx x, rtx ol
           y = gen_rtx_PLUS (Pmode, op1, op2);
  
           if ((GET_MODE_SIZE (mode) > 8 || mode == DDmode) && REG_P (op2))
@@ -4909,7 +4923,7 @@
      }
    else if (TARGET_ELF
  	   && TARGET_32BIT
-@@ -3920,7 +4526,7 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -3941,7 +4544,7 @@ rs6000_legitimize_address (rtx x, rtx ol
      {
        rtx reg = gen_reg_rtx (Pmode);
        emit_insn (gen_elf_high (reg, x));
@@ -4918,7 +4932,7 @@
      }
    else if (TARGET_MACHO && TARGET_32BIT && TARGET_NO_TOC
  	   && ! flag_pic
-@@ -3938,17 +4544,35 @@ rs6000_legitimize_address (rtx x, rtx ol
+@@ -3959,17 +4562,35 @@ rs6000_legitimize_address (rtx x, rtx ol
      {
        rtx reg = gen_reg_rtx (Pmode);
        emit_insn (gen_macho_high (reg, x));
@@ -4957,7 +4971,7 @@
  }
  
  /* This is called from dwarf2out.c via TARGET_ASM_OUTPUT_DWARF_DTPREL.
-@@ -4237,6 +4861,9 @@ rs6000_legitimize_reload_address (rtx x,
+@@ -4258,6 +4879,9 @@ rs6000_legitimize_reload_address (rtx x,
  				  int opnum, int type,
  				  int ind_levels ATTRIBUTE_UNUSED, int *win)
  {
@@ -4967,7 +4981,7 @@
    /* We must recognize output that we have already generated ourselves.  */
    if (GET_CODE (x) == PLUS
        && GET_CODE (XEXP (x, 0)) == PLUS
-@@ -4248,17 +4875,17 @@ rs6000_legitimize_reload_address (rtx x,
+@@ -4269,17 +4893,17 @@ rs6000_legitimize_reload_address (rtx x,
  		   BASE_REG_CLASS, GET_MODE (x), VOIDmode, 0, 0,
  		   opnum, (enum reload_type)type);
        *win = 1;
@@ -4993,7 +5007,7 @@
      {
        /* Result of previous invocation of this function on Darwin
  	 floating point constant.  */
-@@ -4266,40 +4893,40 @@ rs6000_legitimize_reload_address (rtx x,
+@@ -4287,40 +4911,40 @@ rs6000_legitimize_reload_address (rtx x,
  		   BASE_REG_CLASS, Pmode, VOIDmode, 0, 0,
  		   opnum, (enum reload_type)type);
        *win = 1;
@@ -5055,7 +5069,7 @@
      {
        HOST_WIDE_INT val = INTVAL (XEXP (x, 1));
        HOST_WIDE_INT low = ((val & 0xffff) ^ 0x8000) - 0x8000;
-@@ -4310,42 +4937,45 @@ rs6000_legitimize_reload_address (rtx x,
+@@ -4331,42 +4955,45 @@ rs6000_legitimize_reload_address (rtx x,
        if (high + low != val)
  	{
  	  *win = 0;
@@ -5129,7 +5143,7 @@
      {
  #if TARGET_MACHO
        if (flag_pic)
-@@ -4364,37 +4994,63 @@ rs6000_legitimize_reload_address (rtx x,
+@@ -4385,37 +5012,63 @@ rs6000_legitimize_reload_address (rtx x,
  		   BASE_REG_CLASS, Pmode, VOIDmode, 0, 0,
  		   opnum, (enum reload_type)type);
        *win = 1;
@@ -5210,7 +5224,7 @@
  }
  
  /* GO_IF_LEGITIMATE_ADDRESS recognizes an RTL expression
-@@ -4417,77 +5073,101 @@ rs6000_legitimize_reload_address (rtx x,
+@@ -4438,77 +5091,101 @@ rs6000_legitimize_reload_address (rtx x,
  int
  rs6000_legitimate_address (enum machine_mode mode, rtx x, int reg_ok_strict)
  {
@@ -5375,7 +5389,7 @@
  }
  
  /* Go to LABEL if ADDR (a legitimate address expression)
-@@ -4504,28 +5184,46 @@ rs6000_legitimate_address (enum machine_
+@@ -4525,28 +5202,46 @@ rs6000_legitimate_address (enum machine_
  bool
  rs6000_mode_dependent_address (rtx addr)
  {
@@ -5426,7 +5440,7 @@
  }
  
  /* Implement FIND_BASE_TERM.  */
-@@ -4576,43 +5274,6 @@ rs6000_offsettable_memref_p (rtx op)
+@@ -4597,43 +5292,6 @@ rs6000_offsettable_memref_p (rtx op)
    return rs6000_legitimate_offset_address_p (GET_MODE (op), XEXP (op, 0), 1);
  }
  
@@ -5470,7 +5484,7 @@
  /* Change register usage conditional on target flags.  */
  void
  rs6000_conditional_register_usage (void)
-@@ -4677,14 +5338,14 @@ rs6000_conditional_register_usage (void)
+@@ -4698,14 +5356,14 @@ rs6000_conditional_register_usage (void)
  	= call_really_used_regs[14] = 1;
      }
  
@@ -5487,7 +5501,7 @@
      global_regs[VSCR_REGNO] = 1;
  
    if (TARGET_ALTIVEC_ABI)
-@@ -4902,6 +5563,20 @@ rs6000_emit_move (rtx dest, rtx source, 
+@@ -4923,6 +5581,20 @@ rs6000_emit_move (rtx dest, rtx source, 
    operands[0] = dest;
    operands[1] = source;
  
@@ -5508,7 +5522,7 @@
    /* Sanity checks.  Check that we get CONST_DOUBLE only when we should.  */
    if (GET_CODE (operands[1]) == CONST_DOUBLE
        && ! FLOAT_MODE_P (mode)
-@@ -5106,6 +5781,8 @@ rs6000_emit_move (rtx dest, rtx source, 
+@@ -5127,6 +5799,8 @@ rs6000_emit_move (rtx dest, rtx source, 
      case V2SFmode:
      case V2SImode:
      case V1DImode:
@@ -5517,7 +5531,7 @@
        if (CONSTANT_P (operands[1])
  	  && !easy_vector_constant (operands[1], mode))
  	operands[1] = force_const_mem (mode, operands[1]);
-@@ -5275,6 +5952,9 @@ rs6000_emit_move (rtx dest, rtx source, 
+@@ -5296,6 +5970,9 @@ rs6000_emit_move (rtx dest, rtx source, 
        break;
  
      case TImode:
@@ -5527,7 +5541,7 @@
        rs6000_eliminate_indexed_memrefs (operands);
  
        if (TARGET_POWER)
-@@ -5290,7 +5970,7 @@ rs6000_emit_move (rtx dest, rtx source, 
+@@ -5311,7 +5988,7 @@ rs6000_emit_move (rtx dest, rtx source, 
        break;
  
      default:
@@ -5536,7 +5550,7 @@
      }
  
    /* Above, we may have called force_const_mem which may have returned
-@@ -5310,10 +5990,10 @@ rs6000_emit_move (rtx dest, rtx source, 
+@@ -5331,10 +6008,10 @@ rs6000_emit_move (rtx dest, rtx source, 
     && TARGET_HARD_FLOAT && TARGET_FPRS)
  
  /* Nonzero if we can use an AltiVec register to pass this arg.  */
@@ -5551,7 +5565,7 @@
     && (NAMED))
  
  /* Return a nonzero value to say to return the function value in
-@@ -5554,7 +6234,7 @@ function_arg_boundary (enum machine_mode
+@@ -5575,7 +6252,7 @@ function_arg_boundary (enum machine_mode
  	       && int_size_in_bytes (type) >= 8
  	       && int_size_in_bytes (type) < 16))
      return 64;
@@ -5560,7 +5574,7 @@
  	   || (type && TREE_CODE (type) == VECTOR_TYPE
  	       && int_size_in_bytes (type) >= 16))
      return 128;
-@@ -5699,7 +6379,7 @@ function_arg_advance (CUMULATIVE_ARGS *c
+@@ -5720,7 +6397,7 @@ function_arg_advance (CUMULATIVE_ARGS *c
      cum->nargs_prototype--;
  
    if (TARGET_ALTIVEC_ABI
@@ -5569,7 +5583,7 @@
  	  || (type && TREE_CODE (type) == VECTOR_TYPE
  	      && int_size_in_bytes (type) == 16)))
      {
-@@ -6293,7 +6973,7 @@ function_arg (CUMULATIVE_ARGS *cum, enum
+@@ -6314,7 +6991,7 @@ function_arg (CUMULATIVE_ARGS *cum, enum
      else
        return gen_rtx_REG (mode, cum->vregno);
    else if (TARGET_ALTIVEC_ABI
@@ -5578,7 +5592,7 @@
  	       || (type && TREE_CODE (type) == VECTOR_TYPE
  		   && int_size_in_bytes (type) == 16)))
      {
-@@ -7217,10 +7897,13 @@ static const struct builtin_description 
+@@ -7238,10 +7915,13 @@ static const struct builtin_description 
    { MASK_ALTIVEC, CODE_FOR_altivec_vperm_v4si, "__builtin_altivec_vperm_4si", ALTIVEC_BUILTIN_VPERM_4SI },
    { MASK_ALTIVEC, CODE_FOR_altivec_vperm_v8hi, "__builtin_altivec_vperm_8hi", ALTIVEC_BUILTIN_VPERM_8HI },
    { MASK_ALTIVEC, CODE_FOR_altivec_vperm_v16qi, "__builtin_altivec_vperm_16qi", ALTIVEC_BUILTIN_VPERM_16QI },
@@ -5596,7 +5610,7 @@
    { MASK_ALTIVEC, CODE_FOR_altivec_vsldoi_v16qi, "__builtin_altivec_vsldoi_16qi", ALTIVEC_BUILTIN_VSLDOI_16QI },
    { MASK_ALTIVEC, CODE_FOR_altivec_vsldoi_v8hi, "__builtin_altivec_vsldoi_8hi", ALTIVEC_BUILTIN_VSLDOI_8HI },
    { MASK_ALTIVEC, CODE_FOR_altivec_vsldoi_v4si, "__builtin_altivec_vsldoi_4si", ALTIVEC_BUILTIN_VSLDOI_4SI },
-@@ -7242,6 +7925,16 @@ static const struct builtin_description 
+@@ -7263,6 +7943,16 @@ static const struct builtin_description 
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_perm", ALTIVEC_BUILTIN_VEC_PERM },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_sel", ALTIVEC_BUILTIN_VEC_SEL },
  
@@ -5613,7 +5627,7 @@
    { 0, CODE_FOR_paired_msub, "__builtin_paired_msub", PAIRED_BUILTIN_MSUB },
    { 0, CODE_FOR_paired_madd, "__builtin_paired_madd", PAIRED_BUILTIN_MADD },
    { 0, CODE_FOR_paired_madds0, "__builtin_paired_madds0", PAIRED_BUILTIN_MADDS0 },
-@@ -7294,18 +7987,18 @@ static struct builtin_description bdesc_
+@@ -7315,18 +8005,18 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_altivec_vcfux, "__builtin_altivec_vcfux", ALTIVEC_BUILTIN_VCFUX },
    { MASK_ALTIVEC, CODE_FOR_altivec_vcfsx, "__builtin_altivec_vcfsx", ALTIVEC_BUILTIN_VCFSX },
    { MASK_ALTIVEC, CODE_FOR_altivec_vcmpbfp, "__builtin_altivec_vcmpbfp", ALTIVEC_BUILTIN_VCMPBFP },
@@ -5644,7 +5658,7 @@
    { MASK_ALTIVEC, CODE_FOR_altivec_vctsxs, "__builtin_altivec_vctsxs", ALTIVEC_BUILTIN_VCTSXS },
    { MASK_ALTIVEC, CODE_FOR_altivec_vctuxs, "__builtin_altivec_vctuxs", ALTIVEC_BUILTIN_VCTUXS },
    { MASK_ALTIVEC, CODE_FOR_umaxv16qi3, "__builtin_altivec_vmaxub", ALTIVEC_BUILTIN_VMAXUB },
-@@ -7336,7 +8029,7 @@ static struct builtin_description bdesc_
+@@ -7357,7 +8047,7 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_altivec_vmulosb, "__builtin_altivec_vmulosb", ALTIVEC_BUILTIN_VMULOSB },
    { MASK_ALTIVEC, CODE_FOR_altivec_vmulouh, "__builtin_altivec_vmulouh", ALTIVEC_BUILTIN_VMULOUH },
    { MASK_ALTIVEC, CODE_FOR_altivec_vmulosh, "__builtin_altivec_vmulosh", ALTIVEC_BUILTIN_VMULOSH },
@@ -5653,7 +5667,7 @@
    { MASK_ALTIVEC, CODE_FOR_iorv4si3, "__builtin_altivec_vor", ALTIVEC_BUILTIN_VOR },
    { MASK_ALTIVEC, CODE_FOR_altivec_vpkuhum, "__builtin_altivec_vpkuhum", ALTIVEC_BUILTIN_VPKUHUM },
    { MASK_ALTIVEC, CODE_FOR_altivec_vpkuwum, "__builtin_altivec_vpkuwum", ALTIVEC_BUILTIN_VPKUWUM },
-@@ -7384,8 +8077,24 @@ static struct builtin_description bdesc_
+@@ -7405,8 +8095,24 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_altivec_vsumsws, "__builtin_altivec_vsumsws", ALTIVEC_BUILTIN_VSUMSWS },
    { MASK_ALTIVEC, CODE_FOR_xorv4si3, "__builtin_altivec_vxor", ALTIVEC_BUILTIN_VXOR },
  
@@ -5680,7 +5694,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vadduwm", ALTIVEC_BUILTIN_VEC_VADDUWM },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vadduhm", ALTIVEC_BUILTIN_VEC_VADDUHM },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vaddubm", ALTIVEC_BUILTIN_VEC_VADDUBM },
-@@ -7397,8 +8106,8 @@ static struct builtin_description bdesc_
+@@ -7418,8 +8124,8 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vadduhs", ALTIVEC_BUILTIN_VEC_VADDUHS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vaddsbs", ALTIVEC_BUILTIN_VEC_VADDSBS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vaddubs", ALTIVEC_BUILTIN_VEC_VADDUBS },
@@ -5691,7 +5705,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_avg", ALTIVEC_BUILTIN_VEC_AVG },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vavgsw", ALTIVEC_BUILTIN_VEC_VAVGSW },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vavguw", ALTIVEC_BUILTIN_VEC_VAVGUW },
-@@ -7423,8 +8132,8 @@ static struct builtin_description bdesc_
+@@ -7444,8 +8150,8 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vcmpgtub", ALTIVEC_BUILTIN_VEC_VCMPGTUB },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_cmple", ALTIVEC_BUILTIN_VEC_CMPLE },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_cmplt", ALTIVEC_BUILTIN_VEC_CMPLT },
@@ -5702,7 +5716,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmaxsw", ALTIVEC_BUILTIN_VEC_VMAXSW },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmaxuw", ALTIVEC_BUILTIN_VEC_VMAXUW },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmaxsh", ALTIVEC_BUILTIN_VEC_VMAXSH },
-@@ -7439,8 +8148,8 @@ static struct builtin_description bdesc_
+@@ -7460,8 +8166,8 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmrglw", ALTIVEC_BUILTIN_VEC_VMRGLW },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmrglh", ALTIVEC_BUILTIN_VEC_VMRGLH },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmrglb", ALTIVEC_BUILTIN_VEC_VMRGLB },
@@ -5713,7 +5727,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vminsw", ALTIVEC_BUILTIN_VEC_VMINSW },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vminuw", ALTIVEC_BUILTIN_VEC_VMINUW },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vminsh", ALTIVEC_BUILTIN_VEC_VMINSH },
-@@ -7457,8 +8166,8 @@ static struct builtin_description bdesc_
+@@ -7478,8 +8184,8 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmulouh", ALTIVEC_BUILTIN_VEC_VMULOUH },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmulosb", ALTIVEC_BUILTIN_VEC_VMULOSB },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vmuloub", ALTIVEC_BUILTIN_VEC_VMULOUB },
@@ -5724,7 +5738,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_pack", ALTIVEC_BUILTIN_VEC_PACK },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vpkuwum", ALTIVEC_BUILTIN_VEC_VPKUWUM },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vpkuhum", ALTIVEC_BUILTIN_VEC_VPKUHUM },
-@@ -7491,8 +8200,8 @@ static struct builtin_description bdesc_
+@@ -7512,8 +8218,8 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vsrab", ALTIVEC_BUILTIN_VEC_VSRAB },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_srl", ALTIVEC_BUILTIN_VEC_SRL },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_sro", ALTIVEC_BUILTIN_VEC_SRO },
@@ -5735,7 +5749,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vsubuwm", ALTIVEC_BUILTIN_VEC_VSUBUWM },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vsubuhm", ALTIVEC_BUILTIN_VEC_VSUBUHM },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vsububm", ALTIVEC_BUILTIN_VEC_VSUBUBM },
-@@ -7510,7 +8219,10 @@ static struct builtin_description bdesc_
+@@ -7531,7 +8237,10 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vsum4ubs", ALTIVEC_BUILTIN_VEC_VSUM4UBS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_sum2s", ALTIVEC_BUILTIN_VEC_SUM2S },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_sums", ALTIVEC_BUILTIN_VEC_SUMS },
@@ -5747,7 +5761,7 @@
  
    { 0, CODE_FOR_divv2sf3, "__builtin_paired_divv2sf3", PAIRED_BUILTIN_DIVV2SF3 },
    { 0, CODE_FOR_addv2sf3, "__builtin_paired_addv2sf3", PAIRED_BUILTIN_ADDV2SF3 },
-@@ -7755,7 +8467,11 @@ static const struct builtin_description 
+@@ -7776,7 +8485,11 @@ static const struct builtin_description 
    { MASK_ALTIVEC, CODE_FOR_absv16qi2, "__builtin_altivec_abs_v16qi", ALTIVEC_BUILTIN_ABS_V16QI },
    { MASK_ALTIVEC, CODE_FOR_altivec_abss_v4si, "__builtin_altivec_abss_v4si", ALTIVEC_BUILTIN_ABSS_V4SI },
    { MASK_ALTIVEC, CODE_FOR_altivec_abss_v8hi, "__builtin_altivec_abss_v8hi", ALTIVEC_BUILTIN_ABSS_V8HI },
@@ -5760,7 +5774,7 @@
  };
  
  /* Simple unary operations: VECb = foo (unsigned literal) or VECb =
-@@ -7781,6 +8497,18 @@ static struct builtin_description bdesc_
+@@ -7802,6 +8515,18 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_altivec_vupklpx, "__builtin_altivec_vupklpx", ALTIVEC_BUILTIN_VUPKLPX },
    { MASK_ALTIVEC, CODE_FOR_altivec_vupklsh, "__builtin_altivec_vupklsh", ALTIVEC_BUILTIN_VUPKLSH },
  
@@ -5779,7 +5793,7 @@
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_abs", ALTIVEC_BUILTIN_VEC_ABS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_abss", ALTIVEC_BUILTIN_VEC_ABSS },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_ceil", ALTIVEC_BUILTIN_VEC_CEIL },
-@@ -7801,6 +8529,20 @@ static struct builtin_description bdesc_
+@@ -7822,6 +8547,20 @@ static struct builtin_description bdesc_
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vupklsh", ALTIVEC_BUILTIN_VEC_VUPKLSH },
    { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vupklsb", ALTIVEC_BUILTIN_VEC_VUPKLSB },
  
@@ -5800,7 +5814,7 @@
    /* The SPE unary builtins must start with SPE_BUILTIN_EVABS and
       end with SPE_BUILTIN_EVSUBFUSIAAW.  */
    { 0, CODE_FOR_spe_evabs, "__builtin_spe_evabs", SPE_BUILTIN_EVABS },
-@@ -8357,16 +9099,16 @@ altivec_expand_ld_builtin (tree exp, rtx
+@@ -8378,16 +9117,16 @@ altivec_expand_ld_builtin (tree exp, rtx
    switch (fcode)
      {
      case ALTIVEC_BUILTIN_LD_INTERNAL_16qi:
@@ -5821,7 +5835,7 @@
        break;
      default:
        *expandedp = false;
-@@ -8410,16 +9152,16 @@ altivec_expand_st_builtin (tree exp, rtx
+@@ -8431,16 +9170,16 @@ altivec_expand_st_builtin (tree exp, rtx
    switch (fcode)
      {
      case ALTIVEC_BUILTIN_ST_INTERNAL_16qi:
@@ -5842,7 +5856,7 @@
        break;
      default:
        *expandedp = false;
-@@ -8814,6 +9556,26 @@ altivec_expand_builtin (tree exp, rtx ta
+@@ -8835,6 +9574,26 @@ altivec_expand_builtin (tree exp, rtx ta
  /* Expand the builtin in EXP and store the result in TARGET.  Store
     true in *EXPANDEDP if we found a builtin to expand.  */
  static rtx
@@ -5869,7 +5883,7 @@
  paired_expand_builtin (tree exp, rtx target, bool * expandedp)
  {
    tree fndecl = TREE_OPERAND (CALL_EXPR_FN (exp), 0);
-@@ -9325,6 +10087,13 @@ rs6000_expand_builtin (tree exp, rtx tar
+@@ -9346,6 +10105,13 @@ rs6000_expand_builtin (tree exp, rtx tar
        if (success)
  	return ret;
      }
@@ -5883,7 +5897,7 @@
    if (TARGET_SPE)
      {
        ret = spe_expand_builtin (exp, target, &success);
-@@ -9340,7 +10109,7 @@ rs6000_expand_builtin (tree exp, rtx tar
+@@ -9361,7 +10127,7 @@ rs6000_expand_builtin (tree exp, rtx tar
  	return ret;
      }  
  
@@ -5892,7 +5906,7 @@
  
    /* Handle simple unary operations.  */
    d = (struct builtin_description *) bdesc_1arg;
-@@ -9377,6 +10146,8 @@ rs6000_init_builtins (void)
+@@ -9398,6 +10164,8 @@ rs6000_init_builtins (void)
  {
    V2SI_type_node = build_vector_type (intSI_type_node, 2);
    V2SF_type_node = build_vector_type (float_type_node, 2);
@@ -5901,7 +5915,7 @@
    V4HI_type_node = build_vector_type (intHI_type_node, 4);
    V4SI_type_node = build_vector_type (intSI_type_node, 4);
    V4SF_type_node = build_vector_type (float_type_node, 4);
-@@ -9409,7 +10180,10 @@ rs6000_init_builtins (void)
+@@ -9430,7 +10198,10 @@ rs6000_init_builtins (void)
    uintHI_type_internal_node = unsigned_intHI_type_node;
    intSI_type_internal_node = intSI_type_node;
    uintSI_type_internal_node = unsigned_intSI_type_node;
@@ -5912,7 +5926,7 @@
    void_type_internal_node = void_type_node;
  
    (*lang_hooks.decls.pushdecl) (build_decl (TYPE_DECL,
-@@ -9467,13 +10241,18 @@ rs6000_init_builtins (void)
+@@ -9488,13 +10259,18 @@ rs6000_init_builtins (void)
  					    get_identifier ("__vector __pixel"),
  					    pixel_V8HI_type_node));
  
@@ -5932,7 +5946,7 @@
      rs6000_common_init_builtins ();
    if (TARGET_PPC_GFXOPT)
      {
-@@ -9936,6 +10715,8 @@ altivec_init_builtins (void)
+@@ -9957,6 +10733,8 @@ altivec_init_builtins (void)
      = build_function_type_list (V16QI_type_node, V16QI_type_node, NULL_TREE);
    tree v4sf_ftype_v4sf
      = build_function_type_list (V4SF_type_node, V4SF_type_node, NULL_TREE);
@@ -5941,7 +5955,7 @@
    tree void_ftype_pcvoid_int_int
      = build_function_type_list (void_type_node,
  				pcvoid_type_node, integer_type_node,
-@@ -10093,6 +10874,9 @@ altivec_init_builtins (void)
+@@ -10114,6 +10892,9 @@ altivec_init_builtins (void)
  	case V4SFmode:
  	  type = v4sf_ftype_v4sf;
  	  break;
@@ -5951,7 +5965,7 @@
  	default:
  	  gcc_unreachable ();
  	}
-@@ -10412,6 +11196,38 @@ rs6000_common_init_builtins (void)
+@@ -10433,6 +11214,38 @@ rs6000_common_init_builtins (void)
    tree int_ftype_v8hi_v8hi
      = build_function_type_list (integer_type_node,
  				V8HI_type_node, V8HI_type_node, NULL_TREE);
@@ -5990,7 +6004,7 @@
  
    /* Add the simple ternary operators.  */
    d = bdesc_3arg;
-@@ -10448,6 +11264,12 @@ rs6000_common_init_builtins (void)
+@@ -10469,6 +11282,12 @@ rs6000_common_init_builtins (void)
  	    case VOIDmode:
  	      type = opaque_ftype_opaque_opaque_opaque;
  	      break;
@@ -6003,7 +6017,7 @@
  	    case V4SImode:
  	      type = v4si_ftype_v4si_v4si_v4si;
  	      break;
-@@ -10471,6 +11293,12 @@ rs6000_common_init_builtins (void)
+@@ -10492,6 +11311,12 @@ rs6000_common_init_builtins (void)
  	{
  	  switch (mode0)
  	    {
@@ -6016,7 +6030,7 @@
  	    case V4SImode:
  	      type = v4si_ftype_v4si_v4si_v16qi;
  	      break;
-@@ -10556,6 +11384,9 @@ rs6000_common_init_builtins (void)
+@@ -10577,6 +11402,9 @@ rs6000_common_init_builtins (void)
  	    case VOIDmode:
  	      type = opaque_ftype_opaque_opaque;
  	      break;
@@ -6026,7 +6040,7 @@
  	    case V4SFmode:
  	      type = v4sf_ftype_v4sf_v4sf;
  	      break;
-@@ -10705,6 +11536,8 @@ rs6000_common_init_builtins (void)
+@@ -10726,6 +11554,8 @@ rs6000_common_init_builtins (void)
  	type = v16qi_ftype_int;
        else if (mode0 == VOIDmode && mode1 == VOIDmode)
  	type = opaque_ftype_opaque;
@@ -6035,7 +6049,7 @@
        else if (mode0 == V4SFmode && mode1 == V4SFmode)
  	type = v4sf_ftype_v4sf;
        else if (mode0 == V8HImode && mode1 == V16QImode)
-@@ -10726,6 +11559,14 @@ rs6000_common_init_builtins (void)
+@@ -10747,6 +11577,14 @@ rs6000_common_init_builtins (void)
  	type = v2si_ftype_v2sf;
        else if (mode0 == V2SImode && mode1 == QImode)
  	type = v2si_ftype_char;
@@ -6050,7 +6064,7 @@
        else
  	gcc_unreachable ();
  
-@@ -11508,8 +12349,10 @@ rtx
+@@ -11529,8 +12367,10 @@ rtx
  rs6000_secondary_memory_needed_rtx (enum machine_mode mode)
  {
    static bool eliminated = false;
@@ -6062,13 +6076,13 @@
    else
      {
        rtx mem = cfun->machine->sdmode_stack_slot;
-@@ -11521,8 +12364,21 @@ rs6000_secondary_memory_needed_rtx (enum
+@@ -11542,8 +12382,21 @@ rs6000_secondary_memory_needed_rtx (enum
  	  cfun->machine->sdmode_stack_slot = mem;
  	  eliminated = true;
  	}
 -      return mem;
 +      ret = mem;
-     }
++    }
 +
 +  if (TARGET_DEBUG_ADDR)
 +    {
@@ -6079,13 +6093,13 @@
 +      else
 +	debug_rtx (ret);
 +      fprintf (stderr, "\n");
-+    }
+     }
 +
 +  return ret;
  }
  
  static tree
-@@ -11556,6 +12412,282 @@ rs6000_check_sdmode (tree *tp, int *walk
+@@ -11577,6 +12430,282 @@ rs6000_check_sdmode (tree *tp, int *walk
    return NULL_TREE;
  }
  
@@ -6368,7 +6382,7 @@
  
  /* Allocate a 64-bit stack slot to be used for copying SDmode
     values through if this function has any SDmode references.  */
-@@ -11606,15 +12738,146 @@ rs6000_instantiate_decls (void)
+@@ -11627,15 +12756,146 @@ rs6000_instantiate_decls (void)
      instantiate_decl_rtl (cfun->machine->sdmode_stack_slot);
  }
  
@@ -6516,7 +6530,7 @@
    int regno;
  
    if (TARGET_ELF || (DEFAULT_ABI == ABI_DARWIN
-@@ -11635,51 +12898,112 @@ rs6000_secondary_reload_class (enum reg_
+@@ -11656,51 +12916,112 @@ rs6000_secondary_reload_class (enum reg_
  	      || GET_CODE (in) == HIGH
  	      || GET_CODE (in) == LABEL_REF
  	      || GET_CODE (in) == CONST))
@@ -6662,7 +6676,7 @@
  }
  
  /* Given a comparison operation, return the bit number in CCR to test.  We
-@@ -12411,6 +13735,26 @@ print_operand (FILE *file, rtx x, int co
+@@ -12432,6 +13753,26 @@ print_operand (FILE *file, rtx x, int co
        fprintf (file, "%d", i + 1);
        return;
  
@@ -6689,7 +6703,7 @@
      case 'X':
        if (GET_CODE (x) == MEM
  	  && (legitimate_indexed_address_p (XEXP (x, 0), 0)
-@@ -12523,13 +13867,16 @@ print_operand (FILE *file, rtx x, int co
+@@ -12544,13 +13885,16 @@ print_operand (FILE *file, rtx x, int co
  
  	    /* Fall through.  Must be [reg+reg].  */
  	  }
@@ -6708,7 +6722,7 @@
  	else
  	  {
  	    if (!GET_CODE (tmp) == PLUS
-@@ -13301,55 +14648,62 @@ output_e500_flip_gt_bit (rtx dst, rtx sr
+@@ -13322,55 +14666,62 @@ output_e500_flip_gt_bit (rtx dst, rtx sr
    return string;
  }
  
@@ -6810,7 +6824,7 @@
  }
  
  /* Emit vector compare for operands OP0 and OP1 using code RCODE.
-@@ -13360,129 +14714,111 @@ rs6000_emit_vector_compare (enum rtx_cod
+@@ -13381,129 +14732,111 @@ rs6000_emit_vector_compare (enum rtx_cod
  			    rtx op0, rtx op1,
  			    enum machine_mode dmode)
  {
@@ -7029,7 +7043,7 @@
        if (swap_operands)
  	{
  	  rtx tmp;
-@@ -13490,69 +14826,23 @@ rs6000_emit_vector_compare (enum rtx_cod
+@@ -13511,69 +14844,23 @@ rs6000_emit_vector_compare (enum rtx_cod
  	  op0 = op1;
  	  op1 = tmp;
  	}
@@ -7113,7 +7127,7 @@
  }
  
  /* Emit vector conditional expression.
-@@ -13567,15 +14857,29 @@ rs6000_emit_vector_cond_expr (rtx dest, 
+@@ -13588,15 +14875,29 @@ rs6000_emit_vector_cond_expr (rtx dest, 
    enum rtx_code rcode = GET_CODE (cond);
    rtx mask;
  
@@ -7146,7 +7160,7 @@
  }
  
  /* Emit a conditional move: move TRUE_COND to DEST if OP of the
-@@ -13771,8 +15075,8 @@ rs6000_emit_int_cmove (rtx dest, rtx op,
+@@ -13792,8 +15093,8 @@ rs6000_emit_int_cmove (rtx dest, rtx op,
  {
    rtx condition_rtx, cr;
  
@@ -7157,7 +7171,7 @@
      return 0;
  
    /* We still have to do the compare, because isel doesn't do a
-@@ -13781,12 +15085,24 @@ rs6000_emit_int_cmove (rtx dest, rtx op,
+@@ -13802,12 +15103,24 @@ rs6000_emit_int_cmove (rtx dest, rtx op,
    condition_rtx = rs6000_generate_compare (GET_CODE (op));
    cr = XEXP (condition_rtx, 0);
  
@@ -7187,7 +7201,7 @@
  
    return 1;
  }
-@@ -13813,6 +15129,15 @@ rs6000_emit_minmax (rtx dest, enum rtx_c
+@@ -13834,6 +15147,15 @@ rs6000_emit_minmax (rtx dest, enum rtx_c
    enum rtx_code c;
    rtx target;
  
@@ -7203,7 +7217,7 @@
    if (code == SMAX || code == SMIN)
      c = GE;
    else
-@@ -15790,6 +17115,7 @@ emit_frame_save (rtx frame_reg, rtx fram
+@@ -15811,6 +17133,7 @@ emit_frame_save (rtx frame_reg, rtx fram
  
    /* Some cases that need register indexed addressing.  */
    if ((TARGET_ALTIVEC_ABI && ALTIVEC_VECTOR_MODE (mode))
@@ -7211,7 +7225,7 @@
        || (TARGET_E500_DOUBLE && mode == DFmode)
        || (TARGET_SPE_ABI
  	  && SPE_VECTOR_MODE (mode)
-@@ -18804,6 +20130,7 @@ rs6000_adjust_cost (rtx insn, rtx link, 
+@@ -18923,6 +20246,7 @@ rs6000_adjust_cost (rtx insn, rtx link, 
                   || rs6000_cpu_attr == CPU_PPC7450
                   || rs6000_cpu_attr == CPU_POWER4
                   || rs6000_cpu_attr == CPU_POWER5
@@ -7219,7 +7233,7 @@
                   || rs6000_cpu_attr == CPU_CELL)
                  && recog_memoized (dep_insn)
                  && (INSN_CODE (dep_insn) >= 0))
-@@ -19043,6 +20370,35 @@ rs6000_adjust_cost (rtx insn, rtx link, 
+@@ -19162,6 +20486,35 @@ rs6000_adjust_cost (rtx insn, rtx link, 
    return cost;
  }
  
@@ -7255,7 +7269,7 @@
  /* The function returns a true if INSN is microcoded.
     Return false otherwise.  */
  
-@@ -19324,6 +20680,7 @@ rs6000_issue_rate (void)
+@@ -19443,6 +20796,7 @@ rs6000_issue_rate (void)
    case CPU_POWER4:
    case CPU_POWER5:
    case CPU_POWER6:
@@ -7263,7 +7277,7 @@
      return 5;
    default:
      return 1;
-@@ -19925,6 +21282,41 @@ insn_must_be_first_in_group (rtx insn)
+@@ -20044,6 +21398,41 @@ insn_must_be_first_in_group (rtx insn)
            break;
          }
        break;
@@ -7305,7 +7319,7 @@
      default:
        break;
      }
-@@ -19986,6 +21378,23 @@ insn_must_be_last_in_group (rtx insn)
+@@ -20105,6 +21494,23 @@ insn_must_be_last_in_group (rtx insn)
          break;
      }
      break;
@@ -7329,7 +7343,7 @@
    default:
      break;
    }
-@@ -20558,8 +21967,8 @@ rs6000_handle_altivec_attribute (tree *n
+@@ -20677,8 +22083,8 @@ rs6000_handle_altivec_attribute (tree *n
    else if (type == long_long_unsigned_type_node
             || type == long_long_integer_type_node)
      error ("use of %<long long%> in AltiVec types is invalid");
@@ -7340,7 +7354,7 @@
    else if (type == long_double_type_node)
      error ("use of %<long double%> in AltiVec types is invalid");
    else if (type == boolean_type_node)
-@@ -20585,6 +21994,7 @@ rs6000_handle_altivec_attribute (tree *n
+@@ -20704,6 +22110,7 @@ rs6000_handle_altivec_attribute (tree *n
  	  result = (unsigned_p ? unsigned_V16QI_type_node : V16QI_type_node);
  	  break;
  	case SFmode: result = V4SF_type_node; break;
@@ -7348,7 +7362,7 @@
  	  /* If the user says 'vector int bool', we may be handed the 'bool'
  	     attribute _before_ the 'vector' attribute, and so select the
  	     proper type in the 'b' case below.  */
-@@ -22106,6 +23516,43 @@ rs6000_rtx_costs (rtx x, int code, int o
+@@ -22242,6 +23649,43 @@ rs6000_rtx_costs (rtx x, int code, int o
    return false;
  }
  
@@ -7392,7 +7406,7 @@
  /* A C expression returning the cost of moving data from a register of class
     CLASS1 to one of CLASS2.  */
  
-@@ -22120,7 +23567,7 @@ rs6000_register_move_cost (enum machine_
+@@ -22256,7 +23700,7 @@ rs6000_register_move_cost (enum machine_
        if (! reg_classes_intersect_p (to, GENERAL_REGS))
  	from = to;
  
@@ -7401,7 +7415,7 @@
  	return (rs6000_memory_move_cost (mode, from, 0)
  		+ rs6000_memory_move_cost (mode, GENERAL_REGS, 0));
  
-@@ -22140,6 +23587,12 @@ rs6000_register_move_cost (enum machine_
+@@ -22276,6 +23720,12 @@ rs6000_register_move_cost (enum machine_
  	return 2 * hard_regno_nregs[0][mode];
      }
  
@@ -7414,7 +7428,7 @@
    /* Moving between two similar registers is just one instruction.  */
    else if (reg_classes_intersect_p (to, from))
      return (mode == TFmode || mode == TDmode) ? 4 : 2;
-@@ -22380,8 +23833,8 @@ rs6000_emit_swrsqrtsf (rtx dst, rtx src)
+@@ -22516,8 +23966,8 @@ rs6000_emit_swrsqrtsf (rtx dst, rtx src)
    emit_label (XEXP (label, 0));
  }
  
@@ -7425,7 +7439,7 @@
  
  void
  rs6000_emit_popcount (rtx dst, rtx src)
-@@ -22389,6 +23842,16 @@ rs6000_emit_popcount (rtx dst, rtx src)
+@@ -22525,6 +23975,16 @@ rs6000_emit_popcount (rtx dst, rtx src)
    enum machine_mode mode = GET_MODE (dst);
    rtx tmp1, tmp2;
  
@@ -7442,7 +7456,7 @@
    tmp1 = gen_reg_rtx (mode);
  
    if (mode == SImode)
-@@ -22801,7 +24264,7 @@ rs6000_vector_mode_supported_p (enum mac
+@@ -22937,7 +24397,7 @@ rs6000_vector_mode_supported_p (enum mac
    if (TARGET_SPE && SPE_VECTOR_MODE (mode))
      return true;
  
