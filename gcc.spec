@@ -1,9 +1,9 @@
-%global DATE 20090818
-%global SVNREV 150873
+%global DATE 20090901
+%global SVNREV 151272
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -43,7 +43,7 @@ Version: %{gcc_version}
 Release: %{gcc_release}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
-License: GPLv3+, GPLv3+ with exceptions and GPLv2+ with exceptions
+License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group: Development/Languages
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -155,9 +155,6 @@ Patch20: gcc44-libtool-no-rpath.patch
 Patch21: gcc44-cloog-dl.patch
 Patch22: gcc44-raw-string.patch
 Patch24: gcc44-unwind-debug-hook.patch
-Patch25: gcc44-power7.patch
-Patch26: gcc44-power7-2.patch
-Patch27: gcc44-power7-3.patch
 Patch28: gcc44-pr38757.patch
 Patch29: gcc44-libstdc++-docs.patch
 Patch30: gcc44-rh503816-1.patch
@@ -464,9 +461,6 @@ which are required to compile with the GNAT.
 %endif
 %patch22 -p0 -b .raw-string~
 %patch24 -p0 -b .unwind-debug-hook~
-%patch25 -p0 -b .power7~
-%patch26 -p0 -b .power7-2~
-%patch27 -p0 -b .power7-3~
 %patch28 -p0 -b .pr38757~
 %if %{build_libstdcxx_docs}
 %patch29 -p0 -b .libstdc++-docs~
@@ -1812,6 +1806,18 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Sep  1 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-7
+- update from gcc-4_4-branch
+  - PRs c++/41120, c++/41127, c++/41131, fortran/41062, fortran/41102,
+	fortran/41121, fortran/41126, fortran/41139, fortran/41157,
+	fortran/41162, libfortran/40962, libstdc++/41005, middle-end/41094,
+	middle-end/41123, middle-end/41163, target/34412, target/40718
+- fix pr22033.C on ppc*/ia64/sparc*
+- emit namespace DIE even if it contains just some used type (PR debug/41170)
+- fix dynamic_cast (#519517)
+- backport power7 changes from the trunk, instead of using the old incomplete
+  backport from ibm/power7-meissner
+
 * Tue Aug 18 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-6
 - update from gcc-4_4-branch
   - PRs bootstrap/41018, c/41046, debug/37801, debug/40990, fortran/40847,
