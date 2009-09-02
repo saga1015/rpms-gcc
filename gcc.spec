@@ -1,9 +1,9 @@
-%global DATE 20090901
-%global SVNREV 151272
+%global DATE 20090902
+%global SVNREV 151328
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -144,22 +144,21 @@ Patch2: gcc44-c++-builtin-redecl.patch
 Patch3: gcc44-ia64-libunwind.patch
 Patch4: gcc44-java-nomulti.patch
 Patch5: gcc44-ppc32-retaddr.patch
-Patch9: gcc44-pr33763.patch
-Patch10: gcc44-rh330771.patch
-Patch11: gcc44-rh341221.patch
-Patch12: gcc44-java-debug-iface-type.patch
-Patch13: gcc44-i386-libgomp.patch
-Patch15: gcc44-sparc-config-detection.patch
-Patch16: gcc44-libgomp-omp_h-multilib.patch
-Patch20: gcc44-libtool-no-rpath.patch
-Patch21: gcc44-cloog-dl.patch
-Patch22: gcc44-raw-string.patch
-Patch24: gcc44-unwind-debug-hook.patch
-Patch28: gcc44-pr38757.patch
-Patch29: gcc44-libstdc++-docs.patch
-Patch30: gcc44-rh503816-1.patch
-Patch31: gcc44-rh503816-2.patch
-Patch32: gcc44-unique-object.patch
+Patch6: gcc44-pr33763.patch
+Patch7: gcc44-rh330771.patch
+Patch8: gcc44-rh341221.patch
+Patch9: gcc44-java-debug-iface-type.patch
+Patch10: gcc44-i386-libgomp.patch
+Patch11: gcc44-sparc-config-detection.patch
+Patch12: gcc44-libgomp-omp_h-multilib.patch
+Patch13: gcc44-libtool-no-rpath.patch
+Patch14: gcc44-cloog-dl.patch
+Patch15: gcc44-raw-string.patch
+Patch16: gcc44-unwind-debug-hook.patch
+Patch17: gcc44-pr38757.patch
+Patch18: gcc44-libstdc++-docs.patch
+Patch19: gcc44-rh503816-1.patch
+Patch20: gcc44-rh503816-2.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -448,26 +447,25 @@ which are required to compile with the GNAT.
 %patch3 -p0 -b .ia64-libunwind~
 %patch4 -p0 -b .java-nomulti~
 %patch5 -p0 -b .ppc32-retaddr~
-%patch9 -p0 -b .pr33763~
-%patch10 -p0 -b .rh330771~
-%patch11 -p0 -b .rh341221~
-%patch12 -p0 -b .java-debug-iface-type~
-%patch13 -p0 -b .i386-libgomp~
-%patch15 -p0 -b .sparc-config-detection~
-%patch16 -p0 -b .libgomp-omp_h-multilib~
-%patch20 -p0 -b .libtool-no-rpath~
+%patch6 -p0 -b .pr33763~
+%patch7 -p0 -b .rh330771~
+%patch8 -p0 -b .rh341221~
+%patch9 -p0 -b .java-debug-iface-type~
+%patch10 -p0 -b .i386-libgomp~
+%patch11 -p0 -b .sparc-config-detection~
+%patch12 -p0 -b .libgomp-omp_h-multilib~
+%patch13 -p0 -b .libtool-no-rpath~
 %if %{build_cloog}
-%patch21 -p0 -b .cloog-dl~
+%patch14 -p0 -b .cloog-dl~
 %endif
-%patch22 -p0 -b .raw-string~
-%patch24 -p0 -b .unwind-debug-hook~
-%patch28 -p0 -b .pr38757~
+%patch15 -p0 -b .raw-string~
+%patch16 -p0 -b .unwind-debug-hook~
+%patch17 -p0 -b .pr38757~
 %if %{build_libstdcxx_docs}
-%patch29 -p0 -b .libstdc++-docs~
+%patch18 -p0 -b .libstdc++-docs~
 %endif
-%patch30 -p0 -b .rh503816-1~
-%patch31 -p0 -b .rh503816-2~
-%patch32 -p0 -b .unique-object~
+%patch19 -p0 -b .rh503816-1~
+%patch20 -p0 -b .rh503816-2~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -604,6 +602,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
+	--enable-gnu-unique-object \
 %if !%{build_ada}
 	--enable-languages=c,c++,objc,obj-c++,java,fortran \
 %else
@@ -1806,6 +1805,10 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Sep  2 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-8
+- fix up __builtin_object_size (#505862)
+- fix Fortran GOTO warning (PR fortran/38507)
+
 * Tue Sep  1 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-7
 - update from gcc-4_4-branch
   - PRs c++/41120, c++/41127, c++/41131, fortran/41062, fortran/41102,
