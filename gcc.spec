@@ -1,9 +1,9 @@
-%global DATE 20090902
-%global SVNREV 151328
+%global DATE 20090903
+%global SVNREV 151396
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 8
+%global gcc_release 9
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -1805,6 +1805,11 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Sep  3 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-9
+- update from gcc-4_4-branch
+  - fix wide char constant stringification
+- __builtin_unreachable fix
+
 * Wed Sep  2 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-8
 - fix up __builtin_object_size (#505862)
 - fix Fortran GOTO warning (PR fortran/38507)
