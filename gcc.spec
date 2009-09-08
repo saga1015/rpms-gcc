@@ -1,9 +1,9 @@
-%global DATE 20090903
-%global SVNREV 151396
+%global DATE 20090908
+%global SVNREV 151505
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 9
+%global gcc_release 10
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -70,6 +70,8 @@ BuildRequires: binutils >= 2.19.51.0.14
 # -static is used several times.
 BuildRequires: glibc-static
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
+# For VTA guality testing
+BuildRequires: gdb
 %if %{build_java}
 BuildRequires: /usr/share/java/eclipse-ecj.jar, zip, unzip
 %if %{bootstrap_java}
@@ -157,8 +159,12 @@ Patch15: gcc44-raw-string.patch
 Patch16: gcc44-unwind-debug-hook.patch
 Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
-Patch19: gcc44-rh503816-1.patch
-Patch20: gcc44-rh503816-2.patch
+Patch19: gcc44-vta-cfgexpand-ptr-mode-pr41248.patch
+Patch20: gcc44-vta-cselib-subreg-of-value-pr41276.patch
+Patch21: gcc44-vta-loop-ivopts-propagate-on-release.patch
+Patch22: gcc44-vta-no-g-with-gtoggle.patch
+Patch23: gcc44-vta-phiopt-pr41232.patch
+Patch24: gcc44-vta-ssa-update-former-vops-pr41229.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -464,8 +470,12 @@ which are required to compile with the GNAT.
 %if %{build_libstdcxx_docs}
 %patch18 -p0 -b .libstdc++-docs~
 %endif
-%patch19 -p0 -b .rh503816-1~
-%patch20 -p0 -b .rh503816-2~
+%patch19 -p0 -b .vta-cfgexpand-ptr-mode-pr41248~
+%patch20 -p0 -b .vta-cselib-subreg-of-value-pr41276~
+%patch21 -p0 -b .vta-loop-ivopts-propagate-on-release~
+%patch22 -p0 -b .vta-no-g-with-gtoggle~
+%patch23 -p0 -b .vta-phiopt-pr41232~
+%patch24 -p0 -b .vta-ssa-update-former-vops-pr41229~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1805,6 +1815,13 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Tue Sep  8 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-10
+- update from gcc-4_4-branch
+  - PRs fortran/41258, rtl-optimization/40861
+- fix scheduler not to reorder potentially trapping insns across
+  calls that might not always return (#520916, PR rtl-optimization/41239)
+- merge in VTA
+
 * Thu Sep  3 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-9
 - update from gcc-4_4-branch
   - fix wide char constant stringification

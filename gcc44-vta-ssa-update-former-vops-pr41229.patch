@@ -1,0 +1,41 @@
+for  gcc/ChangeLog
+from  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/41229
+	* tree-ssa.c (execute_update_addresses_taken): Update debug insns.
+
+for  gcc/testsuite/ChangeLog
+from  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/41229
+	* gfortran.dg/pr41229.f90: New.
+
+Index: gcc/testsuite/gfortran.dg/pr41229.f90
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gcc/testsuite/gfortran.dg/pr41229.f90	2009-09-07 19:16:17.000000000 -0300
+@@ -0,0 +1,10 @@
++! { dg-do compile }
++! { dg-options "-O2 -g" }
++SUBROUTINE cp_fm_triangular_multiply()
++    INTEGER, PARAMETER :: dp=KIND(0.0D0)
++    REAL(dp), ALLOCATABLE, DIMENSION(:)      :: tau, work
++    REAL(KIND=dp), DIMENSION(:, :), POINTER  :: a
++    ndim = SIZE(a,2)
++    ALLOCATE(tau(ndim),STAT=istat)
++    ALLOCATE(work(2*ndim),STAT=istat)
++END SUBROUTINE
+Index: gcc/tree-ssa.c
+===================================================================
+--- gcc/tree-ssa.c.orig	2009-09-07 19:15:39.000000000 -0300
++++ gcc/tree-ssa.c	2009-09-07 19:17:19.000000000 -0300
+@@ -2067,7 +2067,8 @@ execute_update_addresses_taken (void)
+ 	  if ((gimple_loaded_syms (stmt)
+ 	       && bitmap_intersect_p (gimple_loaded_syms (stmt), vars_updated))
+ 	      || (gimple_stored_syms (stmt)
+-		  && bitmap_intersect_p (gimple_stored_syms (stmt), vars_updated)))
++		  && bitmap_intersect_p (gimple_stored_syms (stmt), vars_updated))
++	      || is_gimple_debug (stmt))
+ 	    update_stmt (stmt);
+ 	}
+   BITMAP_FREE (not_reg_needs);

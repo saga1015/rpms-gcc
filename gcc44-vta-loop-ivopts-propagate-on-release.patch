@@ -1,0 +1,207 @@
+for  gcc/ChangeLog
+from  Alexandre Oliva  <aoliva@redhat.com>
+
+	* tree-ssa-loop-ivopts.c (get_phi_with_result): Remove.
+	(remove_statement): Likewise.
+	(rewrite_use_nonlinear_expr): Adjust.
+	(remove_unused_ivs): Collect SSA NAMEs to remove and call...
+	* tree-ssa.c (release_defs_bitset): ... this.  New.
+	* tree-flow.h (release_defs_bitset): Declare.
+
+Index: gcc/tree-ssa-loop-ivopts.c
+===================================================================
+--- gcc/tree-ssa-loop-ivopts.c.orig	2009-09-07 19:00:52.000000000 -0300
++++ gcc/tree-ssa-loop-ivopts.c	2009-09-07 19:15:39.000000000 -0300
+@@ -5038,42 +5038,6 @@ create_new_ivs (struct ivopts_data *data
+     }
+ }
+ 
+-/* Returns the phi-node in BB with result RESULT.  */
+-
+-static gimple
+-get_phi_with_result (basic_block bb, tree result)
+-{
+-  gimple_stmt_iterator i = gsi_start_phis (bb);
+-
+-  for (; !gsi_end_p (i); gsi_next (&i))
+-    if (gimple_phi_result (gsi_stmt (i)) == result)
+-      return gsi_stmt (i);
+-
+-  gcc_unreachable ();
+-  return NULL;
+-}
+-
+-
+-/* Removes statement STMT (real or a phi node).  If INCLUDING_DEFINED_NAME
+-   is true, remove also the ssa name defined by the statement.  */
+-
+-static void
+-remove_statement (gimple stmt, bool including_defined_name)
+-{
+-  if (gimple_code (stmt) == GIMPLE_PHI)
+-    {
+-      gimple bb_phi = get_phi_with_result (gimple_bb (stmt), 
+-					 gimple_phi_result (stmt));
+-      gimple_stmt_iterator bsi = gsi_for_stmt (bb_phi);
+-      remove_phi_node (&bsi, including_defined_name);
+-    }
+-  else
+-    {
+-      gimple_stmt_iterator bsi = gsi_for_stmt (stmt);
+-      gsi_remove (&bsi, true);
+-      release_defs (stmt); 
+-    }
+-}
+ 
+ /* Rewrites USE (definition of iv used in a nonlinear expression)
+    using candidate CAND.  */
+@@ -5176,7 +5140,9 @@ rewrite_use_nonlinear_expr (struct ivopt
+     {
+       ass = gimple_build_assign (tgt, op);
+       gsi_insert_before (&bsi, ass, GSI_SAME_STMT);
+-      remove_statement (use->stmt, false);
++
++      bsi = gsi_for_stmt (use->stmt);
++      remove_phi_node (&bsi, false);
+     }
+   else
+     {
+@@ -5414,7 +5380,11 @@ remove_unused_ivs (struct ivopts_data *d
+ {
+   unsigned j;
+   bitmap_iterator bi;
++  bitmap toremove = BITMAP_ALLOC (NULL);
+ 
++  /* Figure out an order in which to release SSA DEFs so that we don't
++     release something that we'd have to propagate into a debug stmt
++     afterwards.  */
+   EXECUTE_IF_SET_IN_BITMAP (data->relevant, 0, j, bi)
+     {
+       struct version_info *info;
+@@ -5425,25 +5395,12 @@ remove_unused_ivs (struct ivopts_data *d
+ 	  && !info->inv_id
+ 	  && !info->iv->have_use_for
+ 	  && !info->preserve_biv)
+-	{
+-	  if (MAY_HAVE_DEBUG_STMTS)
+-	    {
+-	      gimple stmt;
+-	      imm_use_iterator iter;
+-
+-	      FOR_EACH_IMM_USE_STMT (stmt, iter, info->iv->ssa_name)
+-		{
+-		  if (!gimple_debug_bind_p (stmt))
+-		    continue;
+-
+-		  /* ??? We can probably do better than this.  */
+-		  gimple_debug_bind_reset_value (stmt);
+-		  update_stmt (stmt);
+-		}
+-	    }
+-	  remove_statement (SSA_NAME_DEF_STMT (info->iv->ssa_name), true);
+-	}
++	bitmap_set_bit (toremove, SSA_NAME_VERSION (info->iv->ssa_name));
+     }
++
++  release_defs_bitset (toremove);
++
++  BITMAP_FREE (toremove);
+ }
+ 
+ /* Frees data allocated by the optimization of a single loop.  */
+Index: gcc/tree-flow.h
+===================================================================
+--- gcc/tree-flow.h.orig	2009-07-12 08:19:36.000000000 -0300
++++ gcc/tree-flow.h	2009-09-07 19:15:39.000000000 -0300
+@@ -586,9 +586,10 @@ typedef struct 
+        (VAR) = next_referenced_var (&(ITER))) 
+ 
+ void propagate_defs_into_debug_stmts (gimple, basic_block,
+-				  const gimple_stmt_iterator *);
++				      const gimple_stmt_iterator *);
+ void propagate_var_def_into_debug_stmts (tree, basic_block,
+-					  const gimple_stmt_iterator *);
++					 const gimple_stmt_iterator *);
++void release_defs_bitset (bitmap toremove);
+ 
+ typedef struct
+ {
+Index: gcc/tree-ssa.c
+===================================================================
+--- gcc/tree-ssa.c.orig	2009-09-01 16:16:04.000000000 -0300
++++ gcc/tree-ssa.c	2009-09-07 19:15:39.000000000 -0300
+@@ -440,6 +440,74 @@ propagate_defs_into_debug_stmts (gimple 
+     }
+ }
+ 
++/* Delete SSA DEFs for SSA versions in the TOREMOVE bitmap, removing
++   dominated stmts before their dominators, so that release_ssa_defs
++   stands a chance of propagating DEFs into debug bind stmts.  */
++
++void
++release_defs_bitset (bitmap toremove)
++{
++  unsigned j;
++  bitmap_iterator bi;
++
++  /* Performing a topological sort is probably overkill, this will
++     most likely run in slightly superlinear time, rather than the
++     pathological quadratic worst case.  */
++  while (!bitmap_empty_p (toremove))
++    EXECUTE_IF_SET_IN_BITMAP (toremove, 0, j, bi)
++      {
++	bool remove_now = true;
++	tree var = ssa_name (j);
++	gimple stmt;
++	imm_use_iterator uit;
++
++	FOR_EACH_IMM_USE_STMT (stmt, uit, var)
++	  {
++	    ssa_op_iter dit;
++	    def_operand_p def_p;
++
++	    /* We can't propagate PHI nodes into debug stmts.  */
++	    if (gimple_code (stmt) == GIMPLE_PHI
++		|| is_gimple_debug (stmt))
++	      continue;
++
++	    /* If we find another definition to remove that uses
++	       the one we're looking at, defer the removal of this
++	       one, so that it can be propagated into debug stmts
++	       after the other is.  */
++	    FOR_EACH_SSA_DEF_OPERAND (def_p, stmt, dit, SSA_OP_DEF)
++	      {
++		tree odef = DEF_FROM_PTR (def_p);
++
++		if (bitmap_bit_p (toremove, SSA_NAME_VERSION (odef)))
++		  {
++		    remove_now = false;
++		    break;
++		  }
++	      }
++
++	    if (!remove_now)
++	      BREAK_FROM_IMM_USE_STMT (uit);
++	  }
++
++	if (remove_now)
++	  {
++	    gimple def = SSA_NAME_DEF_STMT (var);
++	    gimple_stmt_iterator gsi = gsi_for_stmt (def);
++
++	    if (gimple_code (def) == GIMPLE_PHI)
++	      remove_phi_node (&gsi, true);
++	    else
++	      {
++		gsi_remove (&gsi, true);
++		release_defs (def);
++	      }
++
++	    bitmap_clear_bit (toremove, j);
++	  }
++      }
++}
++
+ /* Return true if SSA_NAME is malformed and mark it visited.
+ 
+    IS_VIRTUAL is true if this SSA_NAME was found inside a virtual

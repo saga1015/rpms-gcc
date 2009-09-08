@@ -1,0 +1,30 @@
+for  gcc/ChangeLog
+from  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/41276
+	* cselib.c (cselib_expand_value_rtx_1): Don't return copy of
+	invalid subreg.
+
+Index: gcc/cselib.c
+===================================================================
+--- gcc/cselib.c.orig	2009-08-14 08:00:12.000000000 -0300
++++ gcc/cselib.c	2009-09-07 19:17:35.000000000 -0300
+@@ -1165,12 +1165,12 @@ cselib_expand_value_rtx_1 (rtx orig, str
+ 	scopy = simplify_gen_subreg (GET_MODE (orig), subreg,
+ 				     GET_MODE (SUBREG_REG (orig)),
+ 				     SUBREG_BYTE (orig));
+-	if (scopy == NULL
+-	    || (GET_CODE (scopy) == SUBREG
+-		&& !REG_P (SUBREG_REG (scopy))
+-		&& !MEM_P (SUBREG_REG (scopy))
+-		&& (REG_P (SUBREG_REG (orig))
+-		    || MEM_P (SUBREG_REG (orig)))))
++	if ((scopy == NULL
++	     || (GET_CODE (scopy) == SUBREG
++		 && !REG_P (SUBREG_REG (scopy))
++		 && !MEM_P (SUBREG_REG (scopy))))
++	    && (REG_P (SUBREG_REG (orig))
++		|| MEM_P (SUBREG_REG (orig))))
+ 	  return shallow_copy_rtx (orig);
+ 	return scopy;
+       }
