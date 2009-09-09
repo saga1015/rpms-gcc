@@ -86,7 +86,7 @@ Index: gcc/cselib.c
 @@ -1185,20 +1201,16 @@ cselib_expand_value_rtx_1 (rtx orig, str
  	    fputs (" into...", dump_file);
  	  }
- 
+ 	
 -	if (!evd->callback)
 -	  result = NULL;
 -	else

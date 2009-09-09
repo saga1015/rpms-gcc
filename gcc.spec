@@ -1,9 +1,9 @@
-%global DATE 20090908
-%global SVNREV 151505
+%global DATE 20090909
+%global SVNREV 151553
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 10
+%global gcc_release 11
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -160,11 +160,7 @@ Patch16: gcc44-unwind-debug-hook.patch
 Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-vta-cfgexpand-ptr-mode-pr41248.patch
-Patch20: gcc44-vta-cselib-subreg-of-value-pr41276.patch
-Patch21: gcc44-vta-loop-ivopts-propagate-on-release.patch
-Patch22: gcc44-vta-no-g-with-gtoggle.patch
-Patch23: gcc44-vta-phiopt-pr41232.patch
-Patch24: gcc44-vta-ssa-update-former-vops-pr41229.patch
+Patch20: gcc44-vta-cselib-subreg-of-value-more-pr41276.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -471,11 +467,7 @@ which are required to compile with the GNAT.
 %patch18 -p0 -b .libstdc++-docs~
 %endif
 %patch19 -p0 -b .vta-cfgexpand-ptr-mode-pr41248~
-%patch20 -p0 -b .vta-cselib-subreg-of-value-pr41276~
-%patch21 -p0 -b .vta-loop-ivopts-propagate-on-release~
-%patch22 -p0 -b .vta-no-g-with-gtoggle~
-%patch23 -p0 -b .vta-phiopt-pr41232~
-%patch24 -p0 -b .vta-ssa-update-former-vops-pr41229~
+%patch20 -p0 -b .gcc44-vta-cselib-subreg-of-value-more-pr41276~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1168,7 +1160,7 @@ echo ====================TESTING=========================
 ( LC_ALL=C ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
 mkdir testlogs-%{_target_platform}-%{version}-%{release}
-for i in `find . -name \*.log | grep -F testsuite/ | grep -v 'config.log\|acats\|ada'`; do
+for i in `find . -name \*.log | grep -F testsuite/ | grep -v 'config.log\|acats.*/tests/'`; do
   ln $i testlogs-%{_target_platform}-%{version}-%{release}/ || :
 done
 tar cf - testlogs-%{_target_platform}-%{version}-%{release} | bzip2 -9c \
@@ -1815,6 +1807,9 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Sep  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-11
+- fix ICE in tls_mem_loc_descriptor (#521991)
+
 * Tue Sep  8 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-10
 - update from gcc-4_4-branch
   - PRs fortran/41258, rtl-optimization/40861
