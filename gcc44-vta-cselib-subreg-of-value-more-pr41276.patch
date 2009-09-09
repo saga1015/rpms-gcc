@@ -1,0 +1,188 @@
+for  gcc/ChangeLog
+from  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/41276
+	PR debug/41307
+	* cselib.c (cselib_expand_value_rtx_cb): Document callback
+	interface.
+	(cselib_expand_value_rtx_1): Use callback for SUBREGs.  Adjust
+	for VALUEs, to implement the documented interface.
+	* var-tracking.c (vt_expand_loc_callback): Handle SUBREGs.
+	Adjust for VALUEs and anything else, to implement the
+	documented interface.
+
+Index: gcc/cselib.c
+===================================================================
+--- gcc/cselib.c.orig	2009-09-08 19:34:10.000000000 -0300
++++ gcc/cselib.c	2009-09-09 05:20:52.000000000 -0300
+@@ -1053,7 +1053,10 @@ cselib_expand_value_rtx (rtx orig, bitma
+ }
+ 
+ /* Same as cselib_expand_value_rtx, but using a callback to try to
+-   resolve VALUEs that expand to nothing.  */
++   resolve some expressions.  The CB function should return ORIG if it
++   can't or does not want to deal with a certain RTX.  Any other
++   return value, including NULL, will be used as the expansion for
++   VALUE, without any further changes.  */
+ 
+ rtx
+ cselib_expand_value_rtx_cb (rtx orig, bitmap regs_active, int max_depth,
+@@ -1068,6 +1071,9 @@ cselib_expand_value_rtx_cb (rtx orig, bi
+   return cselib_expand_value_rtx_1 (orig, &evd, max_depth);
+ }
+ 
++/* Internal implementation of cselib_expand_value_rtx and
++   cselib_expand_value_rtx_cb.  */
++
+ static rtx
+ cselib_expand_value_rtx_1 (rtx orig, struct expand_value_data *evd,
+ 			   int max_depth)
+@@ -1158,26 +1164,36 @@ cselib_expand_value_rtx_1 (rtx orig, str
+ 
+     case SUBREG:
+       {
+-	rtx subreg = cselib_expand_value_rtx_1 (SUBREG_REG (orig), evd,
+-						max_depth - 1);
++	rtx subreg;
++
++	if (evd->callback)
++	  {
++	    subreg = evd->callback (orig, evd->regs_active, max_depth,
++				    evd->callback_arg);
++	    if (subreg != orig)
++	      return subreg;
++	  }
++
++	subreg = cselib_expand_value_rtx_1 (SUBREG_REG (orig), evd,
++					    max_depth - 1);
+ 	if (!subreg)
+ 	  return NULL;
+ 	scopy = simplify_gen_subreg (GET_MODE (orig), subreg,
+ 				     GET_MODE (SUBREG_REG (orig)),
+ 				     SUBREG_BYTE (orig));
+-	if ((scopy == NULL
+-	     || (GET_CODE (scopy) == SUBREG
+-		 && !REG_P (SUBREG_REG (scopy))
+-		 && !MEM_P (SUBREG_REG (scopy))))
+-	    && (REG_P (SUBREG_REG (orig))
+-		|| MEM_P (SUBREG_REG (orig))))
+-	  return shallow_copy_rtx (orig);
++	if (scopy == NULL
++	    || (GET_CODE (scopy) == SUBREG
++		&& !REG_P (SUBREG_REG (scopy))
++		&& !MEM_P (SUBREG_REG (scopy))))
++	  return NULL;
++
+ 	return scopy;
+       }
+ 
+     case VALUE:
+       {
+ 	rtx result;
++
+ 	if (dump_file && (dump_flags & TDF_DETAILS))
+ 	  {
+ 	    fputs ("\nexpanding ", dump_file);
+@@ -1185,20 +1201,16 @@ cselib_expand_value_rtx_1 (rtx orig, str
+ 	    fputs (" into...", dump_file);
+ 	  }
+ 
+-	if (!evd->callback)
+-	  result = NULL;
+-	else
++	if (evd->callback)
+ 	  {
+ 	    result = evd->callback (orig, evd->regs_active, max_depth,
+ 				    evd->callback_arg);
+-	    if (result == orig)
+-	      result = NULL;
+-	    else if (result)
+-	      result = cselib_expand_value_rtx_1 (result, evd, max_depth);
++
++	    if (result != orig)
++	      return result;
+ 	  }
+ 
+-	if (!result)
+-	  result = expand_loc (CSELIB_VAL_PTR (orig)->locs, evd, max_depth);
++	result = expand_loc (CSELIB_VAL_PTR (orig)->locs, evd, max_depth);
+ 	return result;
+       }
+     default:
+Index: gcc/var-tracking.c
+===================================================================
+--- gcc/var-tracking.c.orig	2009-09-08 19:33:55.000000000 -0300
++++ gcc/var-tracking.c	2009-09-08 20:08:08.000000000 -0300
+@@ -6243,7 +6243,8 @@ check_wrap_constant (enum machine_mode m
+ }
+ 
+ /* Callback for cselib_expand_value, that looks for expressions
+-   holding the value in the var-tracking hash tables.  */
++   holding the value in the var-tracking hash tables.  Return X for
++   standard processing, anything else is to be used as-is.  */
+ 
+ static rtx
+ vt_expand_loc_callback (rtx x, bitmap regs, int max_depth, void *data)
+@@ -6254,19 +6255,46 @@ vt_expand_loc_callback (rtx x, bitmap re
+   location_chain loc;
+   rtx result;
+ 
+-  gcc_assert (GET_CODE (x) == VALUE);
++  if (GET_CODE (x) == SUBREG)
++    {
++      rtx subreg = SUBREG_REG (x);
++
++      if (GET_CODE (SUBREG_REG (x)) != VALUE)
++	return x;
++
++      subreg = cselib_expand_value_rtx_cb (SUBREG_REG (x), regs,
++					   max_depth - 1,
++					   vt_expand_loc_callback, data);
++
++      if (!subreg)
++	return NULL;
++
++      result = simplify_gen_subreg (GET_MODE (x), subreg,
++				    GET_MODE (SUBREG_REG (x)),
++				    SUBREG_BYTE (x));
++
++      /* Invalid SUBREGs are ok in debug info.  ??? We could try
++	 alternate expansions for the VALUE as well.  */
++      if (!result && (REG_P (subreg) || MEM_P (subreg)))
++	result = gen_rtx_raw_SUBREG (GET_MODE (x), subreg, SUBREG_BYTE (x));
++
++      return result;
++    }
++
++  if (GET_CODE (x) != VALUE)
++    return x;
+ 
+   if (VALUE_RECURSED_INTO (x))
+-    return NULL;
++    return x;
+ 
+   dv = dv_from_value (x);
+   var = (variable) htab_find_with_hash (vars, dv, dv_htab_hash (dv));
+ 
+   if (!var)
+-    return NULL;
++    return x;
+ 
+   if (var->n_var_parts == 0)
+-    return NULL;
++    return x;
+ 
+   gcc_assert (var->n_var_parts == 1);
+ 
+@@ -6283,7 +6311,10 @@ vt_expand_loc_callback (rtx x, bitmap re
+     }
+ 
+   VALUE_RECURSED_INTO (x) = false;
+-  return result;
++  if (result)
++    return result;
++  else
++    return x;
+ }
+ 
+ /* Expand VALUEs in LOC, using VARS as well as cselib's equivalence
