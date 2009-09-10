@@ -1,0 +1,136 @@
+svn diff -r151567:151568 svn+ssh://gcc.gnu.org/svn/gcc/trunk
+
+2009-09-09  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/t-slibgcc-elf-ver (SHLIB_MAKE_SOLINK, SHLIB_INSTALL_SOLINK):
+	New variables.
+	(SHLIB_LINK, SHLIB_INSTALL): Use them.
+	* config/t-slibgcc-libgcc: New file.
+	* config.gcc (powerpc*-*-linux*, powerpc*-*-gnu*): Use it.
+
+--- gcc/config.gcc	(revision 151567)
++++ gcc/config.gcc	(revision 151568)
+@@ -1738,12 +1738,12 @@ powerpc64-*-linux*)
+ 		tm_file="rs6000/secureplt.h ${tm_file}"
+ 	fi
+ 	extra_options="${extra_options} rs6000/sysv4.opt rs6000/linux64.opt"
+-	tmake_file="t-dfprules rs6000/t-fprules ${tmake_file} rs6000/t-ppccomm rs6000/t-linux64 rs6000/t-fprules-softfp soft-fp/t-softfp"
++	tmake_file="t-dfprules rs6000/t-fprules ${tmake_file} t-slibgcc-libgcc rs6000/t-ppccomm rs6000/t-linux64 rs6000/t-fprules-softfp soft-fp/t-softfp"
+ 	;;
+ powerpc64-*-gnu*)
+ 	tm_file="${cpu_type}/${cpu_type}.h elfos.h svr4.h freebsd-spec.h gnu.h rs6000/sysv4.h rs6000/linux64.h rs6000/gnu.h"
+ 	extra_options="${extra_options} rs6000/sysv4.opt rs6000/linux64.opt"
+-	tmake_file="rs6000/t-fprules t-slibgcc-elf-ver t-gnu rs6000/t-linux64 rs6000/t-fprules-softfp soft-fp/t-softfp"
++	tmake_file="rs6000/t-fprules t-slibgcc-elf-ver t-slibgcc-libgcc t-gnu rs6000/t-linux64 rs6000/t-fprules-softfp soft-fp/t-softfp"
+ 	;;
+ powerpc-*-darwin*)
+ 	extra_options="${extra_options} rs6000/darwin.opt"
+@@ -1820,22 +1820,22 @@ powerpc-*-rtems*)
+ powerpc-*-linux*altivec*)
+ 	tm_file="${tm_file} dbxelf.h elfos.h svr4.h freebsd-spec.h rs6000/sysv4.h rs6000/linux.h rs6000/linuxaltivec.h"
+ 	extra_options="${extra_options} rs6000/sysv4.opt"
+-	tmake_file="rs6000/t-fprules rs6000/t-fprules-softfp soft-fp/t-softfp rs6000/t-ppcos ${tmake_file} rs6000/t-ppccomm"
++	tmake_file="rs6000/t-fprules rs6000/t-fprules-softfp soft-fp/t-softfp rs6000/t-ppcos ${tmake_file} t-slibgcc-libgcc rs6000/t-ppccomm"
+ 	;;
+ powerpc-*-linux*spe*)
+ 	tm_file="${tm_file} dbxelf.h elfos.h svr4.h freebsd-spec.h rs6000/sysv4.h rs6000/linux.h rs6000/linuxspe.h rs6000/e500.h"
+ 	extra_options="${extra_options} rs6000/sysv4.opt"
+-	tmake_file="t-dfprules rs6000/t-fprules rs6000/t-fprules-softfp soft-fp/t-softfp rs6000/t-ppcos ${tmake_file} rs6000/t-ppccomm"
++	tmake_file="t-dfprules rs6000/t-fprules rs6000/t-fprules-softfp soft-fp/t-softfp rs6000/t-ppcos ${tmake_file} t-slibgcc-libgcc rs6000/t-ppccomm"
+ 	;;
+ powerpc-*-linux*paired*)
+         tm_file="${tm_file} dbxelf.h elfos.h svr4.h freebsd-spec.h rs6000/sysv4.h rs6000/linux.h rs6000/750cl.h"
+         extra_options="${extra_options} rs6000/sysv4.opt"
+-        tmake_file="rs6000/t-fprules rs6000/t-fprules-softfp soft-fp/t-softfp rs6000/t-ppcos ${tmake_file} rs6000/t-ppccomm"
++        tmake_file="rs6000/t-fprules rs6000/t-fprules-softfp soft-fp/t-softfp rs6000/t-ppcos ${tmake_file} t-slibgcc-libgcc rs6000/t-ppccomm"
+         ;;
+ powerpc-*-linux*)
+ 	tm_file="${tm_file} dbxelf.h elfos.h svr4.h freebsd-spec.h rs6000/sysv4.h"
+ 	extra_options="${extra_options} rs6000/sysv4.opt"
+-	tmake_file="t-dfprules rs6000/t-fprules rs6000/t-ppcos ${tmake_file} rs6000/t-ppccomm"
++	tmake_file="t-dfprules rs6000/t-fprules rs6000/t-ppcos ${tmake_file} t-slibgcc-libgcc rs6000/t-ppccomm"
+ 	case ${enable_targets}:${cpu_is_64bit} in
+ 	    *powerpc64* | all:* | *:yes)
+ 		if test x$cpu_is_64bit = xyes; then
+@@ -1857,14 +1857,14 @@ powerpc-*-linux*)
+ powerpc-*-gnu-gnualtivec*)
+ 	tm_file="${cpu_type}/${cpu_type}.h elfos.h svr4.h freebsd-spec.h gnu.h rs6000/sysv4.h rs6000/linux.h rs6000/linuxaltivec.h rs6000/gnu.h"
+ 	extra_options="${extra_options} rs6000/sysv4.opt"
+-	tmake_file="rs6000/t-fprules rs6000/t-fprules-fpbit rs6000/t-ppcos t-slibgcc-elf-ver t-gnu rs6000/t-ppccomm"
++	tmake_file="rs6000/t-fprules rs6000/t-fprules-fpbit rs6000/t-ppcos t-slibgcc-elf-ver t-slibgcc-libgcc t-gnu rs6000/t-ppccomm"
+ 	if test x$enable_threads = xyes; then
+ 		thread_file='posix'
+ 	fi
+ 	;;
+ powerpc-*-gnu*)
+ 	tm_file="${cpu_type}/${cpu_type}.h elfos.h svr4.h freebsd-spec.h gnu.h rs6000/sysv4.h rs6000/linux.h rs6000/gnu.h"
+-	tmake_file="rs6000/t-fprules rs6000/t-fprules-fpbit rs6000/t-ppcos t-slibgcc-elf-ver t-gnu rs6000/t-ppccomm"
++	tmake_file="rs6000/t-fprules rs6000/t-fprules-fpbit rs6000/t-ppcos t-slibgcc-elf-ver t-slibgcc-libgcc t-gnu rs6000/t-ppccomm"
+ 	extra_options="${extra_options} rs6000/sysv4.opt"
+ 	if test x$enable_threads = xyes; then
+ 		thread_file='posix'
+--- gcc/config/t-slibgcc-libgcc	(revision 0)
++++ gcc/config/t-slibgcc-libgcc	(revision 151568)
+@@ -0,0 +1,32 @@
++# Copyright (C) 2009 Free Software Foundation, Inc.
++#
++# This file is part of GCC.
++#
++# GCC is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3, or (at your option)
++# any later version.
++#
++# GCC is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with GCC; see the file COPYING3.  If not see
++# <http://www.gnu.org/licenses/>.
++
++# Instead of creating $(SHLIB_SOLINK) symlink create a GNU ld
++# linker script which sources in both $(SHLIB_SONAME) and libgcc.a.
++# This is needed on targets where libgcc.a contains routines that aren't in
++# $(SHLIB_SONAME) and are needed for shared libraries.
++
++SHLIB_MAKE_SOLINK = \
++	(echo "/* GNU ld script"; \
++	 echo "   Use the shared library, but some functions are only in"; \
++	 echo "   the static library.  */"; \
++	 echo "GROUP ( $(SHLIB_SONAME) libgcc.a )" \
++	) > $(SHLIB_DIR)/$(SHLIB_SOLINK)
++SHLIB_INSTALL_SOLINK = \
++	$(INSTALL_DATA) $(SHLIB_DIR)/$(SHLIB_SOLINK) \
++	  $$(DESTDIR)$$(slibdir)$(SHLIB_SLIBDIR_QUAL)/$(SHLIB_SOLINK)
+--- gcc/config/t-slibgcc-elf-ver	(revision 151567)
++++ gcc/config/t-slibgcc-elf-ver	(revision 151568)
+@@ -28,6 +28,9 @@ SHLIB_OBJS = @shlib_objs@
+ SHLIB_DIR = @multilib_dir@
+ SHLIB_SLIBDIR_QUAL = @shlib_slibdir_qual@
+ SHLIB_LC = -lc
++SHLIB_MAKE_SOLINK = $(LN_S) $(SHLIB_SONAME) $(SHLIB_DIR)/$(SHLIB_SOLINK)
++SHLIB_INSTALL_SOLINK = $(LN_S) $(SHLIB_SONAME) \
++	$$(DESTDIR)$$(slibdir)$(SHLIB_SLIBDIR_QUAL)/$(SHLIB_SOLINK)
+ 
+ SHLIB_LINK = $(GCC_FOR_TARGET) $(LIBGCC2_CFLAGS) -shared -nodefaultlibs \
+ 	-Wl,--soname=$(SHLIB_SONAME) \
+@@ -40,7 +43,7 @@ SHLIB_LINK = $(GCC_FOR_TARGET) $(LIBGCC2
+ 		$(SHLIB_DIR)/$(SHLIB_SONAME).backup; \
+ 	else true; fi && \
+ 	mv $(SHLIB_DIR)/$(SHLIB_SONAME).tmp $(SHLIB_DIR)/$(SHLIB_SONAME) && \
+-	$(LN_S) $(SHLIB_SONAME) $(SHLIB_DIR)/$(SHLIB_SOLINK)
++	$(SHLIB_MAKE_SOLINK)
+ # $(slibdir) double quoted to protect it from expansion while building
+ # libgcc.mk.  We want this delayed until actual install time.
+ SHLIB_INSTALL = \
+@@ -48,7 +51,6 @@ SHLIB_INSTALL = \
+ 	$(INSTALL_DATA) $(SHLIB_DIR)/$(SHLIB_SONAME) \
+ 	  $$(DESTDIR)$$(slibdir)$(SHLIB_SLIBDIR_QUAL)/$(SHLIB_SONAME); \
+ 	rm -f $$(DESTDIR)$$(slibdir)$(SHLIB_SLIBDIR_QUAL)/$(SHLIB_SOLINK); \
+-	$(LN_S) $(SHLIB_SONAME) \
+-	  $$(DESTDIR)$$(slibdir)$(SHLIB_SLIBDIR_QUAL)/$(SHLIB_SOLINK)
++	$(SHLIB_INSTALL_SOLINK)
+ SHLIB_MKMAP = $(srcdir)/mkmap-symver.awk
+ SHLIB_MAPFILES = $(srcdir)/libgcc-std.ver

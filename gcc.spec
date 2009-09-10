@@ -1,9 +1,9 @@
-%global DATE 20090909
-%global SVNREV 151553
+%global DATE 20090910
+%global SVNREV 151593
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 11
+%global gcc_release 12
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -161,6 +161,8 @@ Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-vta-cfgexpand-ptr-mode-pr41248.patch
 Patch20: gcc44-vta-cselib-subreg-of-value-more-pr41276.patch
+Patch21: gcc44-powerpc-libgcc_s_so.patch
+Patch22: gcc44-pr41175.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -468,6 +470,8 @@ which are required to compile with the GNAT.
 %endif
 %patch19 -p0 -b .vta-cfgexpand-ptr-mode-pr41248~
 %patch20 -p0 -b .gcc44-vta-cselib-subreg-of-value-more-pr41276~
+%patch21 -p0 -b .powerpc-libgcc_s_so~
+%patch22 -p0 -b .pr41175~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -869,6 +873,22 @@ ln -sf /lib64/libgcc_s.so.1 $FULLPATH/64/libgcc_s.so
 %endif
 %ifarch %{multilib_64_archs}
 ln -sf /lib/libgcc_s.so.1 $FULLPATH/32/libgcc_s.so
+%endif
+%ifarch ppc
+rm -f $FULLPATH/libgcc_s.so
+echo '/* GNU ld script
+   Use the shared library, but some functions are only in
+   the static library, so try that secondarily.  */
+OUTPUT_FORMAT(elf32-powerpc)
+GROUP ( /lib/libgcc_s.so.1 libgcc.a )' > $FULLPATH/libgcc_s.so
+%endif
+%ifarch ppc64
+rm -f $FULLPATH/32/libgcc_s.so
+echo '/* GNU ld script
+   Use the shared library, but some functions are only in
+   the static library, so try that secondarily.  */
+OUTPUT_FORMAT(elf32-powerpc)
+GROUP ( /lib/libgcc_s.so.1 libgcc.a )' > $FULLPATH/32/libgcc_s.so
 %endif
 
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.spec $FULLPATH/
@@ -1807,6 +1827,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Sep 10 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-12
+- update from gcc-4_4-branch
+  - PRs bootstrap/41180, target/41315
+- fix ICE in tree-ssa-phiprop.c (#522277, PR tree-optimization/39827)
+- ppc64 bswap fix
+- fix ppc/ppc64 -mmultiple and out of line gpr/fpr saving bugs
+  (#519409, PR target/40677, PR target/41175)
+
 * Wed Sep  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-11
 - fix ICE in tls_mem_loc_descriptor (#521991)
 

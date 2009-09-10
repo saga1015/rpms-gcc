@@ -1,0 +1,236 @@
+2009-09-10  Nathan Froyd  <froydnj@codesourcery.com>
+
+	PR target/40677
+	PR target/41175
+	* config/rs6000/rs6000.c (no_global_regs_above): Fix precedence
+	problem.
+	(rs6000_savres_routine_sym): Fix computation for cache selector.
+	Mark the generated symbol as a function.
+	(rs6000_emit_prologue): Correct use of call_used_regs.
+	(rs6000_emit_epilogue): Adjust computation of restore_lr.
+	Duplicate restoration of LR and execute the appropriate one
+	depending on whether GPRs are being restored inline.
+	* config/rs6000/rs6000.md (*save_gpregs_<mode>): Use explicit
+	match for register 11.
+	(*save_fpregs_<mode>): Likewise.
+	(*restore_gpregs_<mode>): Likewise.
+	(*return_and_restore_gpregs_<mode>): Likewise.
+	(*return_and_restore_fpregs_<mode>): Likewise.
+	* config/rs6000/spe.md (*save_gpregs_spe): Use explicit match for
+	register 11.
+	(*restore_gpregs_spe): Likewise.
+	(*return_and_restore_gpregs_spe): Likewise.
+
+--- gcc/config/rs6000/spe.md.jj	2009-08-31 23:30:14.352526952 +0200
++++ gcc/config/rs6000/spe.md	2009-09-09 20:46:08.391404851 +0200
+@@ -3156,9 +3156,9 @@
+   [(match_parallel 0 "any_parallel_operand"
+ 		   [(clobber (reg:P 65))
+ 		    (use (match_operand:P 1 "symbol_ref_operand" "s"))
+-		    (use (match_operand:P 2 "gpc_reg_operand" "r"))
+-		    (set (match_operand:V2SI 3 "memory_operand" "=m")
+-			 (match_operand:V2SI 4 "gpc_reg_operand" "r"))])]
++		    (use (reg:P 11))
++		    (set (match_operand:V2SI 2 "memory_operand" "=m")
++			 (match_operand:V2SI 3 "gpc_reg_operand" "r"))])]
+   "TARGET_SPE_ABI"
+   "bl %z1"
+   [(set_attr "type" "branch")
+@@ -3168,9 +3168,9 @@
+  [(match_parallel 0 "any_parallel_operand"
+ 		  [(clobber (reg:P 65))
+ 		   (use (match_operand:P 1 "symbol_ref_operand" "s"))
+-		   (use (match_operand:P 2 "gpc_reg_operand" "r"))
+-		   (set (match_operand:V2SI 3 "gpc_reg_operand" "=r")
+-			(match_operand:V2SI 4 "memory_operand" "m"))])]
++		   (use (reg:P 11))
++		   (set (match_operand:V2SI 2 "gpc_reg_operand" "=r")
++			(match_operand:V2SI 3 "memory_operand" "m"))])]
+  "TARGET_SPE_ABI"
+  "bl %z1"
+  [(set_attr "type" "branch")
+@@ -3181,9 +3181,9 @@
+ 		  [(return)
+ 		   (clobber (reg:P 65))
+ 		   (use (match_operand:P 1 "symbol_ref_operand" "s"))
+-		   (use (match_operand:P 2 "gpc_reg_operand" "r"))
+-		   (set (match_operand:V2SI 3 "gpc_reg_operand" "=r")
+-			(match_operand:V2SI 4 "memory_operand" "m"))])]
++		   (use (reg:P 11))
++		   (set (match_operand:V2SI 2 "gpc_reg_operand" "=r")
++			(match_operand:V2SI 3 "memory_operand" "m"))])]
+  "TARGET_SPE_ABI"
+  "b %z1"
+  [(set_attr "type" "branch")
+--- gcc/config/rs6000/rs6000.c.jj	2009-09-09 20:45:10.794535794 +0200
++++ gcc/config/rs6000/rs6000.c	2009-09-09 20:46:57.195401830 +0200
+@@ -18011,7 +18011,8 @@ static bool
+ no_global_regs_above (int first, bool gpr)
+ {
+   int i;
+-  for (i = first; i < gpr ? 32 : 64 ; i++)
++  int last = gpr ? 32 : 64;
++  for (i = first; i < last; i++)
+     if (global_regs[i])
+       return false;
+   return true;
+@@ -18037,11 +18038,11 @@ rs6000_savres_routine_sym (rs6000_stack_
+   int regno = gpr ? info->first_gp_reg_save : (info->first_fp_reg_save - 32);
+   rtx sym;
+   int select = ((savep ? 1 : 0) << 2
+-		| (gpr
++		| (TARGET_SPE_ABI
+ 		   /* On the SPE, we never have any FPRs, but we do have
+ 		      32/64-bit versions of the routines.  */
+-		   ? (TARGET_SPE_ABI && info->spe_64bit_regs_used ? 1 : 0)
+-		   : 0) << 1
++		   ? (info->spe_64bit_regs_used ? 1 : 0)
++		   : (gpr ? 1 : 0)) << 1
+ 		| (exitp ? 1: 0));
+ 
+   /* Don't generate bogus routine names.  */
+@@ -18076,6 +18077,7 @@ rs6000_savres_routine_sym (rs6000_stack_
+ 
+       sym = savres_routine_syms[regno-FIRST_SAVRES_REGISTER][select]
+ 	= gen_rtx_SYMBOL_REF (Pmode, ggc_strdup (name));
++      SYMBOL_REF_FLAGS (sym) |= SYMBOL_FLAG_FUNCTION;
+     }
+ 
+   return sym;
+@@ -18289,7 +18291,7 @@ rs6000_emit_prologue (void)
+   int using_store_multiple;
+   int using_static_chain_p = (cfun->static_chain_decl != NULL_TREE
+                               && df_regs_ever_live_p (STATIC_CHAIN_REGNUM)
+-                              && !call_used_regs[STATIC_CHAIN_REGNUM]);
++                              && call_used_regs[STATIC_CHAIN_REGNUM]);
+   HOST_WIDE_INT sp_offset = 0;
+ 
+   if (TARGET_FIX_AND_CONTINUE)
+@@ -19095,8 +19097,9 @@ rs6000_emit_epilogue (int sibcall)
+ 				 || (cfun->calls_alloca
+ 				     && !frame_pointer_needed));
+   restore_lr = (info->lr_save_p
+-		&& restoring_GPRs_inline
+-		&& restoring_FPRs_inline);
++		&& (restoring_GPRs_inline
++		    || (restoring_FPRs_inline
++			&& info->first_fp_reg_save < 64)));
+ 
+   if (WORLD_SAVE_P (info))
+     {
+@@ -19383,7 +19386,7 @@ rs6000_emit_epilogue (int sibcall)
+ 
+   /* Get the old lr if we saved it.  If we are restoring registers
+      out-of-line, then the out-of-line routines can do this for us.  */
+-  if (restore_lr)
++  if (restore_lr && restoring_GPRs_inline)
+     {
+       rtx mem = gen_frame_mem_offset (Pmode, frame_reg_rtx,
+ 				      info->lr_save_offset + sp_offset);
+@@ -19403,7 +19406,7 @@ rs6000_emit_epilogue (int sibcall)
+ 
+   /* Set LR here to try to overlap restores below.  LR is always saved
+      above incoming stack, so it never needs REG_CFA_RESTORE.  */
+-  if (restore_lr)
++  if (restore_lr && restoring_GPRs_inline)
+     emit_move_insn (gen_rtx_REG (Pmode, LR_REGNO),
+ 		    gen_rtx_REG (Pmode, 0));
+ 
+@@ -19639,6 +19642,18 @@ rs6000_emit_epilogue (int sibcall)
+           }
+     }
+ 
++  if (restore_lr && !restoring_GPRs_inline)
++    {
++      rtx mem = gen_frame_mem_offset (Pmode, frame_reg_rtx,
++				      info->lr_save_offset + sp_offset);
++
++      emit_move_insn (gen_rtx_REG (Pmode, 0), mem);
++    }
++
++  if (restore_lr && !restoring_GPRs_inline)
++    emit_move_insn (gen_rtx_REG (Pmode, LR_REGNO),
++		    gen_rtx_REG (Pmode, 0));
++
+   /* Restore fpr's if we need to do it without calling a function.  */
+   if (restoring_FPRs_inline)
+     for (i = 0; i < 64 - info->first_fp_reg_save; i++)
+--- gcc/config/rs6000/rs6000.md.jj	2009-08-31 23:30:14.383526862 +0200
++++ gcc/config/rs6000/rs6000.md	2009-09-09 21:03:19.667779689 +0200
+@@ -15289,9 +15289,9 @@
+   [(match_parallel 0 "any_parallel_operand"
+ 		   [(clobber (reg:P 65))
+ 		    (use (match_operand:P 1 "symbol_ref_operand" "s"))
+-                    (use (match_operand:P 2 "gpc_reg_operand" "r"))
+-		    (set (match_operand:P 3 "memory_operand" "=m")
+-			 (match_operand:P 4 "gpc_reg_operand" "r"))])]
++		    (use (reg:P 11))
++		    (set (match_operand:P 2 "memory_operand" "=m")
++			 (match_operand:P 3 "gpc_reg_operand" "r"))])]
+   ""
+   "bl %z1"
+   [(set_attr "type" "branch")
+@@ -15301,9 +15301,9 @@
+   [(match_parallel 0 "any_parallel_operand"
+ 		   [(clobber (reg:P 65))
+ 		    (use (match_operand:P 1 "symbol_ref_operand" "s"))
+-                    (use (match_operand:P 2 "gpc_reg_operand" "r"))
+-		    (set (match_operand:DF 3 "memory_operand" "=m")
+-			 (match_operand:DF 4 "gpc_reg_operand" "f"))])]
++		    (use (reg:P 11))
++		    (set (match_operand:DF 2 "memory_operand" "=m")
++			 (match_operand:DF 3 "gpc_reg_operand" "f"))])]
+   ""
+   "bl %z1"
+   [(set_attr "type" "branch")
+@@ -15394,11 +15394,11 @@
+ 
+ (define_insn "*restore_gpregs_<mode>"
+  [(match_parallel 0 "any_parallel_operand"
+-                  [(clobber (match_operand:P 1 "register_operand" "=l"))
+-                   (use (match_operand:P 2 "symbol_ref_operand" "s"))
+-                   (use (match_operand:P 3 "gpc_reg_operand" "r"))
+-		   (set (match_operand:P 4 "gpc_reg_operand" "=r")
+-			(match_operand:P 5 "memory_operand" "m"))])]
++		  [(clobber (match_operand:P 1 "register_operand" "=l"))
++		   (use (match_operand:P 2 "symbol_ref_operand" "s"))
++		   (use (reg:P 11))
++		   (set (match_operand:P 3 "gpc_reg_operand" "=r")
++			(match_operand:P 4 "memory_operand" "m"))])]
+  ""
+  "bl %z2"
+  [(set_attr "type" "branch")
+@@ -15406,12 +15406,12 @@
+ 
+ (define_insn "*return_and_restore_gpregs_<mode>"
+  [(match_parallel 0 "any_parallel_operand"
+-                  [(return)
++		  [(return)
+ 		   (clobber (match_operand:P 1 "register_operand" "=l"))
+ 		   (use (match_operand:P 2 "symbol_ref_operand" "s"))
+-                   (use (match_operand:P 3 "gpc_reg_operand" "r"))
+-		   (set (match_operand:P 4 "gpc_reg_operand" "=r")
+-			(match_operand:P 5 "memory_operand" "m"))])]
++		   (use (reg:P 11))
++		   (set (match_operand:P 3 "gpc_reg_operand" "=r")
++			(match_operand:P 4 "memory_operand" "m"))])]
+  ""
+  "b %z2"
+  [(set_attr "type" "branch")
+@@ -15419,12 +15419,12 @@
+ 
+ (define_insn "*return_and_restore_fpregs_<mode>"
+  [(match_parallel 0 "any_parallel_operand"
+-                  [(return)
++		  [(return)
+ 		   (clobber (match_operand:P 1 "register_operand" "=l"))
+ 		   (use (match_operand:P 2 "symbol_ref_operand" "s"))
+-                   (use (match_operand:P 3 "gpc_reg_operand" "r"))
+-		   (set (match_operand:DF 4 "gpc_reg_operand" "=f")
+-			(match_operand:DF 5 "memory_operand" "m"))])]
++		   (use (reg:P 11))
++		   (set (match_operand:DF 3 "gpc_reg_operand" "=f")
++			(match_operand:DF 4 "memory_operand" "m"))])]
+  ""
+  "b %z2"
+  [(set_attr "type" "branch")
