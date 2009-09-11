@@ -1,0 +1,30 @@
+2009-09-09  Jakub Jelinek  <jakub@redhat.com>
+
+	* integrate.c (set_block_abstract_flags): Call
+	set_decl_abstract_flags also on BLOCK_NONLOCALIZED_VARs.
+
+--- gcc/integrate.c.jj	2009-03-04 12:12:03.000000000 +0100
++++ gcc/integrate.c	2009-09-09 18:07:07.000000000 +0200
+@@ -167,6 +167,7 @@ set_block_abstract_flags (tree stmt, int
+ {
+   tree local_decl;
+   tree subblock;
++  unsigned int i;
+ 
+   BLOCK_ABSTRACT (stmt) = setting;
+ 
+@@ -175,6 +176,14 @@ set_block_abstract_flags (tree stmt, int
+        local_decl = TREE_CHAIN (local_decl))
+     set_decl_abstract_flags (local_decl, setting);
+ 
++  for (i = 0; i < BLOCK_NUM_NONLOCALIZED_VARS (stmt); i++)
++    {
++      local_decl = BLOCK_NONLOCALIZED_VAR (stmt, i);
++      if ((TREE_CODE (local_decl) == VAR_DECL && !TREE_STATIC (local_decl))
++	  || TREE_CODE (local_decl) == PARM_DECL)
++	set_decl_abstract_flags (local_decl, setting);
++    }
++
+   for (subblock = BLOCK_SUBBLOCKS (stmt);
+        subblock != NULL_TREE;
+        subblock = BLOCK_CHAIN (subblock))

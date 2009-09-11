@@ -13,9 +13,9 @@
 
 --- gcc/config/rs6000/rs6000.c.jj	2009-09-09 20:46:57.000000000 +0200
 +++ gcc/config/rs6000/rs6000.c	2009-09-11 10:29:01.101406443 +0200
-@@ -18104,8 +18104,12 @@ rs6000_emit_stack_reset (rs6000_stack_t 
-   if (frame_reg_rtx != sp_reg_rtx)
+@@ -18083,8 +18083,12 @@ rs6000_emit_stack_reset (rs6000_stack_t 
      {
+       rs6000_emit_stack_tie ();
        if (sp_offset != 0)
 -	return emit_insn (gen_addsi3 (sp_reg_rtx, frame_reg_rtx,
 -				      GEN_INT (sp_offset)));
@@ -28,7 +28,7 @@
        else if (!savres)
  	return emit_move_insn (sp_reg_rtx, frame_reg_rtx);
      }
-@@ -19541,9 +19545,13 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19525,9 +19529,13 @@ rs6000_emit_epilogue (int sibcall)
  	rs6000_emit_stack_reset (info, sp_reg_rtx, frame_reg_rtx,
  				 sp_offset, can_use_exit);
        else
@@ -45,7 +45,7 @@
  
        par = rs6000_make_savres_rtx (info, frame_reg_rtx,
  				    info->gp_save_offset, reg_mode,
-@@ -19648,12 +19656,10 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19632,12 +19640,10 @@ rs6000_emit_epilogue (int sibcall)
  				      info->lr_save_offset + sp_offset);
  
        emit_move_insn (gen_rtx_REG (Pmode, 0), mem);
