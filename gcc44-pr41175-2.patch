@@ -1,0 +1,516 @@
+2009-09-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/41175
+	* config/rs6000/rs6000.c (rs6000_emit_stack_reset): Handle savres
+	if sp_offset != 0 and frame_reg_rtx != sp_reg_rtx.  Use gen_add3_insn
+	instead of gen_addsi3.
+	(rs6000_emit_epilogue): Set r11 from offsetted frame_reg_rtx instead
+	sp_reg_rtx, if frame_reg_rtx is r11, adjust sp_offset.  Use
+	gen_add3_insn instead of gen_addsi3.  Merge two adjacent ifs with the
+	same condition.
+
+	* gcc.target/powerpc/pr41175.c: New test.
+
+--- gcc/config/rs6000/rs6000.c.jj	2009-09-09 20:46:57.000000000 +0200
++++ gcc/config/rs6000/rs6000.c	2009-09-11 10:29:01.101406443 +0200
+@@ -18104,8 +18104,12 @@ rs6000_emit_stack_reset (rs6000_stack_t 
+   if (frame_reg_rtx != sp_reg_rtx)
+     {
+       if (sp_offset != 0)
+-	return emit_insn (gen_addsi3 (sp_reg_rtx, frame_reg_rtx,
+-				      GEN_INT (sp_offset)));
++	{
++	  rtx dest_reg = savres ? gen_rtx_REG (Pmode, 11) : sp_reg_rtx;
++
++	  return emit_insn (gen_add3_insn (dest_reg, frame_reg_rtx,
++					   GEN_INT (sp_offset)));
++	}
+       else if (!savres)
+ 	return emit_move_insn (sp_reg_rtx, frame_reg_rtx);
+     }
+@@ -19541,9 +19545,13 @@ rs6000_emit_epilogue (int sibcall)
+ 	rs6000_emit_stack_reset (info, sp_reg_rtx, frame_reg_rtx,
+ 				 sp_offset, can_use_exit);
+       else
+-	emit_insn (gen_addsi3 (gen_rtx_REG (Pmode, 11),
+-			       sp_reg_rtx,
+-			       GEN_INT (sp_offset - info->fp_size)));
++	{
++	  emit_insn (gen_add3_insn (gen_rtx_REG (Pmode, 11),
++				    frame_reg_rtx,
++				    GEN_INT (sp_offset - info->fp_size)));
++	  if (REGNO (frame_reg_rtx) == 11)
++	    sp_offset += info->fp_size;
++	}
+ 
+       par = rs6000_make_savres_rtx (info, frame_reg_rtx,
+ 				    info->gp_save_offset, reg_mode,
+@@ -19648,12 +19656,10 @@ rs6000_emit_epilogue (int sibcall)
+ 				      info->lr_save_offset + sp_offset);
+ 
+       emit_move_insn (gen_rtx_REG (Pmode, 0), mem);
++      emit_move_insn (gen_rtx_REG (Pmode, LR_REGNO),
++		      gen_rtx_REG (Pmode, 0));
+     }
+ 
+-  if (restore_lr && !restoring_GPRs_inline)
+-    emit_move_insn (gen_rtx_REG (Pmode, LR_REGNO),
+-		    gen_rtx_REG (Pmode, 0));
+-
+   /* Restore fpr's if we need to do it without calling a function.  */
+   if (restoring_FPRs_inline)
+     for (i = 0; i < 64 - info->first_fp_reg_save; i++)
+--- gcc/testsuite/gcc.target/powerpc/pr41175.c.jj	2009-09-11 10:28:50.529527601 +0200
++++ gcc/testsuite/gcc.target/powerpc/pr41175.c	2009-09-11 10:18:59.000000000 +0200
+@@ -0,0 +1,451 @@
++/* PR target/41175 */
++/* { dg-do run } */
++/* { dg-options "-Os" } */
++
++#define X2(n) X1(n##0) X1(n##1)
++#define X4(n) X2(n##0) X2(n##1)
++#define X8(n) X4(n##0) X4(n##1)
++
++volatile int ll;
++
++__attribute__((noinline)) void
++foo (void)
++{
++  asm volatile ("" : : : "memory");
++}
++
++__attribute__((noinline)) void
++bar (char *p)
++{
++  asm volatile ("" : : "r" (p) : "memory");
++}
++
++__attribute__((noinline)) void
++f1 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++  foo ();
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f2 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++  char *pp = __builtin_alloca (ll);
++  bar (pp);
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f3 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f4 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X4(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X4(d) "=m" (mem) : : "memory");
++  foo ();
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X4(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f5 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X4(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X4(d) "=m" (mem) : : "memory");
++  char *pp = __builtin_alloca (ll);
++  bar (pp);
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X4(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f6 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X4(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X4(d) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X4(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f7 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X2(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X2(d) "=m" (mem) : : "memory");
++  foo ();
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X2(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f8 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X2(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X2(d) "=m" (mem) : : "memory");
++  char *pp = __builtin_alloca (ll);
++  bar (pp);
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X2(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f9 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X8(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X2(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X2(d) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X8(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X2(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f10 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X4(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X1(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X4(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X1(d) "=m" (mem) : : "memory");
++  foo ();
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X4(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X1(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f11 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X4(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X1(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X4(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X1(d) "=m" (mem) : : "memory");
++  char *pp = __builtin_alloca (ll);
++  bar (pp);
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X4(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X1(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f12 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X4(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X1(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X4(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X1(d) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X4(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X1(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f13 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X2(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X8(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X2(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X8(d) "=m" (mem) : : "memory");
++  foo ();
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X2(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X8(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f14 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X2(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X8(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X2(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X8(d) "=m" (mem) : : "memory");
++  char *pp = __builtin_alloca (ll);
++  bar (pp);
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X2(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X8(d) "m" (mem) : "memory");
++}
++
++__attribute__((noinline)) void
++f15 (void)
++{
++  int mem;
++#undef X1
++#define X1(n) int gpr##n = 0;
++  X8(a) X8(b) X2(c)
++#undef X1
++#define X1(n) double fpr##n = 0.0;
++  X8(d)
++#undef X1
++#define X1(n) "+r" (gpr##n),
++  asm volatile ("" : X8(a) "=m" (mem) : : "memory");
++  asm volatile ("" : X8(b) "=m" (mem) : : "memory");
++  asm volatile ("" : X2(c) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "+f" (fpr##n),
++  asm volatile ("" : X8(d) "=m" (mem) : : "memory");
++#undef X1
++#define X1(n) "r" (gpr##n),
++  asm volatile ("" : : X8(a) "m" (mem) : "memory");
++  asm volatile ("" : : X8(b) "m" (mem) : "memory");
++  asm volatile ("" : : X2(c) "m" (mem) : "memory");
++#undef X1
++#define X1(n) "f" (fpr##n),
++  asm volatile ("" : : X8(d) "m" (mem) : "memory");
++}
++
++int
++main ()
++{
++  ll = 60;
++  f1 ();
++  f2 ();
++  f3 ();
++  f4 ();
++  f5 ();
++  f6 ();
++  f7 ();
++  f8 ();
++  f9 ();
++  f10 ();
++  f11 ();
++  f12 ();
++  f13 ();
++  f14 ();
++  f15 ();
++  return 0;
++}
