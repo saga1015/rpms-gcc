@@ -1,9 +1,9 @@
-%global DATE 20090911
-%global SVNREV 151630
+%global DATE 20090916
+%global SVNREV 151746
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 13
+%global gcc_release 14
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -162,9 +162,8 @@ Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-vta-cfgexpand-ptr-mode-pr41248.patch
 Patch20: gcc44-powerpc-libgcc_s_so.patch
 Patch21: gcc44-pr41175.patch
-Patch22: gcc44-pr41175-2.patch
-Patch23: gcc44-rh518303.patch
-Patch24: gcc44-rh522577.patch
+Patch22: gcc44-rh518303.patch
+Patch23: gcc44-rh522577.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -473,9 +472,8 @@ which are required to compile with the GNAT.
 %patch19 -p0 -b .vta-cfgexpand-ptr-mode-pr41248~
 %patch20 -p0 -b .powerpc-libgcc_s_so~
 %patch21 -p0 -b .pr41175~
-%patch22 -p0 -b .pr41175-2~
-%patch23 -p0 -b .rh518303~
-%patch24 -p0 -b .rh522577~
+%patch22 -p0 -b .rh518303~
+%patch23 -p0 -b .rh522577~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1831,6 +1829,14 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Sep 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-14
+- update from gcc-4_4-branch
+  - PRs fortran/39876, tree-optimization/41101
+- asm goto support
+- VTA delayed branch scheduling fix (PR bootstrap/41349)
+- power7 VSX fix (PR target/41210)
+- ppc bswap fixes (PR target/41331)
+
 * Fri Sep 11 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-13
 - fix ICE in debuginfo output with BLOCK_NONLOCALIZED_VARS (#518303)
 - wrap_constant when propagating for subst in debug in the combiner (#522577)
