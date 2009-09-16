@@ -163,7 +163,6 @@ Patch19: gcc44-vta-cfgexpand-ptr-mode-pr41248.patch
 Patch20: gcc44-powerpc-libgcc_s_so.patch
 Patch21: gcc44-pr41175.patch
 Patch22: gcc44-rh518303.patch
-Patch23: gcc44-rh522577.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -473,7 +472,6 @@ which are required to compile with the GNAT.
 %patch20 -p0 -b .powerpc-libgcc_s_so~
 %patch21 -p0 -b .pr41175~
 %patch22 -p0 -b .rh518303~
-%patch23 -p0 -b .rh522577~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*

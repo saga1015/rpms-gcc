@@ -571,7 +571,7 @@
  #undef  PREFERRED_DEBUGGING_TYPE
 --- gcc/config/rs6000/rs6000.c	(revision 151728)
 +++ gcc/config/rs6000/rs6000.c	(revision 151729)
-@@ -18033,7 +18033,8 @@ static bool
+@@ -17980,7 +17980,8 @@ static bool
  no_global_regs_above (int first, bool gpr)
  {
    int i;
@@ -581,7 +581,7 @@
      if (global_regs[i])
        return false;
    return true;
-@@ -18050,54 +18051,136 @@ no_global_regs_above (int first, bool gp
+@@ -17997,54 +17998,136 @@ no_global_regs_above (int first, bool gp
  
  static GTY(()) rtx savres_routine_syms[N_SAVRES_REGISTERS][8];
  
@@ -748,9 +748,9 @@
      }
  
    return sym;
-@@ -18124,8 +18207,11 @@ rs6000_emit_stack_reset (rs6000_stack_t 
-   if (frame_reg_rtx != sp_reg_rtx)
+@@ -18072,8 +18155,11 @@ rs6000_emit_stack_reset (rs6000_stack_t 
      {
+       rs6000_emit_stack_tie ();
        if (sp_offset != 0)
 -	return emit_insn (gen_addsi3 (sp_reg_rtx, frame_reg_rtx,
 -				      GEN_INT (sp_offset)));
@@ -762,7 +762,7 @@
        else if (!savres)
  	return emit_move_insn (sp_reg_rtx, frame_reg_rtx);
      }
-@@ -18154,7 +18240,7 @@ static rtx
+@@ -18102,7 +18188,7 @@ static rtx
  rs6000_make_savres_rtx (rs6000_stack_t *info,
  			rtx frame_reg_rtx, int save_area_offset,
  			enum machine_mode reg_mode,
@@ -771,7 +771,7 @@
  {
    int i;
    int offset, start_reg, end_reg, n_regs;
-@@ -18168,20 +18254,21 @@ rs6000_make_savres_rtx (rs6000_stack_t *
+@@ -18116,20 +18202,21 @@ rs6000_make_savres_rtx (rs6000_stack_t *
  	       : info->first_fp_reg_save);
    end_reg = gpr ? 32 : 64;
    n_regs = end_reg - start_reg;
@@ -800,7 +800,7 @@
  
    for (i = 0; i < end_reg - start_reg; i++)
      {
-@@ -18196,6 +18283,16 @@ rs6000_make_savres_rtx (rs6000_stack_t *
+@@ -18144,6 +18231,16 @@ rs6000_make_savres_rtx (rs6000_stack_t *
  					       savep ? reg : mem);
      }
  
@@ -817,7 +817,7 @@
    return gen_rtx_PARALLEL (VOIDmode, p);
  }
  
-@@ -18216,7 +18313,10 @@ rs6000_reg_live_or_pic_offset_p (int reg
+@@ -18164,7 +18261,10 @@ rs6000_reg_live_or_pic_offset_p (int reg
  enum {
    SAVRES_MULTIPLE = 0x1,
    SAVRES_INLINE_FPRS = 0x2,
@@ -829,7 +829,7 @@
  };
  
  /* Determine the strategy for savings/restoring registers.  */
-@@ -18231,6 +18331,7 @@ rs6000_savres_strategy (rs6000_stack_t *
+@@ -18179,6 +18279,7 @@ rs6000_savres_strategy (rs6000_stack_t *
    bool savres_gprs_inline;
    bool noclobber_global_gprs
      = no_global_regs_above (info->first_gp_reg_save, /*gpr=*/true);
@@ -837,7 +837,7 @@
  
    using_multiple_p = (TARGET_MULTIPLE && ! TARGET_POWERPC64
  		      && (!TARGET_SPE_ABI
-@@ -18250,6 +18351,10 @@ rs6000_savres_strategy (rs6000_stack_t *
+@@ -18198,6 +18299,10 @@ rs6000_savres_strategy (rs6000_stack_t *
  			|| info->first_fp_reg_save == 64
  			|| !no_global_regs_above (info->first_fp_reg_save,
  						  /*gpr=*/false)
@@ -848,7 +848,7 @@
  			|| FP_SAVE_INLINE (info->first_fp_reg_save));
    savres_gprs_inline = (common
  			/* Saving CR interferes with the exit routines
-@@ -18287,9 +18392,22 @@ rs6000_savres_strategy (rs6000_stack_t *
+@@ -18235,9 +18340,22 @@ rs6000_savres_strategy (rs6000_stack_t *
  	savres_gprs_inline = savres_gprs_inline || using_multiple_p;
      }
  
@@ -874,7 +874,7 @@
  }
  
  /* Emit function prologue as insns.  */
-@@ -18311,7 +18429,7 @@ rs6000_emit_prologue (void)
+@@ -18259,7 +18377,7 @@ rs6000_emit_prologue (void)
    int using_store_multiple;
    int using_static_chain_p = (cfun->static_chain_decl != NULL_TREE
                                && df_regs_ever_live_p (STATIC_CHAIN_REGNUM)
@@ -883,7 +883,7 @@
    HOST_WIDE_INT sp_offset = 0;
  
    if (TARGET_FIX_AND_CONTINUE)
-@@ -18496,24 +18614,30 @@ rs6000_emit_prologue (void)
+@@ -18444,24 +18562,30 @@ rs6000_emit_prologue (void)
  			     gen_rtx_REG (Pmode, LR_REGNO));
        RTX_FRAME_RELATED_P (insn) = 1;
  
@@ -924,7 +924,7 @@
        insn = emit_insn (gen_movesi_from_cr (cr_save_rtx));
        RTX_FRAME_RELATED_P (insn) = 1;
        /* Now, there's no way that dwarf2out_frame_debug_expr is going
-@@ -18550,7 +18674,9 @@ rs6000_emit_prologue (void)
+@@ -18500,7 +18624,9 @@ rs6000_emit_prologue (void)
  				    info->fp_save_offset + sp_offset,
  				    DFmode,
  				    /*savep=*/true, /*gpr=*/false,
@@ -935,7 +935,7 @@
        insn = emit_insn (par);
        rs6000_frame_related (insn, frame_ptr_rtx, info->total_size,
  			    NULL_RTX, NULL_RTX);
-@@ -18646,7 +18772,7 @@ rs6000_emit_prologue (void)
+@@ -18596,7 +18722,7 @@ rs6000_emit_prologue (void)
  	  par = rs6000_make_savres_rtx (info, gen_rtx_REG (Pmode, 11),
  					0, reg_mode,
  					/*savep=*/true, /*gpr=*/true,
@@ -944,7 +944,7 @@
  	  insn = emit_insn (par);
  	  rs6000_frame_related (insn, frame_ptr_rtx, info->total_size,
  				NULL_RTX, NULL_RTX);
-@@ -18661,23 +18787,23 @@ rs6000_emit_prologue (void)
+@@ -18611,23 +18737,23 @@ rs6000_emit_prologue (void)
      {
        rtx par;
  
@@ -976,7 +976,7 @@
        insn = emit_insn (par);
        rs6000_frame_related (insn, frame_ptr_rtx, info->total_size,
  			    NULL_RTX, NULL_RTX);
-@@ -18954,9 +19080,18 @@ rs6000_output_function_prologue (FILE *f
+@@ -18907,9 +19033,18 @@ rs6000_output_function_prologue (FILE *f
       fp values.  */
    if (info->first_fp_reg_save < 64
        && !FP_SAVE_INLINE (info->first_fp_reg_save))
@@ -998,7 +998,7 @@
  
    /* Write .extern for AIX common mode routines, if needed.  */
    if (! TARGET_POWER && ! TARGET_POWERPC && ! common_mode_defined)
-@@ -19082,6 +19217,7 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19035,6 +19170,7 @@ rs6000_emit_epilogue (int sibcall)
    rtx frame_reg_rtx = sp_reg_rtx;
    rtx cfa_restores = NULL_RTX;
    rtx insn;
@@ -1006,7 +1006,7 @@
    enum machine_mode reg_mode = Pmode;
    int reg_size = TARGET_32BIT ? 4 : 8;
    int i;
-@@ -19115,8 +19251,10 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19068,8 +19204,10 @@ rs6000_emit_epilogue (int sibcall)
  				 || (cfun->calls_alloca
  				     && !frame_pointer_needed));
    restore_lr = (info->lr_save_p
@@ -1019,7 +1019,7 @@
  
    if (WORLD_SAVE_P (info))
      {
-@@ -19403,7 +19541,7 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19356,7 +19494,7 @@ rs6000_emit_epilogue (int sibcall)
  
    /* Get the old lr if we saved it.  If we are restoring registers
       out-of-line, then the out-of-line routines can do this for us.  */
@@ -1028,7 +1028,7 @@
      {
        rtx mem = gen_frame_mem_offset (Pmode, frame_reg_rtx,
  				      info->lr_save_offset + sp_offset);
-@@ -19418,12 +19556,17 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19371,12 +19509,17 @@ rs6000_emit_epilogue (int sibcall)
  			       GEN_INT (info->cr_save_offset + sp_offset));
        rtx mem = gen_frame_mem (SImode, addr);
  
@@ -1048,7 +1048,7 @@
      emit_move_insn (gen_rtx_REG (Pmode, LR_REGNO),
  		    gen_rtx_REG (Pmode, 0));
  
-@@ -19540,7 +19683,7 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19493,7 +19636,7 @@ rs6000_emit_epilogue (int sibcall)
  	  par = rs6000_make_savres_rtx (info, gen_rtx_REG (Pmode, 11),
  					0, reg_mode,
  					/*savep=*/false, /*gpr=*/true,
@@ -1057,7 +1057,7 @@
  	  emit_jump_insn (par);
  	  /* We don't want anybody else emitting things after we jumped
  	     back.  */
-@@ -19558,21 +19701,25 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19511,21 +19654,25 @@ rs6000_emit_epilogue (int sibcall)
  	rs6000_emit_stack_reset (info, sp_reg_rtx, frame_reg_rtx,
  				 sp_offset, can_use_exit);
        else
@@ -1088,8 +1088,8 @@
 +	      rs6000_restore_saved_cr (cr_save_reg, using_mtcr_multiple);
  	      if (DEFAULT_ABI == ABI_V4)
  		cfa_restores
- 		  = alloc_reg_note (REG_CFA_RESTORE,
-@@ -19659,6 +19806,16 @@ rs6000_emit_epilogue (int sibcall)
+ 		  = alloc_EXPR_LIST (REG_CFA_RESTORE,
+@@ -19612,6 +19759,16 @@ rs6000_emit_epilogue (int sibcall)
            }
      }
  
@@ -1106,7 +1106,7 @@
    /* Restore fpr's if we need to do it without calling a function.  */
    if (restoring_FPRs_inline)
      for (i = 0; i < 64 - info->first_fp_reg_save; i++)
-@@ -19685,7 +19842,7 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19638,7 +19795,7 @@ rs6000_emit_epilogue (int sibcall)
    /* If we saved cr, restore it here.  Just those that were used.  */
    if (info->cr_save_p)
      {
@@ -1114,8 +1114,8 @@
 +      rs6000_restore_saved_cr (cr_save_reg, using_mtcr_multiple);
        if (DEFAULT_ABI == ABI_V4)
  	cfa_restores
- 	  = alloc_reg_note (REG_CFA_RESTORE, gen_rtx_REG (SImode, CR2_REGNO),
-@@ -19716,13 +19873,14 @@ rs6000_emit_epilogue (int sibcall)
+ 	  = alloc_EXPR_LIST (REG_CFA_RESTORE, gen_rtx_REG (SImode, CR2_REGNO),
+@@ -19669,13 +19826,14 @@ rs6000_emit_epilogue (int sibcall)
    if (!sibcall)
      {
        rtvec p;
@@ -1131,7 +1131,7 @@
  			  ? gen_rtx_USE (VOIDmode, gen_rtx_REG (Pmode, 65))
  			  : gen_rtx_CLOBBER (VOIDmode,
  					     gen_rtx_REG (Pmode, 65)));
-@@ -19737,10 +19895,12 @@ rs6000_emit_epilogue (int sibcall)
+@@ -19690,10 +19848,12 @@ rs6000_emit_epilogue (int sibcall)
  	  sym = rs6000_savres_routine_sym (info,
  					   /*savep=*/false,
  					   /*gpr=*/false,
