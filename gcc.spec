@@ -1,9 +1,9 @@
-%global DATE 20090918
-%global SVNREV 151835
+%global DATE 20090923
+%global SVNREV 152092
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 15
+%global gcc_release 16
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -159,10 +159,7 @@ Patch15: gcc44-raw-string.patch
 Patch16: gcc44-unwind-debug-hook.patch
 Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
-Patch19: gcc44-vta-cfgexpand-ptr-mode-pr41248.patch
-Patch20: gcc44-powerpc-libgcc_s_so.patch
-Patch21: gcc44-pr41175.patch
-Patch22: gcc44-ppc64-aixdesc.patch
+Patch19: gcc44-ppc64-aixdesc.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -468,10 +465,7 @@ which are required to compile with the GNAT.
 %if %{build_libstdcxx_docs}
 %patch18 -p0 -b .libstdc++-docs~
 %endif
-%patch19 -p0 -b .vta-cfgexpand-ptr-mode-pr41248~
-%patch20 -p0 -b .powerpc-libgcc_s_so~
-%patch21 -p0 -b .pr41175~
-%patch22 -p0 -b .ppc64-aixdesc~
+%patch19 -p0 -b .ppc64-aixdesc~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1827,6 +1821,20 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Sep 23 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-16
+- update from gcc-4_4-branch
+  - PRs c/39779, c/41049, debug/41065, libffi/40242, libffi/41443,
+	libgfortran/41328, testsuite/41288
+- VTA backports
+  - PRs bootstrap/41397, bootstrap/41404, bootstrap/41405, debug/41295,
+	debug/41411, debug/41439
+  - fix ICE caused by reload substitution of const_int into zero_extend
+    in debug_insn (#524439)
+- fix altivec vec_cmp{lt,gt} (#524273)
+- fix -mno-sched-epilogue on ppc (#524216, PR target/40473)
+- don't look at MUDFLAP_OPTIONS env var in suid/sgid programs
+  (PR libmudflap/41433)
+
 * Fri Sep 18 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-15
 - for now disable out of line gpr/fpr saving on ppc with -m64 -Os -mcall-aixdesc
 - fix DW_AT_decl_{file,location} for DW_TAG_structure_type for C structs
