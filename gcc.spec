@@ -1,9 +1,9 @@
-%global DATE 20090923
-%global SVNREV 152092
+%global DATE 20090925
+%global SVNREV 152158
 %global gcc_version 4.4.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 16
+%global gcc_release 17
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -1821,6 +1821,15 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Sep 25 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-17
+- update from gcc-4_4-branch
+  - fix vectorizer for power7 (#463846)
+- VTA backports
+  - fix debug info for parameters passed by reference (#525709)
+  - PR bootstrap/41457
+- remove power7 VSX load/store with update insn support
+- remove SSE5 support
+
 * Wed Sep 23 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-16
 - update from gcc-4_4-branch
   - PRs c/39779, c/41049, debug/41065, libffi/40242, libffi/41443,
