@@ -1,9 +1,9 @@
-%global DATE 20091001
-%global SVNREV 152364
-%global gcc_version 4.4.1
+%global DATE 20091204
+%global SVNREV 154977
+%global gcc_version 4.4.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 18
+%global gcc_release 14
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %global include_gappletviewer 1
@@ -40,7 +40,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -65,7 +65,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
 # Need binutils which support --build-id >= 2.17.50.0.17-3
 # Need binutils which support %gnu_unique_object >= 2.19.51.0.14
-BuildRequires: binutils >= 2.19.51.0.14
+# Need binutils which support .cfi_sections >= 2.19.51.0.14-33
+BuildRequires: binutils >= 2.19.51.0.14-33
 # While gcc doesn't include statically linked binaries, during testing
 # -static is used several times.
 BuildRequires: glibc-static
@@ -118,8 +119,9 @@ Requires: cpp = %{version}-%{release}
 # Need binutils that supports --hash-style=gnu
 # Need binutils that support mffgpr/mftgpr
 # Need binutils that support --build-id
-# Need binutils which support %gnu_unique_object
-Requires: binutils >= 2.19.51.0.14
+# Need binutils that support %gnu_unique_object
+# Need binutils that support .cfi_sections
+Requires: binutils >= 2.19.51.0.14-33
 # Make sure gdb will understand DW_FORM_strp
 Conflicts: gdb < 5.1-2
 Requires: glibc-devel >= 2.2.90-12
@@ -155,12 +157,10 @@ Patch11: gcc44-sparc-config-detection.patch
 Patch12: gcc44-libgomp-omp_h-multilib.patch
 Patch13: gcc44-libtool-no-rpath.patch
 Patch14: gcc44-cloog-dl.patch
-Patch15: gcc44-raw-string.patch
 Patch16: gcc44-unwind-debug-hook.patch
 Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-ppc64-aixdesc.patch
-Patch20: gcc44-vta-rh521991.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 
@@ -218,7 +218,7 @@ C++ Library.
 %package -n libstdc++-devel
 Summary: Header files and libraries for C++ development
 Group: Development/Libraries
-Requires: libstdc++ = %{version}-%{release}, %{_prefix}/%{_lib}/libstdc++.so.6
+Requires: libstdc++%{?_isa} = %{version}-%{release}
 Autoreq: true
 
 %description -n libstdc++-devel
@@ -362,8 +362,8 @@ programs compiled using the Java compiler from GNU Compiler Collection (gcj).
 %package -n libgcj-devel
 Summary: Libraries for Java development using GCC
 Group: Development/Languages
-Requires: libgcj = %{version}-%{release}, %{_prefix}/%{_lib}/libgcj.so.10
-Requires: zlib-devel, %{_prefix}/%{_lib}/libz.so
+Requires: libgcj%{?_isa} = %{version}-%{release}
+Requires: zlib-devel%{?_isa}
 Requires: /bin/awk
 Autoreq: false
 Autoprov: false
@@ -460,14 +460,12 @@ which are required to compile with the GNAT.
 %if %{build_cloog}
 %patch14 -p0 -b .cloog-dl~
 %endif
-%patch15 -p0 -b .raw-string~
 %patch16 -p0 -b .unwind-debug-hook~
 %patch17 -p0 -b .pr38757~
 %if %{build_libstdcxx_docs}
 %patch18 -p0 -b .libstdc++-docs~
 %endif
 %patch19 -p0 -b .ppc64-aixdesc~
-%patch20 -p0 -b .vta-rh521991~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -480,7 +478,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.4\.2/4.4.1/' gcc/BASE-VER
+sed -i -e 's/4\.4\.3/4.4.2/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 # Default to -gdwarf-3 rather than -gdwarf-2
@@ -642,6 +640,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 %endif
 %ifarch sparc sparcv9
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=v7
+%endif
+%if 0%{?rhel} >= 6
+%ifarch ppc ppc64
+	--with-cpu-32=power4 --with-tune-32=power6 --with-cpu-64=power4 --with-tune-64=power6 \
+%endif
 %endif
 %ifarch ppc
 	--build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=default32
@@ -1170,6 +1173,13 @@ chmod 644 %{buildroot}%{_mandir}/man1/unprotoize.1
 %check
 cd obj-%{gcc_target_platform}
 
+%if %{build_java}
+export PATH=`pwd`/../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}${PATH:+:$PATH}
+%if !%{bootstrap_java}
+export PATH=`pwd`/java_hacks${PATH:+:$PATH}
+%endif
+%endif
+
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
 echo ====================TESTING=========================
@@ -1371,6 +1381,8 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avxintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/x86intrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/fma4intrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xopintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/lwpintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm_malloc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/cpuid.h
@@ -1837,6 +1849,157 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Fri Dec  4 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-14
+- update from gcc-4_4-branch
+  - PRs libstdc++/42261, middle-end/42049
+- backport C++0x ICE fix from trunk (PR c++/42266)
+- fortran !$omp workshare improvements (PR fortran/35423)
+- FMA4 and XOP fixes
+
+* Wed Dec  2 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-13
+- fix security issues in libltdl bundled within libgcj (CVE-2009-3736)
+
+* Wed Dec  2 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-12
+- update from gcc-4_4-branch
+  - PRs c++/42234, fortran/41278, fortran/41807, fortran/42162, target/42113,
+	target/42165
+  - don't ICE on -O256 (#539923)
+- fix -mregnames on ppc/ppc64
+- optimize even COMDAT constructors and destructors without virtual
+  bases (PR c++/3187)
+
+* Mon Nov 23 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-11
+- update from gcc-4_4-branch
+  - PRs c++/42059, c++/42061, libgfortran/42090
+- VTA backports
+  - PRs debug/41886, debug/41888, debug/41926, tree-optimization/42078
+- optimize non-COMDAT constructors and destructors without virtual
+  bases by making the base and complete ctor or dtor aliases of
+  each other (PR c++/3187)
+
+* Sat Nov 14 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-10
+- update from gcc-4_4-branch
+  - PRs c++/21008, c++/37037, c++/41972, c++/41994, middle-end/40946,
+	middle-end/42029
+- VTA backports
+  - PR middle-end/41930
+- optimize deleting destructors for size (PR c++/3187)
+- try to avoid file Requires by requiring package%%{?_isa} (#533947)
+
+* Mon Nov  9 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-9
+- update from gcc-4_4-branch
+  - PRs c++/35067, c++/36912, c++/36959, c++/37093, c++/38699, c++/39786,
+	c++/41856, c++/41876, c++/41967, c++/9381, fortran/41772,
+	fortran/41909, middle-end/41963, rtl-optimization/41917,
+	target/41900, tree-optimization/41643
+- selected backports from trunk
+  - PRs debug/41801, middle-end/41837, target/41985, tree-optimization/41841
+- initial AMD Orochi -mxop and -mlwp support
+- try to avoid wrapping CONST_INTs/VOIDmode CONST_DOUBLEs into CONST
+
+* Mon Nov  2 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-8
+- update from gcc-4_4-branch
+  - PRs c++/41754, fortran/41777, fortran/41850, libstdc++/40852
+- fix ICE with unmatched #pragma GCC visibility push/pop (PR c++/41774)
+- fix VTA ICE with -combine (#531385, PR debug/41893)
+- fix RTTI for anon namespace classes
+- fix incorrect uses of __restrict keyword in valarray (PR libstdc++/41763)
+
+* Tue Oct 27 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-7
+- update from gcc-4_4-branch
+  - PRs c++/40808, c/41842, cp-tools/39177
+- VTA backports
+  - PR bootstrap/41345
+- don't emit DW_AT_name: <anonymous struct> etc. into debug info
+  (#530304, PR debug/41828)
+- power7 ABI fixes (PR target/41787)
+- fix ICE in ix86_pic_register_p (PR target/41762)
+
+* Thu Oct 22 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-6
+- update from gcc-4_4-branch
+  - PR target/41702
+  - fix a pod2man error in gcc.1 (#530102)
+  - fix mangling of very large names
+- document -print-multi-os-directory in gcc.info and gcc.1
+  (#529659, PR other/25507)
+
+* Mon Oct 19 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-5
+- update from gcc-4_4-branch
+  - PR fortran/41755
+  - s390 z10 tuning fixes
+- provide accurate attributes for powerpc builtins (PR target/23983)
+- fix -fcompare-debug differences caused by DCE removal of debug stmts
+- fix updating of speculation status with VTA (PR debug/41739)
+
+* Sun Oct 18 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-4
+- update from gcc-4_4-branch
+  - PRs c++/37204, c++/37766, c++/37875, c++/38798, c++/40092,
+	libstdc++/40654, libstdc++/40826
+- fix VTA ICE on invalid pointer arithmetics (#529512)
+
+* Sat Oct 17 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-3
+- fix VTA handling in the scheduler (PR debug/41535)
+- fix up %%check section to be able to find ecj1
+
+* Fri Oct 16 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-2
+- update from gcc-4_4-branch
+  - PR target/40913
+- VTA backports
+  - PR debug/41717
+- fix Ada .eh_frame generation (PR debug/40521)
+
+* Thu Oct 15 2009 Jakub Jelinek <jakub@redhat.com> 4.4.2-1
+- update from gcc-4_4-branch
+  - GCC 4.4.2 release
+  - PRs middle-end/22072, target/41665
+- don't emit -Wpadded warnings for builtin structures
+- don't generate .eh_frame, but generate .debug_frame when -g and none of
+  -fasynchronous-unwind-tables/-fexceptions/-funwind-tables is used
+  (PR debug/40521)
+
+* Wed Oct 14 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-22
+- update from gcc-4_4-branch
+  - PRs target/26515, target/38948
+  - fix s390{,x} BLKmode symbol handling
+  - fix i?86 testqi splitter (#528206, PR target/41680)
+- VTA backports
+  - introduce debug temps (PRs debug/41264, debug/41338, debug/41343,
+    debug/41447, target/41693)
+  - build debug stmts on updates (PR debug/41616)
+  - fix another with/without -save-temps debug info difference
+    (#526841, PR preprocessor/41543)
+  - fix invalid ranges in .debug_loc section (PR debug/41695)
+%if 0%{?rhel} >= 6
+- if -mcpu= isn't specified, default to -mcpu=power4 (#463549)
+%endif
+
+* Sat Oct 10 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-21
+- update from gcc-4_4-branch
+  - fix s390{,x} prefetch for pre-z10 CPUs (#524552)
+- VTA backports
+  - fix debug info differences with/without -save-temps
+    (PR preprocessor/41445)
+- fix ICE with small BLKmode returning call (#516028,
+  PR rtl-optimization/41646)
+
+* Thu Oct  8 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-20
+- update from gcc-4_4-branch
+  - PRs c++/39863, c++/41038
+- avoid redundant DW_AT_const_value when abstract origin already has one
+  (#527430) 
+- another VTA debug stmt renaming bugfix (#521991)
+
+* Mon Oct  5 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-19
+- update from gcc-4_4-branch
+  - PRs fortran/41479, fortran/41515
+- VTA backports
+  - PRs debug/41353, debug/41404, rtl-optimization/41511
+  - another debug info fix for decls passed by reference (#527057,
+    PR debug/41558)
+  - don't emit DW_AT_name on DW_TAG_const_type (#526970)
+- avoid invalid folding of casts to addresses of first fields
+  (#527121, PR middle-end/41317)
+
 * Thu Oct  1 2009 Jakub Jelinek <jakub@redhat.com> 4.4.1-18
 - update from gcc-4_4-branch
   - PRs ada/41100, target/22093
