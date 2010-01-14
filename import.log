@@ -2,3 +2,4 @@ gcc-4_4_0-0_3:HEAD:gcc-4.4.0-0.3.src.rpm:1232130841
 gcc-4_4_0-5:HEAD:gcc-4.4.0-5.src.rpm:1242291126
 gcc-4_4_2-14_fc13:HEAD:gcc-4.4.2-14.fc13.src.rpm:1259930464
 gcc-4_4_2-20_fc13:HEAD:gcc-4.4.2-20.fc13.src.rpm:1261484502
+gcc-4_4_2-25_fc13:HEAD:gcc-4.4.2-25.fc13.src.rpm:1263487371
