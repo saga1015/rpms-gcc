@@ -1,9 +1,9 @@
-%global DATE 20100114
-%global SVNREV 155909
-%global gcc_version 4.4.2
+%global DATE 20100121
+%global SVNREV 156157
+%global gcc_version 4.4.3
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 25
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %if 0%{?fedora} >= 13
@@ -166,9 +166,7 @@ Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-ppc64-aixdesc.patch
 Patch20: gcc44-max-vartrack-size.patch
-Patch21: gcc44-pr42657.patch
-Patch22: gcc44-pr42608.patch
-Patch23: gcc44-pr42674.patch
+Patch21: gcc44-vta-non-call-exception.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -478,9 +476,7 @@ which are required to compile with the GNAT.
 %endif
 %patch19 -p0 -b .ppc64-aixdesc~
 %patch20 -p0 -b .max-vartrack-size~
-%patch21 -p0 -b .pr42657~
-%patch22 -p0 -b .pr42608~
-%patch23 -p0 -b .pr42674~
+%patch21 -p0 -b .vta-non-call-exception~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -494,7 +490,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.4\.3/4.4.2/' gcc/BASE-VER
+sed -i -e 's/4\.4\.4/4.4.3/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 # Default to -gdwarf-3 rather than -gdwarf-2
@@ -1870,6 +1866,32 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Thu Jan 21 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-1
+- update from gcc-4_4-branch
+  - GCC 4.4.3 release
+- don't insert DEBUG_STMTs after stmts that can throw, instead insert them
+  at the start of the next bb
+
+* Thu Jan 21 2010 Jakub Jelinek <jakub@redhat.com> 4.4.2-28
+- update from gcc-4_4-branch
+  - PRs middle-end/42803, rtl-optimization/42691, target/42542, target/42774,
+	tree-optimization/41826, tree-optimization/42773
+  - fix DW_OP_mod handling in the unwinder
+- VTA backports
+  - PRs debug/42782, debug/42767
+  - avoid dead VALUES to magically reappear during var-tracking
+    (#557068, PR debug/42715)
+  - don't assume non-addressable automatic MEMs die at each call
+    during var-tracking (#556975, PR debug/42728)
+
+* Fri Jan 15 2010 Jakub Jelinek <jakub@redhat.com> 4.4.2-27
+- fix ICE with std::complex<float> copy (#555705, PR middle-end/42760)
+- avoid exponential hangs in gen_lsm_tmp_name
+
+* Fri Jan 15 2010 Jakub Jelinek <jakub@redhat.com> 4.4.2-26
+- update from gcc-4_4-branch
+  - PR c++/42655
+
 * Thu Jan 14 2010 Jakub Jelinek <jakub@redhat.com> 4.4.2-25
 - update from gcc-4_4-branch
   - PRs c/42721, middle-end/40281, middle-end/42667, rtl-optimization/42699
