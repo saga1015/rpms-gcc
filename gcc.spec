@@ -1,12 +1,12 @@
-%global DATE 20100211
-%global SVNREV 156726
+%global DATE 20100327
+%global SVNREV 157778
 %global gcc_version 4.4.3
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 13
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
-%if 0%{?fedora} >= 13
+%if 0%{?fedora} >= 13 || 0%{?rhel} >= 6
 %global include_gappletviewer 0
 %else
 %global include_gappletviewer 1
@@ -175,8 +175,7 @@ Patch16: gcc44-unwind-debug-hook.patch
 Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-ppc64-aixdesc.patch
-Patch20: gcc44-max-vartrack-size.patch
-Patch21: gcc44-no-add-needed.patch
+Patch20: gcc44-no-add-needed.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -485,9 +484,8 @@ which are required to compile with the GNAT.
 %patch18 -p0 -b .libstdc++-docs~
 %endif
 %patch19 -p0 -b .ppc64-aixdesc~
-%patch20 -p0 -b .max-vartrack-size~
 %if 0%{?fedora} >= 13
-%patch21 -p0 -b .no-add-needed~
+%patch20 -p0 -b .no-add-needed~
 %endif
 
 # This testcase doesn't compile.
@@ -686,7 +684,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-arch_32=i686 \
 %endif
 %ifarch s390 s390x
-	--with-arch=z9-109 --with-tune=z10 \
+	--with-arch=z9-109 --with-tune=z10 --enable-decimal-float \
 %endif
 %ifnarch sparc sparcv9 ppc
 	--build=%{gcc_target_platform}
@@ -1878,6 +1876,70 @@ fi
 %doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Sat Mar 27 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-13
+- update from gcc-4_4-branch
+  - PRs c/43381, libfortran/43517, target/42113
+- VTA backports
+  - PRs debug/43516, debug/43540
+
+* Thu Mar 25 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-12
+- update from gcc-4_4-branch
+  - PRs c/43385, target/43348, tree-optimization/43415
+- VTA backports
+  - PRs bootstrap/43511, debug/19192, debug/43479, debug/43508
+- provide unwind info even for C++ thunks on x86, x86-64 and s390{,x}
+  (PR target/43498)
+- provide unwind info for x86 PIC thunks even when not using CFI assembler
+  directives (PR debug/43293)
+
+* Mon Mar 22 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-11
+- update from gcc-4_4-branch
+  - PRs c++/43116, libfortran/43265, libgomp/42942, middle-end/42718,
+	middle-end/43419, rtl-optimization/43360, rtl-optimization/43438,
+	target/43305, target/43417
+- VTA backports
+  - PRs bootstrap/43399, bootstrap/43403, debug/42873, debug/43058,
+	debug/43443, target/43399
+
+* Tue Mar 16 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-10
+- update from gcc-4_4-branch
+  - PRs fortran/43228, fortran/43303, libfortran/43265, libfortran/43320
+- VTA backports
+  - PRs debug/36728, debug/43051, debug/43092, debug/43290,
+	tree-optimization/42917, tree-optimization/43317
+  - fix non-localized vars handling and forwarder block merging
+    (#572260, PR debug/43329)
+%if 0%{?rhel} >= 6
+- remove gappletviewer, gcjwebplugin and related files even for
+  RHEL, as xulrunner got updated to 1.9.2.1
+%endif
+
+* Tue Mar  9 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-9
+- update from gcc-4_4-branch
+  - PRs ada/42253, bootstrap/43121, c/43248, tree-optimization/43220
+- VTA backports
+  - PRs debug/42897, debug/43176, debug/43177, debug/43229, debug/43237,
+	debug/43290, debug/43299, debug/43304
+- fix unwind info in i?86 PIC register setup sequences (PR debug/43293)
+
+* Fri Feb 26 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-8
+- update from gcc-4_4-branch
+  - PR libstdc++/21769
+- VTA backports
+  - PRs debug/42800, debug/43077, debug/43150, debug/43160, debug/43161,
+	debug/43165, debug/43166, debug/43190, target/43139
+- fix alignment of some stack vars (PR middle-end/39315)
+
+* Sun Feb 21 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-7
+- update from gcc-4_4-branch
+  - PRs c++/43024, c++/43033, fortran/41869, target/40887,
+	tree-optimization/42871, tree-optimization/43074
+- VTA backports (PRs debug/42918, debug/43084)
+- --enable-decimal-float on s390{,x} (#565871)
+- improve __builtin_expect handling, propagate branch probabilities
+  during expansion even for sequences with more than one jump
+  (PR middle-end/42233)
+
 * Thu Feb 11 2010 Jakub Jelinek <jakub@redhat.com> 4.4.3-6
 - update from gcc-4_4-branch
   - PR tree-optimization/42705
