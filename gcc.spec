@@ -3,7 +3,7 @@
 %global gcc_version 4.4.4
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %if 0%{?fedora} >= 13 || 0%{?rhel} >= 6
@@ -251,6 +251,15 @@ Autoreq: true
 Manual, doxygen generated API information and Frequently Asked Questions
 for the GNU standard C++ library.
 
+%package -n libstdc++-static
+Summary: Static libraries for the GNU standard C++ library
+Group: Development/Libraries
+Requires: libstdc++-devel = %{version}-%{release}
+Autoreq: true
+
+%description -n libstdc++-static
+Static libraries for the GNU standard C++ library.
+
 %package objc
 Summary: Objective-C support for GCC
 Group: Development/Languages
@@ -329,12 +338,20 @@ Requires: libmudflap = %{version}-%{release}
 Requires: gcc = %{version}-%{release}
 
 %description -n libmudflap-devel
-This package contains headers and static libraries for building
-mudflap-instrumented programs.
+This package contains headers for building mudflap-instrumented programs.
 
 To instrument a non-threaded program, add -fmudflap
 option to GCC and when linking add -lmudflap, for threaded programs
 also add -fmudflapth and -lmudflapth.
+
+%package -n libmudflap-static
+Summary: Static	libraries for mudflap support
+Group: Development/Libraries
+Requires: libmudflap-devel = %{version}-%{release}
+
+%description -n libmudflap-static
+This package contains static libraries for building mudflap-instrumented
+programs.
 
 %package java
 Summary: Java support for GCC
@@ -458,6 +475,15 @@ Autoreq: true
 %description -n libgnat-devel
 GNAT is a GNU Ada 95 front-end to GCC. This package includes libraries,
 which are required to compile with the GNAT.
+
+%package -n libgnat-static
+Summary: GNU Ada 95 static libraries
+Group: System Environment/Libraries
+Requires: libgnat-devel = %{version}-%{release}
+Autoreq: true
+
+%description -n libgnat-static
+GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
@@ -1541,6 +1567,13 @@ fi
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%ifnarch sparcv9 ppc %{multilib_64_archs}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
+%endif
+%doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README*
+
+%files -n libstdc++-static
+%defattr(-,root,root,-)
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libstdc++.a
@@ -1553,10 +1586,8 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
 %endif
 %ifnarch sparcv9 ppc %{multilib_64_archs}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
 %endif
-%doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README*
 
 %if %{build_libstdcxx_docs}
 %files -n libstdc++-docs
@@ -1827,16 +1858,31 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adainclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/*.a
 %endif
 %ifarch sparc64 ppc64
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adainclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/*.a
 %endif
 %ifnarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adainclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/*.a
 %endif
+%endif
+
+%files -n libgnat-static
+%defattr(-,root,root,-)
+%ifarch sparcv9 ppc
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/*.a
+%endif
+%ifarch sparc64 ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/*.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/*.a
 %endif
 
 %files -n libgomp
@@ -1857,6 +1903,14 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mf-runtime.h
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
+%endif
+%doc rpm.doc/changelogs/libmudflap/ChangeLog*
+
+%files -n libmudflap-static
+%defattr(-,root,root,-)
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflap.a
@@ -1870,12 +1924,12 @@ fi
 %ifnarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
 %endif
-%doc rpm.doc/changelogs/libmudflap/ChangeLog*
 
 %changelog
+* Wed Jun  2 2010 Tom "spot" Callaway <tcallawa@redhat.com> 4.4.4-6
+- add static subpackages (bz556049)
+
 * Tue May 25 2010 Jakub Jelinek <jakub@redhat.com> 4.4.4-5
 - update from gcc-4_4-branch
   - PRs bootstrap/43870, debug/44205, target/43733, target/44074,
