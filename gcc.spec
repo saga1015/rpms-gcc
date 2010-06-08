@@ -1,9 +1,9 @@
-%global DATE 20100525
-%global SVNREV 159836
+%global DATE 20100608
+%global SVNREV 160426
 %global gcc_version 4.4.4
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %if 0%{?fedora} >= 13 || 0%{?rhel} >= 6
@@ -175,7 +175,6 @@ Patch17: gcc44-pr38757.patch
 Patch18: gcc44-libstdc++-docs.patch
 Patch19: gcc44-ppc64-aixdesc.patch
 Patch20: gcc44-no-add-needed.patch
-Patch21: gcc44-pr44199.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -242,6 +241,15 @@ This is the GNU implementation of the standard C++ libraries.  This
 package includes the header files and libraries needed for C++
 development. This includes rewritten implementation of STL.
 
+%package -n libstdc++-static
+Summary: Static libraries for the GNU standard C++ library
+Group: Development/Libraries
+Requires: libstdc++-devel = %{version}-%{release}
+Autoreq: true
+
+%description -n libstdc++-static
+Static libraries for the GNU standard C++ library. 
+
 %package -n libstdc++-docs
 Summary: Documentation for the GNU standard C++ library
 Group: Development/Libraries
@@ -250,15 +258,6 @@ Autoreq: true
 %description -n libstdc++-docs
 Manual, doxygen generated API information and Frequently Asked Questions
 for the GNU standard C++ library.
-
-%package -n libstdc++-static
-Summary: Static libraries for the GNU standard C++ library
-Group: Development/Libraries
-Requires: libstdc++-devel = %{version}-%{release}
-Autoreq: true
-
-%description -n libstdc++-static
-Static libraries for the GNU standard C++ library.
 
 %package objc
 Summary: Objective-C support for GCC
@@ -345,7 +344,7 @@ option to GCC and when linking add -lmudflap, for threaded programs
 also add -fmudflapth and -lmudflapth.
 
 %package -n libmudflap-static
-Summary: Static	libraries for mudflap support
+Summary: Static libraries for mudflap support
 Group: Development/Libraries
 Requires: libmudflap-devel = %{version}-%{release}
 
@@ -512,7 +511,6 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %if 0%{?fedora} >= 13
 %patch20 -p0 -b .no-add-needed~
 %endif
-%patch21 -p0 -b .pr44199~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -567,6 +565,7 @@ fi
 %build
 
 %if %{build_java}
+export GCJ_PROPERTIES=jdt.compiler.useSingleThread=true
 # gjar isn't usable, so even when GCC source tree no longer includes
 # fastjar, build it anyway.
 mkdir fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
@@ -791,6 +790,7 @@ rm -fr %{buildroot}
 cd obj-%{gcc_target_platform}
 
 %if %{build_java}
+export GCJ_PROPERTIES=jdt.compiler.useSingleThread=true
 export PATH=`pwd`/../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}${PATH:+:$PATH}
 %if !%{bootstrap_java}
 export PATH=`pwd`/java_hacks${PATH:+:$PATH}
@@ -998,7 +998,7 @@ fi
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgcj_bc.so $FULLLPATH/
 %endif
 mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a .
+mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a .
 mv -f %{buildroot}%{_prefix}/%{_lib}/libobjc.*a .
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.*a .
@@ -1060,12 +1060,13 @@ ln -sf ../`echo ../../../../lib/libgij.so.10.* | sed s~/lib/~/lib64/~` 64/libgij
 ln -sf lib32/libgcj_bc.so libgcj_bc.so
 ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
 %endif
-mv -f %{buildroot}%{_prefix}/lib64/libsupc++.*a 64/
 mv -f %{buildroot}%{_prefix}/lib64/libgfortran.*a 64/
 mv -f %{buildroot}%{_prefix}/lib64/libobjc.*a 64/
 mv -f %{buildroot}%{_prefix}/lib64/libgomp.*a 64/
 ln -sf lib32/libstdc++.a libstdc++.a
 ln -sf ../lib64/libstdc++.a 64/libstdc++.a
+ln -sf lib32/libsupc++.a libsupc++.a
+ln -sf ../lib64/libsupc++.a 64/libsupc++.a
 ln -sf lib32/libmudflap.a libmudflap.a
 ln -sf ../lib64/libmudflap.a 64/libmudflap.a
 ln -sf lib32/libmudflapth.a libmudflapth.a
@@ -1093,7 +1094,6 @@ ln -sf ../`echo ../../../../lib64/libgcj.so.10.* | sed s~/../lib64/~/~` 32/libgc
 ln -sf ../`echo ../../../../lib64/libgcj-tools.so.10.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
 ln -sf ../`echo ../../../../lib64/libgij.so.10.* | sed s~/../lib64/~/~` 32/libgij.so
 %endif
-mv -f %{buildroot}%{_prefix}/lib/libsupc++.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libgfortran.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libgomp.*a 32/
@@ -1101,6 +1101,8 @@ mv -f %{buildroot}%{_prefix}/lib/libgomp.*a 32/
 %ifarch sparc64 ppc64
 ln -sf ../lib32/libstdc++.a 32/libstdc++.a
 ln -sf lib64/libstdc++.a libstdc++.a
+ln -sf ../lib32/libsupc++.a 32/libsupc++.a
+ln -sf lib64/libsupc++.a libsupc++.a
 ln -sf ../lib32/libmudflap.a 32/libmudflap.a
 ln -sf lib64/libmudflap.a libmudflap.a
 ln -sf ../lib32/libmudflapth.a 32/libmudflapth.a
@@ -1118,6 +1120,7 @@ ln -sf lib64/adalib adalib
 %else
 %ifarch %{multilib_64_archs}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libsupc++.a 32/libsupc++.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmudflap.a 32/libmudflap.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmudflapth.a 32/libmudflapth.a
 %if %{build_java}
@@ -1546,10 +1549,10 @@ fi
 %endif
 %ifarch sparcv9 ppc %{multilib_64_archs}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
 %endif
 %ifarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
 %endif
 %doc rpm.doc/changelogs/gcc/cp/ChangeLog*
 
@@ -1567,26 +1570,47 @@ fi
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%if 0%{?fedora} < 14
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libsupc++.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libsupc++.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
+%endif
+%endif
 %ifnarch sparcv9 ppc %{multilib_64_archs}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
 %endif
 %doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README*
 
+%if 0%{?fedora} >= 14
 %files -n libstdc++-static
 %defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libsupc++.a
 %endif
 %ifarch sparc64 ppc64
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libsupc++.a
 %endif
 %ifnarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
-%endif
-%ifnarch sparcv9 ppc %{multilib_64_archs}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
+%endif
 %endif
 
 %if %{build_libstdcxx_docs}
@@ -1858,31 +1882,53 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adainclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/*.a
+%if 0%{?fedora} >= 14
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/libgnat.a
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/libgnarl.a
+%endif
 %endif
 %ifarch sparc64 ppc64
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adainclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/*.a
+%if 0%{?fedora} >= 14
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/libgnat.a
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/libgnarl.a
+%endif
 %endif
 %ifnarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adainclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/*.a
+%if 0%{?fedora} >= 14
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/libgnat.a
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/libgnarl.a
+%endif
 %endif
 %endif
 
+%if 0%{?fedora} >= 14
 %files -n libgnat-static
 %defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %ifarch sparcv9 ppc
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/*.a
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/libgnat.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/adalib/libgnarl.a
 %endif
 %ifarch sparc64 ppc64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/*.a
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/libgnat.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/adalib/libgnarl.a
 %endif
 %ifnarch sparcv9 sparc64 ppc ppc64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/*.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/libgnat.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/adalib/libgnarl.a
+%endif
 %endif
 
 %files -n libgomp
@@ -1903,14 +1949,7 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mf-runtime.h
-%ifnarch sparcv9 sparc64 ppc ppc64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
-%endif
-%doc rpm.doc/changelogs/libmudflap/ChangeLog*
-
-%files -n libmudflap-static
-%defattr(-,root,root,-)
+%if 0%{?fedora} < 14
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflap.a
@@ -1925,10 +1964,53 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
 %endif
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
+%endif
+%doc rpm.doc/changelogs/libmudflap/ChangeLog*
+
+%if 0%{?fedora} >= 14
+%files -n libmudflap-static
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflapth.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmudflapth.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
+%endif
+%endif
 
 %changelog
-* Wed Jun  2 2010 Tom "spot" Callaway <tcallawa@redhat.com> 4.4.4-6
-- add static subpackages (bz556049)
+* Tue Jun  8 2010 Jakub Jelinek <jakub@redhat.com> 4.4.4-7
+- update from gcc-4_4-branch
+  - PRs c++/43555, fortran/42900, fortran/44360, libfortran/41169,
+	libgcj/38251, libobjc/36610, libstdc++/32499, pch/14940,
+	rtl-optimization/39580, target/44075, target/44169, target/44199
+- VTA backports
+  - PRs debug/44367, debug/44375, rtl-optimization/44013,
+	tree-optimization/44182
+  - speed up var-tracking (#598310, PR debug/41371)
+- -Wunused-but-set-* bugfixes
+  - PRs c++/44361, c++/44362, c++/44412, c++/44443, c++/44444
+- fix -mno-fused-madd -mfma4 on i?86/x86_64 (PR target/44338)
+- use GCJ_PROPERTIES=jdt.compiler.useSingleThread=true when
+  building classes with ecj1 (#524155)
+%if 0%{?fedora} >= 14
+- add some static subpackages (#556049)
+%endif
 
 * Tue May 25 2010 Jakub Jelinek <jakub@redhat.com> 4.4.4-5
 - update from gcc-4_4-branch
