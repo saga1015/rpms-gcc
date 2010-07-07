@@ -11,18 +11,11 @@
 	(gen_compile_unit_die): Use lang_hooks.source_language () to
 	determine if DW_LANG_C99 or DW_LANG_C89 should be returned.
 
---- gcc/langhooks.h.jj	2009-03-02 09:45:47.000000000 +0100
-+++ gcc/langhooks.h	2009-03-18 12:53:24.000000000 +0100
-@@ -1,5 +1,5 @@
- /* The lang_hooks data structure.
--   Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-+   Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
-    Free Software Foundation, Inc.
- 
- This file is part of GCC.
-@@ -414,6 +414,10 @@ struct lang_hooks
-      if in the process TREE_CONSTANT or TREE_SIDE_EFFECTS need updating.  */
-   tree (*expr_to_decl) (tree expr, bool *tc, bool *se);
+--- gcc/langhooks.h.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/langhooks.h	2010-07-01 16:15:22.432616871 +0200
+@@ -454,6 +454,10 @@ struct lang_hooks
+      is enabled.  */
+   bool eh_use_cxa_end_cleanup;
  
 +  /* Return year of the source language standard version if the FE supports
 +     multiple versions of the standard.  */
@@ -31,8 +24,8 @@
    /* Whenever you add entries here, make sure you adjust langhooks-def.h
       and langhooks.c accordingly.  */
  };
---- gcc/langhooks-def.h.jj	2009-03-02 09:45:47.000000000 +0100
-+++ gcc/langhooks-def.h	2009-03-18 12:53:45.000000000 +0100
+--- gcc/langhooks-def.h.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/langhooks-def.h	2010-07-01 16:16:07.427460761 +0200
 @@ -1,5 +1,5 @@
  /* Default macros to initialize the lang_hooks data structure.
 -   Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
@@ -40,24 +33,24 @@
     Free Software Foundation, Inc.
     Contributed by Alexandre Oliva  <aoliva@redhat.com>
  
-@@ -113,6 +113,7 @@ extern void lhd_omp_firstprivatize_type_
- #define LANG_HOOKS_EXPR_TO_DECL		lhd_expr_to_decl
- #define LANG_HOOKS_TO_TARGET_CHARSET	lhd_to_target_charset
- #define LANG_HOOKS_INIT_TS		lhd_do_nothing
+@@ -111,6 +111,7 @@ extern void lhd_omp_firstprivatize_type_
+ #define LANG_HOOKS_EH_PERSONALITY	lhd_gcc_personality
+ #define LANG_HOOKS_EH_RUNTIME_TYPE	lhd_pass_through_t
+ #define LANG_HOOKS_EH_USE_CXA_END_CLEANUP	false
 +#define LANG_HOOKS_SOURCE_LANGUAGE	NULL
  
  /* Attribute hooks.  */
  #define LANG_HOOKS_ATTRIBUTE_TABLE		NULL
-@@ -270,6 +271,7 @@ extern tree lhd_make_node (enum tree_cod
-   LANG_HOOKS_BUILTIN_FUNCTION_EXT_SCOPE, \
-   LANG_HOOKS_INIT_TS,          \
-   LANG_HOOKS_EXPR_TO_DECL, \
+@@ -301,6 +302,7 @@ extern void lhd_end_section (void);
+   LANG_HOOKS_EH_PERSONALITY, \
+   LANG_HOOKS_EH_RUNTIME_TYPE, \
+   LANG_HOOKS_EH_USE_CXA_END_CLEANUP, \
 +  LANG_HOOKS_SOURCE_LANGUAGE, \
  }
  
  #endif /* GCC_LANG_HOOKS_DEF_H */
---- gcc/c-lang.c.jj	2009-02-20 15:06:14.000000000 +0100
-+++ gcc/c-lang.c	2009-03-18 13:33:41.000000000 +0100
+--- gcc/c-lang.c.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/c-lang.c	2010-07-01 16:14:25.396197804 +0200
 @@ -1,6 +1,6 @@
  /* Language-specific hook definitions for C front end.
     Copyright (C) 1991, 1995, 1997, 1998,
@@ -87,10 +80,10 @@
 +#define LANG_HOOKS_SOURCE_LANGUAGE c_source_language
  
  /* Each front end provides its own lang hook initializer.  */
- const struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
---- gcc/dwarf2out.c.jj	2009-03-17 13:06:29.000000000 +0100
-+++ gcc/dwarf2out.c	2009-03-18 12:55:36.000000000 +0100
-@@ -14286,9 +14286,18 @@ add_bit_size_attribute (dw_die_ref die, 
+ struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
+--- gcc/dwarf2out.c.jj	2010-07-01 14:07:41.000000000 +0200
++++ gcc/dwarf2out.c	2010-07-01 16:13:24.597354717 +0200
+@@ -17150,9 +17150,18 @@ add_bit_size_attribute (dw_die_ref die, 
  static inline void
  add_prototyped_attribute (dw_die_ref die, tree func_type)
  {
@@ -112,7 +105,7 @@
  }
  
  /* Add an 'abstract_origin' attribute below a given DIE.  The DIE is found
-@@ -16290,6 +16299,10 @@ gen_compile_unit_die (const char *filena
+@@ -19246,6 +19255,10 @@ gen_compile_unit_die (const char *filena
  	language = DW_LANG_ObjC;
        else if (strcmp (language_string, "GNU Objective-C++") == 0)
  	language = DW_LANG_ObjC_plus_plus;

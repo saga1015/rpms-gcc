@@ -22,3 +22,4 @@ gcc-4_4_4-7_fc14:HEAD:gcc-4.4.4-7.fc14.src.rpm:1275991256
 gcc-4_4_4-8_fc14:HEAD:gcc-4.4.4-8.fc14.src.rpm:1276244517
 gcc-4_4_4-9_fc14:HEAD:gcc-4.4.4-9.fc14.src.rpm:1277410688
 gcc-4_4_4-10_fc14:HEAD:gcc-4.4.4-10.fc14.src.rpm:1277882958
+gcc-4_5_0-1_fc14:HEAD:gcc-4.5.0-1.fc14.src.rpm:1278524061
