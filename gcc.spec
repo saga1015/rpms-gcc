@@ -1966,6 +1966,7 @@ fi
 	target/43888, tree-optimization/44284
 - use DW_OP_const[48]u instead of DW_OP_addr before DW_OP_GNU_push_tls_address
 - fix a multilib issue with *.py[oc] files in libstdc++ (#612742)
+- fix up libgcj_bc.so
 
 * Wed Jun  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-1
 - initial 4.5 package, using newly created redhat/gcc-4_5-branch
