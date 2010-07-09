@@ -1,9 +1,9 @@
-%global DATE 20100707
-%global SVNREV 161912
+%global DATE 20100709
+%global SVNREV 161987
 %global gcc_version 4.5.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -946,6 +946,12 @@ fi
 mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++*gdb.py* \
       %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
+pushd ../libstdc++-v3/python
+for i in `find . -name \*.py`; do
+  touch -r $i %{buildroot}%{_prefix}/share/gcc-%{gcc_version}/python/$i
+done
+touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc++*gdb.py
+popd
 
 pushd $FULLPATH
 if [ "%{_lib}" = "lib" ]; then
@@ -1954,5 +1960,12 @@ fi
 %endif
 
 %changelog
+* Fri Jun  9 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-2
+- update from gcc-4_5-branch
+  - PRs c++/44703, fortran/44847, middle-end/41355, middle-end/44828,
+	target/43888, tree-optimization/44284
+- use DW_OP_const[48]u instead of DW_OP_addr before DW_OP_GNU_push_tls_address
+- fix a multilib issue with *.py[oc] files in libstdc++ (#612742)
+
 * Wed Jun  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-1
 - initial 4.5 package, using newly created redhat/gcc-4_5-branch
