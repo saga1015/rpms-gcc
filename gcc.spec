@@ -1,9 +1,9 @@
-%global DATE 20100709
-%global SVNREV 161987
+%global DATE 20100716
+%global SVNREV 162258
 %global gcc_version 4.5.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -158,6 +158,7 @@ Patch14: gcc45-pr38757.patch
 Patch15: gcc45-libstdc++-docs.patch
 Patch17: gcc45-no-add-needed.patch
 Patch18: gcc45-pr44542.patch
+Patch19: gcc45-pr44942.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -489,6 +490,7 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %endif
 %patch17 -p0 -b .no-add-needed~
 %patch18 -p0 -b .pr44542~
+%patch19 -p0 -b .pr44942~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -1960,7 +1962,15 @@ fi
 %endif
 
 %changelog
-* Fri Jun  9 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-2
+* Fri Jul 16 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-3
+- update from gcc-4_5-branch
+  - PRs ada/43731, fortran/44773, pch/14940, testsuite/44325
+  - fix vectorizer (#614375, #614814, PR tree-optimization/44886)
+- fix fortran CHARACTER type SELECT CASE handling (PR fortran/40206)
+- fix inline-asm check for auto-inc-dec operands (PR testsuite/44701)
+- fix va_start on x86_64 (PR target/44942)
+
+* Fri Jul  9 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-2
 - update from gcc-4_5-branch
   - PRs c++/44703, fortran/44847, middle-end/41355, middle-end/44828,
 	target/43888, tree-optimization/44284
@@ -1968,5 +1978,5 @@ fi
 - fix a multilib issue with *.py[oc] files in libstdc++ (#612742)
 - fix up libgcj_bc.so
 
-* Wed Jun  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-1
+* Wed Jul  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-1
 - initial 4.5 package, using newly created redhat/gcc-4_5-branch
