@@ -1,9 +1,9 @@
-%global DATE 20100716
-%global SVNREV 162258
+%global DATE 20100730
+%global SVNREV 162712
 %global gcc_version 4.5.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -143,7 +143,6 @@ Requires(preun): /sbin/install-info
 AutoReq: true
 
 Patch0: gcc45-hack.patch
-Patch1: gcc45-build-id.patch
 Patch2: gcc45-c++-builtin-redecl.patch
 Patch4: gcc45-java-nomulti.patch
 Patch5: gcc45-ppc32-retaddr.patch
@@ -157,8 +156,7 @@ Patch12: gcc45-cloog-dl.patch
 Patch14: gcc45-pr38757.patch
 Patch15: gcc45-libstdc++-docs.patch
 Patch17: gcc45-no-add-needed.patch
-Patch18: gcc45-pr44542.patch
-Patch19: gcc45-pr44942.patch
+Patch18: gcc45-pr45055.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -471,7 +469,6 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
 %patch0 -p0 -b .hack~
-%patch1 -p0 -b .build-id~
 %patch2 -p0 -b .c++-builtin-redecl~
 %patch4 -p0 -b .java-nomulti~
 %patch5 -p0 -b .ppc32-retaddr~
@@ -489,8 +486,7 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %patch15 -p0 -b .libstdc++-docs~
 %endif
 %patch17 -p0 -b .no-add-needed~
-%patch18 -p0 -b .pr44542~
-%patch19 -p0 -b .pr44942~
+%patch18 -p0 -b .pr45055~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -512,7 +508,7 @@ echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 # Default to -gdwarf-3 rather than -gdwarf-2
 sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
-sed -i 's/\(may be either 2 or 3; the default version is \)2\./\13./' gcc/doc/invoke.texi
+sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\13./' gcc/doc/invoke.texi
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
@@ -632,7 +628,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
-	--enable-gnu-unique-object \
+	--enable-gnu-unique-object --enable-linker-build-id \
 %if !%{build_ada}
 	--enable-languages=c,c++,objc,obj-c++,java,fortran,lto \
 %else
@@ -1962,6 +1958,18 @@ fi
 %endif
 
 %changelog
+* Fri Jul 30 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-4
+- update from gcc-4_5-branch
+  - PRs c++/43016, c++/44996, c++/45008, c/45079, debug/45015, fortran/30668,
+	fortran/31346, fortran/34260, fortran/40011, testsuite/38946,
+	tree-optimization/44900, tree-optimization/44977
+  - fix vectorizer ICE (#6617492, PR tree-optimization/45047)
+- use --enable-linker-build-id in configury instead of patching
+  --build-id support in
+- VTA backports
+  - PRs debug/45055, rtl-optimization/45137, debug/45003,
+	debug/45006, bootstrap/45028
+
 * Fri Jul 16 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-3
 - update from gcc-4_5-branch
   - PRs ada/43731, fortran/44773, pch/14940, testsuite/44325
