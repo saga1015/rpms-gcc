@@ -39,7 +39,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}
+Release: %{gcc_release}%{?dist}.1
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -1958,6 +1958,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 11 2010 David Malcolm <dmalcolm@redhat.com> - 4.5.0-4.1
+- recompiling .py files against Python 2.7 (rhbz#623302)
+
 * Fri Jul 30 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-4
 - update from gcc-4_5-branch
   - PRs c++/43016, c++/44996, c++/45008, c/45079, debug/45015, fortran/30668,
