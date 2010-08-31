@@ -12,8 +12,8 @@
     I imagine that other systems will catch up.  In the meantime, it
     doesn't harm to make sure that the data exists to be used later.  */
  #if defined(HAVE_LD_EH_FRAME_HDR)
--#define LINK_EH_SPEC "%{!static:--eh-frame-hdr} %{!r:--build-id} "
-+#define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} %{!r:--build-id} "
+-#define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
++#define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} "
  #endif
  
  /* A C statement (sans semicolon) to output to the stdio stream STREAM
@@ -23,8 +23,8 @@
     Signalize that because we have fde-glibc, we don't need all C shared libs
     linked against -lgcc_s.  */
  #undef LINK_EH_SPEC
--#define LINK_EH_SPEC "%{!r:--build-id} "
-+#define LINK_EH_SPEC "--no-add-needed %{!r:--build-id} "
+-#define LINK_EH_SPEC ""
++#define LINK_EH_SPEC "--no-add-needed "
  
  #define MD_UNWIND_SUPPORT "config/ia64/linux-unwind.h"
  
@@ -34,8 +34,8 @@
      } while (0)
  
  #if defined(HAVE_LD_EH_FRAME_HDR)
--#define LINK_EH_SPEC "%{!static:--eh-frame-hdr} %{!r:--build-id} "
-+#define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} %{!r:--build-id} "
+-#define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
++#define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} "
  #endif
  
  /* Define this so we can compile MS code for use with WINE.  */
@@ -45,8 +45,8 @@
    %{!dynamic-linker:-dynamic-linker " LINUX_DYNAMIC_LINKER "}}}"
  
  #if defined(HAVE_LD_EH_FRAME_HDR)
--# define LINK_EH_SPEC "%{!static:--eh-frame-hdr} %{!r:--build-id} "
-+# define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} %{!r:--build-id} "
+-# define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
++# define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} "
  #endif
  
  #define CPP_OS_LINUX_SPEC "-D__unix__ -D__gnu_linux__ -D__linux__ \

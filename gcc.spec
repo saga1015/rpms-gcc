@@ -1,9 +1,9 @@
-%global DATE 20100716
-%global SVNREV 162258
-%global gcc_version 4.5.0
+%global DATE 20100812
+%global SVNREV 163197
+%global gcc_version 4.5.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,11 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{sparc}
-%global build_cloog 0
-%else
 %global build_cloog 1
-%endif
 %global build_libstdcxx_docs 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc41.spec
@@ -143,7 +139,6 @@ Requires(preun): /sbin/install-info
 AutoReq: true
 
 Patch0: gcc45-hack.patch
-Patch1: gcc45-build-id.patch
 Patch2: gcc45-c++-builtin-redecl.patch
 Patch4: gcc45-java-nomulti.patch
 Patch5: gcc45-ppc32-retaddr.patch
@@ -157,8 +152,6 @@ Patch12: gcc45-cloog-dl.patch
 Patch14: gcc45-pr38757.patch
 Patch15: gcc45-libstdc++-docs.patch
 Patch17: gcc45-no-add-needed.patch
-Patch18: gcc45-pr44542.patch
-Patch19: gcc45-pr44942.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -471,7 +464,6 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
 %patch0 -p0 -b .hack~
-%patch1 -p0 -b .build-id~
 %patch2 -p0 -b .c++-builtin-redecl~
 %patch4 -p0 -b .java-nomulti~
 %patch5 -p0 -b .ppc32-retaddr~
@@ -489,8 +481,6 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %patch15 -p0 -b .libstdc++-docs~
 %endif
 %patch17 -p0 -b .no-add-needed~
-%patch18 -p0 -b .pr44542~
-%patch19 -p0 -b .pr44942~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -507,12 +497,12 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.5\.1/4.5.0/' gcc/BASE-VER
+sed -i -e 's/4\.5\.2/4.5.1/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 # Default to -gdwarf-3 rather than -gdwarf-2
 sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
-sed -i 's/\(may be either 2 or 3; the default version is \)2\./\13./' gcc/doc/invoke.texi
+sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\13./' gcc/doc/invoke.texi
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
@@ -632,7 +622,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
-	--enable-gnu-unique-object \
+	--enable-gnu-unique-object --enable-linker-build-id \
 %if !%{build_ada}
 	--enable-languages=c,c++,objc,obj-c++,java,fortran,lto \
 %else
@@ -964,9 +954,9 @@ ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../libgcj.so.10.* libgcj.so
-ln -sf ../../../libgcj-tools.so.10.* libgcj-tools.so
-ln -sf ../../../libgij.so.10.* libgij.so
+ln -sf ../../../libgcj.so.11.* libgcj.so
+ln -sf ../../../libgcj-tools.so.11.* libgcj-tools.so
+ln -sf ../../../libgij.so.11.* libgij.so
 %endif
 else
 ln -sf ../../../../%{_lib}/libobjc.so.2 libobjc.so
@@ -976,9 +966,9 @@ ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../../%{_lib}/libgcj.so.10.* libgcj.so
-ln -sf ../../../../%{_lib}/libgcj-tools.so.10.* libgcj-tools.so
-ln -sf ../../../../%{_lib}/libgij.so.10.* libgij.so
+ln -sf ../../../../%{_lib}/libgcj.so.11.* libgcj.so
+ln -sf ../../../../%{_lib}/libgcj-tools.so.11.* libgcj-tools.so
+ln -sf ../../../../%{_lib}/libgij.so.11.* libgij.so
 %endif
 fi
 %if %{build_java}
@@ -1041,9 +1031,9 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflapth.so
 %if %{build_java}
-ln -sf ../`echo ../../../../lib/libgcj.so.10.* | sed s~/lib/~/lib64/~` 64/libgcj.so
-ln -sf ../`echo ../../../../lib/libgcj-tools.so.10.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
-ln -sf ../`echo ../../../../lib/libgij.so.10.* | sed s~/lib/~/lib64/~` 64/libgij.so
+ln -sf ../`echo ../../../../lib/libgcj.so.11.* | sed s~/lib/~/lib64/~` 64/libgcj.so
+ln -sf ../`echo ../../../../lib/libgcj-tools.so.11.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
+ln -sf ../`echo ../../../../lib/libgij.so.11.* | sed s~/lib/~/lib64/~` 64/libgij.so
 ln -sf lib32/libgcj_bc.so libgcj_bc.so
 ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
 %endif
@@ -1077,9 +1067,9 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflapth.so.0.* | se
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflapth.so
 %if %{build_java}
-ln -sf ../`echo ../../../../lib64/libgcj.so.10.* | sed s~/../lib64/~/~` 32/libgcj.so
-ln -sf ../`echo ../../../../lib64/libgcj-tools.so.10.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
-ln -sf ../`echo ../../../../lib64/libgij.so.10.* | sed s~/../lib64/~/~` 32/libgij.so
+ln -sf ../`echo ../../../../lib64/libgcj.so.11.* | sed s~/../lib64/~/~` 32/libgcj.so
+ln -sf ../`echo ../../../../lib64/libgcj-tools.so.11.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
+ln -sf ../`echo ../../../../lib64/libgij.so.11.* | sed s~/../lib64/~/~` 32/libgij.so
 %endif
 mv -f %{buildroot}%{_prefix}/lib/libgfortran.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
@@ -1962,6 +1952,34 @@ fi
 %endif
 
 %changelog
+* Tue Aug 31 2010 Dennis Gilmore <dennis@ausil.us> 4.5.1-2
+- enable cloog on sparc arches
+
+* Thu Aug 12 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-1
+- update from gcc-4_5-branch
+  - GCC 4.5.1 release
+  - PRs boehm-gc/34544, c++/45112, fortran/31588, fortran/42051,
+	fortran/43954, fortran/44064, fortran/44660, fortran/44929,
+	fortran/45151, libstdc++/44963, middle-end/44133, middle-end/45034,
+	middle-end/45262, target/41089, target/43698, target/44805,
+	testsuite/43283, tree-optimization/44914, tree-optimization/45052,
+	tree-optimization/45109
+  - fix VTA ICE in caller-save.c (#622060, PR debug/45259)
+- fix up gdb libstdc++ pretty printing (#621717)
+- fix up libgcj.so, libgij.so and libgcj-tools.so symlinks (#619156)
+
+* Fri Jul 30 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-4
+- update from gcc-4_5-branch
+  - PRs c++/43016, c++/44996, c++/45008, c/45079, debug/45015, fortran/30668,
+	fortran/31346, fortran/34260, fortran/40011, testsuite/38946,
+	tree-optimization/44900, tree-optimization/44977
+  - fix vectorizer ICE (#617492, PR tree-optimization/45047)
+- use --enable-linker-build-id in configury instead of patching
+  --build-id support in
+- VTA backports
+  - PRs debug/45055, rtl-optimization/45137, debug/45003,
+	debug/45006, bootstrap/45028
+
 * Wed Aug 11 2010 David Malcolm <dmalcolm@redhat.com> - 4.5.0-3.1
 - recompiling .py files against Python 2.7 (rhbz#623302)
 
