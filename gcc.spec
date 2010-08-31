@@ -3,7 +3,7 @@
 %global gcc_version 4.5.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,11 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{sparc}
-%global build_cloog 0
-%else
 %global build_cloog 1
-%endif
 %global build_libstdcxx_docs 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc41.spec
@@ -1956,6 +1952,9 @@ fi
 %endif
 
 %changelog
+* Tue Aug 31 2010 Dennis Gilmore <dennis@ausil.us> 4.5.1-2
+- enable cloog on sparc arches
+
 * Thu Aug 12 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-1
 - update from gcc-4_5-branch
   - GCC 4.5.1 release
