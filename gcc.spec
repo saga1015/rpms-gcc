@@ -1,9 +1,9 @@
-%global DATE 20100812
-%global SVNREV 163197
+%global DATE 20101112
+%global SVNREV 166681
 %global gcc_version 4.5.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -35,7 +35,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}.1
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -499,6 +499,9 @@ tar xjf %{SOURCE10}
 
 sed -i -e 's/4\.5\.2/4.5.1/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
+%if 0%{?fedora} <= 14
+sed -i -e 's/#define EMIT_IMPLICIT_PTR 1/#define EMIT_IMPLICIT_PTR 0/' gcc/cfgexpand.c
+%endif
 
 # Default to -gdwarf-3 rather than -gdwarf-2
 sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
@@ -1952,6 +1955,64 @@ fi
 %endif
 
 %changelog
+* Fri Nov 12 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-5
+- update from gcc-4_5-branch
+  - PRs bootstrap/44455, bootstrap/44621, c++/45894, c++/45983, c++/46024,
+	c++/46160, c/44772, c/45969, debug/42487, debug/44832, debug/45656,
+	debug/45939, fortran/42169, fortran/45748, fortran/46007,
+	fortran/46140, fortran/46152, java/43839, libffi/45677,
+	libfortran/45710, libgfortran/46010, libgfortran/46373,
+	libstdc++/45403, libstdc++/45711, libstdc++/45924, libstdc++/45999,
+	middle-end/43690, middle-end/44569, middle-end/45569,
+	middle-end/45869, middle-end/46019, middle-end/46419,
+	rtl-opt/46226, rtl-optimization/43358, rtl-optimization/44691,
+	rtl-optimization/46237, target/42070, target/43715, target/43764,
+	target/44452, target/45820, target/45843, target/45946, target/46098,
+	target/46153, target/46419, tree-optimization/45314,
+	tree-optimization/45752, tree-optimization/45854,
+	tree-optimization/45902, tree-optimization/45982,
+	tree-optimization/46099, tree-optimization/46107,
+	tree-optimization/46165, tree-optimization/46167,
+	tree-optimization/46177, tree-optimization/46355
+- -Wunused-but-set* fix for computed goto (PR c/46015)
+- fix -Wunused-but-set* for ObjC and ObjC++
+- VTA backports
+  - PRs bootstrap/43994, bootstrap/45630, debug/43478, debug/44023,
+	debug/46171, debug/46252, debug/46255, rtl-optimization/45162,
+	tree-optimization/46066
+%if 0%{?fedora} > 14
+- DW_OP_GNU_implicit_pointer support
+%endif
+
+* Fri Sep 24 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-4
+- update from gcc-4_5-branch
+  - PRs bootstrap/43847, debug/43628, fortran/45081, fortran/45595,
+	java/44095, libfortran/45532, libstdc++/45398, middle-end/40386,
+	middle-end/44554, middle-end/44763, middle-end/45312,
+	middle-end/45567, middle-end/45678, middle-end/45704, other/45443,
+	rtl-optimization/41085, rtl-optimization/41087,
+	rtl-optimization/42775, rtl-optimization/44919,
+	rtl-optimization/45051, rtl-optimization/45593,
+	rtl-optimization/45728, target/35664, target/36502, target/40959,
+	target/42313, target/44651, target/45694, target/45726,
+	tree-optimization/45623, tree-optimization/45709
+  - fix ICE in dwarf2out_finish (#632847, PR debug/45660)
+  - fix combiner (#634757, PR rtl-optimization/45695)
+- yet another -Wunused-but-set* fix for C++ consts in
+  templates (PR c++/45588)
+- emit slightly more compact .eh_frame
+
+* Tue Sep  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-3
+- update from gcc-4_5-branch
+  - PRs c++/44991, c++/45315, debug/45500, fortran/45019, fortran/45186,
+	fortran/45344, fortran/45489, fortran/45530, libstdc++/45283,
+	lto/45496, middle-end/44632, middle-end/45292, middle-end/45423,
+	middle-end/45458, middle-end/45484, rtl-optimization/44858,
+	rtl-optimization/45353, rtl-optimization/45400, target/41484,
+	target/45070, target/45296, target/45327, tree-optimization/45241,
+	tree-optimization/45260, tree-optimization/45393
+  - fix TYPENAME_TYPE handling (#620095, PRs c++/45200, c++/45293, c++/45558)
+
 * Tue Aug 31 2010 Dennis Gilmore <dennis@ausil.us> 4.5.1-2
 - enable cloog on sparc arches
 
@@ -1979,9 +2040,6 @@ fi
 - VTA backports
   - PRs debug/45055, rtl-optimization/45137, debug/45003,
 	debug/45006, bootstrap/45028
-
-* Wed Aug 11 2010 David Malcolm <dmalcolm@redhat.com> - 4.5.0-3.1
-- recompiling .py files against Python 2.7 (rhbz#623302)
 
 * Fri Jul 16 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-3
 - update from gcc-4_5-branch
