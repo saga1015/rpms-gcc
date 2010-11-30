@@ -1,9 +1,9 @@
-%global DATE 20101112
-%global SVNREV 166681
+%global DATE 20101130
+%global SVNREV 167299
 %global gcc_version 4.5.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -1955,6 +1955,18 @@ fi
 %endif
 
 %changelog
+* Tue Nov 30 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-6
+- update from gcc-4_5-branch
+  - PRs ada/40777, c/46547, debug/46258, fortran/45742, fortran/46638,
+	fortran/46668, middle-end/43057, middle-end/46651,
+	rtl-optimization/46315, rtl-optimization/46571, target/31100,
+	target/44266, target/45807, tree-optimization/44545,
+	tree-optimization/46491, tree-optimization/46498,
+	tree-optimization/46675
+%if 0%{fedora} >= 15
+- rebuilt against new mpfr and libmpc
+%endif
+
 * Fri Nov 12 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-5
 - update from gcc-4_5-branch
   - PRs bootstrap/44455, bootstrap/44621, c++/45894, c++/45983, c++/46024,
