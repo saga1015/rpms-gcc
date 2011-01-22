@@ -1,0 +1,31 @@
+Temporarily revert:
+	2011-01-21  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/47106
+	* cfgexpand.c (account_used_vars_for_block): Only account vars
+	that are annotated as used.
+	(estimated_stack_frame_size): Don't set TREE_USED.
+
+--- gcc/cfgexpand.c	(revision 169093)
++++ gcc/cfgexpand.c	(revision 169092)
+@@ -1325,7 +1325,7 @@ account_used_vars_for_block (tree block,
+ 
+   /* Expand all variables at this level.  */
+   for (t = BLOCK_VARS (block); t ; t = DECL_CHAIN (t))
+-    if (var_ann (t) && var_ann (t)->used)
++    if (TREE_USED (t))
+       size += expand_one_var (t, toplevel, false);
+ 
+   /* Expand all variables at containing levels.  */
+@@ -1389,10 +1389,9 @@ estimated_stack_frame_size (tree decl)
+ 
+   FOR_EACH_LOCAL_DECL (cfun, ix, var)
+     {
+-      /* TREE_USED marks local variables that do not appear in lexical
+-	 blocks.  We don't want to expand those that do twice.  */
+       if (TREE_USED (var))
+         size += expand_one_var (var, true, false);
++      TREE_USED (var) = 1;
+     }
+   size += account_used_vars_for_block (outer_block, true);
+ 

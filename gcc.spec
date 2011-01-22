@@ -1,9 +1,9 @@
-%global DATE 20101130
-%global SVNREV 167299
-%global gcc_version 4.5.1
+%global DATE 20110122
+%global SVNREV 169125
+%global gcc_version 4.6.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 0.2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,6 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
+%global build_go 1
 %global build_cloog 1
 %global build_libstdcxx_docs 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
@@ -42,7 +43,7 @@ License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group: Development/Languages
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_4-branch@%{SVNREV} gcc-%{version}-%{DATE}
+# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_6-branch@%{SVNREV} gcc-%{version}-%{DATE}
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: libgcc_post_upgrade.c
@@ -65,6 +66,7 @@ BuildRequires: binutils >= 2.20.51.0.2-12
 # -static is used several times.
 BuildRequires: glibc-static
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
+BuildRequires: systemtap-sdt-devel >= 1.3
 # For VTA guality testing
 BuildRequires: gdb
 %if %{build_java}
@@ -138,20 +140,23 @@ Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 AutoReq: true
 
-Patch0: gcc45-hack.patch
-Patch2: gcc45-c++-builtin-redecl.patch
-Patch4: gcc45-java-nomulti.patch
-Patch5: gcc45-ppc32-retaddr.patch
-Patch6: gcc45-pr33763.patch
-Patch7: gcc45-rh330771.patch
-Patch8: gcc45-i386-libgomp.patch
-Patch9: gcc45-sparc-config-detection.patch
-Patch10: gcc45-libgomp-omp_h-multilib.patch
-Patch11: gcc45-libtool-no-rpath.patch
-Patch12: gcc45-cloog-dl.patch
-Patch14: gcc45-pr38757.patch
-Patch15: gcc45-libstdc++-docs.patch
-Patch17: gcc45-no-add-needed.patch
+Patch0: gcc46-hack.patch
+Patch2: gcc46-c++-builtin-redecl.patch
+Patch4: gcc46-java-nomulti.patch
+Patch5: gcc46-ppc32-retaddr.patch
+Patch6: gcc46-pr33763.patch
+Patch7: gcc46-rh330771.patch
+Patch8: gcc46-i386-libgomp.patch
+Patch9: gcc46-sparc-config-detection.patch
+Patch10: gcc46-libgomp-omp_h-multilib.patch
+Patch11: gcc46-libtool-no-rpath.patch
+Patch12: gcc46-cloog-dl.patch
+Patch14: gcc46-pr38757.patch
+Patch15: gcc46-libstdc++-docs.patch
+Patch17: gcc46-no-add-needed.patch
+Patch18: gcc46-unwind-debughook-sdt.patch
+Patch19: gcc46-pr47106-revert.patch
+Patch20: gcc46-pr46890.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -175,11 +180,11 @@ Patch1004: fastjar-man.patch
 %endif
 
 %description
-The gcc package contains the GNU Compiler Collection version 4.5.
+The gcc package contains the GNU Compiler Collection version 4.6.
 You'll need this package in order to compile C code.
 
 %package -n libgcc
-Summary: GCC version 4.5 shared support library
+Summary: GCC version 4.6 shared support library
 Group: System Environment/Libraries
 Autoreq: false
 
@@ -481,6 +486,9 @@ GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
 %patch15 -p0 -b .libstdc++-docs~
 %endif
 %patch17 -p0 -b .no-add-needed~
+%patch18 -p0 -b .unwind-debughook-sdt~
+%patch19 -p0 -b .pr47106-revert~
+%patch20 -p0 -b .pr46890~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -497,11 +505,8 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.5\.2/4.5.1/' gcc/BASE-VER
+sed -i -e 's/4\.6\.0/4.6.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
-%if 0%{?fedora} <= 14
-sed -i -e 's/#define EMIT_IMPLICIT_PTR 1/#define EMIT_IMPLICIT_PTR 0/' gcc/cfgexpand.c
-%endif
 
 # Default to -gdwarf-3 rather than -gdwarf-2
 sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
@@ -537,6 +542,9 @@ if [ -d libstdc++-v3/config/abi/post/sparc64-linux-gnu ]; then
   rm -rf libstdc++-v3/config/abi/post/sparc64-linux-gnu/32
 fi
 %endif
+
+# This test causes fork failures, because it spawns way too many threads
+rm -f gcc/testsuite/go.test/test/chan/goroutines.go
 
 %build
 
@@ -627,9 +635,9 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
 	--enable-gnu-unique-object --enable-linker-build-id \
 %if !%{build_ada}
-	--enable-languages=c,c++,objc,obj-c++,java,fortran,lto \
+	--enable-languages=c,c++,objc,obj-c++,java,fortran,go,lto \
 %else
-	--enable-languages=c,c++,objc,obj-c++,java,fortran,ada,lto \
+	--enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto \
 %endif
 	--enable-plugin \
 %if !%{build_java}
@@ -723,9 +731,6 @@ done
 done)
 (cd libgfortran; for i in ChangeLog*; do
 	cp -p $i ../rpm.doc/gfortran/$i.libgfortran
-done)
-(cd gcc/objc; for i in README*; do
-	cp -p $i ../../rpm.doc/objc/$i.objc
 done)
 (cd libobjc; for i in README*; do
 	cp -p $i ../rpm.doc/objc/$i.libobjc
@@ -950,28 +955,28 @@ popd
 
 pushd $FULLPATH
 if [ "%{_lib}" = "lib" ]; then
-ln -sf ../../../libobjc.so.2 libobjc.so
+ln -sf ../../../libobjc.so.3 libobjc.so
 ln -sf ../../../libstdc++.so.6.*[0-9] libstdc++.so
 ln -sf ../../../libgfortran.so.3.* libgfortran.so
 ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../libgcj.so.11.* libgcj.so
-ln -sf ../../../libgcj-tools.so.11.* libgcj-tools.so
-ln -sf ../../../libgij.so.11.* libgij.so
+ln -sf ../../../libgcj.so.12.* libgcj.so
+ln -sf ../../../libgcj-tools.so.12.* libgcj-tools.so
+ln -sf ../../../libgij.so.12.* libgij.so
 %endif
 else
-ln -sf ../../../../%{_lib}/libobjc.so.2 libobjc.so
+ln -sf ../../../../%{_lib}/libobjc.so.3 libobjc.so
 ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
 ln -sf ../../../../%{_lib}/libgfortran.so.3.* libgfortran.so
 ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 %if %{build_java}
-ln -sf ../../../../%{_lib}/libgcj.so.11.* libgcj.so
-ln -sf ../../../../%{_lib}/libgcj-tools.so.11.* libgcj-tools.so
-ln -sf ../../../../%{_lib}/libgij.so.11.* libgij.so
+ln -sf ../../../../%{_lib}/libgcj.so.12.* libgcj.so
+ln -sf ../../../../%{_lib}/libgcj-tools.so.12.* libgcj-tools.so
+ln -sf ../../../../%{_lib}/libgij.so.12.* libgij.so
 %endif
 fi
 %if %{build_java}
@@ -996,35 +1001,35 @@ mv -f $FULLPATH/ada{include,lib} $FULLLPATH/
 pushd $FULLLPATH/adalib
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../../libgnarl-*.so libgnarl.so
-ln -sf ../../../../../libgnarl-*.so libgnarl-4.5.so
+ln -sf ../../../../../libgnarl-*.so libgnarl-4.6.so
 ln -sf ../../../../../libgnat-*.so libgnat.so
-ln -sf ../../../../../libgnat-*.so libgnat-4.5.so
+ln -sf ../../../../../libgnat-*.so libgnat-4.6.so
 else
 ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-4.5.so
+ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-4.6.so
 ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-4.5.so
+ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-4.6.so
 fi
 popd
 else
 pushd $FULLPATH/adalib
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../libgnarl-*.so libgnarl.so
-ln -sf ../../../../libgnarl-*.so libgnarl-4.5.so
+ln -sf ../../../../libgnarl-*.so libgnarl-4.6.so
 ln -sf ../../../../libgnat-*.so libgnat.so
-ln -sf ../../../../libgnat-*.so libgnat-4.5.so
+ln -sf ../../../../libgnat-*.so libgnat-4.6.so
 else
 ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-4.5.so
+ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-4.6.so
 ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-4.5.so
+ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-4.6.so
 fi
 popd
 fi
 %endif
 
 %ifarch sparcv9 ppc
-ln -sf ../../../../../lib64/libobjc.so.2 64/libobjc.so
+ln -sf ../../../../../lib64/libobjc.so.3 64/libobjc.so
 ln -sf ../`echo ../../../../lib/libstdc++.so.6.*[0-9] | sed s~/lib/~/lib64/~` 64/libstdc++.so
 ln -sf ../`echo ../../../../lib/libgfortran.so.3.* | sed s~/lib/~/lib64/~` 64/libgfortran.so
 ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgomp.so
@@ -1034,9 +1039,9 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflapth.so
 %if %{build_java}
-ln -sf ../`echo ../../../../lib/libgcj.so.11.* | sed s~/lib/~/lib64/~` 64/libgcj.so
-ln -sf ../`echo ../../../../lib/libgcj-tools.so.11.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
-ln -sf ../`echo ../../../../lib/libgij.so.11.* | sed s~/lib/~/lib64/~` 64/libgij.so
+ln -sf ../`echo ../../../../lib/libgcj.so.12.* | sed s~/lib/~/lib64/~` 64/libgcj.so
+ln -sf ../`echo ../../../../lib/libgcj-tools.so.12.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
+ln -sf ../`echo ../../../../lib/libgij.so.12.* | sed s~/lib/~/lib64/~` 64/libgij.so
 ln -sf lib32/libgcj_bc.so libgcj_bc.so
 ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
 %endif
@@ -1060,7 +1065,7 @@ ln -sf ../lib64/adalib 64/adalib
 %endif
 %ifarch %{multilib_64_archs}
 mkdir -p 32
-ln -sf ../../../../libobjc.so.2 32/libobjc.so
+ln -sf ../../../../libobjc.so.3 32/libobjc.so
 ln -sf ../`echo ../../../../lib64/libstdc++.so.6.*[0-9] | sed s~/../lib64/~/~` 32/libstdc++.so
 ln -sf ../`echo ../../../../lib64/libgfortran.so.3.* | sed s~/../lib64/~/~` 32/libgfortran.so
 ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgomp.so
@@ -1070,9 +1075,9 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflapth.so.0.* | se
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflapth.so
 %if %{build_java}
-ln -sf ../`echo ../../../../lib64/libgcj.so.11.* | sed s~/../lib64/~/~` 32/libgcj.so
-ln -sf ../`echo ../../../../lib64/libgcj-tools.so.11.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
-ln -sf ../`echo ../../../../lib64/libgij.so.11.* | sed s~/../lib64/~/~` 32/libgij.so
+ln -sf ../`echo ../../../../lib64/libgcj.so.12.* | sed s~/../lib64/~/~` 32/libgcj.so
+ln -sf ../`echo ../../../../lib64/libgcj-tools.so.12.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
+ln -sf ../`echo ../../../../lib64/libgij.so.12.* | sed s~/../lib64/~/~` 32/libgij.so
 %endif
 mv -f %{buildroot}%{_prefix}/lib/libgfortran.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
@@ -1121,7 +1126,7 @@ popd
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.3.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.so.0.*
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.2.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.3.*
 
 %if %{build_ada}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgnarl*so*
@@ -1636,7 +1641,7 @@ fi
 
 %files -n libobjc
 %defattr(-,root,root,-)
-%{_prefix}/%{_lib}/libobjc.so.2*
+%{_prefix}/%{_lib}/libobjc.so.3*
 
 %files gfortran
 %defattr(-,root,root,-)
@@ -1955,119 +1960,54 @@ fi
 %endif
 
 %changelog
-* Tue Nov 30 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-6
-- update from gcc-4_5-branch
-  - PRs ada/40777, c/46547, debug/46258, fortran/45742, fortran/46638,
-	fortran/46668, middle-end/43057, middle-end/46651,
-	rtl-optimization/46315, rtl-optimization/46571, target/31100,
-	target/44266, target/45807, tree-optimization/44545,
-	tree-optimization/46491, tree-optimization/46498,
-	tree-optimization/46675
-%if 0%{fedora} >= 15
-- rebuilt against new mpfr and libmpc
-%endif
+* Sat Jan 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.2
+- update from the trunk
+  - PRs bootstrap/47055, bootstrap/47187, bootstrap/47215, c++/33558,
+	c++/45520, c++/46552, c++/46658, c++/46688, c++/46903, c++/46977,
+	c++/47022, c++/47041, c++/47067, c++/47213, c++/47218, c++/47289,
+	c++/47291, c++/47303, c++/47388, c/47150, debug/46240, debug/46583,
+	debug/46704, debug/46724, debug/46955, debug/47079, debug/47106,
+	debug/47209, debug/47283, debug/47402, debug/PR46973, driver/42445,
+	driver/47244, fortran/33117, fortran/38536, fortran/41580,
+	fortran/45777, fortran/45848, fortran/46017, fortran/46313,
+	fortran/46402, fortran/46405, fortran/46416, fortran/46478,
+	fortran/46625, fortran/46817, fortran/46896, fortran/47024,
+	fortran/47051, fortran/47174, fortran/47177, fortran/47180,
+	fortran/47182, fortran/47189, fortran/47194, fortran/47195,
+	fortran/47204, fortran/47224, fortran/47240, fortran/47260,
+	fortran/47268, fortran/47295, fortran/47327, fortran/47331,
+	fortran/47377, fortran/47394, gcc/46902, libfortran/46267,
+	libfortran/47296, libfortran/47322, libgfortran/47154,
+	libgfortran/47296, libstdc++/36104, libstdc++/47045, libstdc++/47145,
+	libstdc++/47185, libstdc++/47320, libstdc++/47321, libstdc++/47323,
+	libstdc++/47354, lto/45375, lto/45721, lto/46083, lto/46760,
+	lto/47162, lto/47188, lto/47222, lto/47225, lto/47259, lto/47264,
+	middle-end/32511, middle-end/45235, middle-end/45566,
+	middle-end/46823, middle-end/46894, middle-end/47281,
+	middle-end/47370, middle-end/47395, objc/45989, objc/47078,
+	objc/47232, objc/47314, other/45915, other/46946, preprocessor/39213,
+	rtl-optimization/39077, rtl-optimization/41619,
+	rtl-optimization/45352, rtl-optimization/47216,
+	rtl-optimization/47299, rtl-optimization/47337,
+	rtl-optimization/47366, target/19162, target/38118, target/43309,
+	target/45258, target/46037, target/46655, target/46997, target/47201,
+	target/47219, target/47251, target/47318, testsuite/33033,
+	testsuite/41146, testsuite/45342, testsuite/46230, testsuite/46912,
+	testsuite/47325, testsuite/47371, tree-optimization/45934,
+	tree-optimization/45967, tree-optimization/46021,
+	tree-optimization/46076, tree-optimization/46130,
+	tree-optimization/46302, tree-optimization/46367,
+	tree-optimization/47005, tree-optimization/47053,
+	tree-optimization/47056, tree-optimization/47086,
+	tree-optimization/47139, tree-optimization/47141,
+	tree-optimization/47167, tree-optimization/47179,
+	tree-optimization/47233, tree-optimization/47234,
+	tree-optimization/47239, tree-optimization/47276,
+	tree-optimization/47280, tree-optimization/47286,
+	tree-optimization/47290, tree-optimization/47313,
+	tree-optimization/47355, tree-optimization/47365,
+	tree-optimization/47391, tree-optmization/46469
+- add systemtap probe to _Unwind_DebugHook
 
-* Fri Nov 12 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-5
-- update from gcc-4_5-branch
-  - PRs bootstrap/44455, bootstrap/44621, c++/45894, c++/45983, c++/46024,
-	c++/46160, c/44772, c/45969, debug/42487, debug/44832, debug/45656,
-	debug/45939, fortran/42169, fortran/45748, fortran/46007,
-	fortran/46140, fortran/46152, java/43839, libffi/45677,
-	libfortran/45710, libgfortran/46010, libgfortran/46373,
-	libstdc++/45403, libstdc++/45711, libstdc++/45924, libstdc++/45999,
-	middle-end/43690, middle-end/44569, middle-end/45569,
-	middle-end/45869, middle-end/46019, middle-end/46419,
-	rtl-opt/46226, rtl-optimization/43358, rtl-optimization/44691,
-	rtl-optimization/46237, target/42070, target/43715, target/43764,
-	target/44452, target/45820, target/45843, target/45946, target/46098,
-	target/46153, target/46419, tree-optimization/45314,
-	tree-optimization/45752, tree-optimization/45854,
-	tree-optimization/45902, tree-optimization/45982,
-	tree-optimization/46099, tree-optimization/46107,
-	tree-optimization/46165, tree-optimization/46167,
-	tree-optimization/46177, tree-optimization/46355
-- -Wunused-but-set* fix for computed goto (PR c/46015)
-- fix -Wunused-but-set* for ObjC and ObjC++
-- VTA backports
-  - PRs bootstrap/43994, bootstrap/45630, debug/43478, debug/44023,
-	debug/46171, debug/46252, debug/46255, rtl-optimization/45162,
-	tree-optimization/46066
-%if 0%{?fedora} > 14
-- DW_OP_GNU_implicit_pointer support
-%endif
-
-* Fri Sep 24 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-4
-- update from gcc-4_5-branch
-  - PRs bootstrap/43847, debug/43628, fortran/45081, fortran/45595,
-	java/44095, libfortran/45532, libstdc++/45398, middle-end/40386,
-	middle-end/44554, middle-end/44763, middle-end/45312,
-	middle-end/45567, middle-end/45678, middle-end/45704, other/45443,
-	rtl-optimization/41085, rtl-optimization/41087,
-	rtl-optimization/42775, rtl-optimization/44919,
-	rtl-optimization/45051, rtl-optimization/45593,
-	rtl-optimization/45728, target/35664, target/36502, target/40959,
-	target/42313, target/44651, target/45694, target/45726,
-	tree-optimization/45623, tree-optimization/45709
-  - fix ICE in dwarf2out_finish (#632847, PR debug/45660)
-  - fix combiner (#634757, PR rtl-optimization/45695)
-- yet another -Wunused-but-set* fix for C++ consts in
-  templates (PR c++/45588)
-- emit slightly more compact .eh_frame
-
-* Tue Sep  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-3
-- update from gcc-4_5-branch
-  - PRs c++/44991, c++/45315, debug/45500, fortran/45019, fortran/45186,
-	fortran/45344, fortran/45489, fortran/45530, libstdc++/45283,
-	lto/45496, middle-end/44632, middle-end/45292, middle-end/45423,
-	middle-end/45458, middle-end/45484, rtl-optimization/44858,
-	rtl-optimization/45353, rtl-optimization/45400, target/41484,
-	target/45070, target/45296, target/45327, tree-optimization/45241,
-	tree-optimization/45260, tree-optimization/45393
-  - fix TYPENAME_TYPE handling (#620095, PRs c++/45200, c++/45293, c++/45558)
-
-* Tue Aug 31 2010 Dennis Gilmore <dennis@ausil.us> 4.5.1-2
-- enable cloog on sparc arches
-
-* Thu Aug 12 2010 Jakub Jelinek <jakub@redhat.com> 4.5.1-1
-- update from gcc-4_5-branch
-  - GCC 4.5.1 release
-  - PRs boehm-gc/34544, c++/45112, fortran/31588, fortran/42051,
-	fortran/43954, fortran/44064, fortran/44660, fortran/44929,
-	fortran/45151, libstdc++/44963, middle-end/44133, middle-end/45034,
-	middle-end/45262, target/41089, target/43698, target/44805,
-	testsuite/43283, tree-optimization/44914, tree-optimization/45052,
-	tree-optimization/45109
-  - fix VTA ICE in caller-save.c (#622060, PR debug/45259)
-- fix up gdb libstdc++ pretty printing (#621717)
-- fix up libgcj.so, libgij.so and libgcj-tools.so symlinks (#619156)
-
-* Fri Jul 30 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-4
-- update from gcc-4_5-branch
-  - PRs c++/43016, c++/44996, c++/45008, c/45079, debug/45015, fortran/30668,
-	fortran/31346, fortran/34260, fortran/40011, testsuite/38946,
-	tree-optimization/44900, tree-optimization/44977
-  - fix vectorizer ICE (#617492, PR tree-optimization/45047)
-- use --enable-linker-build-id in configury instead of patching
-  --build-id support in
-- VTA backports
-  - PRs debug/45055, rtl-optimization/45137, debug/45003,
-	debug/45006, bootstrap/45028
-
-* Fri Jul 16 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-3
-- update from gcc-4_5-branch
-  - PRs ada/43731, fortran/44773, pch/14940, testsuite/44325
-  - fix vectorizer (#614375, #614814, PR tree-optimization/44886)
-- fix fortran CHARACTER type SELECT CASE handling (PR fortran/40206)
-- fix inline-asm check for auto-inc-dec operands (PR testsuite/44701)
-- fix va_start on x86_64 (PR target/44942)
-
-* Fri Jul  9 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-2
-- update from gcc-4_5-branch
-  - PRs c++/44703, fortran/44847, middle-end/41355, middle-end/44828,
-	target/43888, tree-optimization/44284
-- use DW_OP_const[48]u instead of DW_OP_addr before DW_OP_GNU_push_tls_address
-- fix a multilib issue with *.py[oc] files in libstdc++ (#612742)
-- fix up libgcj_bc.so
-
-* Wed Jul  7 2010 Jakub Jelinek <jakub@redhat.com> 4.5.0-1
-- initial 4.5 package, using newly created redhat/gcc-4_5-branch
+* Tue Jan  4 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.1
+- new package
