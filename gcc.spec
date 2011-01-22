@@ -3,7 +3,7 @@
 %global gcc_version 4.6.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.2
+%global gcc_release 0.3
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -13,6 +13,11 @@
 %endif
 %global build_java 1
 %global build_go 1
+%ifarch %{ix86} x86_64 ia64
+%global build_libquadmath 1
+%else
+%global build_libquadmath 0
+%endif
 %global build_cloog 1
 %global build_libstdcxx_docs 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
@@ -39,7 +44,7 @@ Version: %{gcc_version}
 Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
-License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
+License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
 Group: Development/Languages
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -279,6 +284,10 @@ Summary: Fortran support
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libgfortran = %{version}-%{release}
+%if %{build_libquadmath}
+Requires: libquadmath = %{version}-%{release}
+Requires: libquadmath-devel = %{version}-%{release}
+%endif
 BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
@@ -292,10 +301,25 @@ programs with the GNU Compiler Collection.
 Summary: Fortran runtime
 Group: System Environment/Libraries
 Autoreq: true
+%if %{build_libquadmath}
+Requires: libquadmath = %{version}-%{release}
+%endif
 
 %description -n libgfortran
 This package contains Fortran shared library which is needed to run
 Fortran dynamically linked programs.
+
+%package -n libgfortran-static
+Summary: Static Fortran libraries
+Group: Development/Libraries
+Requires: libgfortran = %{version}-%{release}
+Requires: gcc = %{version}-%{release}
+%if %{build_libquadmath}
+Requires: libquadmath-static = %{version}-%{release}
+%endif
+
+%description -n libgfortran-static
+This package contains static Fortran libraries.
 
 %package -n libgomp
 Summary: GCC OpenMP v3.0 shared support library
@@ -336,6 +360,35 @@ Requires: libmudflap-devel = %{version}-%{release}
 %description -n libmudflap-static
 This package contains static libraries for building mudflap-instrumented
 programs.
+
+%package -n libquadmath
+Summary: GCC __float128 shared support library
+Group: System Environment/Libraries
+Requires(post): /sbin/install-info
+Requires(preun): /sbin/install-info
+
+%description -n libquadmath
+This package contains GCC shared support library which is needed
+for __float128 math support and for Fortran REAL*16 support.
+
+%package -n libquadmath-devel
+Summary: GCC __float128 support
+Group: Development/Libraries
+Requires: libquadmath = %{version}-%{release}
+Requires: gcc = %{version}-%{release}
+
+%description -n libquadmath-devel
+This package contains headers for building Fortran programs using
+REAL*16 and programs using __float128 math.
+
+%package -n libquadmath-static
+Summary: Static libraries for __float128 support
+Group: Development/Libraries
+Requires: libquadmath-devel = %{version}-%{release}
+
+%description -n libquadmath-static
+This package contains static libraries for building Fortran programs
+using REAL*16 and programs using __float128 math.
 
 %package java
 Summary: Java support for GCC
@@ -450,7 +503,7 @@ which are required to run programs compiled with the GNAT.
 
 %package -n libgnat-devel
 Summary: GNU Ada 95 libraries
-Group: System Environment/Libraries
+Group: Development/Languages
 Autoreq: true
 
 %description -n libgnat-devel
@@ -459,12 +512,64 @@ which are required to compile with the GNAT.
 
 %package -n libgnat-static
 Summary: GNU Ada 95 static libraries
-Group: System Environment/Libraries
+Group: Development/Languages
 Requires: libgnat-devel = %{version}-%{release}
 Autoreq: true
 
 %description -n libgnat-static
 GNAT is a GNU Ada 95 front-end to GCC. This package includes static libraries.
+
+%package go
+Summary: Go support
+Group: Development/Languages
+Requires: gcc = %{version}-%{release}
+Requires: libgo = %{version}-%{release}
+Requires: libgo-devel = %{version}-%{release}
+Requires(post): /sbin/install-info
+Requires(preun): /sbin/install-info
+Autoreq: true
+
+%description go
+The gcc-go package provides support for compiling Go programs
+with the GNU Compiler Collection.
+
+%package -n libgo
+Summary: Go runtime
+Group: System Environment/Libraries
+Autoreq: true
+
+%description -n libgo
+This package contains Go shared library which is needed to run
+Go dynamically linked programs.
+
+%package -n libgo-devel
+Summary: Go development libraries
+Group: Development/Languages
+Requires: libgo = %{version}-%{release}
+Autoreq: true
+
+%description -n libgo-devel
+This package includes libraries and support files for compiling
+Go programs.
+
+%package -n libgo-static
+Summary: Static Go libraries
+Group: Development/Libraries
+Requires: libgo = %{version}-%{release}
+Requires: gcc = %{version}-%{release}
+
+%description -n libgo-static
+This package contains static Go libraries.
+
+%package plugin-devel
+Summary: Support for compiling GCC plugins
+Group: Development/Languages
+Requires: gcc = %{version}-%{release}
+
+%description plugin-devel
+This package contains header files and other support files
+for compiling GCC plugins.  The GCC plugin ABI is currently
+not stable, so plugins must be rebuilt any time GCC is updated.
 
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
@@ -720,6 +825,7 @@ cd ../..
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
 mkdir -p rpm.doc/boehm-gc rpm.doc/fastjar rpm.doc/libffi rpm.doc/libjava
+mkdir -p rpm.doc/go rpm.doc/libgo rpm.doc/libquadmath
 mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}
 
 for i in {gcc,gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libmudflap,libgomp}/ChangeLog*; do
@@ -748,6 +854,17 @@ done)
 	cp -p $i ../rpm.doc/libjava/$i.libjava
 done)
 cp -p libjava/LIBGCJ_LICENSE rpm.doc/libjava/
+%if %{build_libquadmath}
+(cd libquadmath; for i in ChangeLog* COPYING.LIB; do
+	cp -p $i ../rpm.doc/libquadmath/$i.libquadmath
+done)
+%endif
+(cd gcc/go; for i in README* ChangeLog*; do
+	cp -p $i ../../rpm.doc/go/$i
+done)
+(cd libgo; for i in LICENSE* PATENTS* README; do
+	cp -p $i ../rpm.doc/libgo/$i.libgo
+done)
 
 rm -f rpm.doc/changelogs/gcc/ChangeLog.[1-9]
 find rpm.doc -name \*ChangeLog\* | xargs bzip2 -9
@@ -848,8 +965,8 @@ libstdcxx_doc_builddir=%{gcc_target_platform}/libstdc++-v3/doc/doxygen
 mkdir -p ../rpm.doc/libstdc++-v3
 cp -r -p ../libstdc++-v3/doc/html ../rpm.doc/libstdc++-v3/html
 cp -r -p $libstdcxx_doc_builddir/html ../rpm.doc/libstdc++-v3/html/api
-mkdir -p %{buildroot}%{_mandir}
-cp -r -p $libstdcxx_doc_builddir/man/man3 %{buildroot}%{_mandir}/man3/
+mkdir -p %{buildroot}%{_mandir}/man3
+cp -r -p $libstdcxx_doc_builddir/man/man3/* %{buildroot}%{_mandir}/man3/
 find ../rpm.doc/libstdc++-v3 -name \*~ | xargs rm
 %endif
 
@@ -887,6 +1004,8 @@ mv %{buildroot}%{_prefix}/lib/libgcj.spec $FULLPATH/
 sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
   $FULLPATH/libgcj.spec
 %endif
+
+mv %{buildroot}%{_prefix}/lib/libgfortran.spec $FULLPATH/
 
 mkdir -p %{buildroot}/%{_lib}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgcc_s.so.1 %{buildroot}/%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
@@ -961,6 +1080,10 @@ ln -sf ../../../libgfortran.so.3.* libgfortran.so
 ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
+ln -sf ../../../libgo.so.0.* libgo.so
+%if %{build_libquadmath}
+ln -sf ../../../libquadmath.so.0.* libquadmath.so
+%endif
 %if %{build_java}
 ln -sf ../../../libgcj.so.12.* libgcj.so
 ln -sf ../../../libgcj-tools.so.12.* libgcj-tools.so
@@ -973,6 +1096,10 @@ ln -sf ../../../../%{_lib}/libgfortran.so.3.* libgfortran.so
 ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
+ln -sf ../../../../%{_lib}/libgo.so.0.* libgo.so
+%if %{build_libquadmath}
+ln -sf ../../../../%{_lib}/libquadmath.so.0.* libquadmath.so
+%endif
 %if %{build_java}
 ln -sf ../../../../%{_lib}/libgcj.so.12.* libgcj.so
 ln -sf ../../../../%{_lib}/libgcj-tools.so.12.* libgcj-tools.so
@@ -984,10 +1111,15 @@ mv -f %{buildroot}%{_prefix}/%{_lib}/libgcj_bc.so $FULLLPATH/
 %endif
 mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a .
+mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libobjc.*a .
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.*a .
 mv -f %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.*a $FULLLPATH/
+%if %{build_libquadmath}
+mv -f %{buildroot}%{_prefix}/%{_lib}/libquadmath.*a $FULLLPATH/
+%endif
+mv -f %{buildroot}%{_prefix}/%{_lib}/libgo.*a $FULLLPATH/
+mv -f %{buildroot}%{_prefix}/%{_lib}/libgobegin.*a $FULLLPATH/
 
 %if %{build_ada}
 %ifarch sparcv9 ppc
@@ -1038,6 +1170,14 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflapth.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflapth.so
+rm -f libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
+%if %{build_libquadmath}
+rm -f libquadmath.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > libquadmath.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > 64/libquadmath.so
+%endif
 %if %{build_java}
 ln -sf ../`echo ../../../../lib/libgcj.so.12.* | sed s~/lib/~/lib64/~` 64/libgcj.so
 ln -sf ../`echo ../../../../lib/libgcj-tools.so.12.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
@@ -1045,7 +1185,8 @@ ln -sf ../`echo ../../../../lib/libgij.so.12.* | sed s~/lib/~/lib64/~` 64/libgij
 ln -sf lib32/libgcj_bc.so libgcj_bc.so
 ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
 %endif
-mv -f %{buildroot}%{_prefix}/lib64/libgfortran.*a 64/
+ln -sf lib32/libgfortran.a libgfortran.a
+ln -sf ../lib64/libgfortran.a 64/libgfortran.a
 mv -f %{buildroot}%{_prefix}/lib64/libobjc.*a 64/
 mv -f %{buildroot}%{_prefix}/lib64/libgomp.*a 64/
 ln -sf lib32/libstdc++.a libstdc++.a
@@ -1056,6 +1197,14 @@ ln -sf lib32/libmudflap.a libmudflap.a
 ln -sf ../lib64/libmudflap.a 64/libmudflap.a
 ln -sf lib32/libmudflapth.a libmudflapth.a
 ln -sf ../lib64/libmudflapth.a 64/libmudflapth.a
+%if %{buld_libquadmath}
+ln -sf lib32/libquadmath.a libquadmath.a
+ln -sf ../lib64/libquadmath.a 64/libquadmath.a
+%endif
+ln -sf lib32/libgo.a libgo.a
+ln -sf ../lib64/libgo.a 64/libgo.a
+ln -sf lib32/libgobegin.a libgobegin.a
+ln -sf ../lib64/libgobegin.a 64/libgobegin.a
 %if %{build_ada}
 ln -sf lib32/adainclude adainclude
 ln -sf ../lib64/adainclude 64/adainclude
@@ -1074,16 +1223,25 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflap.so.0.* | sed 
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflapth.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflapth.so
+rm -f libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
+%if %{build_libquadmath}
+rm -f libquadmath.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > libquadmath.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > 32/libquadmath.so
+%endif
 %if %{build_java}
 ln -sf ../`echo ../../../../lib64/libgcj.so.12.* | sed s~/../lib64/~/~` 32/libgcj.so
 ln -sf ../`echo ../../../../lib64/libgcj-tools.so.12.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
 ln -sf ../`echo ../../../../lib64/libgij.so.12.* | sed s~/../lib64/~/~` 32/libgij.so
 %endif
-mv -f %{buildroot}%{_prefix}/lib/libgfortran.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libgomp.*a 32/
 %endif
 %ifarch sparc64 ppc64
+ln -sf ../lib32/libgfortran.a 32/libgfortran.a
+ln -sf lib64/libgfortran.a libgfortran.a
 ln -sf ../lib32/libstdc++.a 32/libstdc++.a
 ln -sf lib64/libstdc++.a libstdc++.a
 ln -sf ../lib32/libsupc++.a 32/libsupc++.a
@@ -1092,6 +1250,14 @@ ln -sf ../lib32/libmudflap.a 32/libmudflap.a
 ln -sf lib64/libmudflap.a libmudflap.a
 ln -sf ../lib32/libmudflapth.a 32/libmudflapth.a
 ln -sf lib64/libmudflapth.a libmudflapth.a
+%if %{build_libquadmath}
+ln -sf ../lib32/libquadmath.a 32/libquadmath.a
+ln -sf lib64/libquadmath.a libquadmath.a
+%endif
+ln -sf ../lib32/libgo.a 32/libgo.a
+ln -sf lib64/libgo.a libgo.a
+ln -sf ../lib32/libgobegin.a 32/libgobegin.a
+ln -sf lib64/libgobegin.a libgobegin.a
 %if %{build_java}
 ln -sf ../lib32/libgcj_bc.so 32/libgcj_bc.so
 ln -sf lib64/libgcj_bc.so libgcj_bc.so
@@ -1104,10 +1270,16 @@ ln -sf lib64/adalib adalib
 %endif
 %else
 %ifarch %{multilib_64_archs}
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgfortran.a 32/libgfortran.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libsupc++.a 32/libsupc++.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmudflap.a 32/libmudflap.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmudflapth.a 32/libmudflapth.a
+%if %{build_libquadmath}
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libquadmath.a 32/libquadmath.a
+%endif
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgo.a 32/libgo.a
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgobegin.a 32/libgobegin.a
 %if %{build_java}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj_bc.so 32/libgcj_bc.so
 %endif
@@ -1121,11 +1293,14 @@ ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/adal
 # Strip debug info from Fortran/ObjC/Java static libraries
 strip -g `find . \( -name libgfortran.a -o -name libobjc.a -o -name libgomp.a \
 		    -o -name libmudflap.a -o -name libmudflapth.a \
-		    -o -name libgcc.a -o -name libgcov.a \) -a -type f`
+		    -o -name libgcc.a -o -name libgcov.a -o -name libquadmath.a \
+		    -o -name libgo.a \) -a -type f`
 popd
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.3.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.so.0.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libquadmath.so.0.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.0.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.3.*
 
 %if %{build_ada}
@@ -1184,15 +1359,25 @@ rm -f $FULLEPATH/install-tools/{mkheaders,fixincl}
 rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
 rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
 rm -f %{buildroot}%{_prefix}/bin/gnative2ascii
+rm -f %{buildroot}%{_prefix}/bin/gappletviewer || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-%{version} || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gfortran || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gccgo || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcj || :
 
 %ifarch %{multilib_64_archs}
 # Remove libraries for the other arch on multilib arches
 rm -f %{buildroot}%{_prefix}/lib/lib*.so*
 rm -f %{buildroot}%{_prefix}/lib/lib*.a
+rm -rf %{buildroot}%{_prefix}/lib/go/%{gcc_version}/%{gcc_target_platform}
+%ifnarch sparc64 ppc64
+ln -sf %{multilib_32_arch}-%{_vendor}-%{_target_os} %{buildroot}%{_prefix}/lib/go/%{gcc_version}/%{gcc_target_platform}
+%endif
 %else
 %ifarch sparcv9 ppc
 rm -f %{buildroot}%{_prefix}/lib64/lib*.so*
 rm -f %{buildroot}%{_prefix}/lib64/lib*.a
+rm -rf %{buildroot}%{_prefix}/lib64/go/%{gcc_version}/%{gcc_target_platform}
 %endif
 %endif
 
@@ -1204,6 +1389,8 @@ chmod 755 %{buildroot}%{_prefix}/share/java/gcj-endorsed \
 	  %{buildroot}%{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
 touch %{buildroot}%{_prefix}/%{_lib}/gcj-%{version}/classmap.db
 %endif
+
+rm -f %{buildroot}%{mandir}/man3/ffi*
 
 %check
 cd obj-%{gcc_target_platform}
@@ -1358,6 +1545,25 @@ fi
 
 %postun -n libmudflap -p /sbin/ldconfig
 
+%post -n libquadmath
+/sbin/ldconfig
+if [ -f %{_infodir}/libquadmath.info.gz ]; then
+  /sbin/install-info \
+    --info-dir=%{_infodir} %{_infodir}/libquadmath.info.gz || :
+fi
+
+%preun -n libquadmath
+if [ $1 = 0 -a -f %{_infodir}/libquadmath.info.gz ]; then
+  /sbin/install-info --delete \
+    --info-dir=%{_infodir} %{_infodir}/libquadmath.info.gz || :
+fi
+
+%postun -n libquadmath -p /sbin/ldconfig
+
+%post -n libgo -p /sbin/ldconfig
+
+%postun -n libgo -p /sbin/ldconfig
+
 %files -f %{name}.lang
 %defattr(-,root,root,-)
 %{_prefix}/bin/cc
@@ -1387,6 +1593,7 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto1
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto-wrapper
+%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/liblto_plugin.so*
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stddef.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdarg.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdfix.h
@@ -1419,6 +1626,8 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/lwpintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/abmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/popcntintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/bmiintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/tbmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/ia32intrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm_malloc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
@@ -1460,6 +1669,10 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflapth.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflap.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmudflapth.so
+%if %{build_libquadmath}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libquadmath.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libquadmath.so
+%endif
 %endif
 %ifarch %{multilib_64_archs}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
@@ -1474,12 +1687,20 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflapth.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflap.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmudflapth.so
+%if %{build_libquadmath}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libquadmath.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libquadmath.so
+%endif
 %endif
 %ifarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
+%if %{build_libquadmath}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libquadmath.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libquadmath.so
+%endif
 %endif
 %dir %{_prefix}/libexec/getconf
 %{_prefix}/libexec/getconf/default
@@ -1558,22 +1779,6 @@ fi
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-%if 0%{?fedora} < 14
-%ifarch sparcv9 ppc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libstdc++.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libsupc++.a
-%endif
-%ifarch sparc64 ppc64
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libstdc++.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libsupc++.a
-%endif
-%ifnarch sparcv9 sparc64 ppc ppc64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
-%endif
-%endif
 %ifnarch sparcv9 ppc %{multilib_64_archs}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
 %endif
@@ -1661,8 +1866,11 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/omp_lib.mod
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/omp_lib_kinds.mod
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/f951
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortranbegin.a
+%ifarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.a
+%endif
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.so
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
@@ -1681,6 +1889,23 @@ fi
 %files -n libgfortran
 %defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgfortran.so.3*
+
+%files -n libgfortran-static
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libgfortran.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libgfortran.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.a
+%endif
 
 %if %{build_java}
 %files java
@@ -1917,22 +2142,6 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mf-runtime.h
-%if 0%{?fedora} < 14
-%ifarch sparcv9 ppc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflap.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmudflapth.a
-%endif
-%ifarch sparc64 ppc64
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmudflap.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmudflapth.a
-%endif
-%ifnarch sparcv9 sparc64 ppc ppc64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
-%endif
-%endif
 %ifnarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
@@ -1959,7 +2168,139 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
 %endif
 
+%if %{build_libquadmath}
+%files -n libquadmath
+%defattr(-,root,root,-)
+%{_prefix}/%{_lib}/libquadmath.so.0*
+%{_infodir}/libquadmath.info*
+%doc rpm.doc/libquadmath/COPYING*
+
+%files -n libquadmath-devel
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/quadmath.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/quadmath_weak.h
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libquadmath.so
+%endif
+%doc rpm.doc/libquadmath/ChangeLog*
+
+%files -n libquadmath-static
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libquadmath.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libquadmath.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libquadmath.a
+%endif
+%endif
+
+%files go
+%defattr(-,root,root,-)
+%{_prefix}/bin/gccgo
+%{_mandir}/man1/gccgo.1*
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%dir %{_prefix}/libexec/gcc
+%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
+%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
+%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/go1
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgo.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgo.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgobegin.a
+%endif
+%ifarch %{multilib_64_archs}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgo.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgo.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgobegin.a
+%endif
+%ifarch sparcv9 ppc %{multilib_64_archs}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgo.so
+%endif
+%ifarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgo.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgobegin.a
+%endif
+%doc rpm.doc/go/*
+
+%files -n libgo
+%defattr(-,root,root,-)
+%{_prefix}/%{_lib}/libgo.so.0*
+%doc rpm.doc/libgo/*
+
+%files -n libgo-devel
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%dir %{_prefix}/%{_lib}/go
+%dir %{_prefix}/%{_lib}/go/%{gcc_version}
+%{_prefix}/%{_lib}/go/%{gcc_version}/%{gcc_target_platform}
+%ifarch %{multilib_64_archs}
+%ifnarch sparc64 ppc64
+%dir %{_prefix}/lib/go
+%dir %{_prefix}/lib/go/%{gcc_version}
+%{_prefix}/lib/go/%{gcc_version}/%{gcc_target_platform}
+%endif
+%endif
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libgobegin.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libgobegin.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgobegin.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgo.so
+%endif
+
+%files -n libgo-static
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libgo.a
+%endif
+%ifarch sparc64 ppc64
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libgo.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgo.a
+%endif
+
+%files plugin-devel
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
+
 %changelog
+* Sat Jan 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.3
+- add gcc-go, libgo{,-devel,-static}, libquadmath{,-devel,-static},
+  libgfortran-static and gcc-plugin-devel subpackages
+- fix up libstdc++-doc man page location (#664475)
+
 * Sat Jan 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.2
 - update from the trunk
   - PRs bootstrap/47055, bootstrap/47187, bootstrap/47215, c++/33558,
@@ -2009,5 +2350,5 @@ fi
 	tree-optimization/47391, tree-optmization/46469
 - add systemtap probe to _Unwind_DebugHook
 
-* Tue Jan  4 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.1
+* Wed Jan  5 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.1
 - new package
