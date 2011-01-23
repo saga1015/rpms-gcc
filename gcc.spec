@@ -1197,7 +1197,7 @@ ln -sf lib32/libmudflap.a libmudflap.a
 ln -sf ../lib64/libmudflap.a 64/libmudflap.a
 ln -sf lib32/libmudflapth.a libmudflapth.a
 ln -sf ../lib64/libmudflapth.a 64/libmudflapth.a
-%if %{buld_libquadmath}
+%if %{build_libquadmath}
 ln -sf lib32/libquadmath.a libquadmath.a
 ln -sf ../lib64/libquadmath.a 64/libquadmath.a
 %endif
