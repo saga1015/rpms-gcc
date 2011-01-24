@@ -12,7 +12,11 @@
 %global build_ada 0
 %endif
 %global build_java 1
+%ifarch %{ix86} x86_64
 %global build_go 1
+%else
+%global build_go 0
+%endif
 %ifarch %{ix86} x86_64 ia64
 %global build_libquadmath 1
 %else
@@ -732,6 +736,14 @@ case "$OPT_FLAGS" in
       ../gcc/Makefile.in
     ;;
 esac
+enablelgo=
+enablelada=
+%if %{build_ada}
+enablelada=,ada
+%endif
+%if %{build_go}
+enablelgo=,go
+%endif
 CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" \
 	XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" GCJFLAGS="$OPT_FLAGS" \
 	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
@@ -739,11 +751,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--enable-shared --enable-threads=posix --enable-checking=release \
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
 	--enable-gnu-unique-object --enable-linker-build-id \
-%if !%{build_ada}
-	--enable-languages=c,c++,objc,obj-c++,java,fortran,go,lto \
-%else
-	--enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto \
-%endif
+	--enable-languages=c,c++,objc,obj-c++,java,fortran${enablelada}${enablelgo},lto \
 	--enable-plugin \
 %if !%{build_java}
 	--disable-libgcj \
@@ -859,12 +867,14 @@ cp -p libjava/LIBGCJ_LICENSE rpm.doc/libjava/
 	cp -p $i ../rpm.doc/libquadmath/$i.libquadmath
 done)
 %endif
+%if %{build_go}
 (cd gcc/go; for i in README* ChangeLog*; do
 	cp -p $i ../../rpm.doc/go/$i
 done)
 (cd libgo; for i in LICENSE* PATENTS* README; do
 	cp -p $i ../rpm.doc/libgo/$i.libgo
 done)
+%endif
 
 rm -f rpm.doc/changelogs/gcc/ChangeLog.[1-9]
 find rpm.doc -name \*ChangeLog\* | xargs bzip2 -9
@@ -1080,7 +1090,9 @@ ln -sf ../../../libgfortran.so.3.* libgfortran.so
 ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
+%if %{build_go}
 ln -sf ../../../libgo.so.0.* libgo.so
+%endif
 %if %{build_libquadmath}
 ln -sf ../../../libquadmath.so.0.* libquadmath.so
 %endif
@@ -1096,7 +1108,9 @@ ln -sf ../../../../%{_lib}/libgfortran.so.3.* libgfortran.so
 ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
+%if %{build_go}
 ln -sf ../../../../%{_lib}/libgo.so.0.* libgo.so
+%endif
 %if %{build_libquadmath}
 ln -sf ../../../../%{_lib}/libquadmath.so.0.* libquadmath.so
 %endif
@@ -1118,8 +1132,10 @@ mv -f %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.*a $FULLLPATH/
 %if %{build_libquadmath}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libquadmath.*a $FULLLPATH/
 %endif
+%if %{build_go}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgo.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgobegin.*a $FULLLPATH/
+%endif
 
 %if %{build_ada}
 %ifarch sparcv9 ppc
@@ -1170,9 +1186,11 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflapth.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflapth.so
+%if %{build_go}
 rm -f libgo.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > libgo.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
+%endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > libquadmath.so
@@ -1201,10 +1219,12 @@ ln -sf ../lib64/libmudflapth.a 64/libmudflapth.a
 ln -sf lib32/libquadmath.a libquadmath.a
 ln -sf ../lib64/libquadmath.a 64/libquadmath.a
 %endif
+%if %{build_go}
 ln -sf lib32/libgo.a libgo.a
 ln -sf ../lib64/libgo.a 64/libgo.a
 ln -sf lib32/libgobegin.a libgobegin.a
 ln -sf ../lib64/libgobegin.a 64/libgobegin.a
+%endif
 %if %{build_ada}
 ln -sf lib32/adainclude adainclude
 ln -sf ../lib64/adainclude 64/adainclude
@@ -1223,9 +1243,11 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflap.so.0.* | sed 
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > libmudflapth.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflap.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflapth.so
+%if %{build_go}
 rm -f libgo.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > libgo.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.0.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
+%endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > libquadmath.so
@@ -1254,10 +1276,12 @@ ln -sf lib64/libmudflapth.a libmudflapth.a
 ln -sf ../lib32/libquadmath.a 32/libquadmath.a
 ln -sf lib64/libquadmath.a libquadmath.a
 %endif
+%if %{build_go}
 ln -sf ../lib32/libgo.a 32/libgo.a
 ln -sf lib64/libgo.a libgo.a
 ln -sf ../lib32/libgobegin.a 32/libgobegin.a
 ln -sf lib64/libgobegin.a libgobegin.a
+%endif
 %if %{build_java}
 ln -sf ../lib32/libgcj_bc.so 32/libgcj_bc.so
 ln -sf lib64/libgcj_bc.so libgcj_bc.so
@@ -1278,8 +1302,10 @@ ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libm
 %if %{build_libquadmath}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libquadmath.a 32/libquadmath.a
 %endif
+%if %{build_go}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgo.a 32/libgo.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgobegin.a 32/libgobegin.a
+%endif
 %if %{build_java}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj_bc.so 32/libgcj_bc.so
 %endif
@@ -1299,8 +1325,12 @@ popd
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.3.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.so.0.*
+%if %{build_libquadmath}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libquadmath.so.0.*
+%endif
+%if %{build_go}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.0.*
+%endif
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.3.*
 
 %if %{build_ada}
@@ -1369,15 +1399,19 @@ rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcj || :
 # Remove libraries for the other arch on multilib arches
 rm -f %{buildroot}%{_prefix}/lib/lib*.so*
 rm -f %{buildroot}%{_prefix}/lib/lib*.a
+%if %{build_go}
 rm -rf %{buildroot}%{_prefix}/lib/go/%{gcc_version}/%{gcc_target_platform}
 %ifnarch sparc64 ppc64
 ln -sf %{multilib_32_arch}-%{_vendor}-%{_target_os} %{buildroot}%{_prefix}/lib/go/%{gcc_version}/%{gcc_target_platform}
+%endif
 %endif
 %else
 %ifarch sparcv9 ppc
 rm -f %{buildroot}%{_prefix}/lib64/lib*.so*
 rm -f %{buildroot}%{_prefix}/lib64/lib*.a
+%if %{build_go}
 rm -rf %{buildroot}%{_prefix}/lib64/go/%{gcc_version}/%{gcc_target_platform}
+%endif
 %endif
 %endif
 
@@ -2206,6 +2240,7 @@ fi
 %endif
 %endif
 
+%if %{build_go}
 %files go
 %defattr(-,root,root,-)
 %{_prefix}/bin/gccgo
@@ -2287,6 +2322,7 @@ fi
 %ifnarch sparcv9 sparc64 ppc ppc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgo.a
 %endif
+%endif
 
 %files plugin-devel
 %defattr(-,root,root,-)
@@ -2296,6 +2332,8 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+- build gcc-go and libgo* only on architectures that support it
+
 * Sat Jan 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.3
 - add gcc-go, libgo{,-devel,-static}, libquadmath{,-devel,-static},
   libgfortran-static and gcc-plugin-devel subpackages
