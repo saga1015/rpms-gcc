@@ -2332,6 +2332,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jan 24 2011 Jakub Jelinek <jakub@redhat.com>
 - build gcc-go and libgo* only on architectures that support it
 
 * Sat Jan 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.3
