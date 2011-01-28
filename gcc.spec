@@ -711,7 +711,7 @@ cd ..
 CC=gcc
 OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/ -pipe / /g`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/ -pipe / /g'`
 %ifarch sparc
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcpu=v[78]//g'`
 %endif
