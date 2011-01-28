@@ -169,6 +169,7 @@ Patch20: gcc46-pr46890.patch
 Patch21: gcc46-ppl-0.10.patch
 Patch22: gcc46-pr31490.patch
 Patch23: gcc46-Woverlength-string.patch
+Patch24: gcc46-pr45136-revert.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -604,6 +605,7 @@ not stable, so plugins must be rebuilt any time GCC is updated.
 %patch21 -p0 -b .ppl-0.10~
 %patch22 -p0 -b .pr31490~
 %patch23 -p0 -b .Woverlength-string~
+%patch24 -p0 -b .pr45136-revert~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*

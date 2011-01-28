@@ -1,0 +1,207 @@
+Temporarily revert:
+2011-01-25  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/45136
+	PR debug/45130
+	* haifa-sched.c (get_ebb_head_tail): Move notes across boundary
+	debug insns.
+	(no_real_insns_p, schedule_block, set_priorities): Drop special
+	treatment of boundary debug insns.
+	* sched-deps.c (sd_init_insn, sd_finish_insn): Don't mark debug
+	insns.
+	* sched-ebb.c (schedule_ebbs): Don't skip debug insns.
+	* sched-int.h (DEBUG_INSN_SCHED_P): Remove.
+	(BOUNDARY_DEBUG_INSN_P): Likewise.
+	(SCHEDULE_DEBUG_INSN_P): Likewise.
+	* sched-rgn.c (init_ready_list): Drop special treatment of
+	boundary debug insns.
+	* final.c (rest_of_clean-state): Clear notes' BB.
+
+--- gcc/sched-ebb.c	(revision 169260)
++++ gcc/sched-ebb.c	(revision 169259)
+@@ -598,9 +598,9 @@ schedule_ebbs (void)
+ 	 a note or two.  */
+       while (head != tail)
+ 	{
+-	  if (NOTE_P (head))
++	  if (NOTE_P (head) || BOUNDARY_DEBUG_INSN_P (head))
+ 	    head = NEXT_INSN (head);
+-	  else if (NOTE_P (tail))
++	  else if (NOTE_P (tail) || BOUNDARY_DEBUG_INSN_P (tail))
+ 	    tail = PREV_INSN (tail);
+ 	  else if (LABEL_P (head))
+ 	    head = NEXT_INSN (head);
+--- gcc/final.c	(revision 169260)
++++ gcc/final.c	(revision 169259)
+@@ -4402,11 +4402,7 @@ rest_of_clean_state (void)
+ 	    if (LABEL_P (insn))
+ 	      INSN_UID (insn) = CODE_LABEL_NUMBER (insn);
+ 	    else
+-	      {
+-		if (NOTE_P (insn))
+-		  set_block_for_insn (insn, NULL);
+-		INSN_UID (insn) = 0;
+-	      }
++	      INSN_UID (insn) = 0;
+ 	}
+     }
+ 
+--- gcc/haifa-sched.c	(revision 169260)
++++ gcc/haifa-sched.c	(revision 169259)
+@@ -1900,30 +1900,8 @@ get_ebb_head_tail (basic_block beg, basi
+     beg_head = NEXT_INSN (beg_head);
+ 
+   while (beg_head != beg_tail)
+-    if (NOTE_P (beg_head))
++    if (NOTE_P (beg_head) || BOUNDARY_DEBUG_INSN_P (beg_head))
+       beg_head = NEXT_INSN (beg_head);
+-    else if (DEBUG_INSN_P (beg_head))
+-      {
+-	rtx note, next;
+-
+-	for (note = NEXT_INSN (beg_head);
+-	     note != beg_tail;
+-	     note = next)
+-	  {
+-	    next = NEXT_INSN (note);
+-	    if (NOTE_P (note))
+-	      {
+-		if (sched_verbose >= 9)
+-		  fprintf (sched_dump, "reorder %i\n", INSN_UID (note));
+-
+-		reorder_insns_nobb (note, note, PREV_INSN (beg_head));
+-	      }
+-	    else if (!DEBUG_INSN_P (note))
+-	      break;
+-	  }
+-
+-	break;
+-      }
+     else
+       break;
+ 
+@@ -1935,33 +1913,8 @@ get_ebb_head_tail (basic_block beg, basi
+     end_head = NEXT_INSN (end_head);
+ 
+   while (end_head != end_tail)
+-    if (NOTE_P (end_tail))
++    if (NOTE_P (end_tail) || BOUNDARY_DEBUG_INSN_P (end_tail))
+       end_tail = PREV_INSN (end_tail);
+-    else if (DEBUG_INSN_P (end_tail))
+-      {
+-	rtx note, prev;
+-
+-	for (note = PREV_INSN (end_tail);
+-	     note != end_head;
+-	     note = prev)
+-	  {
+-	    prev = PREV_INSN (note);
+-	    if (NOTE_P (note))
+-	      {
+-		if (sched_verbose >= 9)
+-		  fprintf (sched_dump, "reorder %i\n", INSN_UID (note));
+-
+-		reorder_insns_nobb (note, note, end_tail);
+-
+-		if (end_tail == BB_END (end))
+-		  df_insn_change_bb (note, NULL);
+-	      }
+-	    else if (!DEBUG_INSN_P (note))
+-	      break;
+-	  }
+-
+-	break;
+-      }
+     else
+       break;
+ 
+@@ -1975,7 +1928,8 @@ no_real_insns_p (const_rtx head, const_r
+ {
+   while (head != NEXT_INSN (tail))
+     {
+-      if (!NOTE_P (head) && !LABEL_P (head))
++      if (!NOTE_P (head) && !LABEL_P (head)
++	  && !BOUNDARY_DEBUG_INSN_P (head))
+ 	return 0;
+       head = NEXT_INSN (head);
+     }
+@@ -2858,7 +2812,7 @@ schedule_block (basic_block *target_bb)
+   last_scheduled_insn = prev_head;
+ 
+   gcc_assert ((NOTE_P (last_scheduled_insn)
+-	       || DEBUG_INSN_P (last_scheduled_insn))
++	       || BOUNDARY_DEBUG_INSN_P (last_scheduled_insn))
+ 	      && BLOCK_FOR_INSN (last_scheduled_insn) == *target_bb);
+ 
+   /* Initialize INSN_QUEUE.  Q_SIZE is the total number of insns in the
+@@ -3365,7 +3319,7 @@ set_priorities (rtx head, rtx tail)
+ 	current_sched_info->sched_max_insns_priority;
+   rtx prev_head;
+ 
+-  if (head == tail && ! INSN_P (head))
++  if (head == tail && (! INSN_P (head) || BOUNDARY_DEBUG_INSN_P (head)))
+     gcc_unreachable ();
+ 
+   n_insn = 0;
+--- gcc/sched-deps.c	(revision 169260)
++++ gcc/sched-deps.c	(revision 169259)
+@@ -715,6 +715,9 @@ sd_init_insn (rtx insn)
+   INSN_FORW_DEPS (insn) = create_deps_list ();
+   INSN_RESOLVED_FORW_DEPS (insn) = create_deps_list ();
+ 
++  if (DEBUG_INSN_P (insn))
++    DEBUG_INSN_SCHED_P (insn) = TRUE;
++
+   /* ??? It would be nice to allocate dependency caches here.  */
+ }
+ 
+@@ -724,6 +727,12 @@ sd_finish_insn (rtx insn)
+ {
+   /* ??? It would be nice to deallocate dependency caches here.  */
+ 
++  if (DEBUG_INSN_P (insn))
++    {
++      gcc_assert (DEBUG_INSN_SCHED_P (insn));
++      DEBUG_INSN_SCHED_P (insn) = FALSE;
++    }
++
+   free_deps_list (INSN_HARD_BACK_DEPS (insn));
+   INSN_HARD_BACK_DEPS (insn) = NULL;
+ 
+--- gcc/sched-int.h	(revision 169260)
++++ gcc/sched-int.h	(revision 169259)
+@@ -887,6 +887,23 @@ extern VEC(haifa_deps_insn_data_def, hea
+ #define IS_SPECULATION_BRANCHY_CHECK_P(INSN) \
+   (RECOVERY_BLOCK (INSN) != NULL && RECOVERY_BLOCK (INSN) != EXIT_BLOCK_PTR)
+ 
++/* The unchanging bit tracks whether a debug insn is to be handled
++   like an insn (i.e., schedule it) or like a note (e.g., it is next
++   to a basic block boundary.  */
++#define DEBUG_INSN_SCHED_P(insn) \
++  (RTL_FLAG_CHECK1("DEBUG_INSN_SCHED_P", (insn), DEBUG_INSN)->unchanging)
++
++/* True if INSN is a debug insn that is next to a basic block
++   boundary, i.e., it is to be handled by the scheduler like a
++   note.  */
++#define BOUNDARY_DEBUG_INSN_P(insn) \
++  (DEBUG_INSN_P (insn) && !DEBUG_INSN_SCHED_P (insn))
++/* True if INSN is a debug insn that is not next to a basic block
++   boundary, i.e., it is to be handled by the scheduler like an
++   insn.  */
++#define SCHEDULE_DEBUG_INSN_P(insn) \
++  (DEBUG_INSN_P (insn) && DEBUG_INSN_SCHED_P (insn))
++
+ /* Dep status (aka ds_t) of the link encapsulates information, that is needed
+    for speculative scheduling.  Namely, it is 4 integers in the range
+    [0, MAX_DEP_WEAK] and 3 bits.
+--- gcc/sched-rgn.c	(revision 169260)
++++ gcc/sched-rgn.c	(revision 169259)
+@@ -2138,7 +2138,7 @@ init_ready_list (void)
+ 	src_head = head;
+ 
+ 	for (insn = src_head; insn != src_next_tail; insn = NEXT_INSN (insn))
+-	  if (INSN_P (insn))
++	  if (INSN_P (insn) && !BOUNDARY_DEBUG_INSN_P (insn))
+ 	    try_ready (insn);
+       }
+ }
