@@ -1,9 +1,9 @@
-%global DATE 20110122
-%global SVNREV 169125
+%global DATE 20110128
+%global SVNREV 169352
 %global gcc_version 4.6.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.3
+%global gcc_release 0.5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -111,7 +111,7 @@ BuildRequires: libunwind >= 0.98
 BuildRequires: ppl >= 0.10, ppl-devel >= 0.10, cloog-ppl >= 0.15, cloog-ppl-devel >= 0.15
 %endif
 %if %{build_libstdcxx_docs}
-BuildRequires: doxygen
+BuildRequires: doxygen >= 1.7.1
 BuildRequires: graphviz
 %endif
 Requires: cpp = %{version}-%{release}
@@ -166,6 +166,9 @@ Patch17: gcc46-no-add-needed.patch
 Patch18: gcc46-unwind-debughook-sdt.patch
 Patch19: gcc46-pr47106-revert.patch
 Patch20: gcc46-pr46890.patch
+Patch21: gcc46-ppl-0.10.patch
+Patch22: gcc46-pr31490.patch
+Patch23: gcc46-Woverlength-string.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -598,6 +601,9 @@ not stable, so plugins must be rebuilt any time GCC is updated.
 %patch18 -p0 -b .unwind-debughook-sdt~
 %patch19 -p0 -b .pr47106-revert~
 %patch20 -p0 -b .pr46890~
+%patch21 -p0 -b .ppl-0.10~
+%patch22 -p0 -b .pr31490~
+%patch23 -p0 -b .Woverlength-string~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -705,6 +711,7 @@ cd ..
 CC=gcc
 OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/ -pipe / /g`
 %ifarch sparc
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcpu=v[78]//g'`
 %endif
@@ -959,8 +966,8 @@ for f in `find %{buildroot}%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_pl
   done
 done
 
-# Nuke bits/stdc++.h.gch dirs
-# 1) there is no bits/stdc++.h header installed, so when gch file can't be
+# Nuke bits/*.h.gch dirs
+# 1) there is no bits/*.h header installed, so when gch file can't be
 #    used, compilation fails
 # 2) sometimes it is hard to match the exact options used for building
 #    libstdc++-v3 or they aren't desirable
@@ -968,7 +975,7 @@ done
 # 4) it is huge
 # People can always precompile on their own whatever they want, but
 # shipping this for everybody is unnecessary.
-rm -rf %{buildroot}%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/bits/stdc++.h.gch
+rm -rf %{buildroot}%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/bits/*.h.gch
 
 %if %{build_libstdcxx_docs}
 libstdcxx_doc_builddir=%{gcc_target_platform}/libstdc++-v3/doc/doxygen
@@ -2332,8 +2339,40 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Mon Jan 24 2011 Jakub Jelinek <jakub@redhat.com>
+* Fri Jan 28 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.5
+- update from trunk
+  - PRs bootstrap/47467, c++/43601, c++/47476, c/21659, c/43082, c/47473,
+	debug/45130, debug/45136, debug/45454, fortran/38536, fortran/47399,
+	fortran/47421, fortran/47448, fortran/47472, fortran/47474,
+	libfortran/47375, libfortran/47431, libfortran/47432,
+	libfortran/47491, libgfortran/47285, libstdc++/47387,
+	libstdc++/47433, libstdc++/47437, lto/44334, lto/47333,
+	lto/47423, middle-end/46949, middle-end/47401, middle-end/47411,
+	middle-end/47414, rtl-optimization/37273, rtl-optimization/44174,
+	rtl-optimization/44469, rtl-optimization/46856,
+	rtl-optimization/46878, rtl-optimization/47166,
+	rtl-optimization/47464, target/40125, target/45701,
+	target/46519, target/46997, target/47237, target/47246,
+	target/47385, target/47408, testsuite/45988,
+	tree-optimization/26854, tree-optimization/29832,
+	tree-optimization/43567, tree-optimization/43657,
+	tree-optimization/43884, tree-optimization/46168,
+	tree-optimization/46215, tree-optimization/46970,
+	tree-optimization/47190, tree-optimization/47228,
+	tree-optimization/47234, tree-optimization/47265,
+	tree-optimization/47271, tree-optimization/47382,
+	tree-optimization/47427, tree-optimization/47428,
+	tree-optimization/47443
+  - really fix the PCH issue on powerpc64 (PR pch/47430)
+  - handle truth_xor_expr in potential_constant_expression_1
+    (#672156, PR tree-optimization/47426)
+- fix named section conflict handling (PR middle-end/31490)
+- suppress -Woverlength-string warnings in __extension__ guarded
+  code
+
+* Mon Jan 24 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.4
 - build gcc-go and libgo* only on architectures that support it
+- workaround PCH issue on powerpc64
 
 * Sat Jan 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.3
 - add gcc-go, libgo{,-devel,-static}, libquadmath{,-devel,-static},
