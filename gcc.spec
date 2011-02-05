@@ -1,9 +1,9 @@
-%global DATE 20110128
-%global SVNREV 169352
+%global DATE 20110205
+%global SVNREV 169849
 %global gcc_version 4.6.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.5
+%global gcc_release 0.6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -164,12 +164,10 @@ Patch14: gcc46-pr38757.patch
 Patch15: gcc46-libstdc++-docs.patch
 Patch17: gcc46-no-add-needed.patch
 Patch18: gcc46-unwind-debughook-sdt.patch
-Patch19: gcc46-pr47106-revert.patch
-Patch20: gcc46-pr46890.patch
-Patch21: gcc46-ppl-0.10.patch
-Patch22: gcc46-pr31490.patch
-Patch23: gcc46-Woverlength-string.patch
-Patch24: gcc46-pr45136-revert.patch
+Patch19: gcc46-ppl-0.10.patch
+Patch20: gcc46-Woverlength-string.patch
+Patch21: gcc46-Woverlength-string-asm.patch
+Patch22: gcc46-pr47610.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -600,12 +598,10 @@ not stable, so plugins must be rebuilt any time GCC is updated.
 %endif
 %patch17 -p0 -b .no-add-needed~
 %patch18 -p0 -b .unwind-debughook-sdt~
-%patch19 -p0 -b .pr47106-revert~
-%patch20 -p0 -b .pr46890~
-%patch21 -p0 -b .ppl-0.10~
-%patch22 -p0 -b .pr31490~
-%patch23 -p0 -b .Woverlength-string~
-%patch24 -p0 -b .pr45136-revert~
+%patch19 -p0 -b .ppl-0.10~
+%patch20 -p0 -b .Woverlength-string~
+%patch21 -p0 -b .Woverlength-string-asm~
+%patch22 -p0 -b .pr47610~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -2341,6 +2337,30 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Sat Feb  5 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.6
+- update from trunk
+  - PRs bootstrap/47044, bootstrap/47147, c++/29571, c++/46890, c++/47311,
+	c++/47398, c++/47416, c++/47589, debug/43092, debug/47498,
+	debug/47501, driver/47547, fortran/35810, fortran/45170,
+	fortran/47042, fortran/47082, fortran/47350, fortran/47455,
+	fortran/47463, fortran/47507, fortran/47519, fortran/47523,
+	fortran/47531, fortran/47565, fortran/47572, gcc/46692,
+	inline-asm/23200, java/21206, libfortran/47571, libgcj/44341,
+	libgfortran/47434, libquadmath/47293, libstdc++/46914,
+	libstdc++/47560, lto/47274, middle-end/47543,
+	rtl-optimization/43494, rtl-optimization/44031,
+	rtl-optimization/47525, target/42894, target/45325,
+	target/47272, target/47312, target/47564, target/47580,
+	tree-optimization/40979, tree-optimization/43695,
+	tree-optimization/45122, tree-optimization/46194,
+	tree-optimization/47538, tree-optimization/47541,
+	tree-optimization/47555, tree-optimization/47559,
+	tree-optimization/47561, tree-optimization/47566,
+	tree-optimization/47576
+- suppress -Woverlength-string warnings inside of __asm__
+- fix section flags conflict handling for relro sections (#674890,
+  PR middle-end/47610)
+
 * Fri Jan 28 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.5
 - update from trunk
   - PRs bootstrap/47467, c++/43601, c++/47476, c/21659, c/43082, c/47473,
