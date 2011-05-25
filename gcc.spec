@@ -1,9 +1,9 @@
-%global DATE 20110205
-%global SVNREV 169849
+%global DATE 20110525
+%global SVNREV 174173
 %global gcc_version 4.6.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.6
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -108,7 +108,12 @@ BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
 BuildRequires: libunwind >= 0.98
 %endif
 %if %{build_cloog}
-BuildRequires: ppl >= 0.10, ppl-devel >= 0.10, cloog-ppl >= 0.15, cloog-ppl-devel >= 0.15
+%if 0%{?fedora} >= 15
+BuildRequires: ppl >= 0.11.2, ppl-devel >= 0.11.2
+%else
+BuildRequires: ppl >= 0.10, ppl-devel >= 0.10
+%endif
+BuildRequires: cloog-ppl >= 0.15, cloog-ppl-devel >= 0.15
 %endif
 %if %{build_libstdcxx_docs}
 BuildRequires: doxygen >= 1.7.1
@@ -163,11 +168,8 @@ Patch12: gcc46-cloog-dl.patch
 Patch14: gcc46-pr38757.patch
 Patch15: gcc46-libstdc++-docs.patch
 Patch17: gcc46-no-add-needed.patch
-Patch18: gcc46-unwind-debughook-sdt.patch
-Patch19: gcc46-ppl-0.10.patch
-Patch20: gcc46-Woverlength-string.patch
-Patch21: gcc46-Woverlength-string-asm.patch
-Patch22: gcc46-pr47610.patch
+Patch18: gcc46-ppl-0.10.patch
+Patch19: gcc46-pr47858.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -597,11 +599,10 @@ not stable, so plugins must be rebuilt any time GCC is updated.
 %patch15 -p0 -b .libstdc++-docs~
 %endif
 %patch17 -p0 -b .no-add-needed~
-%patch18 -p0 -b .unwind-debughook-sdt~
-%patch19 -p0 -b .ppl-0.10~
-%patch20 -p0 -b .Woverlength-string~
-%patch21 -p0 -b .Woverlength-string-asm~
-%patch22 -p0 -b .pr47610~
+%if 0%{?fedora} < 15
+%patch18 -p0 -b .ppl-0.10~
+%endif
+%patch19 -p0 -b .pr47858~
 
 # This testcase doesn't compile.
 rm libjava/testsuite/libjava.lang/PR35020*
@@ -618,7 +619,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.6\.0/4.6.0/' gcc/BASE-VER
+sed -i -e 's/4\.6\.1/4.6.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 # Default to -gdwarf-3 rather than -gdwarf-2
@@ -1075,6 +1076,7 @@ if [ "%{_lib}" != "lib" ]; then
   sed '/^libdir/s/lib$/%{_lib}/' %{buildroot}%{_prefix}/lib/pkgconfig/libgcj-*.pc \
     > %{buildroot}%{_prefix}/%{_lib}/pkgconfig/`basename %{buildroot}%{_prefix}/lib/pkgconfig/libgcj-*.pc`
 fi
+
 %endif
 
 mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}
@@ -1393,7 +1395,6 @@ rm -f %{buildroot}%{_prefix}/%{_lib}/{libffi*,libiberty.a}
 rm -f $FULLEPATH/install-tools/{mkheaders,fixincl}
 rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
 rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
-rm -f %{buildroot}%{_prefix}/bin/gnative2ascii
 rm -f %{buildroot}%{_prefix}/bin/gappletviewer || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-%{version} || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gfortran || :
@@ -1806,7 +1807,8 @@ fi
 %dir %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
 %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc*gdb.py*
 %dir %{_prefix}/share/gcc-%{gcc_version}
-%{_prefix}/share/gcc-%{gcc_version}/python
+%dir %{_prefix}/share/gcc-%{gcc_version}/python
+%{_prefix}/share/gcc-%{gcc_version}/python/libstdcxx
 
 %files -n libstdc++-devel
 %defattr(-,root,root,-)
@@ -1995,6 +1997,7 @@ fi
 %{_prefix}/bin/gij
 %{_prefix}/bin/gjar
 %{_prefix}/bin/fastjar
+%{_prefix}/bin/gnative2ascii
 %{_prefix}/bin/grepjar
 %{_prefix}/bin/grmic
 %{_prefix}/bin/grmid
@@ -2011,6 +2014,7 @@ fi
 %{_mandir}/man1/gjarsigner.1*
 %{_mandir}/man1/jv-convert.1*
 %{_mandir}/man1/gij.1*
+%{_mandir}/man1/gnative2ascii.1*
 %{_mandir}/man1/grmic.1*
 %{_mandir}/man1/grmiregistry.1*
 %{_mandir}/man1/gcj-dbtool.1*
@@ -2083,7 +2087,8 @@ fi
 %if %{build_ada}
 %files gnat
 %defattr(-,root,root,-)
-%{_prefix}/bin/gnat*
+%{_prefix}/bin/gnat
+%{_prefix}/bin/gnat[^i]*
 %{_infodir}/gnat*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
@@ -2337,6 +2342,210 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed May 25 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-8
+- update from the 4.6 branch
+  - PRs bootstrap/49086, c++/47263, c++/47336, c++/47544, c++/48522,
+	c++/48617, c++/48647, c++/48736, c++/48745, c++/48780, c++/48859,
+	c++/48869, c++/48873, c++/48884, c++/48945, c++/48948, c++/49042,
+	c++/49043, c++/49066, c++/49082, c++/49105, c++/49136, c/49120,
+	debug/48159, debug/49032, fortran/48889, libstdc++/49058, lto/48207,
+	lto/48703, lto/49123, middle-end/48973, middle-end/49029,
+	preprocessor/48677, target/48986, target/49002, target/49104,
+	target/49128, target/49133, tree-optimization/48172,
+	tree-optimization/48794, tree-optimization/48822,
+	tree-optimization/48975, tree-optimization/49000,
+	tree-optimization/49018, tree-optimization/49039,
+	tree-optimization/49073, tree-optimization/49079
+  - ppc V2DImode ABI fix (#705764, PR target/48857)
+  - fix ppc var-tracking ICE (#703888, PR debug/48967)
+
+* Mon May  9 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-7
+- update from the 4.6 branch
+  - PRs ada/48844, c++/40975, c++/48089, c++/48446, c++/48656, c++/48749,
+	c++/48838, c++/48909, c++/48911, fortran/48112, fortran/48279,
+	fortran/48462, fortran/48720, fortran/48746, fortran/48788,
+	fortran/48800, fortran/48810, fortran/48894, libgfortran/48030,
+	libstdc++/48750, libstdc++/48760, lto/48846, middle-end/48597,
+	preprocessor/48192, target/48226, target/48252, target/48262,
+	target/48774, target/48900, tree-optimization/48809
+- fix ICE with references in templates (PR c++/48574)
+- disable tail call optimization if tail recursion needs accumulators
+  (PR PR tree-optimization/48837)
+
+* Thu Apr 28 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-6
+- update from the 4.6 branch
+  - PRs c++/42687, c++/46304, c++/48046, c++/48657, c++/48707, c++/48726,
+	c/48685, c/48716, c/48742, debug/48768, fortran/47976,
+	fortran/48588, libstdc++/48521, lto/48148, lto/48492,
+	middle-end/48695, other/48748, preprocessor/48740, target/48288,
+	target/48708, target/48723, tree-optimization/48611,
+	tree-optimization/48717, tree-optimization/48731,
+	tree-optimization/48734
+
+* Tue Apr 19 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-5
+- update from the 4.6 branch
+  - PRs c++/48537, c++/48632, fortran/48360, fortran/48456,
+	libfortran/47571, libstdc++/48476, libstdc++/48631,
+	libstdc++/48635, lto/48538, middle-end/46364, middle-end/48661,
+	preprocessor/48248, target/48366, target/48605, target/48614,
+	target/48678, testsuite/48675, tree-optimization/48616
+  - fix calling functor or non-pointer-to-member through
+    overloaded pointer-to-member operator (#695567, PR c++/48594)
+
+* Wed Apr 13 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-4
+- update from the 4.6 branch
+  - PRs c++/48450, c++/48452, c++/48468, c++/48500, c++/48523, c++/48528,
+	c++/48534, c++/48570, c++/48574, c/48517, libstdc++/48465,
+	libstdc++/48541, libstdc++/48566, target/47829, target/48090,
+	testsuite/48506, tree-optimization/48195, tree-optimization/48377
+  - fix combiner with -g (#695019, PR rtl-optimization/48549)
+  - fix OpenMP atomic __float128 handling on i?86 (#696129,
+    PR middle-end/48591)
+
+* Fri Apr  8 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-3
+- update from the 4.6 branch
+  - PRs bootstrap/48431, c++/48280, debug/48343, debug/48466, fortran/48117,
+	fortran/48291, libstdc++/48398, middle-end/48335,
+	rtl-optimization/48143, rtl-optimization/48144, target/16292,
+	target/48142
+  - don't ICE because of empty partitions during LTO (#688767, PR lto/48246)
+- don't emit DW_AT_*_pc for CUs without any code
+
+* Thu Mar 31 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-2
+- update from the 4.6 branch
+  - PRs c++/47504, c++/47570, c++/47999, c++/48166, c++/48212, c++/48265,
+	c++/48281, c++/48289, c++/48296, c++/48313, c++/48319, c++/48369,
+	debug/48041, debug/48253, preprocessor/48248, target/48349
+- add -fno-debug-types-section switch
+- don't emit .debug_abbrev section if it is empty and unused
+
+* Tue Mar 29 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-1
+- update from the 4.6 branch
+  - GCC 4.6.0 release
+  - PRs c/42544, c/48197, debug/48204, middle-end/48031,
+	middle-end/48134, middle-end/48269, other/48179, other/48221,
+	other/48234, rtl-optimization/48156, target/47553,
+	target/48237, testsuite/48251, tree-optimization/48228
+  - improve RTL DSE speed with large number of stores (#684900,
+    PR rtl-optimization/48141)
+- add gnative2ascii binary and man page to libgcj
+
+* Mon Mar 21 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.15
+- update from the 4.6 branch
+  - PRs bootstrap/45381, bootstrap/48135
+- fix s390 ICE during address delegitimization (PR target/48213, #689266)
+
+* Fri Mar 18 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.14
+- update from the 4.6 branch
+  - PRs bootstrap/48161, c++/48113, c++/48115, c++/48132, debug/47510,
+	debug/48176, libstdc++/48123, middle-end/47405, middle-end/48165,
+	target/46778, target/46788, target/48171
+- update libstdc++ pretty printers from trunk
+
+* Tue Mar 15 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.13
+- update from trunk and the 4.6 branch
+  - PRs bootstrap/48000, bootstrap/48102, c++/44629, c++/45651, c++/46220,
+	c++/46803, c++/47125, c++/47144, c++/47198, c++/47488, c++/47705,
+	c++/47808, c++/47957, c++/47971, c++/48003, c++/48008, c++/48015,
+	c++/48029, c++/48035, c++/48069, c/47786, debug/47881, debug/48043,
+	fortran/47552, fortran/47850, fortran/48054, fortran/48059,
+	libfortran/48066, libgfortran/48047, libstdc++/48038, libstdc++/48114,
+	lto/47497, lto/48073, lto/48086, middle-end/47968, middle-end/47975,
+	middle-end/48044, middle-end/48098, rtl-optimization/47866,
+	rtl-optimization/47899, target/45413, target/47719, target/47862,
+	target/47986, target/48032, target/48053, testsuite/47954,
+	tree-optimization/47127, tree-optimization/47278,
+	tree-optimization/47714, tree-optimization/47967,
+	tree-optimization/48022, tree-optimization/48063,
+	tree-optimization/48067
+  - fix var-tracking ICE on s390x (#682410, PR debug/47991)
+
+* Fri Mar  4 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.12
+- update from trunk
+  - PRs c++/46159, c++/46282, c++/47200, c++/47774, c++/47851, c++/47950,
+	c++/47974, c/47963, libstdc++/47913, middle-end/47283,
+	rtl-optimization/47925, target/47935, tree-optimization/47890
+- rebuilt against ppl 0.11.2, reenable cloog-ppl Requires
+
+* Tue Mar  1 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.11
+- update from trunk
+  - PRs c++/46466, c++/47873, c++/47897, c++/47906, debug/28047,
+	fortran/40850, fortran/47839, fortran/47846, fortran/47872,
+	fortran/47878, fortran/47886, fortran/47894, libfortran/45165,
+	libfortran/47802, libgfortran/47778, libgfortran/47933,
+	libobjc/47922, libstdc++/42622, libstdc++/47921, lto/46911,
+	lto/47924, middle-end/46790, middle-end/47903, target/42240,
+	target/45261, target/46898, testsuite/47801, tree-optimization/45470
+  - fix stack slot padding reusal (#679924, PR middle-end/47893)
+  - fix ICE on DECL_PARM_INDEX in cp_tree_equal (#680603, PR c++/47904)
+- disable IPA-SRA at -O2/-Os (#668489, PR debug/47858)
+- temporarily disable cloog-ppl Requires, so that ppl and cloog-ppl can
+  be bumped
+
+* Wed Feb 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.10
+- update from trunk
+  - PRs c++/46868, tree-optimization/47838, tree-optimization/47849
+- don't ship aotcompile.py* and classfile.py* in libstdc++ (#678982)
+
+* Wed Feb 22 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.9
+- update from trunk
+  - PRs bootstrap/47827, c++/44118, c++/46394, c++/46472, c++/46831,
+	c++/47199, c++/47207, c++/47242, c++/47666, c++/47703, c++/47833,
+	doc/47848, fortran/41359, fortran/44945, fortran/45077,
+	fortran/45743, fortran/46818, fortran/47797, libfortran/47694,
+	libfortran/47830, libgomp/47854, lto/47820, lto/47822,
+	objc++/47711, objc/47784, rtl-optimization/46002,
+	rtl-optimization/47763, target/47822, target/47840,
+	tree-optimization/47835
+  - fix handling of ObjC pointer to struct with flexible array member
+    in interfaces (#678928, PR objc/47832)
+- temporarily BuildRequire urw-fonts until graphviz is fixed (#677114)
+
+* Sun Feb 20 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.8
+- update from trunk
+  - PRs ada/41929, bootstrap/47736, bootstrap/47807, c++/46807,
+	c++/47172, c++/47208, c++/47326, c++/47482, c++/47503,
+	c++/47704, c++/47783, c++/47795, c/47809, debug/47630,
+	debug/47780, driver/45731, driver/47390, driver/47787,
+	fortran/47348, fortran/47349, fortran/47569, fortran/47633,
+	fortran/47642, fortran/47648, fortran/47716, fortran/47728,
+	fortran/47730, fortran/47745, fortran/47750, fortran/47767,
+	fortran/47768, fortran/47775, fortran/47789, libfortran/47757,
+	libgfortran/47667, libgomp/47731, libgomp/47758, libgomp/47804,
+	libjava/47484, libstdc++/47709, libstdc++/47724, libstdc++/47773,
+	libstdc++/47776, lto/47647, lto/47798, middle-end/47581,
+	middle-end/47725, middle-end/47788, pch/14940,
+	rtl-optimization/46178, target/43653, target/45808, target/47696,
+	target/47755, target/47792, tree-optimization/46494,
+	tree-optimization/46620, tree-optimization/47737,
+	tree-optimization/47738, tree-optimization/47743
+  - fix i?86 shift + plus peephole2 (#678530, PR target/47800)
+
+* Sat Feb 12 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.7
+- update from trunk
+  - PRs binutils/12283, c++/47511, debug/42631, debug/47684, driver/47678,
+	fortran/42434, fortran/45290, fortran/45586, fortran/47352,
+	fortran/47463, fortran/47550, fortran/47574, fortran/47583,
+	fortran/47592, fortran/47637, libffi/46661, libfortran/47571,
+	libgfortran/47567, libstdc++/43863, libstdc++/47433,
+	libstdc++/47628, libstdc++/47668, lto/47225, lto/47241,
+	middle-end/45505, middle-end/47610, middle-end/47639,
+	middle-end/47646, target/42333, target/44606, target/45701,
+	target/46481, target/46610, target/46997, target/47032,
+	target/47324, target/47534, target/47548, target/47558,
+	target/47629, target/47636, target/47665, target/47683,
+	testsuite/47400, testsuite/47622, tree-optimization/42893,
+	tree-optimization/46834, tree-optimization/46994,
+	tree-optimization/46995, tree-optimization/47420,
+	tree-optimization/47615, tree-optimization/47621,
+	tree-optimization/47632, tree-optimization/47641,
+	tree-optimization/47664, tree-optimization/47707
+  - fix postreload on auto inc/decrement instructions (#675787,
+    PR rtl-optimization/47614)
+  - fix a hang in VRP (#676473, PR tree-optimization/47677)
+  - fix STL headers with -fno-operator-names (#676910, PR libstdc++/47662)
+- fix scheduling of debug insns (#675711, PR debug/47620)
+
 * Sat Feb  5 2011 Jakub Jelinek <jakub@redhat.com> 4.6.0-0.6
 - update from trunk
   - PRs bootstrap/47044, bootstrap/47147, c++/29571, c++/46890, c++/47311,
