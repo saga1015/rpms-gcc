@@ -1,9 +1,9 @@
-%global DATE 20110715
-%global SVNREV 176311
-%global gcc_version 4.6.1
+%global DATE 20111027
+%global SVNREV 180561
+%global gcc_version 4.6.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -45,7 +45,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}.3
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -107,7 +107,7 @@ BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
 BuildRequires: libunwind >= 0.98
 %endif
 %if %{build_cloog}
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 BuildRequires: ppl >= 0.11.2, ppl-devel >= 0.11.2
 %else
 BuildRequires: ppl >= 0.10, ppl-devel >= 0.10
@@ -572,6 +572,7 @@ This package contains static Go libraries.
 Summary: Support for compiling GCC plugins
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}
+Requires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
 
 %description plugin-devel
 This package contains header files and other support files
@@ -635,7 +636,7 @@ package or when debugging this package.
 %patch15 -p0 -b .libstdc++-docs~
 %endif
 %patch17 -p0 -b .no-add-needed~
-%if 0%{?fedora} < 15
+%if 0%{?fedora} < 15 || 0%{?rhel} < 7
 %patch18 -p0 -b .ppl-0.10~
 %endif
 %patch19 -p0 -b .pr47858~
@@ -702,13 +703,14 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.6\.2/4.6.1/' gcc/BASE-VER
+sed -i -e 's/4\.6\.3/4.6.2/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
-%if 0%{fedora} >= 16
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
 # Default to -gdwarf-4 -fno-debug-types-section rather than -gdwarf-2
 sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(4)/' gcc/common.opt
 sed -i '/flag_debug_types_section/s/Init(1)/Init(0)/' gcc/common.opt
+sed -i '/dwarf_record_gcc_switches/s/Init(0)/Init(1)/' gcc/common.opt
 sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\14./' gcc/doc/invoke.texi
 %else
 # Default to -gdwarf-3 rather than -gdwarf-2
@@ -716,6 +718,7 @@ sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
 sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\13./' gcc/doc/invoke.texi
 sed -i 's/#define[[:blank:]]*EMIT_ENTRY_VALUE[[:blank:]].*$/#define EMIT_ENTRY_VALUE 0/' gcc/{var-tracking,dwarf2out}.c
 sed -i 's/#define[[:blank:]]*EMIT_TYPED_DWARF_STACK[[:blank:]].*$/#define EMIT_TYPED_DWARF_STACK 0/' gcc/dwarf2out.c
+sed -i 's/#define[[:blank:]]*EMIT_DEBUG_MACRO[[:blank:]].*$/#define EMIT_DEBUG_MACRO 0/' gcc/dwarf2out.c
 %endif
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
@@ -903,6 +906,10 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 %endif
 %ifarch s390 s390x
 	--with-arch=z9-109 --with-tune=z10 --enable-decimal-float \
+%endif
+%ifarch armv7hl
+	--with-cpu=cortex-a8 --with-tune=cortex-a8 --with-arch=armv7-a \
+	--with-float=hard --with-fpu=vfpv3-d16 --with-abi=aapcs-linux \
 %endif
 %ifnarch sparc sparcv9 ppc
 	--build=%{gcc_target_platform}
@@ -1141,6 +1148,14 @@ echo '/* GNU ld script
    the static library, so try that secondarily.  */
 OUTPUT_FORMAT(elf32-powerpc)
 GROUP ( /lib/libgcc_s.so.1 libgcc.a )' > $FULLPATH/32/libgcc_s.so
+%endif
+%ifarch %{arm}
+rm -f $FULLPATH/libgcc_s.so
+echo '/* GNU ld script
+   Use the shared library, but some functions are only in
+   the static library, so try that secondarily.  */
+OUTPUT_FORMAT(elf32-littlearm)
+GROUP ( /lib/libgcc_s.so.1 libgcc.a )' > $FULLPATH/libgcc_s.so
 %endif
 
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.spec $FULLPATH/
@@ -1520,6 +1535,9 @@ touch %{buildroot}%{_prefix}/%{_lib}/gcj-%{version}/classmap.db
 
 rm -f %{buildroot}%{mandir}/man3/ffi*
 
+# Help plugins find out nvra.
+echo gcc-%{version}-%{release}.%{arch} > $FULLPATH/rpmver
+
 %check
 cd obj-%{gcc_target_platform}
 
@@ -1740,6 +1758,7 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto1
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto-wrapper
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/liblto_plugin.so*
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/rpmver
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stddef.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdarg.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdfix.h
@@ -1850,7 +1869,7 @@ fi
 %endif
 %dir %{_prefix}/libexec/getconf
 %{_prefix}/libexec/getconf/default
-%doc gcc/README* rpm.doc/changelogs/gcc/ChangeLog* gcc/COPYING*
+%doc gcc/README* rpm.doc/changelogs/gcc/ChangeLog* gcc/COPYING* COPYING.RUNTIME
 
 %files -n cpp -f cpplib.lang
 %defattr(-,root,root,-)
@@ -1867,7 +1886,7 @@ fi
 %defattr(-,root,root,-)
 /%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
 /%{_lib}/libgcc_s.so.1
-%doc gcc/COPYING.LIB
+%doc gcc/COPYING* COPYING.RUNTIME
 
 %files c++
 %defattr(-,root,root,-)
@@ -2447,14 +2466,109 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.6.1-3.3
-- Rebuilt for glibc bug#747377
+* Thu Oct 27 2011 Jakub Jelinek <jakub@redhat.com> 4.6.2-1
+- update from the 4.6 branch
+  - GCC 4.6.2 release
+  - PRs c++/44473, c++/49216, c++/49855, c++/49896, c++/50531, c++/50611,
+	c++/50618, c++/50787, c++/50793, c/50565, debug/50816, fortran/47023,
+	fortran/48706, fortran/50016, fortran/50273, fortran/50570,
+	fortran/50585, fortran/50625, fortran/50659, fortran/50718,
+	libobjc/49883, libobjc/50002, libstdc++/48698, middle-end/49801,
+	middle-end/50326, middle-end/50386, obj-c++/48275, objc-++/48275,
+	target/49049, target/49824, target/49965, target/49967, target/50106,
+	target/50350, target/50652, target/50737, target/50788, target/50820,
+	tree-optimization/49279, tree-optimization/50189,
+	tree-optimization/50700, tree-optimization/50712,
+	tree-optimization/50723
+- add armv7hl configury options (#746843)
+- add `gcc -print-file-name=rpmver` file with gcc NVRA for plugins
+  (#744922)
 
-* Thu Oct 20 2011 Marcela Mašláňová <mmaslano@redhat.com> - 4.6.1-3.2
-- rebuild with new gmp without compat lib
+* Mon Oct  2 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-10
+- update from the 4.6 branch
+  - PRs c++/20039, c++/40831, c++/42844, c++/46105, c++/48320, c++/50424,
+	c++/50442, c++/50491, c++/50508, inline-asm/50571, libstdc++/49559,
+	libstdc++/50509, libstdc++/50510, libstdc++/50529, middle-end/49886,
+	target/50091, target/50341, target/50464, testsuite/50487,
+	tree-optimization/49518, tree-optimization/49628,
+	tree-optimization/49911, tree-optimization/50162,
+	tree-optimization/50412, tree-optimization/50413,
+	tree-optimization/50472
+- recognize IVs with REFERENCE_TYPE in simple_iv similarly to
+  IVs with POINTER_TYPE (#528578)
+- return larger types for odd-sized precision in Fortran type_for_size
+  langhook if possible
 
-* Mon Oct 10 2011 Peter Schiffer <pschiffe@redhat.com> - 4.6.1-3.1
-- rebuild with new gmp
+* Thu Sep  8 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-9
+- update from the 4.6 branch
+  - PRs c++/49267, c++/50089, c++/50157, c++/50207, c++/50220, c++/50224,
+	c++/50234, c++/50255, c++/50309, c/50179, fortran/50163,
+	libffi/49594, libfortran/50192, libstdc++/50268, middle-end/50116,
+	middle-end/50266, target/50090, target/50202, target/50289,
+	target/50310, tree-optimization/50178
+- debug info related backports from the trunk
+  - PRs debug/50191, debug/50215
+- fix call site debug info on big endian targets (PR debug/50299)
+- put libgcc.a into libgcc_s.so linker script also on arm (#733549)
+- use %%{?fedora} instead of %%{fedora}, handle 0%%{?rhel} >= 7 like
+  0%%{?fedora} >= 16
+
+* Wed Aug 24 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-8
+- update from the 4.6 branch
+  - PRs c++/46862, c++/48993, c++/49669, c++/49921, c++/49988, c++/50024,
+	c++/50054, c++/50086, fortran/49792, fortran/50050, fortran/50109,
+	fortran/50129, fortran/50130, middle-end/49923, target/50001,
+	target/50092, tree-optimization/48739
+- build EH_SPEC_BLOCK with the same location as current function
+  to help gcov (#732802, PR c++/50055)
+- support used attribute on template class methods and static data
+  members for forced instantiation (#722587)
+- fix up location copying in the vectorizer (PR tree-optimization/50133)
+- unshare CALL_INSN_FUNCTION_USAGE (PR middle-end/48722)
+- fix up gthr*.h for -E -C (#713800)
+
+* Thu Aug  4 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-7
+- update from the 4.6 branch
+  - PRs c++/43886, c++/49593, c++/49803, fortran/49885,
+	tree-optimization/49948
+- add self_spec support to specs
+- add COPYING.RUNTIME to gcc and libgcc docs (#727809)
+- SPARC entry_value fixes (PRs target/48220, debug/49815)
+- fix up c-family headers in gcc-plugin-devel (#728011, PRs plugins/45348,
+  plugins/46577, plugins/48425)
+
+* Tue Aug  2 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-6
+- update from the 4.6 branch
+  - PRs c++/49260, c++/49924, libstdc++/49925, target/47908, target/49920
+  - fix libquadmath on i686 (#726909)
+- OpenMP 3.1 support (PR fortran/42041, PR fortran/46752)
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
+- make -grecord-gcc-switches the default
+%endif
+
+* Sun Jul 31 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-5
+- update from the 4.6 branch
+  - PRs debug/49871, fortran/48876, fortran/49791, middle-end/49897,
+	middle-end/49898, rtl-optimization/49799, target/47364
+- don't attempt to size optimize -gdwarf-2 DW_AT_data_member_location
+  from DW_OP_plus_uconst form
+
+* Wed Jul 27 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-4
+- update from the 4.6 branch
+  - PRs ada/49819, c++/49785, debug/47393, fortran/49648, fortran/49708,
+	middle-end/49675, middle-end/49732, target/39386, target/49600,
+	target/49723, target/49746, testsuite/49753, tree-opt/49671,
+	tree-optimization/45819, tree-optimization/49309,
+	tree-optimization/49725, tree-optimization/49768
+- require gmp-devel, mpfr-devel and libmpc-devel in gcc-plugin-devel
+  (#725569)
+- backport -grecord-gcc-switches (#507759, PR other/32998)
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
+- more compact debug macro info for -g3 - .debug_macro section
+- improve call site debug info for some floating point parameters
+  passed on the stack (PR debug/49846)
+%endif
+- fix -mcmodel=large call constraints (PR target/49866, #725516)
 
 * Fri Jul 15 2011 Jakub Jelinek <jakub@redhat.com> 4.6.1-3
 - update from the 4.6 branch
@@ -2463,7 +2577,7 @@ fi
 	target/49487, target/49541, target/49621, tree-opt/49309,
 	tree-optimization/49094, tree-optimization/49651
 - backport -march=bdver2 and -mtune=bdver2 support
-%if 0%{fedora} < 16
+%if 0%{?fedora} < 16 || 0%{?rhel} >= 7
 - use ENTRY_VALUE RTLs internally to improve generated debug info,
   just make sure to remove it from possible options before emitting
   var-tracking notes
@@ -2507,7 +2621,7 @@ fi
   - fix GCSE (#712480, PR rtl-optimization/49390)
 - use rm -f and mv -f in split-debuginfo.sh (#716664)
 - backport some debuginfo improvements and bugfixes
-%if 0%{fedora} >= 16
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
   - improve debug info for IPA-SRA through DW_OP_GNU_parameter_ref
     (PR debug/47858)
   - emit DW_OP_GNU_convert <0> as convert to untyped
@@ -2536,7 +2650,7 @@ fi
 	target/43700, target/43995, target/44643, target/45263,
 	tree-optimization/44897, tree-optimization/49161,
 	tree-optimization/49217, tree-optimization/49218
-%if 0%{fedora} >= 16
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
 - default to -gdwarf-4 -fno-debug-types-section instead of -gdwarf-3
 - backport DW_OP_GNU_entry_value support
   (PRs rtl-optimization/48826, debug/48902, bootstrap/48148,
