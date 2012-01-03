@@ -1,8 +1,8 @@
 --- libada/Makefile.in.jj	2009-01-14 12:07:35.000000000 +0100
 +++ libada/Makefile.in	2009-01-15 14:25:33.000000000 +0100
-@@ -69,18 +69,40 @@ version := $(shell cat $(srcdir)/../gcc/
- libsubdir := $(libdir)/gcc/$(target_noncanonical)/$(version)$(MULTISUBDIR)
+@@ -66,18 +66,40 @@ libsubdir := $(libdir)/gcc/$(target_nonc
  ADA_RTS_DIR=$(GCC_DIR)/ada/rts$(subst /,_,$(MULTISUBDIR))
+ ADA_RTS_SUBDIR=./rts$(subst /,_,$(MULTISUBDIR))
  
 +DEFAULTMULTIFLAGS :=
 +ifeq ($(MULTISUBDIR),)
@@ -33,42 +33,30 @@
  LIBADA_FLAGS_TO_PASS = \
          "MAKEOVERRIDES=" \
 -        "LDFLAGS=$(LDFLAGS)" \
-+        "LDFLAGS=$(strip $(LDFLAGS) $(DEFAULTMULTIFLAGS))" \
++        "LDFLAGS=$(LDFLAGS) $(DEFAULTMULTIFLAGS)" \
          "LN_S=$(LN_S)" \
          "SHELL=$(SHELL)" \
 -        "GNATLIBFLAGS=$(GNATLIBFLAGS) $(MULTIFLAGS)" \
 -        "GNATLIBCFLAGS=$(GNATLIBCFLAGS) $(MULTIFLAGS)" \
 -        "GNATLIBCFLAGS_FOR_C=$(GNATLIBCFLAGS_FOR_C) $(MULTIFLAGS)" \
-+        "GNATLIBFLAGS=$(strip $(GNATLIBFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS))" \
-+        "GNATLIBCFLAGS=$(strip $(GNATLIBCFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS))" \
-+        "GNATLIBCFLAGS_FOR_C=$(strip $(GNATLIBCFLAGS_FOR_C) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS))" \
-         "TARGET_LIBGCC2_CFLAGS=$(TARGET_LIBGCC2_CFLAGS)" \
++        "GNATLIBFLAGS=$(GNATLIBFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS)" \
++        "GNATLIBCFLAGS=$(GNATLIBCFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS)" \
++        "GNATLIBCFLAGS_FOR_C=$(GNATLIBCFLAGS_FOR_C) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS)" \
+         "PICFLAG_FOR_TARGET=$(PICFLAG)" \
          "THREAD_KIND=$(THREAD_KIND)" \
          "TRACE=$(TRACE)" \
-@@ -91,7 +113,7 @@ LIBADA_FLAGS_TO_PASS = \
+@@ -88,7 +110,7 @@ LIBADA_FLAGS_TO_PASS = \
          "exeext=.exeext.should.not.be.used " \
  	'CC=the.host.compiler.should.not.be.needed' \
  	"GCC_FOR_TARGET=$(CC)" \
--        "CFLAGS=$(CFLAGS) $(WARN_CFLAGS)"
-+        "CFLAGS=$(strip $(CFLAGS) $(DEFAULTMULTIFLAGS) $(WARN_CFLAGS))"
+-        "CFLAGS=$(CFLAGS)"
++        "CFLAGS=$(CFLAGS) $(DEFAULTMULTIFLAGS)"
  
  # Rules to build gnatlib.
- .PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared oscons
+ .PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared osconstool
 --- gcc/ada/sem_util.adb	(revision 161677)
 +++ gcc/ada/sem_util.adb	(working copy)
-@@ -2246,7 +2246,11 @@
-          end if;
- 
-       elsif Is_Entity_Name (A2) then
-+
-+         --  Triggered by -Wall
-+         pragma Warnings (Off);
-          return Denotes_Same_Prefix (A2, A1);
-+         pragma Warnings (On);
- 
-       elsif Nkind_In (A1, N_Selected_Component, N_Indexed_Component, N_Slice)
-               and then
-@@ -4694,7 +4698,7 @@
+@@ -5487,7 +5487,7 @@ package body Sem_Util is
              Exp           : Node_Id;
              Assn          : Node_Id;
              Choice        : Node_Id;
