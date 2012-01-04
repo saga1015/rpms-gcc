@@ -1,0 +1,16 @@
+2012-01-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/51746
+	* var-tracking.c (add_stores): For COND_EXEC allow oval to be NULL.
+
+--- gcc/var-tracking.c.jj	2012-01-01 19:54:46.000000000 +0100
++++ gcc/var-tracking.c	2012-01-04 11:30:44.033223790 +0100
+@@ -5519,7 +5519,7 @@ add_stores (rtx loc, const_rtx expr, voi
+       gcc_assert (oval != v);
+       gcc_assert (REG_P (oloc) || MEM_P (oloc));
+ 
+-      if (!cselib_preserved_value_p (oval))
++      if (oval && !cselib_preserved_value_p (oval))
+ 	{
+ 	  micro_operation moa;
+ 

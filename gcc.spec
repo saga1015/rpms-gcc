@@ -1,8 +1,10 @@
-%global DATE 20120103
-%global SVNREV 182847
+%global DATE 20120104
+%global SVNREV 182887
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
+# Please keep gcc_release at 0 while gcc-%{gcc_version} hasn't
+# been released yet, instead increment the digit in Release:.
 %global gcc_release 0
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
@@ -46,7 +48,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}.2%{?dist}
+Release: %{gcc_release}.3%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -170,6 +172,7 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-pr51746.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -669,6 +672,7 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .pr51746~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2614,6 +2618,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jan  4 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.3
+- update from trunk
+  - PRs bootstrap/51006, bootstrap/51734, c++/29273, c++/51064, c++/51738,
+	debug/51695, fortran/49693, fortran/50981, middle-end/51696,
+	middle-end/51750, other/51163, other/51164, tree-optimization/49651
+- fix up libitm.so.1
+
 * Tue Jan  3 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.2
 - update from trunk
   - PRs bootstrap/51686, bootstrap/51725, c++/15867, c++/16603, c++/20140,
