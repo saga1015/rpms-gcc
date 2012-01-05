@@ -1,11 +1,9 @@
-%global DATE 20120104
-%global SVNREV 182887
+%global DATE 20120105
+%global SVNREV 182927
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-# Please keep gcc_release at 0 while gcc-%{gcc_version} hasn't
-# been released yet, instead increment the digit in Release:.
-%global gcc_release 0
+%global gcc_release 0.4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -14,7 +12,11 @@
 %global build_ada 0
 %endif
 %global build_java 1
+%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x
 %global build_go 1
+%else
+%global build_go 0
+%endif
 %ifarch %{ix86} x86_64 ia64
 %global build_libquadmath 1
 %else
@@ -48,7 +50,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}.3%{?dist}
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -172,7 +174,6 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-pr51746.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -672,7 +673,6 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .pr51746~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -949,8 +949,8 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--build=%{gcc_target_platform}
 %endif
 
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
-#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
 
 # Make generated man pages even if Pod::Man is not new enough
 perl -pi -e 's/head3/head2/' ../contrib/texi2pod.pl
@@ -2618,6 +2618,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jan  5 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.4
+- update from trunk
+  - PRs bootstrap/51072, bootstrap/51648, debug/51746, debug/51762,
+	lto/41576, lto/50490, middle-end/44777, middle-end/49710,
+	middle-end/51472, middle-end/51761, middle-end/51764,
+	middle-end/51768, other/51171, rtl-optimization/51767,
+	tree-optimization/51624, tree-optimization/51760
+- disable go on arm (#771482)
+- enable profiledbootstrap
+
 * Wed Jan  4 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.3
 - update from trunk
   - PRs bootstrap/51006, bootstrap/51734, c++/29273, c++/51064, c++/51738,
