@@ -1,0 +1,27 @@
+2012-01-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR gcov-profile/50127
+	* bb-reorder.c (partition_hot_cold_basic_blocks): Clear
+	bb->aux before running df_analyze.
+
+--- gcc/bb-reorder.c.jj	2011-11-10 18:09:12.000000000 +0100
++++ gcc/bb-reorder.c	2012-01-06 13:47:39.619401395 +0100
+@@ -2219,6 +2219,7 @@ static unsigned
+ partition_hot_cold_basic_blocks (void)
+ {
+   VEC(edge, heap) *crossing_edges;
++  basic_block bb;
+ 
+   if (n_basic_blocks <= NUM_FIXED_BLOCKS + 1)
+     return 0;
+@@ -2254,6 +2255,10 @@ partition_hot_cold_basic_blocks (void)
+ 
+   add_reg_crossing_jump_notes ();
+ 
++  /* Clear bb->aux fields that the above routines were using.  */
++  FOR_EACH_BB (bb)
++    bb->aux = NULL;
++
+   VEC_free (edge, heap, crossing_edges);
+ 
+   /* ??? FIXME: DF generates the bb info for a block immediately.

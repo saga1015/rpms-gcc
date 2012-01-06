@@ -1,0 +1,24 @@
+2012-01-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/47333
+	* cgraphunit.c (cgraph_optimize): Call output_weakrefs
+	before emitting functions.
+
+--- gcc/cgraphunit.c.jj	2011-12-15 08:06:54.000000000 +0100
++++ gcc/cgraphunit.c	2012-01-06 14:50:50.291364878 +0100
+@@ -2187,6 +2187,7 @@ cgraph_optimize (void)
+ #endif
+   bitmap_obstack_release (NULL);
+   cgraph_mark_functions_to_output ();
++  output_weakrefs ();
+ 
+   cgraph_state = CGRAPH_STATE_EXPANSION;
+   if (!flag_toplevel_reorder)
+@@ -2201,7 +2202,6 @@ cgraph_optimize (void)
+       varpool_assemble_pending_decls ();
+     }
+ 
+-  output_weakrefs ();
+   cgraph_process_new_functions ();
+   cgraph_state = CGRAPH_STATE_FINISHED;
+ 

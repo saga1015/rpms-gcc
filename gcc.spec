@@ -1,9 +1,9 @@
-%global DATE 20120105
-%global SVNREV 182927
+%global DATE 20120106
+%global SVNREV 182962
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.4
+%global gcc_release 0.5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,7 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x
+%ifarch %{ix86} x86_64 ppc ppc64
 %global build_go 1
 %else
 %global build_go 0
@@ -174,6 +174,8 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-pr47333.patch
+Patch17: gcc47-pr50127.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -673,6 +675,8 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .pr47333~
+%patch17 -p0 -b .pr50127~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -949,8 +953,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--build=%{gcc_target_platform}
 %endif
 
-#GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+%ifarch %{arm} sparc sparcv9 sparc64
+GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+%else
 GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+%endif
 
 # Make generated man pages even if Pod::Man is not new enough
 perl -pi -e 's/head3/head2/' ../contrib/texi2pod.pl
@@ -2618,6 +2625,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Jan  6 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.5
+- update from trunk
+  - PRs c++/51541, fortran/48946, libstdc++/51504, lto/51774,
+	rtl-optimization/51771, target/51681, tree-optimization/51315
+- disable go on s390{,x}
+- disable profiledbootstrap on arm and sparc* for now
+
 * Thu Jan  5 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.4
 - update from trunk
   - PRs bootstrap/51072, bootstrap/51648, debug/51746, debug/51762,
