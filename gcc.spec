@@ -50,7 +50,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}
+Release: %{gcc_release}%{?dist}.1
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -1167,7 +1167,9 @@ sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
 %endif
 
 mv %{buildroot}%{_prefix}/lib/libgfortran.spec $FULLPATH/
+%if %{build_libitm}
 mv %{buildroot}%{_prefix}/lib/libitm.spec $FULLPATH/
+%endif
 
 mkdir -p %{buildroot}/%{_lib}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgcc_s.so.1 %{buildroot}/%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
@@ -1923,7 +1925,9 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.so
+%if %{build_libitm}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libitm.spec
+%endif
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/crt*.o
@@ -2625,6 +2629,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Sat Jan  7 2012 Dan Horák <dan[at]danny.cz> 4.7.0-0.5.1
+- fix build without libitm
+
 * Fri Jan  6 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.5
 - update from trunk
   - PRs c++/51541, fortran/48946, libstdc++/51504, lto/51774,
