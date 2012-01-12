@@ -1,9 +1,9 @@
-%global DATE 20120106
-%global SVNREV 182962
+%global DATE 20120112
+%global SVNREV 183134
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.5
+%global gcc_release 0.6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -50,7 +50,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}.1
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -174,8 +174,6 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-pr47333.patch
-Patch17: gcc47-pr50127.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -675,8 +673,6 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .pr47333~
-%patch17 -p0 -b .pr50127~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2629,8 +2625,21 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Sat Jan  7 2012 Dan Horák <dan[at]danny.cz> 4.7.0-0.5.1
-- fix build without libitm
+* Thu Jan 12 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.6
+- update from trunk
+  - PRs ada/41929, bootstrap/51705, bootstrap/51796, c++/47450,
+	c++/48051, c++/50855, c++/51322, c++/51433, c++/51565,
+	c++/51613, c++/51614, c++/51818, c++/6057, debug/51471,
+	fortran/51057, fortran/51578, fortran/51616, fortran/51652,
+	fortran/51758, fortran/51791, fortran/51792, gcov-profile/50127,
+	gcov-profile/51715, gcov-profile/51717, libstdc++/51673,
+	middle-end/51516, middle-end/51806, preprocessor/33919,
+	preprocessor/51776, rtl-optimization/51271, target/47333,
+	rarget/49868, testsuite/51655, tree-optimization/49642,
+	tree-optimization/50913, tree-optimization/51600,
+	tree-optimization/51680, tree-optimization/51694,
+	tree-optimization/51759, tree-optimization/51775,
+	tree-optimization/51799, tree-optimization/51801
 
 * Fri Jan  6 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.5
 - update from trunk
