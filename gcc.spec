@@ -1,9 +1,9 @@
-%global DATE 20120112
-%global SVNREV 183134
+%global DATE 20120117
+%global SVNREV 183258
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.6
+%global gcc_release 0.7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,7 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{ix86} x86_64 ppc ppc64
+%ifarch %{ix86} x86_64
 %global build_go 1
 %else
 %global build_go 0
@@ -22,7 +22,7 @@
 %else
 %global build_libquadmath 0
 %endif
-%ifarch %{ix86} x86_64 %{arm} alpha
+%ifarch %{ix86} x86_64 %{arm} alpha ppc ppc64
 %global build_libitm 1
 %else
 %global build_libitm 0
@@ -174,6 +174,8 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-pr50325.patch
+Patch17: gcc47-pr51876.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -673,6 +675,8 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .pr50325~
+%patch17 -p0 -b .pr51876~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -887,7 +891,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
 	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
 	--enable-languages=c,c++,objc,obj-c++,java,fortran${enablelada}${enablelgo},lto \
-	--enable-plugin \
+	--enable-plugin --enable-initfini-array \
 %if !%{build_java}
 	--disable-libgcj \
 %else
@@ -1912,6 +1916,14 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/spu2vmx.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/vec_types.h
 %endif
+%ifarch %{arm}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/unwind-arm-common.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_neon.h
+%endif
+%ifarch sparc sparcv9 sparc64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/visintrin.h
+%endif
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/collect2
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/crt*.o
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcc.a
@@ -2625,6 +2637,22 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Jan 17 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.7
+- update from trunk
+  - PRs bootstrap/51860, c++/14179, c++/20681, c++/50012, c++/51403,
+	c++/51620, c++/51633, c++/51714, c++/51777, c++/51813, c++/51827,
+	c++/51854, c++/51868, c/12245, fortran/36755, fortran/48351,
+	fortran/51800, fortran/51809, fortran/51816, fortran/51842,
+	fortran/51869, libitm/51173, libitm/51855, middle-end/51782,
+	middle-end/8081, other/51165, rtl-optimization/51821, target/47852,
+	target/50925, target/51756, tree-optimization/51865
+  - fix up ppc64 bootstrap with -mminimal-toc (#773040, PR bootstrap/51872)
+  - fix up -ftree-tail-merge (#782231, PR tree-optimization/51877)
+- package up arm and sparc specific headers (#781765)
+- enable libitm and disable go on ppc/ppc64
+- fix up big-endian libstdc++ miscompilation (PR middle-end/50325)
+- fix up arm neon vectorization ICEs (PR target/51876)
+
 * Thu Jan 12 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.6
 - update from trunk
   - PRs ada/41929, bootstrap/51705, bootstrap/51796, c++/47450,

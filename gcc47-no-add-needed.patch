@@ -5,6 +5,7 @@
 	* config/gnu-user.h (LINK_EH_SPEC): Likewise.
 	* config/alpha/elf.h (LINK_EH_SPEC): Likewise.
 	* config/ia64/linux.h (LINK_EH_SPEC): Likewise.
+	* config/freebsd-spec.h (LINK_EH_SPEC): Likewise.
 
 --- gcc/config/alpha/elf.h.jj	2011-01-03 12:52:31.118056764 +0100
 +++ gcc/config/alpha/elf.h	2011-01-04 18:14:10.931874160 +0100
@@ -50,3 +51,14 @@
  #endif
  
  #define CPP_OS_LINUX_SPEC "-D__unix__ -D__gnu_linux__ -D__linux__ \
+--- gcc/config/freebsd-spec.h.jj	2011-12-21 20:32:34.998649834 +0100
++++ gcc/config/freebsd-spec.h	2012-01-17 17:55:03.528567495 +0100
+@@ -135,7 +135,7 @@ is built with the --enable-threads confi
+ #endif
+ 
+ #if defined(HAVE_LD_EH_FRAME_HDR)
+-#define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
++#define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} "
+ #endif
+ 
+ /* Use --as-needed -lgcc_s for eh support.  */

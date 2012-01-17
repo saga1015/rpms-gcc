@@ -1,0 +1,62 @@
+diff -up ../_clean/gcc/expmed.c gcc/expmed.c
+--- ../_clean/gcc/expmed.c	2011-12-09 15:20:36.000000000 +0100
++++ gcc/expmed.c	2011-12-09 15:23:01.000000000 +0100
+@@ -543,7 +543,8 @@ store_bit_field_1 (rtx str_rtx, unsigned
+ 	 is not allowed.  */
+       fieldmode = GET_MODE (value);
+       if (fieldmode == VOIDmode)
+-	fieldmode = smallest_mode_for_size (nwords * BITS_PER_WORD, MODE_INT);
++	fieldmode = smallest_mode_for_size (nwords *
++					    BITS_PER_WORD, MODE_INT);
+ 
+       last = get_last_insn ();
+       for (i = 0; i < nwords; i++)
+@@ -557,9 +558,21 @@ store_bit_field_1 (rtx str_rtx, unsigned
+ 					    0)
+ 				     : (int) i * BITS_PER_WORD);
+ 	  rtx value_word = operand_subword_force (value, wordnum, fieldmode);
++	  unsigned HOST_WIDE_INT new_bitsize =
++	    MIN (BITS_PER_WORD, bitsize - i * BITS_PER_WORD);
+ 
+-	  if (!store_bit_field_1 (op0, MIN (BITS_PER_WORD,
+-					    bitsize - i * BITS_PER_WORD),
++	  /* If the remaining chunk doesn't have full wordsize we have
++	     to make sure that for big endian machines the higher order
++	     bits are used.  */
++	  if (new_bitsize < BITS_PER_WORD && BYTES_BIG_ENDIAN && !backwards)
++	    value_word = simplify_expand_binop (word_mode, lshr_optab,
++						value_word,
++						GEN_INT (BITS_PER_WORD
++							 - new_bitsize),
++						NULL_RTX, true,
++						OPTAB_LIB_WIDEN);
++
++	  if (!store_bit_field_1 (op0, new_bitsize,
+ 				  bitnum + bit_offset,
+ 				  bitregion_start, bitregion_end,
+ 				  word_mode,
+--- ../_clean/gcc/optabs.c	2011-12-23 23:39:30.000000000 +0100
++++ gcc/optabs.c	2011-12-24 18:40:01.000000000 +0100
+@@ -659,7 +659,7 @@ expand_ternary_op (enum machine_mode mod
+    calculated at compile time.  The arguments and return value are
+    otherwise the same as for expand_binop.  */
+ 
+-static rtx
++rtx
+ simplify_expand_binop (enum machine_mode mode, optab binoptab,
+ 		       rtx op0, rtx op1, rtx target, int unsignedp,
+ 		       enum optab_methods methods)
+diff -up ../_clean/gcc/optabs.h gcc/optabs.h
+--- ../_clean/gcc/optabs.h	2011-12-23 23:39:30.000000000 +0100
++++ gcc/optabs.h	2011-12-24 18:40:01.000000000 +0100
+@@ -859,6 +859,10 @@ extern rtx expand_ternary_op (enum machi
+ extern rtx expand_binop (enum machine_mode, optab, rtx, rtx, rtx, int,
+ 			 enum optab_methods);
+ 
++extern rtx simplify_expand_binop (enum machine_mode mode, optab binoptab,
++				  rtx op0, rtx op1, rtx target, int unsignedp,
++				  enum optab_methods methods);
++
+ extern bool force_expand_binop (enum machine_mode, optab, rtx, rtx, rtx, int,
+ 				enum optab_methods);
+ 
