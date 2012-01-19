@@ -1,9 +1,9 @@
-%global DATE 20120117
-%global SVNREV 183258
+%global DATE 20120119
+%global SVNREV 183308
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.7
+%global gcc_release 0.8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -174,8 +174,7 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-pr50325.patch
-Patch17: gcc47-pr51876.patch
+Patch16: gcc47-pr51856.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -675,8 +674,7 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .pr50325~
-%patch17 -p0 -b .pr51876~
+%patch16 -p0 -b .pr51856~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2637,6 +2635,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jan 19 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.8
+- update from trunk
+  - PRs bootstrap/50237, c++/51225, c++/51889, fortran/48426, fortran/51634,
+	go/50656, libmudflap/40778, libstdc++/51845, libstdc++/51866,
+	lto/51280, middle-end/51192, rtl-optimization/48496,
+	rtl-optimization/51505, tree-optimization/37997,
+	tree-optimization/46590
+- fix a reload bug on s390 (#773565, PR rtl-optimization/51856)
+
 * Tue Jan 17 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.7
 - update from trunk
   - PRs bootstrap/51860, c++/14179, c++/20681, c++/50012, c++/51403,

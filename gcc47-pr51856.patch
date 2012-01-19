@@ -1,0 +1,45 @@
+2012-01-19  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	PR rtl-optimization/51856
+	* reload.c (find_reloads_subreg_address): Set the address_reloaded
+	flag to reloaded.
+
+	* gcc.c-torture/compile/pr51856.c: New testcase.
+
+--- gcc/reload.c.jj	2012-01-05 21:54:36.000000000 +0100
++++ gcc/reload.c	2012-01-19 20:17:26.151735687 +0100
+@@ -6232,7 +6232,7 @@ find_reloads_subreg_address (rtx x, int 
+ 	}
+     }
+   if (reloaded && address_reloaded)
+-    *address_reloaded = 1;
++    *address_reloaded = reloaded;
+ 
+   return x;
+ }
+--- gcc/testsuite/gcc.c-torture/compile/pr51856.c.jj	2012-01-19 20:17:26.151735687 +0100
++++ gcc/testsuite/gcc.c-torture/compile/pr51856.c	2012-01-19 20:17:26.151735687 +0100
+@@ -0,0 +1,23 @@
++struct B { int b1; long long b2, b3; int b4; };
++struct C { char c1[40], c2, c3[96]; long long c4[5], c5; char c6[596]; };
++void fn1 (long long), fn2 (char *, int), fn4 (void);
++int r, fn3 (int, const char *, int, char *, int, int);
++
++void
++foo (int t, int u, int v, int w, int x, int y, struct B *z)
++{
++  char c[512], d[512], e;
++  struct C g;
++  long long f, h[255];
++  struct B j;
++  __builtin_bzero (&j, sizeof j);
++  if (y > w)
++    fn4 ();
++  __builtin_bzero (&g, sizeof g);
++  g.c5 = h[0];
++  fn1 (z ? z->b3 : f);
++  g.c2 = y;
++  fn2 (d, 256);
++  if (fn3 (r, "", e, c, 0, 16))
++    fn4 ();
++}
