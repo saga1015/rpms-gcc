@@ -1,9 +1,9 @@
-%global DATE 20120119
-%global SVNREV 183308
+%global DATE 20120123
+%global SVNREV 183456
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.8
+%global gcc_release 0.9
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -174,7 +174,10 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-pr51856.patch
+Patch16: gcc47-pr51895.patch
+Patch17: gcc47-pr51957.patch
+Patch18: gcc47-pr46590-revert.patch
+Patch19: gcc47-pr51968.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -674,7 +677,10 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .pr51856~
+%patch16 -p0 -b .pr51895~
+%patch17 -p0 -b .pr51957~
+%patch18 -p0 -b .pr46590-revert~
+%patch19 -p0 -b .pr51968~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2635,6 +2641,24 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jan 23 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.9
+- update from trunk
+  - PRs ada/46192, c++/51344, c++/51398, c++/51402, c++/51832, c++/51919,
+	c++/51922, debug/45682, fortran/50556, fortran/51056, fortran/51904,
+	fortran/51913, fortran/51948, libgcj/23182, libgfortran/51899,
+	libitm/51830, libstdc++/50982, lto/51916, middle-end/45416,
+	rtl-optimization/40761, rtl-optimization/51924, target/47096,
+	target/49868, target/50313, target/50887, target/51106, target/51819,
+	target/51900, target/51915, target/51931, target/51934,
+	testsuite/51941, tree-optimization/51895, tree-optimization/51903,
+	tree-optimization/51914, tree-optimization/51949
+  - fix REE pass (#783481, PR rtl-optimization/51933)
+  - further overload fixes with using decls (#783586, PR c++/51925)
+- fix ICE during expansion with BLKmode MEM_REF (#782868, PR middle-end/51895)
+- fix ppc64 profiledbootstrap (PR target/51957)
+- revert broken stack layout change (PR tree-optimization/46590)
+- fix ARM ICE on neon insn splitting (PR target/51968)
+
 * Thu Jan 19 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.8
 - update from trunk
   - PRs bootstrap/50237, c++/51225, c++/51889, fortran/48426, fortran/51634,
