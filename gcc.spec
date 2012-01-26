@@ -1,9 +1,9 @@
-%global DATE 20120123
-%global SVNREV 183456
+%global DATE 20120126
+%global SVNREV 183558
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.9
+%global gcc_release 0.10
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -175,9 +175,8 @@ Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-pr51895.patch
-Patch17: gcc47-pr51957.patch
-Patch18: gcc47-pr46590-revert.patch
-Patch19: gcc47-pr51968.patch
+Patch17: gcc47-pr46590-revert.patch
+Patch18: gcc47-pr52006.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -678,9 +677,8 @@ package or when debugging this package.
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
 %patch16 -p0 -b .pr51895~
-%patch17 -p0 -b .pr51957~
-%patch18 -p0 -b .pr46590-revert~
-%patch19 -p0 -b .pr51968~
+%patch17 -p0 -b .pr46590-revert~
+%patch18 -p0 -b .pr52006~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2641,6 +2639,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jan 26 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.10
+- update from trunk
+  - PRs bootstrap/51985, c++/51223, c++/51812, c++/51917, c++/51928,
+	c++/51930, c++/51973, c++/51992, driver/47249, fortran/51966,
+	fortran/51995, libstdc++/49829, lto/51698, middle-end/45678,
+	middle-end/51986, rtl-optimization/48308, rtl-optimization/48374
+  - fix data-ref handling of non-volatile inline asms (#784242,
+    PR tree-optimization/51987)
+- fix ARM ICE with invalid peephole (#784748, PR target/52006)
+
 * Mon Jan 23 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.9
 - update from trunk
   - PRs ada/46192, c++/51344, c++/51398, c++/51402, c++/51832, c++/51919,
