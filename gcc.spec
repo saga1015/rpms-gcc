@@ -1,9 +1,9 @@
-%global DATE 20120126
-%global SVNREV 183558
+%global DATE 20120206
+%global SVNREV 183946
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.10
+%global gcc_release 0.11
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -174,9 +174,9 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-pr51895.patch
-Patch17: gcc47-pr46590-revert.patch
-Patch18: gcc47-pr52006.patch
+Patch16: gcc47-pr51950.patch
+Patch17: gcc47-pr52060.patch
+Patch18: gcc47-pr52132.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -496,6 +496,8 @@ The Java(tm) runtime library sources for use in Eclipse.
 %package -n cpp
 Summary: The C Preprocessor
 Group: Development/Languages
+Requires: filesystem >= 3
+Provides: /lib/cpp
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 Autoreq: true
@@ -676,9 +678,9 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .pr51895~
-%patch17 -p0 -b .pr46590-revert~
-%patch18 -p0 -b .pr52006~
+%patch16 -p0 -b .pr51950~
+%patch17 -p0 -b .pr52060~
+%patch18 -p0 -b .pr52132~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -1071,8 +1073,8 @@ FULLEPATH=%{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_versio
 
 # fix some things
 ln -sf gcc %{buildroot}%{_prefix}/bin/cc
-mkdir -p %{buildroot}/lib
-ln -sf ..%{_prefix}/bin/cpp %{buildroot}/lib/cpp
+rm -f %{buildroot}%{_prefix}/lib/cpp
+ln -sf ../bin/cpp %{buildroot}/%{_prefix}/lib/cpp
 ln -sf gfortran %{buildroot}%{_prefix}/bin/f95
 rm -f %{buildroot}%{_infodir}/dir
 gzip -9 %{buildroot}%{_infodir}/*.info*
@@ -1857,7 +1859,6 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto1
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto-wrapper
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/liblto_plugin.so*
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/rpmver
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stddef.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdarg.h
@@ -2002,7 +2003,7 @@ fi
 
 %files -n cpp -f cpplib.lang
 %defattr(-,root,root,-)
-/lib/cpp
+%{_prefix}/lib/cpp
 %{_prefix}/bin/cpp
 %{_mandir}/man1/cpp.1*
 %{_infodir}/cpp*
@@ -2010,6 +2011,7 @@ fi
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cc1
+%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/liblto_plugin.so*
 
 %files -n libgcc
 %defattr(-,root,root,-)
@@ -2639,6 +2641,42 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Feb  6 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.11
+- update from trunk
+  - PRs bootstrap/52039, bootstrap/52041, bootstrap/52058, c++/48680,
+	c++/51327, c++/51370, c++/51852, c++/52043, c++/52088, c/52118,
+	debug/52001, debug/52027, debug/52048, fortran/32373, fortran/41587,
+	fortran/41600, fortran/46356, fortran/48705, fortran/48847,
+	fortran/51754, fortran/51808, fortran/51870, fortran/51943,
+	fortran/51946, fortran/51953, fortran/51958, fortran/51970,
+	fortran/51972, fortran/51977, fortran/52012, fortran/52013,
+	fortran/52016, fortran/52022, fortran/52024, fortran/52029,
+	fortran/52038, fortran/52093, fortran/52102, go/47656, go/48501,
+	libitm/51822, libjava/48512, libstdc++/49445, libstdc++/51649,
+	libstdc++/51795, libstdc++/51798, libstdc++/51811, libstdc++/51956,
+	libstdc++/52068, libstdc++/52104, libstdc++/52119, libstdc++/52128,
+	middle-end/43967, middle-end/47982, middle-end/48071,
+	middle-end/51389, middle-end/51959, middle-end/51998,
+	middle-end/52047, rtl-optimization/49800, rtl-optimization/51374,
+	rtl-optimization/51978, rtl-optimization/52092,
+	rtl-optimization/52095, rtl-optimization/52113, target/51500,
+	target/51835, target/51871, target/51920, target/51974, target/52079,
+	target/52107, target/52125, target/52129, testsuite/51875,
+	testsuite/52011, tree-optimization/48794, tree-optimization/50444,
+	tree-optimization/50955, tree-optimization/50969,
+	tree-optimization/51528, tree-optimization/51990,
+	tree-optimization/52020, tree-optimization/52028,
+	tree-optimization/52045, tree-optimization/52046,
+	tree-optimization/52073, tree-optimization/52091,
+	tree-optimization/52115
+  - fix i?86 mem += reg; mem cmp 0 8-bit peephole2 (#786570, PR target/52086)
+  - fix fortran ICE on elemental call (#785433, PR fortran/52059)
+- fix up /lib/cpp symlink for UsrMove (#787460)
+- move LTO plugin into cpp subpackage (#787345)
+- fix debug ICE with i387 reg-stack (#787518, PR debug/52132)
+- fix ARM combine bug (PR rtl-optimization/52060)
+- fix a DWARF4 .debug_types DIE cloning bug (PR debug/51950)
+
 * Thu Jan 26 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.10
 - update from trunk
   - PRs bootstrap/51985, c++/51223, c++/51812, c++/51917, c++/51928,
