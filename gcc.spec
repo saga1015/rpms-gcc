@@ -1,9 +1,9 @@
-%global DATE 20120206
-%global SVNREV 183946
+%global DATE 20120208
+%global SVNREV 184012
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.11
+%global gcc_release 0.12
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -175,8 +175,8 @@ Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-pr51950.patch
-Patch17: gcc47-pr52060.patch
-Patch18: gcc47-pr52132.patch
+Patch17: gcc47-pr52132.patch
+Patch18: gcc47-pr52165.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -679,8 +679,8 @@ package or when debugging this package.
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
 %patch16 -p0 -b .pr51950~
-%patch17 -p0 -b .pr52060~
-%patch18 -p0 -b .pr52132~
+%patch17 -p0 -b .pr52132~
+%patch18 -p0 -b .pr52165~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -1859,6 +1859,7 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto1
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/lto-wrapper
+%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/liblto_plugin.so*
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/rpmver
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stddef.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdarg.h
@@ -2011,7 +2012,6 @@ fi
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cc1
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/liblto_plugin.so*
 
 %files -n libgcc
 %defattr(-,root,root,-)
@@ -2641,6 +2641,17 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Feb  8 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.12
+- update from trunk
+  - PRs c++/52035, fortran/51514, gcov-profile/52150, libstdc++/51296,
+	libstdc++/51906, middle-end/24306, middle-end/51994,
+	middle-end/52074, rtl-optimization/52139, rtl-optimization/52170,
+	target/40068, target/52152, target/52154, target/52155,
+	tree-optimization/46886
+  - fix up build on ppc*
+  - don't look for lto plugin/lto-wrapper if -E/-S/-c or in cpp
+- move liblto_plugin.so* back into gcc subpackage
+
 * Mon Feb  6 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.11
 - update from trunk
   - PRs bootstrap/52039, bootstrap/52041, bootstrap/52058, c++/48680,
