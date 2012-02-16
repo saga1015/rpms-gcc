@@ -671,7 +671,7 @@ package or when debugging this package.
 %patch12 -p0 -b .libstdc++-docs~
 %endif
 %patch13 -p0 -b .no-add-needed~
-%if 0%{?fedora} < 15 || 0%{?rhel} < 7
+%if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
