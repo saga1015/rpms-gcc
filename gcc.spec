@@ -1,9 +1,9 @@
-%global DATE 20120208
-%global SVNREV 184012
+%global DATE 20120216
+%global SVNREV 184307
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.12
+%global gcc_release 0.13
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,7 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x %{arm}
 %global build_go 1
 %else
 %global build_go 0
@@ -174,9 +174,6 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-pr51950.patch
-Patch17: gcc47-pr52132.patch
-Patch18: gcc47-pr52165.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -678,9 +675,6 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .pr51950~
-%patch17 -p0 -b .pr52132~
-%patch18 -p0 -b .pr52165~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2641,6 +2635,23 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Feb 16 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.13
+- update from trunk
+  - PRs boehm-gc/48514, bootstrap/52172, c++/39055, c++/51910, c++/52215,
+	c/52181, c/52190, debug/52165, debug/52260, driver/48524,
+	fortran/32380, fortran/52151, go/48411, go/51874, libffi/52221,
+	libitm/52042, libitm/52220, libstdc++/51368, lto/52178,
+	middle-end/48600, middle-end/51867, middle-end/51929,
+	middle-end/52140, middle-end/52142, middle-end/52177,
+	middle-end/52209, middle-end/52214, middle-end/52230,
+	rtl-optimization/52175, target/51921, target/52146, target/52199,
+	target/52205, target/52261, testsuite/50076, translation/52193,
+	translation/52211, translation/52264, tree-optimization/50031,
+	tree-optimization/50561, tree-optimization/52210,
+	tree-optimization/52244, tree-optimization/52255
+  - fix asm goto handling in templates (#790221, PR c++/52247)
+- reenable go on ppc/ppc64/s390/s390x/arm
+
 * Wed Feb  8 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.12
 - update from trunk
   - PRs c++/52035, fortran/51514, gcov-profile/52150, libstdc++/51296,
