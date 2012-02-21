@@ -1,9 +1,9 @@
-%global DATE 20120216
-%global SVNREV 184307
+%global DATE 20120221
+%global SVNREV 184450
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.13
+%global gcc_release 0.14
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2635,6 +2635,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Feb 21 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.14
+- update from trunk
+  - PRs c++/51415, c++/52126, c++/52248, c++/52312, fortran/52295,
+	libstdc++/47058, libstdc++/52189, libstdc++/52241, libstdc++/52300,
+	libstdc++/52309, libstdc++/52317, middle-end/52141, middle-end/52314,
+	rtl-optimization/52208, target/50166, target/51753, target/52137,
+	target/52238, target/52294, testsuite/52229, translation/52232,
+	translation/52234, translation/52245, translation/52246,
+	translation/52262, translation/52273, tree-optimization/52285,
+	tree-optimization/52286, tree-optimization/52298,
+	tree-optimization/52318, tree-optimization/52324
+
 * Thu Feb 16 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.13
 - update from trunk
   - PRs boehm-gc/48514, bootstrap/52172, c++/39055, c++/51910, c++/52215,
