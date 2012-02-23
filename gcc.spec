@@ -1,9 +1,9 @@
-%global DATE 20120221
-%global SVNREV 184450
+%global DATE 20120223
+%global SVNREV 184515
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.14
+%global gcc_release 0.15
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,7 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x %{arm}
+%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x
 %global build_go 1
 %else
 %global build_go 0
@@ -2635,6 +2635,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Feb 23 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.15
+- update from trunk
+  - PRs c/52290, fortran/52335, go/52349, libstdc++/50349, lto/50616,
+	middle-end/52329, rtl-optimization/50063, target/18145, target/52330,
+	tree-optimization/52019
+- disable go on arm again, still not ready there
+
 * Tue Feb 21 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.14
 - update from trunk
   - PRs c++/51415, c++/52126, c++/52248, c++/52312, fortran/52295,
