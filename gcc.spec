@@ -1,9 +1,9 @@
-%global DATE 20120223
-%global SVNREV 184515
+%global DATE 20120224
+%global SVNREV 184541
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.15
+%global gcc_release 0.16
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2635,6 +2635,14 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Feb 24 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.16
+- update from trunk
+  - fix vtable for std::num_get<char, std::istreambuf_iterator<char,
+    std::char_traits<char> > > and vtable for std::num_get<wchar_t,
+    std::istreambuf_iterator<wchar_t, std::char_traits<wchar_t> > >
+    ABI breakage
+  - PR bootstrap/52287
+
 * Thu Feb 23 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.15
 - update from trunk
   - PRs c/52290, fortran/52335, go/52349, libstdc++/50349, lto/50616,
