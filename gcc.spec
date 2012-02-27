@@ -1,9 +1,9 @@
-%global DATE 20120224
-%global SVNREV 184541
+%global DATE 20120227
+%global SVNREV 184609
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.16
+%global gcc_release 0.17
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2635,6 +2635,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Feb 27 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.17
+- update from trunk
+  - PRs boehm-gc/52179, libffi/52223, libstdc++/52188, middle-end/52355,
+	middle-end/52361, target/49263, target/49461, target/50580,
+	target/52352, target/52375, target/52390, testsuite/52201,
+	tree-optimization/52376
+
 * Fri Feb 24 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.16
 - update from trunk
   - fix vtable for std::num_get<char, std::istreambuf_iterator<char,
