@@ -1,9 +1,9 @@
-%global DATE 20120227
-%global SVNREV 184609
+%global DATE 20120229
+%global SVNREV 184655
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.17
+%global gcc_release 0.18
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2635,6 +2635,14 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Feb 29 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.18
+- update from trunk
+  - PRs boehm-gc/48299, bootstrap/52397, bootstrap/52414, fortran/52386,
+	libstdc++/52191, lto/52400, middle-end/51752, target/49448,
+	target/51534, target/52148, target/52407, tree-optimization/52395,
+	tree-optimization/52402, tree-optimization/53207
+  - fix bootstrap on ppc*/arm/s390*
+
 * Mon Feb 27 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.17
 - update from trunk
   - PRs boehm-gc/52179, libffi/52223, libstdc++/52188, middle-end/52355,
