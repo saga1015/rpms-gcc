@@ -1,9 +1,9 @@
-%global DATE 20120229
-%global SVNREV 184655
+%global DATE 20120308
+%global SVNREV 185099
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.18
+%global gcc_release 0.19
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -1584,6 +1584,9 @@ rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-%{version} || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gfortran || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gccgo || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcj || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-ar || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-nm || :
+rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-ranlib || :
 
 %ifarch %{multilib_64_archs}
 # Remove libraries for the other arch on multilib arches
@@ -1831,6 +1834,9 @@ fi
 %{_prefix}/bin/c99
 %{_prefix}/bin/gcc
 %{_prefix}/bin/gcov
+%{_prefix}/bin/gcc-ar
+%{_prefix}/bin/gcc-nm
+%{_prefix}/bin/gcc-ranlib
 %ifarch ppc
 %{_prefix}/bin/%{_target_platform}-gcc
 %endif
@@ -2635,6 +2641,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Mar  8 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.19
+- update from trunk and the 4.7 branch
+  - PRs libstdc++/51785, middle-end/52419, middle-end/52443,
+	middle-end/52463, rtl-optimization/52417, target/49939,
+	target/51417, target/52408, target/52437, target/52481,
+	testsuite/52297, tree-opt/52242, tree-optimization/52424,
+	tree-optimization/52429, tree-optimization/52445
+  - fix up mangling of operator"" (PR c++/52521)
+- decrease size of .debug_ranges by ~ 20% (PR debug/51902)
+- add support for demangling operator""
+- package %{_prefix}/bin/gcc-{ar,nm,ranlib} binaries for LTO
+
 * Wed Feb 29 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.18
 - update from trunk
   - PRs boehm-gc/48299, bootstrap/52397, bootstrap/52414, fortran/52386,
