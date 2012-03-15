@@ -1,9 +1,9 @@
-%global DATE 20120308
-%global SVNREV 185099
+%global DATE 20120315
+%global SVNREV 185441
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.19
+%global gcc_release 0.20
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -174,6 +174,10 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-pr52582.patch
+Patch17: gcc47-smmintrin.patch
+Patch18: gcc47-pr52577.patch
+Patch19: gcc47-pr52521.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -675,6 +679,10 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .pr52582~
+%patch17 -p0 -b .smmintrin~
+%patch18 -p0 -b .pr52577~
+%patch19 -p0 -b .pr52521~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2641,6 +2649,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Mar 15 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.20
+- update from the 4.7 branch
+  - PRs fortran/52469, libitm/52526, libstdc++/52456, target/52450
+  - fix __builtin_ir{ound,int}{,f,l} expansion (#803689, PR middle-end/52592)
+  - fix up devirtualization (#802731, PR c++/52582)
+- fix up user defined literal operator"" lookup (PR c++/52521)
+- avoid false positive -Wunused-but-set-* warnings with __builtin_shuffle
+  (PR c/52577)
+
 * Thu Mar  8 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.19
 - update from trunk and the 4.7 branch
   - PRs libstdc++/51785, middle-end/52419, middle-end/52443,
