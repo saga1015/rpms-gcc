@@ -1,9 +1,9 @@
-%global DATE 20120315
-%global SVNREV 185441
+%global DATE 20120322
+%global SVNREV 185684
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.20
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -175,9 +175,6 @@ Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-pr52582.patch
-Patch17: gcc47-smmintrin.patch
-Patch18: gcc47-pr52577.patch
-Patch19: gcc47-pr52521.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -680,9 +677,6 @@ package or when debugging this package.
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
 %patch16 -p0 -b .pr52582~
-%patch17 -p0 -b .smmintrin~
-%patch18 -p0 -b .pr52577~
-%patch19 -p0 -b .pr52521~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -746,7 +740,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.7\.0/4.7.0/' gcc/BASE-VER
+sed -i -e 's/4\.7\.1/4.7.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
@@ -2649,6 +2643,11 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Mar 22 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-1
+- update from the 4.7 branch
+  - GCC 25th Anniversary 4.7.0 release
+  - fix up new auto mangling
+
 * Thu Mar 15 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-0.20
 - update from the 4.7 branch
   - PRs fortran/52469, libitm/52526, libstdc++/52456, target/52450
