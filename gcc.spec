@@ -1,9 +1,9 @@
-%global DATE 20120416
-%global SVNREV 186487
+%global DATE 20120502
+%global SVNREV 187043
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -174,6 +174,8 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-pr53174.patch
+Patch17: gcc47-pr53187.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -675,6 +677,8 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .pr53174~
+%patch17 -p0 -b .pr53187~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2641,6 +2645,20 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed May  2 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-3
+- update from the 4.7 branch
+  - PRs bootstrap/52840, c++/38543, c++/50303, c++/50830, c++/53003,
+	c/51527, c/52880, c/53060, fortran/53148, libstdc++/52689,
+	libstdc++/52839, libstdc++/53027, libstdc++/53067, libstdc++/53115,
+	middle-end/52939, middle-end/52999, middle-end/53084,
+	middle-end/53136, rtl-optimization/53160, target/52932,
+	target/53020, target/53033, target/53065, target/53120,
+	target/53138, testsuite/52641, testsuite/53046,
+	tree-optimization/53085, tree-optimization/53163,
+	tree-optimizations/52891
+- fix ARM SELECT_CC_MODE ICE (#817086, PR target/53187)
+- fix predictive commoning debug info ICE (PR debug/53174)
+
 * Mon Apr 16 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-2
 - update from the 4.7 branch
   - PRs c++/52292, c++/52380, c++/52465, c++/52487, c++/52596, c++/52671,
