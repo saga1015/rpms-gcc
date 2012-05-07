@@ -1,9 +1,9 @@
-%global DATE 20120504
-%global SVNREV 187145
+%global DATE 20120507
+%global SVNREV 187244
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2641,6 +2641,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon May  7 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-5
+- update from the 4.7 branch
+  - PRs fortran/53111, fortran/53255, target/48496, target/52999,
+	target/53228, tree-optimization/52633, tree-optimization/52870,
+	tree-optimization/53195, tree-optimization/53239
+
 * Fri May  4 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-4
 - update from the 4.7 branch
   - PRs c++/53186, fortran/52864, libstdc++/53193, lto/52605,
