@@ -175,6 +175,7 @@ Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-pr53438.patch
+Patch17: gcc47-libgo-r187890.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -677,6 +678,7 @@ package or when debugging this package.
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
 %patch16 -p0 -b .pr53438~
+%patch17 -p0 -b .libgo-r187890~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
