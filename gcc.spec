@@ -1,9 +1,9 @@
-%global DATE 20120507
-%global SVNREV 187244
+%global DATE 20120525
+%global SVNREV 187884
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -174,6 +174,7 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-pr53438.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -675,6 +676,7 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .pr53438~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2641,6 +2643,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri May 25 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-6
+- update from the 4.7 branch
+  - PRs ada/52362, ada/52494, bootstrap/53183, c++/53209, c++/53301,
+	c/53418, debug/52727, fortran/53310, fortran/53389, libstdc++/52700,
+	middle-end/51071, middle-end/52584, middle-end/53460,
+	rtl-optimization/52804, target/46098, target/53256, target/53272,
+	target/53358, target/53385, target/53416, target/53435, target/53448,
+	tree-optimization/53364, tree-optimization/53366,
+	tree-optimization/53408, tree-optimization/53409,
+	tree-optimization/53410, tree-optimization/53436,
+	tree-optimization/53465
+
 * Mon May  7 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-5
 - update from the 4.7 branch
   - PRs fortran/53111, fortran/53255, target/48496, target/52999,
