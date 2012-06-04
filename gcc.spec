@@ -1,9 +1,9 @@
-%global DATE 20120525
-%global SVNREV 187884
+%global DATE 20120604
+%global SVNREV 188193
 %global gcc_version 4.7.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2645,6 +2645,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jun  4 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-7
+- update from the 4.7 branch
+  - PRs ada/53517, c++/52725, c++/52905, c++/52973, c++/53137, c++/53220,
+	c++/53356, c++/53484, c++/53491, c++/53500, c++/53503,
+	fortran/53521, libstdc++/52007, middle-end/47530, middle-end/48124,
+	middle-end/48493, middle-end/52080, middle-end/52097,
+	middle-end/52979, middle-end/53008, middle-end/53471,
+	middle-end/53501, rtl-optimization/52528, rtl-optimization/53519,
+	target/46261, target/52642, target/52667, tree-optimization/53438,
+	tree-optimization/53505, tree-optimization/53516,
+	tree-optimization/53550
+
 * Fri May 25 2012 Jakub Jelinek <jakub@redhat.com> 4.7.0-6
 - update from the 4.7 branch
   - PRs ada/52362, ada/52494, bootstrap/53183, c++/53209, c++/53301,
