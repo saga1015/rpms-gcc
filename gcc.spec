@@ -174,6 +174,7 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
+Patch16: gcc47-libgo-mksysinfo.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -675,6 +676,7 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
+%patch16 -p0 -b .libgo-mksysinfo~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
