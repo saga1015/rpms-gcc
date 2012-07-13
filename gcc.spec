@@ -3,7 +3,7 @@
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -145,6 +145,11 @@ Requires: glibc-devel >= 2.2.90-12
 # Make sure glibc supports TFmode long double
 Requires: glibc >= 2.3.90-35
 %endif
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%ifarch armv7hl
+Requires: glibc >= 2.16
+%endif
+%endif
 Requires: libgcc >= %{version}-%{release}
 Requires: libgomp = %{version}-%{release}
 %if !%{build_ada}
@@ -175,6 +180,7 @@ Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-libgo-mksysinfo.patch
+Patch17: gcc47-arm-hfp-ldso.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -677,6 +683,11 @@ package or when debugging this package.
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
 %patch16 -p0 -b .libgo-mksysinfo~
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%ifarch armv7hl
+%patch17 -p0 -b .arm-hfp-ldso~
+%endif
+%endif
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2643,6 +2654,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Jul 13 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-2
+- change ld.so pathname for arm hfp for F18+
+
 * Fri Jun 29 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-1
 - update from the 4.7 branch
   - GCC 4.7.1 release
