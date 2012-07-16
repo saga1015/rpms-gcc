@@ -1,9 +1,9 @@
-%global DATE 20120629
-%global SVNREV 189066
+%global DATE 20120716
+%global SVNREV 189515
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -12,7 +12,7 @@
 %global build_ada 0
 %endif
 %global build_java 1
-%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x
+%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x %{arm}
 %global build_go 1
 %else
 %global build_go 0
@@ -146,7 +146,7 @@ Requires: glibc-devel >= 2.2.90-12
 Requires: glibc >= 2.3.90-35
 %endif
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
-%ifarch armv7hl
+%ifarch %{arm}
 Requires: glibc >= 2.16
 %endif
 %endif
@@ -179,7 +179,7 @@ Patch12: gcc47-libstdc++-docs.patch
 Patch13: gcc47-no-add-needed.patch
 Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
-Patch16: gcc47-libgo-mksysinfo.patch
+Patch16: gcc47-rh837630.patch
 Patch17: gcc47-arm-hfp-ldso.patch
 
 Patch1000: fastjar-0.97-segfault.patch
@@ -682,11 +682,9 @@ package or when debugging this package.
 %patch14 -p0 -b .ppl-0.10~
 %endif
 %patch15 -p0 -b .libitm-fno-exceptions~
-%patch16 -p0 -b .libgo-mksysinfo~
+%patch16 -p0 -b .rh837630~
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
-%ifarch armv7hl
 %patch17 -p0 -b .arm-hfp-ldso~
-%endif
 %endif
 
 %if 0%{?_enable_debug_packages}
@@ -1915,6 +1913,8 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/f16cintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/fmaintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/lzcntintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/rtmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xtestintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm_malloc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/cpuid.h
@@ -2654,6 +2654,23 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jul 16 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-3
+- update from the 4.7 branch
+  - C++11 ABI change - std::list and std::pair in C++11 ABI compatible again
+    with C++03, but ABI incompatible with C++11 in GCC 4.7.[01]
+  - PRs bootstrap/52947, c++/53733, c++/53816, c++/53821, c++/53826,
+	c++/53882, c++/53953, fortran/53732, libstdc++/49561,
+	libstdc++/53578, libstdc++/53657, libstdc++/53830, libstdc++/53872,
+	middle-end/38474, middle-end/50708, middle-end/52621,
+	middle-end/52786, middle-end/53433, rtl-optimization/53908,
+	target/53110, target/53811, target/53853, target/53961,
+	testsuite/20771, tree-optimization/53693
+- backport -mrtm and -mhle support (PRs target/53194, target/53201,
+  target/53315)
+- fix up ppc32 *movdi_internal32 pattern (#837630)
+- apply ld.so arm hfp patch on all arm arches
+- enable go support on arm
+
 * Fri Jul 13 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-2
 - change ld.so pathname for arm hfp for F18+
 
