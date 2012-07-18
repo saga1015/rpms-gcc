@@ -1,9 +1,9 @@
-%global DATE 20120716
-%global SVNREV 189515
+%global DATE 20120718
+%global SVNREV 189600
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2654,6 +2654,10 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jul 18 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-4
+- update from the 4.7 branch
+  - PRs c++/53549, c++/53989, c++/53995, libstdc++/53978
+
 * Mon Jul 16 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-3
 - update from the 4.7 branch
   - C++11 ABI change - std::list and std::pair in C++11 ABI compatible again
