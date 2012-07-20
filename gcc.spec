@@ -1,9 +1,9 @@
-%global DATE 20120718
-%global SVNREV 189600
+%global DATE 20120720
+%global SVNREV 189721
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2654,6 +2654,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Jul 20 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-5
+- update from the 4.7 branch
+  - PRs c++/54026, middle-end/54017, rtl-optimization/52250, target/53877,
+	target/54029
+  - fix endless hang of C++ compiler (#841814, PR c++/54038)
+
 * Wed Jul 18 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-4
 - update from the 4.7 branch
   - PRs c++/53549, c++/53989, c++/53995, libstdc++/53978
