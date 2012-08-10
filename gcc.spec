@@ -1,9 +1,9 @@
-%global DATE 20120720
-%global SVNREV 189721
+%global DATE 20120810
+%global SVNREV 190292
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -27,7 +27,11 @@
 %else
 %global build_libitm 0
 %endif
+%if 0%{?rhel} >= 7
+%global build_cloog 0
+%else
 %global build_cloog 1
+%endif
 %global build_libstdcxx_docs 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc.spec
@@ -915,6 +919,8 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 %endif
 %if %{build_cloog}
 	--with-ppl --with-cloog \
+%else
+	--without-ppl --without-cloog \
 %endif
 %ifarch %{arm}
 	--disable-sjlj-exceptions \
@@ -2654,6 +2660,11 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Aug 10 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-6
+- update from the 4.7 branch
+  - PRs libstdc++/54036, libstdc++/54075, rtl-optimization/54157,
+	target/33135, target/52530
+
 * Fri Jul 20 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-5
 - update from the 4.7 branch
   - PRs c++/54026, middle-end/54017, rtl-optimization/52250, target/53877,
