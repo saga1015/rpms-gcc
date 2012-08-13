@@ -1,9 +1,9 @@
-%global DATE 20120810
-%global SVNREV 190292
+%global DATE 20120813
+%global SVNREV 190350
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2660,6 +2660,11 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Aug 13 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-7
+- update from the 4.7 branch
+  - PR rtl-optimization/53942
+- backport -mrdseed, -mprfchw and -madx support
+
 * Fri Aug 10 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-6
 - update from the 4.7 branch
   - PRs libstdc++/54036, libstdc++/54075, rtl-optimization/54157,
