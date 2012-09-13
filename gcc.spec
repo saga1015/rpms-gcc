@@ -1,9 +1,9 @@
-%global DATE 20120813
-%global SVNREV 190350
+%global DATE 20120913
+%global SVNREV 191278
 %global gcc_version 4.7.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -185,6 +185,7 @@ Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-rh837630.patch
 Patch17: gcc47-arm-hfp-ldso.patch
+Patch18: gcc47-pr54564.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -690,6 +691,7 @@ package or when debugging this package.
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 %patch17 -p0 -b .arm-hfp-ldso~
 %endif
+%patch18 -p0 -b .pr54564~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2663,6 +2665,22 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Sep 13 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-8
+- update from the 4.7 branch
+  - PRs c++/53836, c++/53839, c++/54086, c++/54197, c++/54253, c++/54341,
+	c++/54506, c++/54511, c/54363, c/54428, c/54559, debug/54534,
+	driver/54335, fortran/53306, fortran/54208, fortran/54225,
+	fortran/54435, fortran/54443, fortran/54556, gcov-profile/54487,
+	libstdc++/54172, libstdc++/54185, libstdc++/54297, libstdc++/54351,
+	libstdc++/54376, libstdc++/54388, lto/53572, middle-end/53667,
+	middle-end/53992, middle-end/54146, middle-end/54486,
+	middle-end/54515, rtl-optimization/54088, rtl-optimization/54369,
+	rtl-optimization/54455, target/45070, target/46254, target/54212,
+	target/54220, target/54252, target/54436, target/54461,
+	target/54476, target/54536, tree-opt/54494,
+	tree-optimization/53922, tree-optimization/54498
+- fix up _mm_f{,n}m{add,sub}_s{s,d} fma intrinsics (PR target/54564)
+
 * Mon Aug 13 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-7
 - update from the 4.7 branch
   - PR rtl-optimization/53942
