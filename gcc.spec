@@ -1,9 +1,9 @@
-%global DATE 20120913
-%global SVNREV 191278
-%global gcc_version 4.7.1
+%global DATE 20120920
+%global SVNREV 191572
+%global gcc_version 4.7.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 8
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -185,7 +185,6 @@ Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-rh837630.patch
 Patch17: gcc47-arm-hfp-ldso.patch
-Patch18: gcc47-pr54564.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -691,7 +690,6 @@ package or when debugging this package.
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 %patch17 -p0 -b .arm-hfp-ldso~
 %endif
-%patch18 -p0 -b .pr54564~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -755,7 +753,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.7\.2/4.7.1/' gcc/BASE-VER
+sed -i -e 's/4\.7\.3/4.7.2/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
@@ -2665,6 +2663,11 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Sep 20 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-1
+- update from the 4.7 branch
+  - GCC 4.7.2 release
+  - PRs c++/53661, lto/54312, tree-optimization/54563
+
 * Thu Sep 13 2012 Jakub Jelinek <jakub@redhat.com> 4.7.1-8
 - update from the 4.7 branch
   - PRs c++/53836, c++/53839, c++/54086, c++/54197, c++/54253, c++/54341,
