@@ -1,9 +1,9 @@
-%global DATE 20121001
-%global SVNREV 191896
+%global DATE 20121009
+%global SVNREV 192248
 %global gcc_version 4.7.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -171,7 +171,6 @@ Patch0: gcc47-hack.patch
 Patch1: gcc47-c++-builtin-redecl.patch
 Patch2: gcc47-java-nomulti.patch
 Patch3: gcc47-ppc32-retaddr.patch
-Patch4: gcc47-pr33763.patch
 Patch5: gcc47-rh330771.patch
 Patch6: gcc47-i386-libgomp.patch
 Patch7: gcc47-sparc-config-detection.patch
@@ -668,7 +667,6 @@ package or when debugging this package.
 %patch1 -p0 -b .c++-builtin-redecl~
 %patch2 -p0 -b .java-nomulti~
 %patch3 -p0 -b .ppc32-retaddr~
-%patch4 -p0 -b .pr33763~
 %patch5 -p0 -b .rh330771~
 %patch6 -p0 -b .i386-libgomp~
 %patch7 -p0 -b .sparc-config-detection~
@@ -2663,6 +2661,14 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Oct  9 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-4
+- update from the 4.7 branch
+  - PRs c++/54777, c++/54858, debug/53135, target/54741, target/54785,
+	target/54854
+- backport of selected debug info quality improvements (#851467)
+  - PRs debug/48866, debug/52983, debug/53740, debug/53923, debug/54519,
+	debug/54551
+
 * Mon Oct  1 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-3
 - update from the 4.7 branch
   - PRs target/54083, target/54703, target/54746, testsuite/54007
