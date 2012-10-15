@@ -3,7 +3,7 @@
 %global gcc_version 4.7.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -166,6 +166,7 @@ Requires: cloog-ppl >= 0.15
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 AutoReq: true
+Provides: bundled(libiberty)
 
 Patch0: gcc47-hack.patch
 Patch1: gcc47-c++-builtin-redecl.patch
@@ -2661,6 +2662,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Oct 15 2012 Jon Ciesla <limburgher@gmail.com> 4.7.2-5
+- Provides: bundled(libiberty)
+
 * Tue Oct  9 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-4
 - update from the 4.7 branch
   - PRs c++/54777, c++/54858, debug/53135, target/54741, target/54785,
