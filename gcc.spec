@@ -1,9 +1,9 @@
-%global DATE 20121009
-%global SVNREV 192248
+%global DATE 20121015
+%global SVNREV 192447
 %global gcc_version 4.7.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2662,8 +2662,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Mon Oct 15 2012 Jon Ciesla <limburgher@gmail.com> 4.7.2-5
+* Mon Oct 15 2012 Jon Ciesla <limburgher@gmail.com> 4.7.2-6
 - Provides: bundled(libiberty)
+
+* Mon Oct 15 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-5
+- update from the 4.7 branch
+  - PRs fortran/54784, libfortran/54736, libstdc++/54861
 
 * Tue Oct  9 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-4
 - update from the 4.7 branch
