@@ -1,9 +1,9 @@
-%global DATE 20121015
-%global SVNREV 192447
+%global DATE 20121105
+%global SVNREV 193167
 %global gcc_version 4.7.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -185,6 +185,7 @@ Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-rh837630.patch
 Patch17: gcc47-arm-hfp-ldso.patch
+Patch18: gcc47-c++-new-check-opt.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -689,6 +690,7 @@ package or when debugging this package.
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 %patch17 -p0 -b .arm-hfp-ldso~
 %endif
+%patch18 -p0 -b .c++-new-check-opt~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2662,6 +2664,20 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Nov  5 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-7
+- update from the 4.7 branch
+  - PRs c++/54984, c++/54988, debug/54828, libstdc++/55047, libstdc++/55123,
+	libstdc++/55169, middle-end/54945, rtl-optimization/53701,
+	rtl-optimization/54870, target/53975, target/54892, target/55019,
+	target/55175, tree-optimization/53708, tree-optimization/54146,
+	tree-optimization/54877, tree-optimization/54902,
+	tree-optimization/54920, tree-optimization/54985
+- backported s390{,x} zEC12 enablement (#805114)
+- backport of selected debug info quality improvements
+  - PRs debug/54402, debug/54693, debug/54953, debug/54970, debug/54971
+- optimize away overflow checking for new char[n]; and similar cases
+  where n is multiplied by 1
+
 * Mon Oct 15 2012 Jon Ciesla <limburgher@gmail.com> 4.7.2-6
 - Provides: bundled(libiberty)
 
