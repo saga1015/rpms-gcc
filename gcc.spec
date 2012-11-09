@@ -1,9 +1,9 @@
-%global DATE 20121105
-%global SVNREV 193180
+%global DATE 20121109
+%global SVNREV 193356
 %global gcc_version 4.7.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -84,6 +84,9 @@ BuildRequires: binutils >= 2.20.51.0.2-12
 BuildRequires: glibc-static
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, texinfo, sharutils
 BuildRequires: systemtap-sdt-devel >= 1.3
+%if %{build_go}
+BuildRequires: hostname
+%endif
 # For VTA guality testing
 BuildRequires: gdb
 %if %{build_java}
@@ -185,7 +188,8 @@ Patch14: gcc47-ppl-0.10.patch
 Patch15: gcc47-libitm-fno-exceptions.patch
 Patch16: gcc47-rh837630.patch
 Patch17: gcc47-arm-hfp-ldso.patch
-Patch18: gcc47-c++-new-check-opt.patch
+Patch18: gcc47-pr55137.patch
+Patch19: gcc47-pr55236.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -690,7 +694,8 @@ package or when debugging this package.
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 %patch17 -p0 -b .arm-hfp-ldso~
 %endif
-%patch18 -p0 -b .c++-new-check-opt~
+%patch18 -p0 -b .pr55137~
+%patch19 -p0 -b .pr55236~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2664,6 +2669,17 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Nov  9 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-8
+- update from the 4.7 branch
+  - PRs fortran/54917, libstdc++/28811, libstdc++/54482, libstdc++/55028,
+	libstdc++/55215, middle-end/55219, target/55204,
+	tree-optimization/54986
+- further debug info quality improvements
+- fix reassociation (PR c++/55137)
+- fix range test optimization with -fwrapv (PR tree-optimization/55236)
+- add BuildRequires hostname (#875001)
+- __cxa_vec_new[23] overflow checking (#875009)
+
 * Mon Nov  5 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-7
 - update from the 4.7 branch
   - PRs c++/54984, c++/54988, debug/54828, libstdc++/55047, libstdc++/55123,
