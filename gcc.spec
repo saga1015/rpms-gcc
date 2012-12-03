@@ -924,7 +924,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="`echo $OPT_FLAGS | sed 's/ -Wall / /g'`" 
 	--disable-libjava-multilib \
 %endif
 %if %{build_cloog}
-	--with-ppl --with-cloog \
+	--with-ppl --disable-ppl-version-check --with-cloog \
 %else
 	--without-ppl --without-cloog \
 %endif
@@ -2671,6 +2671,7 @@ fi
 %changelog
 * Fri Nov 30 2012 Tom Callaway <spot@fedoraproject.org> 4.7.2-9
 - rebuild for new ppl/cloog
+- pass --disable-ppl-version-check (for ppl 1.0)
 
 * Fri Nov  9 2012 Jakub Jelinek <jakub@redhat.com> 4.7.2-8
 - update from the 4.7 branch
