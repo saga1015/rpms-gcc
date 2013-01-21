@@ -870,6 +870,9 @@ rm -f gcc/testsuite/go.test/test/chan/goroutines.go
 
 %build
 
+# Undo the broken autoconf change in recent Fedora versions
+export CONFIG_SITE=NONE
+
 %if %{build_java}
 export GCJ_PROPERTIES=jdt.compiler.useSingleThread=true
 # gjar isn't usable, so even when GCC source tree no longer includes
