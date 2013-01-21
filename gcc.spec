@@ -950,10 +950,10 @@ sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make %{?_smp_mflags}
 make %{?_smp_mflags} install
 cd ../cloog-install/lib
-rm libgcc48privatecloog-isl.so{,.3}
-mv libgcc48privatecloog-isl.so.3.0.0 libcloog-isl.so.3
-ln -sf libcloog-isl.so.3 libcloog-isl.so
-ln -sf libcloog-isl.so.3 libcloog.so
+rm libgcc48privatecloog-isl.so{,.4}
+mv libgcc48privatecloog-isl.so.4.0.0 libcloog-isl.so.4
+ln -sf libcloog-isl.so.4 libcloog-isl.so
+ln -sf libcloog-isl.so.4 libcloog.so
 cd ../..
 %endif
 
@@ -1080,7 +1080,7 @@ GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledboot
 %endif
 
 %if %{build_cloog}
-cp -a cloog-install/lib/libcloog-isl.so.3 gcc/
+cp -a cloog-install/lib/libcloog-isl.so.4 gcc/
 %endif
 
 # Make generated man pages even if Pod::Man is not new enough
@@ -1192,7 +1192,7 @@ FULLPATH=%{buildroot}%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 FULLEPATH=%{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 
 %if %{build_cloog}
-cp -a cloog-install/lib/libcloog-isl.so.3 $FULLPATH/
+cp -a cloog-install/lib/libcloog-isl.so.4 $FULLPATH/
 %endif
 
 # fix some things
