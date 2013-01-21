@@ -1,9 +1,9 @@
-%global DATE 20130106
-%global SVNREV 194938
+%global DATE 20130121
+%global SVNREV 195337
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.3
+%global gcc_release 0.4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -83,9 +83,9 @@ Group: Development/Languages
 # svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_7-branch@%{SVNREV} gcc-%{version}-%{DATE}
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
-%global isl_version 0.10
+%global isl_version 0.11.1
 Source1: ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-%{isl_version}.tar.bz2
-%global cloog_version 0.17.0
+%global cloog_version 0.18.0
 Source2: ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-%{cloog_version}.tar.gz
 %global fastjar_ver 0.97
 Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
@@ -196,10 +196,9 @@ Patch9: gcc48-cloog-dl2.patch
 Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
-Patch13: gcc48-asan-ppc.patch
-Patch14: gcc48-pr55341.patch
-Patch15: gcc48-pr55608.patch
-Patch16: gcc48-pr55844.patch
+Patch13: gcc48-pr55608.patch
+Patch14: gcc48-pr55742.patch
+Patch15: gcc48-pr56022.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -751,10 +750,9 @@ package or when debugging this package.
 %patch11 -p0 -b .libstdc++-docs~
 %endif
 %patch12 -p0 -b .no-add-needed~
-%patch13 -p0 -b .asan-ppc~
-%patch14 -p0 -b .pr55341~
-%patch15 -p0 -b .pr55608~
-%patch16 -p0 -b .pr55844~
+%patch13 -p0 -b .pr55608~
+%patch14 -p0 -E -b .pr55742~
+%patch15 -p0 -b .pr56022~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2975,5 +2973,44 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jan 21 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.4
+- updated from trunk
+  - PRs ada/864, bootstrap/55792, bootstrap/55961, c++/52343, c++/55663,
+	c++/55753, c++/55801, c++/55878, c++/55893, c/48418, debug/49888,
+	debug/53235, debug/53671, debug/54114, debug/54402, debug/55579,
+	debug/56006, driver/55470, driver/55884, fortran/42769, fortran/45836,
+	fortran/45900, fortran/47203, fortran/52865, fortran/53876,
+	fortran/54286, fortran/54678, fortran/54990, fortran/54992,
+	fortran/55072, fortran/55341, fortran/55618, fortran/55758,
+	fortran/55763, fortran/55806, fortran/55852, fortran/55868,
+	fortran/55935, fortran/55983, libmudflap/53359, libstdc++/51007,
+	libstdc++/55043, libstdc++/55233, libstdc++/55594, libstdc++/55728,
+	libstdc++/55847, libstdc++/55861, libstdc++/55908, lto/45375,
+	middle-end/55114, middle-end/55851, middle-end/55882,
+	middle-end/55890, middle-end/56015, other/55973, other/55982,
+	rtl-optimization/52573, rtl-optimization/53827,
+	rtl-optimization/55153, rtl-optimization/55547,
+	rtl-optimization/55672, rtl-optimization/55829,
+	rtl-optimization/55833, rtl-optimization/55845,
+	rtl-optimization/56005, sanitizer/55488, sanitizer/55679,
+	sanitizer/55844, target/42661, target/43961, target/54461,
+	target/54908, target/55301, target/55433, target/55565,
+	target/55718, target/55719, target/55876, target/55897,
+	target/55940, target/55948, target/55974, target/55981,
+	target/56058, testsuite/54622, testsuite/55994,
+	tree-optimization/44061, tree-optimization/48189,
+	tree-optimization/48766, tree-optimization/52631,
+	tree-optimization/53465, tree-optimization/54120,
+	tree-optimization/54767, tree-optimization/55273,
+	tree-optimization/55569, tree-optimization/55823,
+	tree-optimization/55862, tree-optimization/55875,
+	tree-optimization/55888, tree-optimization/55920,
+	tree-optimization/55921, tree-optimization/55955,
+	tree-optimization/55964, tree-optimization/55995,
+	tree-optimization/56029, tree-optimization/55264
+- fix up multiversioning (PR c++/55742)
+- fix up ICE with target attribute (PR middle-end/56022)
+- update isl to 0.11.1 and cloog to 0.18.0
+
 * Sun Jan  6 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.3
 - new package
