@@ -2,7 +2,7 @@
 
 	* toplev.c (toplev_main_argv): New variable.
 	(toplev_main): Initialize it.
-	* graphite.c (init_cloog_pointers): Load libcloog-isl.so.3 from gcc's private
+	* graphite.c (init_cloog_pointers): Load libcloog-isl.so.4 from gcc's private
 	directory.
 
 --- gcc/toplev.c.jj	2008-12-09 23:59:10.000000000 +0100
@@ -35,7 +35,7 @@
 -
 -  if (cloog_pointers__.inited)
 -    return cloog_pointers__.h != NULL;
--  h = dlopen ("libcloog-isl.so.3", RTLD_LAZY);
+-  h = dlopen ("libcloog-isl.so.4", RTLD_LAZY);
 +  void *h = NULL;
 +  extern const char **toplev_main_argv;
 +  char *buf, *p;
@@ -44,10 +44,10 @@
 +  if (cloog_pointers__.inited)
 +    return cloog_pointers__.h != NULL;
 +  len = progname - toplev_main_argv[0];
-+  buf = XALLOCAVAR (char, len + sizeof "libcloog-isl.so.3");
++  buf = XALLOCAVAR (char, len + sizeof "libcloog-isl.so.4");
 +  memcpy (buf, toplev_main_argv[0], len);
-+  strcpy (buf + len, "libcloog-isl.so.3");
-+  len += sizeof "libcloog-isl.so.3";
++  strcpy (buf + len, "libcloog-isl.so.4");
++  len += sizeof "libcloog-isl.so.4";
 +  p = strstr (buf, "/libexec/");
 +  if (p != NULL)
 +    {
@@ -64,7 +64,7 @@
 +	{
 +	  len = progname - toplev_main_argv[0];
 +	  memcpy (buf, toplev_main_argv[0], len);
-+	  strcpy (buf + len, "libcloog-isl.so.3");
++	  strcpy (buf + len, "libcloog-isl.so.4");
 +	}
 +    }
 +  if (h == NULL)

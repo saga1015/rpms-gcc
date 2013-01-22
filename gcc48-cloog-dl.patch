@@ -412,7 +412,7 @@
 +
 +  if (cloog_pointers__.inited)
 +    return cloog_pointers__.h != NULL;
-+  h = dlopen ("libcloog-isl.so.3", RTLD_LAZY);
++  h = dlopen ("libcloog-isl.so.4", RTLD_LAZY);
 +  cloog_pointers__.h = h;
 +  if (h == NULL)
 +    return false;

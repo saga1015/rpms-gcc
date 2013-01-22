@@ -1,9 +1,9 @@
-%global DATE 20130121
-%global SVNREV 195337
+%global DATE 20130122
+%global SVNREV 195359
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.4
+%global gcc_release 0.5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -198,7 +198,7 @@ Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
 Patch14: gcc48-pr55742.patch
-Patch15: gcc48-pr56022.patch
+Patch15: gcc48-pr56052.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -752,7 +752,7 @@ package or when debugging this package.
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
 %patch14 -p0 -E -b .pr55742~
-%patch15 -p0 -b .pr56022~
+%patch15 -p0 -b .pr56052~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2976,6 +2976,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Jan 22 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.5
+- updated from trunk
+  - PRs c++/56059, fortran/55919, rtl-optimization/56023,
+	tree-optimization/56051
+- fix up cloog dlopen patches for upgrade to cloog-0.18.0
+- fix Fortran OpenMP OOP ICE (PR fortran/56052)
+
 * Mon Jan 21 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.4
 - updated from trunk
   - PRs ada/864, bootstrap/55792, bootstrap/55961, c++/52343, c++/55663,
