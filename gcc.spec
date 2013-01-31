@@ -1,9 +1,9 @@
-%global DATE 20130129
-%global SVNREV 195527
+%global DATE 20130131
+%global SVNREV 195626
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.7
+%global gcc_release 0.8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -26,7 +26,7 @@
 %else
 %global build_libquadmath 0
 %endif
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 ppc ppc64
 %global build_libasan 1
 %else
 %global build_libasan 0
@@ -46,11 +46,7 @@
 %else
 %global build_libitm 0
 %endif
-%if 0%{?rhel} >= 7
-%global build_cloog 0
-%else
 %global build_cloog 1
-%endif
 %global build_libstdcxx_docs 1
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc.spec
@@ -198,7 +194,6 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
-Patch14: gcc48-pr55742.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -222,11 +217,11 @@ Patch1004: fastjar-man.patch
 %endif
 
 %description
-The gcc package contains the GNU Compiler Collection version 4.7.
+The gcc package contains the GNU Compiler Collection version 4.8.
 You'll need this package in order to compile C code.
 
 %package -n libgcc
-Summary: GCC version 4.7 shared support library
+Summary: GCC version 4.8 shared support library
 Group: System Environment/Libraries
 Autoreq: false
 
@@ -275,7 +270,7 @@ Requires: libstdc++-devel = %{version}-%{release}
 Autoreq: true
 
 %description -n libstdc++-static
-Static libraries for the GNU standard C++ library. 
+Static libraries for the GNU standard C++ library.
 
 %package -n libstdc++-docs
 Summary: Documentation for the GNU standard C++ library
@@ -455,7 +450,7 @@ Requires: libitm-devel = %{version}-%{release}
 %description -n libitm-static
 This package contains GNU Transactional Memory static libraries.
 
-%package -n libatomic 
+%package -n libatomic
 Summary: The GNU Atomic library
 Group: System Environment/Libraries
 Requires(post): /sbin/install-info
@@ -751,7 +746,6 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
-%patch14 -p0 -E -b .pr55742~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -815,7 +809,7 @@ tar xzf %{SOURCE4}
 tar xjf %{SOURCE10}
 %endif
 
-sed -i -e 's/4\.7\.3/4.7.2/' gcc/BASE-VER
+sed -i -e 's/4\.8\.0/4.8.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
@@ -1476,28 +1470,28 @@ mv -f $FULLPATH/ada{include,lib} $FULLLPATH/
 pushd $FULLLPATH/adalib
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../../libgnarl-*.so libgnarl.so
-ln -sf ../../../../../libgnarl-*.so libgnarl-4.7.so
+ln -sf ../../../../../libgnarl-*.so libgnarl-4.8.so
 ln -sf ../../../../../libgnat-*.so libgnat.so
-ln -sf ../../../../../libgnat-*.so libgnat-4.7.so
+ln -sf ../../../../../libgnat-*.so libgnat-4.8.so
 else
 ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-4.7.so
+ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-4.8.so
 ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-4.7.so
+ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-4.8.so
 fi
 popd
 else
 pushd $FULLPATH/adalib
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../libgnarl-*.so libgnarl.so
-ln -sf ../../../../libgnarl-*.so libgnarl-4.7.so
+ln -sf ../../../../libgnarl-*.so libgnarl-4.8.so
 ln -sf ../../../../libgnat-*.so libgnat.so
-ln -sf ../../../../libgnat-*.so libgnat-4.7.so
+ln -sf ../../../../libgnat-*.so libgnat-4.8.so
 else
 ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-4.7.so
+ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-4.8.so
 ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-4.7.so
+ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-4.8.so
 fi
 popd
 fi
@@ -2975,6 +2969,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jan 31 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.8
+- updated from trunk
+  - PRs c++/56162, debug/54410, debug/54508, debug/55059, fortran/54107,
+	fortran/56138, libgomp/55561, libstdc++/54314, lto/56147,
+	middle-end/53073, other/53413, other/54620, rtl-optimization/56144,
+	sanitizer/55374, target/39064, target/56121, tree-optimization/55270,
+	tree-optimization/56064, tree-optimization/56113,
+	tree-optimization/56150, tree-optimization/56157
+
 * Tue Jan 29 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.7
 - updated from trunk
   - PRs c++/56095, c++/56104, c/56078, fortran/53537, fortran/55984,
