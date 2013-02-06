@@ -1,0 +1,86 @@
+2013-02-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/56228
+	* config/rs6000/rs6000.md (ptrm): New mode attr.
+	(call_indirect_aix<ptrsize>, call_indirect_aix<ptrsize>_nor11,
+	call_value_indirect_aix<pttrsize>,
+	call_value_indirect_aix<pttrsize>_nor11): Use <ptrm> instead of
+	m in constraints.
+
+	* gcc.dg/pr56228.c: New test.
+
+--- gcc/config/rs6000/rs6000.md.jj	2013-02-01 17:52:37.000000000 +0100
++++ gcc/config/rs6000/rs6000.md	2013-02-06 17:27:07.680250027 +0100
+@@ -292,6 +292,9 @@ (define_mode_attr mptrsize [(SI "si")
+ (define_mode_attr ptrload [(SI "lwz")
+ 			   (DI "ld")])
+ 
++(define_mode_attr ptrm [(SI "m")
++			(DI "Y")])
++
+ (define_mode_attr rreg [(SF   "f")
+ 			(DF   "ws")
+ 			(V4SF "wf")
+@@ -10662,8 +10665,8 @@ (define_insn "*call_value_local64"
+ (define_insn "call_indirect_aix<ptrsize>"
+   [(call (mem:SI (match_operand:P 0 "register_operand" "c,*l"))
+ 	 (match_operand 1 "" "g,g"))
+-   (use (match_operand:P 2 "memory_operand" "m,m"))
+-   (set (reg:P TOC_REGNUM) (match_operand:P 3 "memory_operand" "m,m"))
++   (use (match_operand:P 2 "memory_operand" "<ptrm>,<ptrm>"))
++   (set (reg:P TOC_REGNUM) (match_operand:P 3 "memory_operand" "<ptrm>,<ptrm>"))
+    (use (reg:P STATIC_CHAIN_REGNUM))
+    (clobber (reg:P LR_REGNO))]
+   "DEFAULT_ABI == ABI_AIX && TARGET_POINTERS_TO_NESTED_FUNCTIONS"
+@@ -10680,8 +10683,8 @@ (define_insn "call_indirect_aix<ptrsize>
+ (define_insn "call_indirect_aix<ptrsize>_nor11"
+   [(call (mem:SI (match_operand:P 0 "register_operand" "c,*l"))
+ 	 (match_operand 1 "" "g,g"))
+-   (use (match_operand:P 2 "memory_operand" "m,m"))
+-   (set (reg:P TOC_REGNUM) (match_operand:P 3 "memory_operand" "m,m"))
++   (use (match_operand:P 2 "memory_operand" "<ptrm>,<ptrm>"))
++   (set (reg:P TOC_REGNUM) (match_operand:P 3 "memory_operand" "<ptrm>,<ptrm>"))
+    (clobber (reg:P LR_REGNO))]
+   "DEFAULT_ABI == ABI_AIX && !TARGET_POINTERS_TO_NESTED_FUNCTIONS"
+   "<ptrload> 2,%2\;b%T0l\;<ptrload> 2,%3"
+@@ -10698,8 +10701,8 @@ (define_insn "call_value_indirect_aix<pt
+   [(set (match_operand 0 "" "")
+ 	(call (mem:SI (match_operand:P 1 "register_operand" "c,*l"))
+ 	      (match_operand 2 "" "g,g")))
+-   (use (match_operand:P 3 "memory_operand" "m,m"))
+-   (set (reg:P TOC_REGNUM) (match_operand:P 4 "memory_operand" "m,m"))
++   (use (match_operand:P 3 "memory_operand" "<ptrm>,<ptrm>"))
++   (set (reg:P TOC_REGNUM) (match_operand:P 4 "memory_operand" "<ptrm>,<ptrm>"))
+    (use (reg:P STATIC_CHAIN_REGNUM))
+    (clobber (reg:P LR_REGNO))]
+   "DEFAULT_ABI == ABI_AIX && TARGET_POINTERS_TO_NESTED_FUNCTIONS"
+@@ -10718,8 +10721,8 @@ (define_insn "call_value_indirect_aix<pt
+   [(set (match_operand 0 "" "")
+ 	(call (mem:SI (match_operand:P 1 "register_operand" "c,*l"))
+ 	      (match_operand 2 "" "g,g")))
+-   (use (match_operand:P 3 "memory_operand" "m,m"))
+-   (set (reg:P TOC_REGNUM) (match_operand:P 4 "memory_operand" "m,m"))
++   (use (match_operand:P 3 "memory_operand" "<ptrm>,<ptrm>"))
++   (set (reg:P TOC_REGNUM) (match_operand:P 4 "memory_operand" "<ptrm>,<ptrm>"))
+    (clobber (reg:P LR_REGNO))]
+   "DEFAULT_ABI == ABI_AIX && !TARGET_POINTERS_TO_NESTED_FUNCTIONS"
+   "<ptrload> 2,%3\;b%T1l\;<ptrload> 2,%4"
+--- gcc/testsuite/gcc.dg/pr56228.c.jj	2013-02-06 17:44:33.409303617 +0100
++++ gcc/testsuite/gcc.dg/pr56228.c	2013-02-06 17:44:14.000000000 +0100
+@@ -0,0 +1,16 @@
++/* PR target/56228 */
++/* { dg-do assemble } */
++/* { dg-options "-O2" } */
++
++short a[14] = { 1, 2 };
++short b[15] = { 3, 4 };
++
++int
++foo ()
++{
++  void (*fna) (void) = (void (*) (void)) a;
++  void (*fnb) (void) = (void (*) (void)) b;
++  fna ();
++  fnb ();
++  return a[1] == b[1];
++}

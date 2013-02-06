@@ -1,9 +1,9 @@
-%global DATE 20130131
-%global SVNREV 195626
+%global DATE 20130206
+%global SVNREV 195813
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.8
+%global gcc_release 0.9
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,6 +194,10 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
+Patch14: gcc48-pr52448.patch
+Patch15: gcc48-pr55978.patch
+Patch16: gcc48-pr56154.patch
+Patch17: gcc48-pr56228.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -746,6 +750,10 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
+%patch14 -p0 -b .pr52448~
+%patch15 -p0 -b .pr55978~
+%patch16 -p0 -b .pr56154~
+%patch17 -p0 -b .pr56228~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -808,6 +816,9 @@ tar xzf %{SOURCE4}
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
 %endif
+
+# Hack to work around PR56178
+echo 'urealp.o : ALL_ADAFLAGS += -fno-profile-use' >> gcc/ada/gcc-interface/Makefile.in
 
 sed -i -e 's/4\.8\.0/4.8.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
@@ -2969,6 +2980,24 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Feb  6 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.9
+- updated from trunk
+  - PRs c++/54122, c++/56177, c++/56208, debug/54793, fortran/47517,
+	fortran/50627, fortran/54195, fortran/56008, fortran/56054,
+	libstdc++/56202, lto/56168, middle-end/56113, middle-end/56167,
+	middle-end/56217, rtl-optimization/56131, sanitizer/55617,
+	target/52123, target/54601, target/55146, target/56186,
+	tree-optimization/53185, tree-optimization/53342,
+	tree-optimization/54386, tree-optimization/55789,
+	tree-optimization/56188
+  - fix up stdarg pass (PR tree-optimization/56205, #906367)
+  - remove unused thread_local bitfield (#907882)
+- fix cselim pass on calls that might free memory (PR tree-optimization/52448)
+- fix libgfortran internal_pack (PR fortran/55978)
+- fix up .debug_loc for first function in CU, if it contains empty ranges
+  at the beginning of the function (PR debug/56154, #904252)
+- fix ppc64 indirect calls (PR target/56228, #908388)
+
 * Thu Jan 31 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.8
 - updated from trunk
   - PRs c++/56162, debug/54410, debug/54508, debug/55059, fortran/54107,
