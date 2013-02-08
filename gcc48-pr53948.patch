@@ -1,0 +1,72 @@
+2013-02-08  Jeff Law  <law@redhat.com>
+
+	PR debug/53948
+	* emit-rtl.c (reg_is_parm_p): New function.
+	* regs.h (reg_is_parm_p): New prototype.
+	* ira-conflicts.c (ira_build_conflicts): Allow parameters in
+	callee-clobbered registers.
+
+	* gcc.dg/debug/dwarf2/pr53948.c: New test.
+
+--- gcc/emit-rtl.c
++++ gcc/emit-rtl.c
+@@ -919,6 +919,18 @@ gen_reg_rtx (enum machine_mode mode)
+   return val;
+ }
+ 
++/* Return TRUE if REG is a PARM_DECL, FALSE otherwise.  */
++
++bool
++reg_is_parm_p (rtx reg)
++{
++  tree decl;
++
++  gcc_assert (REG_P (reg));
++  decl = REG_EXPR (reg);
++  return (decl && TREE_CODE (decl) == PARM_DECL);
++}
++
+ /* Update NEW with the same attributes as REG, but with OFFSET added
+    to the REG_OFFSET.  */
+ 
+--- gcc/ira-conflicts.c
++++ gcc/ira-conflicts.c
+@@ -895,8 +895,12 @@ ira_build_conflicts (void)
+ 
+ 	  if ((! flag_caller_saves && ALLOCNO_CALLS_CROSSED_NUM (a) != 0)
+ 	      /* For debugging purposes don't put user defined variables in
+-		 callee-clobbered registers.  */
+-	      || (optimize == 0 && REG_USERVAR_P (allocno_reg)))
++		 callee-clobbered registers.  However, do allow parameters
++		 in callee-clobbered registers to improve debugging.  This
++		 is a bit of a fragile hack.  */
++	      || (optimize == 0
++		  && REG_USERVAR_P (allocno_reg)
++		  && ! reg_is_parm_p (allocno_reg)))
+ 	    {
+ 	      IOR_HARD_REG_SET (OBJECT_TOTAL_CONFLICT_HARD_REGS (obj),
+ 				call_used_reg_set);
+--- gcc/regs.h
++++ gcc/regs.h
+@@ -89,6 +89,8 @@ REG_N_SETS (int regno)
+ #define SET_REG_N_SETS(N,V) (regstat_n_sets_and_refs[N].sets = V)
+ #define INC_REG_N_SETS(N,V) (regstat_n_sets_and_refs[N].sets += V)
+ 
++/* Given a REG, return TRUE if the reg is a PARM_DECL, FALSE otherwise.  */
++extern bool reg_is_parm_p (rtx);
+ 
+ /* Functions defined in regstat.c.  */
+ extern void regstat_init_n_sets_and_refs (void);
+--- gcc/testsuite/gcc.dg/debug/dwarf2/pr53948.c	2012-11-17 15:43:17.572007394 +0100
++++ gcc/testsuite/gcc.dg/debug/dwarf2/pr53948.c	2013-02-08 19:10:23.000000000 +0100
+@@ -0,0 +1,10 @@
++/* Test that we emit a .line directive for the line
++   with local variable initializations.  */
++/* { dg-options "-O0 -g -dA" } */
++/* { dg-final { scan-assembler ".loc 1 8 0|# line 8" } } */
++
++
++int f (register int a, register int b) {
++  register int x = b, y = a;
++  return x + y; }
++
