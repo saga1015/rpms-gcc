@@ -4,8 +4,8 @@
 	* regex.c (PTR_INT_TYPE): Define.
 	(EXTEND_BUFFER): Change incr type from int to PTR_INT_TYPE.
 
---- gcc/regex.c.jj	2011-05-02 18:39:35.000000000 +0200
-+++ gcc/regex.c	2013-02-08 18:33:18.136802070 +0100
+--- libiberty/regex.c.jj	2011-05-02 18:39:35.000000000 +0200
++++ libiberty/regex.c	2013-02-08 18:33:18.136802070 +0100
 @@ -46,9 +46,11 @@
  
  # if defined STDC_HEADERS && !defined emacs
