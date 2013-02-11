@@ -1,0 +1,73 @@
+2013-02-11  Jakub Jelinek  <jakub@redhat.com>
+	    Steven Bosscher   <steven@gcc.gnu.org>
+
+	PR rtl-optimization/56151
+	* optabs.c (add_equal_note): Don't return 0 if target is a MEM,
+	equal to op0 or op1, and last_insn pattern is CODE operation
+	with MEM dest and one of the operands matches that MEM.
+
+	* gcc.target/i386/pr56151.c: New test.
+
+--- gcc/optabs.c.jj	2013-01-16 08:30:10.000000000 +0100
++++ gcc/optabs.c	2013-02-11 15:28:16.543839881 +0100
+@@ -190,17 +190,34 @@ add_equal_note (rtx insns, rtx target, e
+   if (GET_CODE (target) == ZERO_EXTRACT)
+     return 1;
+ 
+-  /* If TARGET is in OP0 or OP1, punt.  We'd end up with a note referencing
+-     a value changing in the insn, so the note would be invalid for CSE.  */
+-  if (reg_overlap_mentioned_p (target, op0)
+-      || (op1 && reg_overlap_mentioned_p (target, op1)))
+-    return 0;
+-
+   for (last_insn = insns;
+        NEXT_INSN (last_insn) != NULL_RTX;
+        last_insn = NEXT_INSN (last_insn))
+     ;
+ 
++  /* If TARGET is in OP0 or OP1, punt.  We'd end up with a note referencing
++     a value changing in the insn, so the note would be invalid for CSE.  */
++  if (reg_overlap_mentioned_p (target, op0)
++      || (op1 && reg_overlap_mentioned_p (target, op1)))
++    {
++      if (MEM_P (target)
++	  && (rtx_equal_p (target, op0)
++	      || (op1 && rtx_equal_p (target, op1))))
++	{
++	  /* For MEM target, with MEM = MEM op X, prefer no REG_EQUAL note
++	     over expanding it as temp = MEM op X, MEM = temp.  See PR56151. */
++	  set = single_set (last_insn);
++	  if (set
++	      && GET_CODE (SET_SRC (set)) == code
++	      && MEM_P (SET_DEST (set))
++	      && (rtx_equal_p (SET_DEST (set), XEXP (SET_SRC (set), 0))
++		  || (op1 && rtx_equal_p (SET_DEST (set),
++					  XEXP (SET_SRC (set), 1)))))
++	    return 1;
++	}
++      return 0;
++    }
++
+   set = single_set (last_insn);
+   if (set == NULL_RTX)
+     return 1;
+--- gcc/testsuite/gcc.target/i386/pr56151.c.jj	2013-02-11 16:20:51.459752951 +0100
++++ gcc/testsuite/gcc.target/i386/pr56151.c	2013-02-11 16:23:10.590964710 +0100
+@@ -0,0 +1,17 @@
++/* PR rtl-optimization/56151 */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++
++int vara, varb;
++
++void
++foo (int i, int j)
++{
++  vara = varb | vara;
++}
++
++/* Verify the above is compiled into movl varb, %reg; orl %reg, vara instead
++   of longer movl vara, %reg; orl varb, %reg; movl %reg, vara.  */
++/* { dg-final { scan-assembler-not "mov\[^\n\r]*vara" { target nonpic } } } */
++/* { dg-final { scan-assembler-times "mov\[^\n\r]*varb" 1 { target nonpic } } } */
++/* { dg-final { scan-assembler-times "or\[^\n\r]*vara" 1 { target nonpic } } } */
