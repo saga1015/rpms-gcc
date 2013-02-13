@@ -1,9 +1,9 @@
-%global DATE 20130211
-%global SVNREV 195954
+%global DATE 20130213
+%global SVNREV 196031
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.11
+%global gcc_release 0.12
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,7 +194,10 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
-Patch14: gcc48-pr56151.patch
+Patch14: gcc48-asan-fix.patch
+Patch15: gcc48-pr54117.patch
+Patch16: gcc48-pr56111.patch
+Patch17: gcc48-pr56224.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -747,7 +750,10 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
-%patch14 -p0 -b .pr56151~
+%patch14 -p0 -b .asan-fix~
+%patch15 -p0 -b .pr54117~
+%patch16 -p0 -b .pr56111~
+%patch17 -p0 -b .pr56224~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2971,6 +2977,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Feb 13 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.12
+- updated from trunk
+  - PRs c++/55710, c++/55879, c++/55993, c++/56135, c++/56155, c++/56285,
+	c++/56291, c/44938, fortran/46952, fortran/56204, inline-asm/56148,
+	libitm/55693, lto/56295, lto/56297, middle-end/56288,
+	sanitizer/56128, target/52122, testsuite/56082
+  - fix IRA bug that caused reload ICE on ARM (#910153, target/56184)
+  - attempt harder to fold "n" constrainted asm input operands in C++
+    with -O0 (#910421, c++/56302)
+
 * Mon Feb 11 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.11
 - updated from trunk
   - PRs c++/56238, c++/56247, c++/56268, fortran/55362, libstdc++/56267,
