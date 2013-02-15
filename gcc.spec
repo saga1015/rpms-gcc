@@ -1,9 +1,9 @@
-%global DATE 20130213
-%global SVNREV 196031
+%global DATE 20130215
+%global SVNREV 196084
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.12
+%global gcc_release 0.13
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -196,8 +196,7 @@ Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
 Patch14: gcc48-asan-fix.patch
 Patch15: gcc48-pr54117.patch
-Patch16: gcc48-pr56111.patch
-Patch17: gcc48-pr56224.patch
+Patch16: gcc48-asan-speedup.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -752,8 +751,7 @@ package or when debugging this package.
 %patch13 -p0 -b .pr55608~
 %patch14 -p0 -b .asan-fix~
 %patch15 -p0 -b .pr54117~
-%patch16 -p0 -b .pr56111~
-%patch17 -p0 -b .pr56224~
+%patch16 -p0 -b .asan-speedup~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2977,6 +2975,17 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Feb 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.13
+- updated from trunk
+  - PRs bootstrap/56327, c++/52026, c++/54922, c++/55003, c++/55220,
+	c++/55223, c++/55232, c++/55582, c++/55670, c++/55680, c++/56323,
+	c++/56343, fortran/53818, fortran/56224, fortran/56318,
+	libstdc++/56111, lto/50494, target/55431, target/55941,
+	testsuite/56138
+- asan fixes (PR sanitizer/56330)
+- asan speedup - use 0x7fff8000 shadow offset instead of 1LL << 44 on
+  x86_64
+
 * Wed Feb 13 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.12
 - updated from trunk
   - PRs c++/55710, c++/55879, c++/55993, c++/56135, c++/56155, c++/56285,
