@@ -3,7 +3,7 @@
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.13
+%global gcc_release 0.14
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2975,6 +2975,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Feb 19 2013 Rex Dieter <rdieter@fedoraproject.org> 4.8.0-0.14
+- rebuild (libmpc)
+
 * Fri Feb 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.13
 - updated from trunk
   - PRs bootstrap/56327, c++/52026, c++/54922, c++/55003, c++/55220,
