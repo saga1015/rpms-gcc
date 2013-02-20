@@ -1,9 +1,9 @@
-%global DATE 20130215
-%global SVNREV 196084
+%global DATE 20130220
+%global SVNREV 196173
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.13
+%global gcc_release 0.14
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -102,7 +102,7 @@ BuildRequires: binutils >= 2.20.51.0.2-12
 # -static is used several times.
 BuildRequires: glibc-static
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, sharutils
-BuildRequires: texinfo, texinfo-tex
+BuildRequires: texinfo, texinfo-tex, /usr/bin/pod2man
 BuildRequires: systemtap-sdt-devel >= 1.3
 %if %{build_go}
 BuildRequires: hostname
@@ -194,9 +194,11 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
-Patch14: gcc48-asan-fix.patch
-Patch15: gcc48-pr54117.patch
-Patch16: gcc48-asan-speedup.patch
+Patch14: gcc48-asan-speedup.patch
+Patch15: gcc48-pr56258.patch
+Patch16: gcc48-pr56405.patch
+Patch17: gcc48-unused-locals.patch
+Patch18: gcc48-pr56265.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -749,9 +751,11 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
-%patch14 -p0 -b .asan-fix~
-%patch15 -p0 -b .pr54117~
-%patch16 -p0 -b .asan-speedup~
+%patch14 -p0 -b .asan-speedup~
+%patch15 -p0 -b .pr56258~
+%patch16 -p0 -b .pr56405~
+%patch17 -p0 -b .unused-locals~
+%patch18 -p0 -b .pr56265~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2975,6 +2979,20 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Feb 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.14
+- updated from trunk
+  - PRs asan/56330, c++/51242, c++/54276, c++/56373, libquadmath/56379,
+	middle-end/55889, middle-end/56349, pch/54117,
+	rtl-optimization/56348, target/52555, target/54685, target/56214,
+	target/56347, tree-optimization/55334, tree-optimization/56321,
+	tree-optimization/56350, tree-optimization/56366,
+	tree-optimization/56381, tree-optimization/56384,
+	tree-optimization/56396, tree-optimization/56398
+- add BuildRequires: /usr/bin/pod2man to fix man pages generation
+- don't ICE on bogus inline asm in kernel (#912857, PR inline-asm/56405)
+- fix up info page building with texinfo 5.0 (PR bootstrap/56258)
+- devirtualization ICE fix (PR tree-optimization/56265)
+
 * Fri Feb 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.13
 - updated from trunk
   - PRs bootstrap/56327, c++/52026, c++/54922, c++/55003, c++/55220,

@@ -1,0 +1,297 @@
+2013-02-20  Richard Biener  <rguenther@suse.de>
+
+	* tree-call-cdce.c (tree_call_cdce): Do not remove unused locals.
+	* tree-ssa-forwprop.c (ssa_forward_propagate_and_combine): Likewise.
+	* tree-ssa-dce.c (perform_tree_ssa_dce): Likewise.
+	* tree-ssa-copyrename.c (copy_rename_partition_coalesce): Do
+	not return anything.
+	(rename_ssa_copies): Do not remove unused locals.
+	* tree-ssa-ccp.c (do_ssa_ccp): Likewise.
+	* tree-ssanames.c (pass_release_ssa_names): Remove unused
+	locals first.
+	* passes.c (execute_function_todo): Do not schedule unused locals
+	removal if cleanup_tree_cfg did something.
+	* tree-ssa-live.c (remove_unused_locals): Dump statistics
+	about the number of removed locals.
+
+	* gcc.dg/tree-ssa/forwprop-8.c: Adjust.
+
+--- gcc/tree-ssa-copyrename.c	(revision 196173)
++++ gcc/tree-ssa-copyrename.c	(revision 196174)
+@@ -113,7 +113,7 @@ static struct
+ /* Coalesce the partitions in MAP representing VAR1 and VAR2 if it is valid.
+    Choose a representative for the partition, and send debug info to DEBUG.  */
+ 
+-static bool
++static void
+ copy_rename_partition_coalesce (var_map map, tree var1, tree var2, FILE *debug)
+ {
+   int p1, p2, p3;
+@@ -146,7 +146,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+ 	fprintf (debug, " : Already coalesced.\n");
+-      return false;
++      return;
+     }
+ 
+   rep1 = partition_to_var (map, p1);
+@@ -154,7 +154,7 @@ copy_rename_partition_coalesce (var_map
+   root1 = SSA_NAME_VAR (rep1);
+   root2 = SSA_NAME_VAR (rep2);
+   if (!root1 && !root2)
+-    return false;
++    return;
+ 
+   /* Don't coalesce if one of the variables occurs in an abnormal PHI.  */
+   abnorm = (SSA_NAME_OCCURS_IN_ABNORMAL_PHI (rep1)
+@@ -163,7 +163,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+ 	fprintf (debug, " : Abnormal PHI barrier.  No coalesce.\n");
+-      return false;
++      return;
+     }
+ 
+   /* Partitions already have the same root, simply merge them.  */
+@@ -172,7 +172,7 @@ copy_rename_partition_coalesce (var_map
+       p1 = partition_union (map->var_partition, p1, p2);
+       if (debug)
+ 	fprintf (debug, " : Same root, coalesced --> P%d.\n", p1);
+-      return false;
++      return;
+     }
+ 
+   /* Never attempt to coalesce 2 different parameters.  */
+@@ -181,7 +181,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+         fprintf (debug, " : 2 different PARM_DECLS. No coalesce.\n");
+-      return false;
++      return;
+     }
+ 
+   if ((root1 && TREE_CODE (root1) == RESULT_DECL)
+@@ -189,7 +189,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+         fprintf (debug, " : One root a RESULT_DECL. No coalesce.\n");
+-      return false;
++      return;
+     }
+ 
+   ign1 = !root1 || (TREE_CODE (root1) == VAR_DECL && DECL_IGNORED_P (root1));
+@@ -206,7 +206,7 @@ copy_rename_partition_coalesce (var_map
+ 	{
+ 	  if (debug)
+ 	    fprintf (debug, " : 2 different USER vars. No coalesce.\n");
+-	  return false;
++	  return;
+ 	}
+       else
+ 	ign2 = true;
+@@ -220,7 +220,7 @@ copy_rename_partition_coalesce (var_map
+ 	{
+ 	  if (debug)
+ 	    fprintf (debug, " : 2 default defs. No coalesce.\n");
+-	  return false;
++	  return;
+ 	}
+       else
+         {
+@@ -240,7 +240,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+ 	fprintf (debug, " : Choosen variable has no root.  No coalesce.\n");
+-      return false;
++      return;
+     }
+ 
+   /* Don't coalesce if the new chosen root variable would be read-only.
+@@ -253,7 +253,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+ 	fprintf (debug, " : Readonly variable.  No coalesce.\n");
+-      return false;
++      return;
+     }
+ 
+   /* Don't coalesce if the two variables aren't type compatible .  */
+@@ -266,7 +266,7 @@ copy_rename_partition_coalesce (var_map
+     {
+       if (debug)
+ 	fprintf (debug, " : Incompatible types.  No coalesce.\n");
+-      return false;
++      return;
+     }
+ 
+   /* Merge the two partitions.  */
+@@ -288,7 +288,6 @@ copy_rename_partition_coalesce (var_map
+ 			  TDF_SLIM);
+       fprintf (debug, "\n");
+     }
+-  return true;
+ }
+ 
+ 
+@@ -308,7 +307,6 @@ rename_ssa_copies (void)
+   gimple stmt, phi;
+   unsigned x;
+   FILE *debug;
+-  bool updated = false;
+ 
+   memset (&stats, 0, sizeof (stats));
+ 
+@@ -330,7 +328,7 @@ rename_ssa_copies (void)
+ 	      tree lhs = gimple_assign_lhs (stmt);
+ 	      tree rhs = gimple_assign_rhs1 (stmt);
+ 
+-	      updated |= copy_rename_partition_coalesce (map, lhs, rhs, debug);
++	      copy_rename_partition_coalesce (map, lhs, rhs, debug);
+ 	    }
+ 	}
+     }
+@@ -358,8 +356,8 @@ rename_ssa_copies (void)
+ 	      {
+ 		tree arg = PHI_ARG_DEF (phi, i);
+ 		if (TREE_CODE (arg) == SSA_NAME)
+-		  updated |= copy_rename_partition_coalesce (map, res, arg,
+-							     debug);
++		  copy_rename_partition_coalesce (map, res, arg,
++						  debug);
+ 	      }
+ 	  /* Else if all arguments are in the same partition try to merge
+ 	     it with the result.  */
+@@ -390,9 +388,9 @@ rename_ssa_copies (void)
+ 		    }
+ 		}
+ 	      if (all_p_same == 1)
+-		updated |= copy_rename_partition_coalesce (map, res,
+-							   PHI_ARG_DEF (phi, 0),
+-							   debug);
++		copy_rename_partition_coalesce (map, res,
++						PHI_ARG_DEF (phi, 0),
++						debug);
+ 	    }
+         }
+     }
+@@ -426,7 +424,7 @@ rename_ssa_copies (void)
+   statistics_counter_event (cfun, "copies coalesced",
+ 			    stats.coalesced);
+   delete_var_map (map);
+-  return updated ? TODO_remove_unused_locals : 0;
++  return 0;
+ }
+ 
+ /* Return true if copy rename is to be performed.  */
+--- gcc/tree-ssa-ccp.c	(revision 196173)
++++ gcc/tree-ssa-ccp.c	(revision 196174)
+@@ -2108,7 +2108,7 @@ do_ssa_ccp (void)
+   ccp_initialize ();
+   ssa_propagate (ccp_visit_stmt, ccp_visit_phi_node);
+   if (ccp_finalize ())
+-    todo = (TODO_cleanup_cfg | TODO_update_ssa | TODO_remove_unused_locals);
++    todo = (TODO_cleanup_cfg | TODO_update_ssa);
+   free_dominance_info (CDI_DOMINATORS);
+   return todo;
+ }
+--- gcc/tree-call-cdce.c	(revision 196173)
++++ gcc/tree-call-cdce.c	(revision 196174)
+@@ -898,11 +898,10 @@ tree_call_cdce (void)
+       /* As we introduced new control-flow we need to insert PHI-nodes
+          for the call-clobbers of the remaining call.  */
+       mark_virtual_operands_for_renaming (cfun);
+-      return (TODO_update_ssa | TODO_cleanup_cfg | TODO_ggc_collect
+-              | TODO_remove_unused_locals);
++      return TODO_update_ssa;
+     }
+-  else
+-    return 0;
++
++  return 0;
+ }
+ 
+ static bool
+--- gcc/tree-ssa-live.c	(revision 196173)
++++ gcc/tree-ssa-live.c	(revision 196174)
+@@ -889,7 +889,10 @@ remove_unused_locals (void)
+       dstidx++;
+     }
+   if (dstidx != num)
+-    cfun->local_decls->truncate (dstidx);
++    {
++      statistics_counter_event (cfun, "unused VAR_DECLs removed", num - dstidx);
++      cfun->local_decls->truncate (dstidx);
++    }
+ 
+   remove_unused_scope_block_p (DECL_INITIAL (current_function_decl));
+   clear_unused_block_pointer ();
+--- gcc/tree-ssa-forwprop.c	(revision 196173)
++++ gcc/tree-ssa-forwprop.c	(revision 196174)
+@@ -2936,7 +2936,6 @@ ssa_forward_propagate_and_combine (void)
+ 		  && forward_propagate_addr_expr (lhs, rhs))
+ 		{
+ 		  release_defs (stmt);
+-		  todoflags |= TODO_remove_unused_locals;
+ 		  gsi_remove (&gsi, true);
+ 		}
+ 	      else
+@@ -2961,7 +2960,6 @@ ssa_forward_propagate_and_combine (void)
+ 							       off)))))
+ 		{
+ 		  release_defs (stmt);
+-		  todoflags |= TODO_remove_unused_locals;
+ 		  gsi_remove (&gsi, true);
+ 		}
+ 	      else if (is_gimple_min_invariant (rhs))
+--- gcc/tree-ssa-dce.c	(revision 196173)
++++ gcc/tree-ssa-dce.c	(revision 196174)
+@@ -1607,10 +1607,8 @@ perform_tree_ssa_dce (bool aggressive)
+   free_edge_list (el);
+ 
+   if (something_changed)
+-    return (TODO_update_ssa | TODO_cleanup_cfg | TODO_ggc_collect
+-	    | TODO_remove_unused_locals);
+-  else
+-    return 0;
++    return TODO_update_ssa | TODO_cleanup_cfg;
++  return 0;
+ }
+ 
+ /* Pass entry points.  */
+--- gcc/passes.c	(revision 196173)
++++ gcc/passes.c	(revision 196174)
+@@ -1918,10 +1918,7 @@ execute_function_todo (void *data)
+   /* Always cleanup the CFG before trying to update SSA.  */
+   if (flags & TODO_cleanup_cfg)
+     {
+-      bool cleanup = cleanup_tree_cfg ();
+-
+-      if (cleanup && (cfun->curr_properties & PROP_ssa))
+-	flags |= TODO_remove_unused_locals;
++      cleanup_tree_cfg ();
+ 
+       /* When cleanup_tree_cfg merges consecutive blocks, it may
+ 	 perform some simplistic propagation when removing single
+--- gcc/tree-ssanames.c	(revision 196173)
++++ gcc/tree-ssanames.c	(revision 196174)
+@@ -455,7 +455,7 @@ struct gimple_opt_pass pass_release_ssa_
+   PROP_ssa,				/* properties_required */
+   0,					/* properties_provided */
+   0,					/* properties_destroyed */
+-  0,					/* todo_flags_start */
+-  0              			/* todo_flags_finish */
++  TODO_remove_unused_locals,		/* todo_flags_start */
++  0					/* todo_flags_finish */
+  }
+ };
+--- gcc/testsuite/gcc.dg/tree-ssa/forwprop-8.c	(revision 196173)
++++ gcc/testsuite/gcc.dg/tree-ssa/forwprop-8.c	(revision 196174)
+@@ -11,6 +11,5 @@ int foo(struct X *q)
+ 
+ 
+ /* We should have propragated &q->a into (*pointer).  */
+-/* { dg-final { scan-tree-dump-times "pointer" 0 "forwprop1"} } */
+-/* { dg-final { scan-tree-dump "\\\[0\\\]" "forwprop1" } } */
++/* { dg-final { scan-tree-dump "q_.\\\(D\\\)\\\]\\\[0\\\];" "forwprop1" } } */
+ /* { dg-final { cleanup-tree-dump "forwprop1" } } */
