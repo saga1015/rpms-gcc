@@ -1,0 +1,57 @@
+2013-03-04  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR tree-optimization/56424
+	* ipa-split.c (split_function): Do not set the RSO flag if result is
+	not by reference and its type is not a register type.
+
+	* gcc.dg/pr56424.c: New test.
+
+--- gcc/ipa-split.c	(revision 196253)
++++ gcc/ipa-split.c	(working copy)
+@@ -1309,7 +1309,9 @@ split_function (struct split_point *spli
+      so return slot optimization is always possible.  Moreover this is
+      required to make DECL_BY_REFERENCE work.  */
+   if (aggregate_value_p (DECL_RESULT (current_function_decl),
+-			 TREE_TYPE (current_function_decl)))
++			 TREE_TYPE (current_function_decl))
++      && (!is_gimple_reg_type (TREE_TYPE (DECL_RESULT (current_function_decl)))
++	  || DECL_BY_REFERENCE (DECL_RESULT (current_function_decl))))
+     gimple_call_set_return_slot_opt (call, true);
+ 
+   /* Update return value.  This is bit tricky.  When we do not return,
+--- gcc/testsuite/gcc.dg/pr56424.c	2013-02-13 21:50:57.150673158 +0100
++++ gcc/testsuite/gcc.dg/pr56424.c	2013-03-04 12:59:24.133888683 +0100
+@@ -0,0 +1,33 @@
++/* PR tree-optimization/56424 */
++
++/* { dg-do compile } */
++/* { dg-options "-O2 -fexceptions -fnon-call-exceptions" } */
++
++extern long double cosl (long double);
++extern long double sinl (long double);
++extern long double reml (long double, long double);
++
++long double my_cos (long double arg)
++{
++  return cosl (arg);
++}
++
++long double my_sin (long double arg)
++{
++  if (__builtin_fabs (arg) < 1.0)
++    return arg;
++
++  return sinl (arg);
++}
++
++long double my_cot (long double arg, long double cycle)
++{
++  long double t = reml (arg, cycle);
++  return my_cos (t) / my_sin (t);
++}
++
++long double my_tan (long double arg, long double cycle)
++{
++  long double t = reml (arg, cycle);
++  return my_sin (t) / my_cos (t);
++}

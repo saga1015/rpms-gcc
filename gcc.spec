@@ -1,9 +1,9 @@
-%global DATE 20130220
-%global SVNREV 196173
+%global DATE 20130304
+%global SVNREV 196430
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.14
+%global gcc_release 0.15
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,11 +194,8 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
-Patch14: gcc48-asan-speedup.patch
-Patch15: gcc48-pr56258.patch
-Patch16: gcc48-pr56405.patch
-Patch17: gcc48-unused-locals.patch
-Patch18: gcc48-pr56265.patch
+Patch14: gcc48-pr56424.patch
+Patch15: gcc48-pr56509.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -751,11 +748,8 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
-%patch14 -p0 -b .asan-speedup~
-%patch15 -p0 -b .pr56258~
-%patch16 -p0 -b .pr56405~
-%patch17 -p0 -b .unused-locals~
-%patch18 -p0 -b .pr56265~
+%patch14 -p0 -b .pr56424~
+%patch15 -p0 -b .pr56509~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2979,6 +2973,24 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Mar  4 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.15
+- updated from trunk
+  - PRs c++/10291, c++/40405, c++/52688, c++/55632, c++/55813, c++/56243,
+	c++/56358, c++/56359, c++/56377, c++/56395, c++/56403, c++/56419,
+	c++/56438, c++/56481, fortran/54730, fortran/56385, fortran/56416,
+	fortran/56477, fortran/56491, libfortran/30162, libstdc++/56011,
+	libstdc++/56012, middle-end/45472, middle-end/56077,
+	middle-end/56108, middle-end/56420, middle-end/56461,
+	rtl-optimization/50339, rtl-optimization/56466, sanitizer/56393,
+	sanitizer/56454, target/48901, target/52500, target/52501,
+	target/52550, target/54639, target/54640, target/54662, target/56444,
+	target/56445, target/56455, testsuite/52641, tree-optimization/55481,
+	tree-optimization/56175, tree-optimization/56294,
+	tree-optimization/56310, tree-optimization/56415,
+	tree-optimization/56426, tree-optimization/56443,
+	tree-optimization/56448
+- fnsplit fix (PR tree-optimization/56424)
+
 * Wed Feb 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.14
 - updated from trunk
   - PRs asan/56330, c++/51242, c++/54276, c++/56373, libquadmath/56379,
