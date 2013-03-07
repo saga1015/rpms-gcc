@@ -1,9 +1,9 @@
-%global DATE 20130304
-%global SVNREV 196430
+%global DATE 20130307
+%global SVNREV 196524
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.15
+%global gcc_release 0.16
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,14 +194,15 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
-Patch14: gcc48-pr56424.patch
-Patch15: gcc48-pr56509.patch
+Patch14: gcc48-pr45078.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
 Patch1002: fastjar-0.97-filename0.patch
 Patch1003: fastjar-CVE-2010-0831.patch
 Patch1004: fastjar-man.patch
+
+Patch1100: isl-%{isl_version}-aarch64-config.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -748,8 +749,7 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
-%patch14 -p0 -b .pr56424~
-%patch15 -p0 -b .pr56509~
+%patch14 -p0 -b .pr45078~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -812,6 +812,8 @@ tar xzf %{SOURCE4}
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
 %endif
+
+%patch1100 -p0 -b .isl-aarch64~
 
 sed -i -e 's/4\.8\.0/4.8.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
@@ -2973,6 +2975,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Mar  7 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.16
+- updated from trunk
+  - PRs bootstrap/56509, c++/54383, c++/55135, c++/56464, c++/56530,
+	c++/56534, c++/56543, debug/55364, debug/56510, libquadmath/55473,
+	lto/50293, lto/56515, middle-end/50494, middle-end/56294,
+	middle-end/56525, middle-end/56526, middle-end/56548,
+	rtl-optimization/56484, rtl-optimization/56494, target/56529,
+	tree-optimization/56270, tree-optimization/56521,
+	tree-optimization/56539, tree-optimization/56559
+  - include arm-cores.def in gcc-python-plugin on arm (#910926)
+- include vxworks-dummy.h in gcc-python-plugin where needed (PR plugins/45078)
+
 * Mon Mar  4 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.15
 - updated from trunk
   - PRs c++/10291, c++/40405, c++/52688, c++/55632, c++/55813, c++/56243,
