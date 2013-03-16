@@ -1,9 +1,9 @@
-%global DATE 20130307
-%global SVNREV 196524
+%global DATE 20130316
+%global SVNREV 196702
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.16
+%global gcc_release 0.17
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,7 +194,6 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr55608.patch
-Patch14: gcc48-pr45078.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -749,7 +748,6 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr55608~
-%patch14 -p0 -b .pr45078~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2975,6 +2973,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Sat Mar 16 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.17
+- update from trunk and the 4.8 branch
+  - PRs ada/52123, c++/51412, c++/51494, c++/51884, c++/52183, c++/56222,
+	c++/56346, c++/56565, c++/56567, c++/56611, c++/56614, debug/56307,
+	fortran/56575, fortran/56615, libstdc++/56492, libstdc++/56609,
+	libstdc++/56613, lto/56557, middle-end/56524, middle-end/56571,
+	target/40797, target/49880, target/56470, target/56591, target/56619,
+	testsuite/54119, tree-optimization/53265, tree-optimization/56478,
+	tree-optimization/56570, tree-optimization/56608
+
 * Thu Mar  7 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.16
 - updated from trunk
   - PRs bootstrap/56509, c++/54383, c++/55135, c++/56464, c++/56530,
