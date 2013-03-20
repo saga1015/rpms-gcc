@@ -1,9 +1,9 @@
-%global DATE 20130316
-%global SVNREV 196702
+%global DATE 20130320
+%global SVNREV 196827
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.17
+%global gcc_release 0.18
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -1395,6 +1395,7 @@ ln -sf ../../../libatomic.so.1.* libatomic.so
 %endif
 %if %{build_libasan}
 ln -sf ../../../libasan.so.0.* libasan.so
+mv ../../../libasan_preinit.o libasan_preinit.o
 %endif
 %if %{build_java}
 ln -sf ../../../libgcj.so.14.* libgcj.so
@@ -1422,6 +1423,7 @@ ln -sf ../../../../%{_lib}/libatomic.so.1.* libatomic.so
 %endif
 %if %{build_libasan}
 ln -sf ../../../../%{_lib}/libasan.so.0.* libasan.so
+mv ../../../../%{_lib}/libasan_preinit.o libasan_preinit.o
 %endif
 %if %{build_libtsan}
 rm -f libtsan.so
@@ -1535,6 +1537,7 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libatomic.so.1.* | sed 's,
 rm -f libasan.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libasan.so.0.* | sed 's,^.*liba,liba,'`' )' > libasan.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libasan.so.0.* | sed 's,^.*liba,liba,'`' )' > 64/libasan.so
+mv ../../../../lib64/libasan_preinit.o 64/libasan_preinit.o
 %endif
 %if %{build_java}
 ln -sf ../`echo ../../../../lib/libgcj.so.14.* | sed s~/lib/~/lib64/~` 64/libgcj.so
@@ -1619,6 +1622,7 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libatomic.so.1.* | sed 's,
 rm -f libasan.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libasan.so.0.* | sed 's,^.*liba,liba,'`' )' > libasan.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libasan.so.0.* | sed 's,^.*liba,liba,'`' )' > 32/libasan.so
+mv ../../../../lib/libasan_preinit.o 32/libasan_preinit.o
 %endif
 %if %{build_java}
 ln -sf ../`echo ../../../../lib64/libgcj.so.14.* | sed s~/../lib64/~/~` 32/libgcj.so
@@ -2200,6 +2204,7 @@ fi
 %if %{build_libasan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libasan.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libasan.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libasan_preinit.o
 %endif
 %endif
 %ifarch %{multilib_64_archs}
@@ -2230,6 +2235,7 @@ fi
 %if %{build_libasan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libasan.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libasan.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libasan_preinit.o
 %endif
 %endif
 %ifarch sparcv9 sparc64 ppc ppc64
@@ -2252,6 +2258,7 @@ fi
 %if %{build_libasan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libasan.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libasan.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libasan_preinit.o
 %endif
 %if %{build_libtsan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libtsan.a
@@ -2263,6 +2270,7 @@ fi
 %endif
 %if %{build_libasan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libasan.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libasan_preinit.o
 %endif
 %if %{build_libtsan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libtsan.so
@@ -2973,6 +2981,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Mar 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.18
+- update from the 4.8 branch
+  - PRs libstdc++/56468, target/56640, tree-optimization/56635,
+	tree-optimization/56661
+- package libasan_preinit.o
+
 * Sat Mar 16 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.17
 - update from trunk and the 4.8 branch
   - PRs ada/52123, c++/51412, c++/51494, c++/51884, c++/52183, c++/56222,
