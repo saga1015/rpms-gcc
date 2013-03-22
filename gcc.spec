@@ -1,9 +1,9 @@
-%global DATE 20130320
-%global SVNREV 196827
+%global DATE 20130322
+%global SVNREV 196975
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.18
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -193,7 +193,6 @@ Patch9: gcc48-cloog-dl2.patch
 Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
-Patch13: gcc48-pr55608.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -747,7 +746,6 @@ package or when debugging this package.
 %patch11 -p0 -b .libstdc++-docs~
 %endif
 %patch12 -p0 -b .no-add-needed~
-%patch13 -p0 -b .pr55608~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -813,7 +811,7 @@ tar xjf %{SOURCE10}
 
 %patch1100 -p0 -b .isl-aarch64~
 
-sed -i -e 's/4\.8\.0/4.8.0/' gcc/BASE-VER
+sed -i -e 's/4\.8\.1/4.8.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
@@ -2981,6 +2979,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Mar 22 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-1
+- update from the 4.8 branch
+  - GCC 4.8.0 release
+  - PRs c++/56607, other/43620
+  - fix length in .debug_aranges in some cases
+- improve debug info for optimized away global vars (PR debug/56608)
+- don't warn about signed 1-bit enum bitfields containing values 0 and -1
+  or just -1 (PR c/56566)
+
 * Wed Mar 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-0.18
 - update from the 4.8 branch
   - PRs libstdc++/56468, target/56640, tree-optimization/56635,
