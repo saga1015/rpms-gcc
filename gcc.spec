@@ -1,9 +1,9 @@
-%global DATE 20130322
-%global SVNREV 196975
+%global DATE 20130412
+%global SVNREV 197896
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2979,6 +2979,25 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Apr 12 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-2
+- update from the 4.8 branch
+  - PRs c++/35722, c++/45282, c++/52014, c++/52374, c++/52748, c++/54277,
+	c++/54359, c++/54764, c++/55532, c++/55951, c++/55972, c++/56039,
+	c++/56447, c++/56582, c++/56646, c++/56692, c++/56699, c++/56722,
+	c++/56728, c++/56749, c++/56772, c++/56774, c++/56793, c++/56794,
+	c++/56821, c++/56895, c++/56913, debug/56819, fortran/54932,
+	fortran/56696, fortran/56735, fortran/56737, fortran/56782,
+	libstdc++/55977, libstdc++/55979, libstdc++/56002, libstdc++/56678,
+	libstdc++/56834, lto/56777, middle-end/56694, middle-end/56768,
+	middle-end/56883, other/55274, rtl-optimization/48182,
+	rtl-optimization/56745, sanitizer/55702, target/54805, target/55487,
+	target/56560, target/56720, target/56771, tree-optimization/48184,
+	tree-optimization/48186, tree-optimization/48762,
+	tree-optimization/56407, tree-optimization/56501,
+	tree-optimization/56817, tree-optimization/56837,
+	tree-optimization/56899, tree-optimization/56918,
+	tree-optimization/56920
+
 * Fri Mar 22 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-1
 - update from the 4.8 branch
   - GCC 4.8.0 release
