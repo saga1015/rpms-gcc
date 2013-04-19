@@ -1,9 +1,9 @@
-%global DATE 20130412
-%global SVNREV 197896
+%global DATE 20130419
+%global SVNREV 198097
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -193,6 +193,8 @@ Patch9: gcc48-cloog-dl2.patch
 Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
+Patch13: gcc48-pr56999.patch
+Patch14: gcc48-pr57000.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -746,6 +748,8 @@ package or when debugging this package.
 %patch11 -p0 -b .libstdc++-docs~
 %endif
 %patch12 -p0 -b .no-add-needed~
+%patch13 -p0 -b .pr56999~
+%patch14 -p0 -b .pr57000~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2979,6 +2983,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Apr 19 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-3
+- update from the 4.8 branch
+  - PRs c++/56388, fortran/56816, fortran/56994, rtl-optimization/56992,
+	target/56890, target/56903, target/56948, tree-optimization/56962,
+	tree-optimization/56984
+- fix up LRA caused miscompilation of xulrunner on i?86
+  (#949553, PR rtl-optimization/56999)
+- reassoc fix for -Ofast -frounding-math (PR tree-optimization/57000)
+
 * Fri Apr 12 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-2
 - update from the 4.8 branch
   - PRs c++/35722, c++/45282, c++/52014, c++/52374, c++/52748, c++/54277,
