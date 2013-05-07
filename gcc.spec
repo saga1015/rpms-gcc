@@ -1,9 +1,9 @@
-%global DATE 20130419
-%global SVNREV 198097
+%global DATE 20130507
+%global SVNREV 198674
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -41,7 +41,7 @@
 %else
 %global build_libatomic 0
 %endif
-%ifarch %{ix86} x86_64 %{arm} alpha ppc ppc64
+%ifarch %{ix86} x86_64 %{arm} alpha ppc ppc64 s390 s390x
 %global build_libitm 1
 %else
 %global build_libitm 0
@@ -193,8 +193,7 @@ Patch9: gcc48-cloog-dl2.patch
 Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
-Patch13: gcc48-pr56999.patch
-Patch14: gcc48-pr57000.patch
+Patch13: gcc48-rh957778.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -748,8 +747,7 @@ package or when debugging this package.
 %patch11 -p0 -b .libstdc++-docs~
 %endif
 %patch12 -p0 -b .no-add-needed~
-%patch13 -p0 -b .pr56999~
-%patch14 -p0 -b .pr57000~
+%patch13 -p0 -b .rh957778~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2983,6 +2981,26 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue May  7 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-4
+- update from the 4.8 branch
+  - PRs ada/56474, c++/50261, c++/56450, c++/56859, c++/56970, c++/57064,
+	c++/57092, c++/57183, debug/57184, fortran/51825, fortran/52512,
+	fortran/53685, fortran/56786, fortran/56814, fortran/56872,
+	fortran/56968, fortran/57022, libfortran/51825, libfortran/52512,
+	libfortran/56786, libstdc++/57010, middle-end/57103,
+	rtl-optimization/56605, rtl-optimization/56847,
+	rtl-optimization/57003, rtl-optimization/57130,
+	rtl-optimization/57131, rtl-optimizations/57046, sanitizer/56990,
+	target/44578, target/55445, target/56797, target/56866, target/57018,
+	target/57091, target/57097, target/57098, target/57106, target/57108,
+	target/57150, tree-optimization/57051, tree-optimization/57066,
+	tree-optimization/57083, tree-optimization/57104,
+	tree-optimization/57149, tree-optimization/57185
+  - fix gcj with -fsection-anchors (#952673, PR libgcj/57074)
+- enable libitm on s390{,x}
+- error when linking with both -fsanitize=address and -fsanitize=thread
+  (#957778)
+
 * Fri Apr 19 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-3
 - update from the 4.8 branch
   - PRs c++/56388, fortran/56816, fortran/56994, rtl-optimization/56992,
