@@ -1,0 +1,37 @@
+2013-05-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/57230
+	* tree-ssa-strlen.c (handle_char_store): Add missing integer_zerop
+	check.
+
+	* gcc.dg/strlenopt-23.c: New test.
+
+--- gcc/tree-ssa-strlen.c.jj	2013-04-26 08:49:53.000000000 +0200
++++ gcc/tree-ssa-strlen.c	2013-05-10 08:57:20.654523288 +0200
+@@ -1703,7 +1703,7 @@ handle_char_store (gimple_stmt_iterator
+ 	       its length may be decreased.  */
+ 	    adjust_last_stmt (si, stmt, false);
+ 	}
+-      else if (si != NULL)
++      else if (si != NULL && integer_zerop (gimple_assign_rhs1 (stmt)))
+ 	{
+ 	  si = unshare_strinfo (si);
+ 	  si->length = build_int_cst (size_type_node, 0);
+--- gcc/testsuite/gcc.dg/strlenopt-23.c.jj	2013-05-10 09:01:27.808152595 +0200
++++ gcc/testsuite/gcc.dg/strlenopt-23.c	2013-05-10 09:02:08.042931124 +0200
+@@ -0,0 +1,15 @@
++/* PR tree-optimization/57230 */
++/* { dg-do run } */
++/* { dg-options "-O2" } */
++
++#include "strlenopt.h"
++
++int
++main ()
++{
++  char p[] = "hello world";
++  p[0] = (char) (strlen (p) - 1);
++  if (strlen (p) != 11)
++    abort ();
++  return 0;
++}

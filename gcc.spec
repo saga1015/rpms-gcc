@@ -1,9 +1,9 @@
-%global DATE 20130507
-%global SVNREV 198674
+%global DATE 20130510
+%global SVNREV 198794
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,6 +194,7 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-rh957778.patch
+Patch14: gcc48-pr57230.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -748,6 +749,7 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .rh957778~
+%patch14 -p0 -b .pr57230~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2981,6 +2983,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri May 10 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-5
+- update from the 4.8 branch
+  - PRs bootstrap/54281, bootstrap/54659, c++/57047, c++/57068, c++/57222,
+	fortran/57142, libstdc++/57212, middle-end/56988, target/55033,
+	target/57237, tree-optimization/57200, tree-optimization/57214
+- fix up strlen pass (PR tree-optimization/57230)
+
 * Tue May  7 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-4
 - update from the 4.8 branch
   - PRs ada/56474, c++/50261, c++/56450, c++/56859, c++/56970, c++/57064,
