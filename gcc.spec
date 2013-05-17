@@ -1,9 +1,9 @@
-%global DATE 20130510
-%global SVNREV 198794
+%global DATE 20130517
+%global SVNREV 199023
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -193,8 +193,6 @@ Patch9: gcc48-cloog-dl2.patch
 Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
-Patch13: gcc48-rh957778.patch
-Patch14: gcc48-pr57230.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -748,8 +746,6 @@ package or when debugging this package.
 %patch11 -p0 -b .libstdc++-docs~
 %endif
 %patch12 -p0 -b .no-add-needed~
-%patch13 -p0 -b .rh957778~
-%patch14 -p0 -b .pr57230~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2983,6 +2979,17 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri May 17 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-6
+- update from the 4.8 branch
+  - PRs c++/56782, c++/56998, c++/57041, c++/57196, c++/57243, c++/57252,
+	c++/57253, c++/57254, c++/57274, c++/57279, middle-end/57251,
+	rtl-optimization/57281, rtl-optimization/57300, target/45359,
+	target/46396, target/57264
+- backport color diagnostics support from trunk, enable with
+  -fdiagnostics-color=auto, -fdiagnostics-color=always or
+  having non-empty GCC_COLORS variable in environment
+- backport -fstack-protector-strong support from trunk
+
 * Fri May 10 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-5
 - update from the 4.8 branch
   - PRs bootstrap/54281, bootstrap/54659, c++/57047, c++/57068, c++/57222,
