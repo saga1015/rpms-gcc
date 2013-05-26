@@ -1,9 +1,9 @@
-%global DATE 20130524
-%global SVNREV 199310
+%global DATE 20130526
+%global SVNREV 199345
 %global gcc_version 4.8.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2979,6 +2979,10 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Sun May 26 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-8
+- update from the 4.8 branch
+  - std::chrono::steady_clock ABI fixes from 4.8.0-7
+
 * Fri May 24 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-7
 - update from the 4.8 branch
   - PRs c++/57016, c++/57317, c++/57325, c++/57388, libffi/56033,
