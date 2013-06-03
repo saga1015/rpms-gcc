@@ -1,9 +1,9 @@
-%global DATE 20130526
-%global SVNREV 199345
-%global gcc_version 4.8.0
+%global DATE 20130603
+%global SVNREV 199614
+%global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 8
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -811,7 +811,7 @@ tar xjf %{SOURCE10}
 
 %patch1100 -p0 -b .isl-aarch64~
 
-sed -i -e 's/4\.8\.1/4.8.0/' gcc/BASE-VER
+sed -i -e 's/4\.8\.2/4.8.1/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
@@ -2979,6 +2979,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jun  3 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-1
+- update from the 4.8 branch
+  - GCC 4.8.1 release
+  - PRs c++/56930, c++/57319, fortran/57217, target/49146, target/56742
+- backport Intel Silvermont enablement and tuning from trunk
+- backport 3 small AMD improvement patches from trunk
+
 * Sun May 26 2013 Jakub Jelinek <jakub@redhat.com> 4.8.0-8
 - update from the 4.8 branch
   - std::chrono::steady_clock ABI fixes from 4.8.0-7
