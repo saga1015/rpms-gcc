@@ -1,9 +1,9 @@
-%global DATE 20130603
-%global SVNREV 199614
+%global DATE 20130612
+%global SVNREV 199987
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -193,6 +193,8 @@ Patch9: gcc48-cloog-dl2.patch
 Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
+Patch13: gcc48-pr56564.patch
+Patch14: gcc48-pr57537.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -746,6 +748,8 @@ package or when debugging this package.
 %patch11 -p0 -b .libstdc++-docs~
 %endif
 %patch12 -p0 -b .no-add-needed~
+%patch13 -p0 -b .pr56564~
+%patch14 -p0 -b .pr57537~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2979,6 +2983,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jun 12 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-2
+- update from the 4.8 branch
+  - PRs fortran/57364, fortran/57508, target/56547, target/57379, target/57568
+- backport backwards compatible alignment ABI fixes (#947197, PR target/56564)
+- fix up widening multiplication vectorization on big-endian
+  (PR tree-optimization/57537)
+
 * Mon Jun  3 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-1
 - update from the 4.8 branch
   - GCC 4.8.1 release

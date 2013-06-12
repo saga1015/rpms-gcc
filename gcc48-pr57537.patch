@@ -1,0 +1,20 @@
+2013-06-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/57537
+	* tree-vect-patterns.c (vect_recog_widen_mult_pattern): If
+	vect_handle_widen_op_by_const, convert oprnd1 to half_type1.
+
+--- gcc/tree-vect-patterns.c.jj	2013-05-17 10:53:10.000000000 +0200
++++ gcc/tree-vect-patterns.c	2013-06-12 09:49:30.151854270 +0200
+@@ -640,7 +640,10 @@ vect_recog_widen_mult_pattern (vec<gimpl
+           && vect_handle_widen_op_by_const (last_stmt, MULT_EXPR, oprnd1,
+ 		                            &oprnd0, stmts, type,
+ 					    &half_type0, def_stmt0))
+-        half_type1 = half_type0;
++	{
++	  half_type1 = half_type0;
++	  oprnd1 = fold_convert (half_type1, oprnd1);
++	}
+       else
+         return NULL;
+     }
