@@ -194,7 +194,6 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
-Patch14: gcc48-pr57537.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -749,7 +748,6 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr56564~
-%patch14 -p0 -b .pr57537~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
