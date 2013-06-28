@@ -1,9 +1,9 @@
-%global DATE 20130612
-%global SVNREV 199987
+%global DATE 20130628
+%global SVNREV 200518
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -1384,7 +1384,7 @@ ln -sf ../../../libgomp.so.1.* libgomp.so
 ln -sf ../../../libmudflap.so.0.* libmudflap.so
 ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
 %if %{build_go}
-ln -sf ../../../libgo.so.3.* libgo.so
+ln -sf ../../../libgo.so.4.* libgo.so
 %endif
 %if %{build_libquadmath}
 ln -sf ../../../libquadmath.so.0.* libquadmath.so
@@ -1412,7 +1412,7 @@ ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
 ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
 %if %{build_go}
-ln -sf ../../../../%{_lib}/libgo.so.3.* libgo.so
+ln -sf ../../../../%{_lib}/libgo.so.4.* libgo.so
 %endif
 %if %{build_libquadmath}
 ln -sf ../../../../%{_lib}/libquadmath.so.0.* libquadmath.so
@@ -1517,8 +1517,8 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflap.so.0.* | sed 's
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmudflapth.so
 %if %{build_go}
 rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.3.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.3.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.4.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.4.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
 %endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
@@ -1602,8 +1602,8 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflap.so.0.* | sed 's
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmudflapth.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmudflapth.so
 %if %{build_go}
 rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.3.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.3.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.4.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.4.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
 %endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
@@ -1737,7 +1737,7 @@ chmod 755 %{buildroot}%{_prefix}/%{_lib}/libasan.so.0.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libtsan.so.0.*
 %endif
 %if %{build_go}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.3.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.4.*
 %endif
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.4.*
 
@@ -1848,7 +1848,12 @@ export PATH=`pwd`/java_hacks${PATH:+:$PATH}
 %endif
 
 # run the tests.
-make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
+make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ \
+%if 0%{?fedora} >= 20
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" || :
+%else
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
+%endif
 echo ====================TESTING=========================
 ( LC_ALL=C ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
@@ -2922,7 +2927,7 @@ fi
 
 %files -n libgo
 %defattr(-,root,root,-)
-%{_prefix}/%{_lib}/libgo.so.3*
+%{_prefix}/%{_lib}/libgo.so.4*
 %doc rpm.doc/libgo/*
 
 %files -n libgo-devel
@@ -2983,6 +2988,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Jun 28 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-3
+- update from the 4.8 branch
+  - PRs c++/53211, c++/56544, driver/57652, libstdc++/57619, libstdc++/57666,
+	libstdc++/57674, rtl-optimization/57518, target/57623, target/57655,
+	tree-optimization/57358, tree-optimization/57537
+  - fix up gcc-{ar,nm,ranlib} (#974853, PR driver/57651)
+- fix two libitm HTM handling bugs (PR libitm/57643)
+- speed up __popcount[sdt]i2 library function (PR middle-end/36041)
+- backport power8 support from trunk (#731884, PR target/57615)
+- for Fedora 20+ test -fstack-protector-strong during %%check instead
+  of -fstack-protector
+
 * Wed Jun 12 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-2
 - update from the 4.8 branch
   - PRs fortran/57364, fortran/57508, target/56547, target/57379, target/57568
