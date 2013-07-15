@@ -1,9 +1,9 @@
-%global DATE 20130628
-%global SVNREV 200518
+%global DATE 20130715
+%global SVNREV 200961
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -194,6 +194,7 @@ Patch10: gcc48-pr38757.patch
 Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
+Patch14: gcc48-pr56493.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -748,6 +749,7 @@ package or when debugging this package.
 %endif
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr56564~
+%patch14 -p0 -b .pr56493~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -1045,8 +1047,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %ifarch sparc sparcv9
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=v7
 %endif
-%if 0%{?rhel} >= 6
 %ifarch ppc ppc64
+%if 0%{?rhel} >= 7
+	--with-cpu-32=power4 --with-tune-32=power7 --with-cpu-64=power4 --with-tune-64=power7 \
+%endif
+%if 0%{?rhel} == 6
 	--with-cpu-32=power4 --with-tune-32=power6 --with-cpu-64=power4 --with-tune-64=power6 \
 %endif
 %endif
@@ -2986,6 +2991,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Jul 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-4
+- update from the 4.8 branch
+  - PRs c++/57437, c++/57526, c++/57532, c++/57545, c++/57550, c++/57551,
+	c++/57645, c++/57771, c++/57831, fortran/57785,
+	rtl-optimization/57829, target/56102, target/56892, target/56987,
+	target/57506, target/57631, target/57736, target/57744,
+	target/57777, target/57792, target/57844
+- backport some raw-string literal handling fixes (#981029,
+  PRs preprocessor/57757, preprocessor/57824)
+- improve convert_to_* (PR c++/56493)
+- tune for power7 on RHEL7
+
 * Fri Jun 28 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-3
 - update from the 4.8 branch
   - PRs c++/53211, c++/56544, driver/57652, libstdc++/57619, libstdc++/57666,
