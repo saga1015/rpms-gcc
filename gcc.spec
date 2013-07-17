@@ -1,9 +1,9 @@
-%global DATE 20130715
-%global SVNREV 200961
+%global DATE 20130717
+%global SVNREV 201013
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2162,6 +2162,8 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/si2vmx.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/spu2vmx.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/vec_types.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/htmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/htmxlintrin.h
 %endif
 %ifarch %{arm}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/unwind-arm-common.h
@@ -2170,6 +2172,11 @@ fi
 %endif
 %ifarch sparc sparcv9 sparc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/visintrin.h
+%endif
+%ifarch s390 s390x
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/s390intrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/htmintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/htmxlintrin.h
 %endif
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/collect2
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/crt*.o
@@ -2991,6 +2998,13 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jul 17 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-5
+- update from the 4.8 branch
+  - PRs target/55656, target/55657
+  - update to Go 1.1.1
+- backport power8 HTM support from trunk (#731884)
+- backport s390 zEC12 HTM support from trunk
+
 * Mon Jul 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-4
 - update from the 4.8 branch
   - PRs c++/57437, c++/57526, c++/57532, c++/57545, c++/57550, c++/57551,
