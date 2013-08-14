@@ -1,0 +1,127 @@
+2013-08-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/58145
+	* tree-sra.c (build_ref_for_offset): If prev_base has
+	TREE_THIS_VOLATILE or TREE_SIDE_EFFECTS, propagate it to MEM_REF.
+
+	* gcc.dg/pr58145-1.c: New test.
+	* gcc.dg/pr58145-2.c: New test.
+
+--- gcc/tree-sra.c.jj	2013-08-14 11:02:55.290711106 +0200
++++ gcc/tree-sra.c	2013-08-14 12:38:47.405230042 +0200
+@@ -1466,6 +1466,7 @@ build_ref_for_offset (location_t loc, tr
+ {
+   tree prev_base = base;
+   tree off;
++  tree mem_ref;
+   HOST_WIDE_INT base_offset;
+   unsigned HOST_WIDE_INT misalign;
+   unsigned int align;
+@@ -1516,7 +1517,12 @@ build_ref_for_offset (location_t loc, tr
+   if (align < TYPE_ALIGN (exp_type))
+     exp_type = build_aligned_type (exp_type, align);
+ 
+-  return fold_build2_loc (loc, MEM_REF, exp_type, base, off);
++  mem_ref = fold_build2_loc (loc, MEM_REF, exp_type, base, off);
++  if (TREE_THIS_VOLATILE (prev_base))
++    TREE_THIS_VOLATILE (mem_ref) = 1;
++  if (TREE_SIDE_EFFECTS (prev_base))
++    TREE_SIDE_EFFECTS (mem_ref) = 1;
++  return mem_ref;
+ }
+ 
+ /* Construct a memory reference to a part of an aggregate BASE at the given
+--- gcc/testsuite/gcc.dg/pr58145-1.c.jj	2013-08-14 12:02:07.077086488 +0200
++++ gcc/testsuite/gcc.dg/pr58145-1.c	2013-08-14 12:03:15.895198976 +0200
+@@ -0,0 +1,37 @@
++/* PR tree-optimization/58145 */
++/* { dg-do compile { target { int32plus } } } */
++/* { dg-options "-O2 -fdump-tree-optimized" } */
++
++struct S { unsigned int data : 32; };
++struct T { unsigned int data; };
++volatile struct S s2;
++
++void
++f1 (int val)
++{
++  struct S s = { .data = val };
++  *(volatile struct S *) 0x880000UL = s;
++}
++
++void
++f2 (int val)
++{
++  struct T t = { .data = val };
++  *(volatile struct T *) 0x880000UL = t;
++}
++
++void
++f3 (int val)
++{
++  *(volatile unsigned int *) 0x880000UL = val;
++}
++
++void
++f4 (int val)
++{
++  struct S s = { .data = val };
++  s2 = s;
++}
++
++/* { dg-final { scan-tree-dump-times " ={v} " 4 "optimized" } } */
++/* { dg-final { cleanup-tree-dump "optimized" } } */
+--- gcc/testsuite/gcc.dg/pr58145-2.c.jj	2013-08-14 12:02:28.409663559 +0200
++++ gcc/testsuite/gcc.dg/pr58145-2.c	2013-08-14 12:04:19.471612107 +0200
+@@ -0,0 +1,51 @@
++/* PR tree-optimization/58145 */
++/* { dg-do compile { target { int32plus } } } */
++/* { dg-options "-O2 -fdump-tree-optimized" } */
++
++struct S { unsigned int data : 32; };
++struct T { unsigned int data; };
++volatile struct S s2;
++
++static inline void
++f1 (int val)
++{
++  struct S s = { .data = val };
++  *(volatile struct S *) 0x880000UL = s;
++}
++
++static inline void
++f2 (int val)
++{
++  struct T t = { .data = val };
++  *(volatile struct T *) 0x880000UL = t;
++}
++
++static inline void
++f3 (int val)
++{
++  *(volatile unsigned int *) 0x880000UL = val;
++}
++
++static inline void
++f4 (int val)
++{
++  struct S s = { .data = val };
++  s2 = s;
++}
++
++void
++f5 (void)
++{
++  int i;
++  for (i = 0; i < 100; i++)
++    f1 (0);
++  for (i = 0; i < 100; i++)
++    f2 (0);
++  for (i = 0; i < 100; i++)
++    f3 (0);
++  for (i = 0; i < 100; i++)
++    f4 (0);
++}
++
++/* { dg-final { scan-tree-dump-times " ={v} " 4 "optimized" } } */
++/* { dg-final { cleanup-tree-dump "optimized" } } */

@@ -1,9 +1,9 @@
-%global DATE 20130717
-%global SVNREV 201013
+%global DATE 20130814
+%global SVNREV 201733
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -69,7 +69,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}.1
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -195,6 +195,7 @@ Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
+Patch15: gcc48-pr58145.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -750,6 +751,7 @@ package or when debugging this package.
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr56564~
 %patch14 -p0 -b .pr56493~
+%patch15 -p0 -b .pr58145~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2998,8 +3000,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.8.1-5.1
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+* Wed Aug 14 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-6
+- update from the 4.8 branch
+  - PRs c++/57825, c++/57901, c++/57981, c++/58022, fortran/57435,
+	fortran/58058, libstdc++/56627, libstdc++/57914, libstdc++/58098,
+	middle-end/58041, rtl-optimization/57459, rtl-optimization/57708,
+	rtl-optimization/57878, sanitizer/56417, target/51784, target/57516,
+	target/58067, target/58132, tree-optimization/57980
+- power8 fusion support (#731884)
+- fix up ABI alignment patch (#947197)
+- fix up SRA with volatile struct accesses (PR tree-optimization/58145)
 
 * Wed Jul 17 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-5
 - update from the 4.8 branch
