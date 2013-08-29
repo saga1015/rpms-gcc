@@ -1,9 +1,9 @@
-%global DATE 20130814
-%global SVNREV 201733
+%global DATE 20130829
+%global SVNREV 202076
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -195,7 +195,6 @@ Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
-Patch15: gcc48-pr58145.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -751,7 +750,6 @@ package or when debugging this package.
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr56564~
 %patch14 -p0 -b .pr56493~
-%patch15 -p0 -b .pr58145~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -3000,6 +2998,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Aug 29 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-7
+- update from the 4.8 branch
+  - PRs c++/58083, c++/58119, c++/58190, fortran/57798, fortran/58185,
+	middle-end/56977, middle-end/57381, middle-end/58257, target/56979,
+	target/57865, target/57927, target/58218, tree-optimization/57343,
+	tree-optimization/57396, tree-optimization/57417,
+	tree-optimization/58006, tree-optimization/58164,
+	tree-optimization/58165, tree-optimization/58209
+- fix up x86-64 -mcmodel=large -fpic TLS GD and LD model
+  (#994244, PR target/58067)
+- power8 fusion support fixes (#731884, PR target/58160)
+
 * Wed Aug 14 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-6
 - update from the 4.8 branch
   - PRs c++/57825, c++/57901, c++/57981, c++/58022, fortran/57435,
