@@ -1,9 +1,9 @@
-%global DATE 20130829
-%global SVNREV 202078
+%global DATE 20130909
+%global SVNREV 202413
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2998,6 +2998,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Sep  9 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-8
+- update from the 4.8 branch
+  - PRs c++/58325, libstdc++/58302, libstdc++/58341, middle-end/57656,
+	other/12081, target/57735, tree-optimization/57521,
+	tree-optimization/57685, tree-optimization/58010,
+	tree-optimization/58223, tree-optimization/58228,
+	tree-optimization/58246, tree-optimization/58277,
+	tree-optimization/58364
+
 * Thu Aug 29 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-7
 - update from the 4.8 branch
   - PRs c++/58083, c++/58119, c++/58190, fortran/57798, fortran/58185,
