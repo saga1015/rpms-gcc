@@ -1,9 +1,9 @@
-%global DATE 20130909
-%global SVNREV 202413
+%global DATE 20130915
+%global SVNREV 202602
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 8
+%global gcc_release 9
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -2170,6 +2170,9 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_neon.h
 %endif
+%ifarch aarch64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_neon.h
+%endif
 %ifarch sparc sparcv9 sparc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/visintrin.h
 %endif
@@ -2998,6 +3001,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Sun Sep 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-9
+- update from the 4.8 branch
+  - PRs c++/58273, libstdc++/58415, middle-end/58377, rtl-optimization/58365,
+	target/58314, target/58361, target/58382, tree-optimization/58385
+- add arm_neon.h on aarch64 (#1007490)
+
 * Mon Sep  9 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-8
 - update from the 4.8 branch
   - PRs c++/58325, libstdc++/58302, libstdc++/58341, middle-end/57656,
