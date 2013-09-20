@@ -1,9 +1,9 @@
-%global DATE 20130915
-%global SVNREV 202602
+%global DATE 20130920
+%global SVNREV 202765
 %global gcc_version 4.8.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 9
+%global gcc_release 10
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -195,6 +195,7 @@ Patch11: gcc48-libstdc++-docs.patch
 Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
+Patch15: gcc48-color-auto.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -750,6 +751,9 @@ package or when debugging this package.
 %patch12 -p0 -b .no-add-needed~
 %patch13 -p0 -b .pr56564~
 %patch14 -p0 -b .pr56493~
+%if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
+%patch15 -p0 -b .color-auto~
+%endif
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -1049,7 +1053,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %endif
 %ifarch ppc ppc64
 %if 0%{?rhel} >= 7
-	--with-cpu-32=power4 --with-tune-32=power7 --with-cpu-64=power4 --with-tune-64=power7 \
+	--with-cpu-32=power7 --with-tune-32=power7 --with-cpu-64=power7 --with-tune-64=power7 \
 %endif
 %if 0%{?rhel} == 6
 	--with-cpu-32=power4 --with-tune-32=power6 --with-cpu-64=power4 --with-tune-64=power6 \
@@ -1068,7 +1072,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 	--with-arch_32=i686 \
 %endif
 %ifarch s390 s390x
+%if 0%{?rhel} >= 7
+	--with-arch=z10 --with-tune=zEC12 --enable-decimal-float \
+%else
 	--with-arch=z9-109 --with-tune=z10 --enable-decimal-float \
+%endif
 %endif
 %ifarch armv7hl
 	--with-cpu=cortex-a8 --with-tune=cortex-a8 --with-arch=armv7-a \
@@ -3001,6 +3009,17 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Fri Sep 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-10
+- update from the 4.8 branch
+  - PRs ada/58264, c++/58457, c++/58458, libstdc++/58358,
+	tree-optimization/58088
+- on RHEL7, configure on ppc/ppc64 with default -mcpu=power7 and
+  on s390/s390x with default -march=z10 -mtune=zEC12 (#805157)
+- on Fedora 20+ and RHEL7 default to -fdiagnostics-color=auto
+  rather than -fdiagnostics-color=never, if GCC_COLORS isn't
+  in the environment; to turn it off by default, set GCC_COLORS=
+  in the environment
+
 * Sun Sep 15 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-9
 - update from the 4.8 branch
   - PRs c++/58273, libstdc++/58415, middle-end/58377, rtl-optimization/58365,

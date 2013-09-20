@@ -1,0 +1,91 @@
+2013-09-20  Jakub Jelinek  <jakub@redhat.com>
+
+	* common.opt (-fdiagnostics-color=): Default to auto.
+	* toplev.c (process_options): Always default to
+	-fdiagnostics-color=auto if no -f{,no-}diagnostics-color*.
+	* doc/invoke.texi (-fdiagnostics-color*): Adjust documentation
+	of the default.
+
+	PR testsuite/57605
+libstdc++-v3/
+	* testsuite/lib/libstdc++.exp (libstdc++_init): Prepend
+	-fdiagnostics-color=never to cxxflags.
+libmudflap/
+	* testsuite/lib/libmudflap.exp (libmudflap-init): Append
+	-fdiagnostics-color=never to cxxflags.
+libgomp/
+	* testsuite/lib/libgomp.exp: Add -fdiagnostics-color=never to
+	ALWAYS_CFLAGS.
+
+--- gcc/common.opt.jj	2013-09-18 12:06:53.000000000 +0200
++++ gcc/common.opt	2013-09-20 10:00:00.935823900 +0200
+@@ -1037,7 +1037,7 @@ Common Alias(fdiagnostics-color=,always,
+ ;
+ 
+ fdiagnostics-color=
+-Common Joined RejectNegative Var(flag_diagnostics_show_color) Enum(diagnostic_color_rule) Init(DIAGNOSTICS_COLOR_NO)
++Common Joined RejectNegative Var(flag_diagnostics_show_color) Enum(diagnostic_color_rule) Init(DIAGNOSTICS_COLOR_AUTO)
+ -fdiagnostics-color=[never|always|auto]	Colorize diagnostics
+ 
+ ; Required for these enum values.
+--- gcc/toplev.c.jj	2013-09-09 11:32:39.000000000 +0200
++++ gcc/toplev.c	2013-09-20 10:10:08.198721005 +0200
+@@ -1229,10 +1229,8 @@ process_options (void)
+ 
+   maximum_field_alignment = initial_max_fld_align * BITS_PER_UNIT;
+ 
+-  /* Default to -fdiagnostics-color=auto if GCC_COLORS is in the environment,
+-     otherwise default to -fdiagnostics-color=never.  */
+-  if (!global_options_set.x_flag_diagnostics_show_color
+-      && getenv ("GCC_COLORS"))
++  /* Default to -fdiagnostics-color=auto.  */
++  if (!global_options_set.x_flag_diagnostics_show_color)
+     pp_show_color (global_dc->printer)
+       = colorize_init (DIAGNOSTICS_COLOR_AUTO);
+ 
+--- gcc/doc/invoke.texi.jj	2013-09-18 12:06:50.000000000 +0200
++++ gcc/doc/invoke.texi	2013-09-20 10:09:29.079904455 +0200
+@@ -3046,8 +3046,7 @@ a message which is too long to fit on a
+ @cindex highlight, color, colour
+ @vindex GCC_COLORS @r{environment variable}
+ Use color in diagnostics.  @var{WHEN} is @samp{never}, @samp{always},
+-or @samp{auto}.  The default is @samp{never} if @env{GCC_COLORS} environment
+-variable isn't present in the environment, and @samp{auto} otherwise.
++or @samp{auto}.  The default is @samp{auto}.
+ @samp{auto} means to use color only when the standard error is a terminal.
+ The forms @option{-fdiagnostics-color} and @option{-fno-diagnostics-color} are
+ aliases for @option{-fdiagnostics-color=always} and
+--- libstdc++-v3/testsuite/lib/libstdc++.exp.jj	2013-08-12 21:18:45.000000000 +0200
++++ libstdc++-v3/testsuite/lib/libstdc++.exp	2013-09-20 12:13:41.342720820 +0200
+@@ -283,7 +283,7 @@ proc libstdc++_init { testfile } {
+     v3track cxxflags 2
+ 
+     # Always use MO files built by this test harness.
+-    set cxxflags "$cxxflags -DLOCALEDIR=\".\""
++    set cxxflags "-fdiagnostics-color=never $cxxflags -DLOCALEDIR=\".\""
+     set ccflags "$cxxflags -DLOCALEDIR=\".\""
+ 
+     # If a PCH file is available, use it.  We must delay performing
+--- libmudflap/testsuite/lib/libmudflap.exp.jj	2013-02-04 14:49:32.000000000 +0100
++++ libmudflap/testsuite/lib/libmudflap.exp	2013-09-20 12:16:31.760710659 +0200
+@@ -85,7 +85,7 @@ proc libmudflap-init { language } {
+     append ld_library_path ":${blddir}/.libs"
+ 
+     set libs "-L${blddir}/.libs"
+-    set cxxflags "-ggdb3 -DDEBUG_ASSERT"
++    set cxxflags "-ggdb3 -DDEBUG_ASSERT -fdiagnostics-color=never"
+     set includes "-I${srcdir} -I${srcdir}/.. -I.."
+ 
+     if {$language == "c++"} {
+--- libgomp/testsuite/lib/libgomp.exp.jj	2013-06-25 11:47:20.000000000 +0200
++++ libgomp/testsuite/lib/libgomp.exp	2013-09-20 11:51:32.885800025 +0200
+@@ -167,6 +167,9 @@ proc libgomp_init { args } {
+     # Disable caret
+     lappend ALWAYS_CFLAGS "additional_flags=-fno-diagnostics-show-caret"
+ 
++    # Disable color diagnostics
++    lappend ALWAYS_CFLAGS "additional_flags=-fdiagnostics-color=never"
++
+     # And, gee, turn on OpenMP.
+     lappend ALWAYS_CFLAGS "additional_flags=-fopenmp"
+ }
