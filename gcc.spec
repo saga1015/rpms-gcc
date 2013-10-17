@@ -1,9 +1,9 @@
-%global DATE 20130920
-%global SVNREV 202765
-%global gcc_version 4.8.1
+%global DATE 20131017
+%global SVNREV 203741
+%global gcc_version 4.8.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 10
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -819,7 +819,7 @@ tar xjf %{SOURCE10}
 
 %patch1100 -p0 -b .isl-aarch64~
 
-sed -i -e 's/4\.8\.2/4.8.1/' gcc/BASE-VER
+sed -i -e 's/4\.8\.3/4.8.2/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
@@ -966,6 +966,7 @@ cd ../..
 CC=gcc
 OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
+OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mfpmath=sse/-mfpmath=sse -msse2/g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/ -pipe / /g'`
 %ifarch sparc
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcpu=v[78]//g'`
@@ -1065,11 +1066,20 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %ifarch %{ix86} x86_64
 	--with-tune=generic \
 %endif
+%if 0%{?rhel} >= 7
+%ifarch %{ix86}
+	--with-arch=x86-64 \
+%endif
+%ifarch x86_64
+	--with-arch_32=x86-64 \
+%endif
+%else
 %ifarch %{ix86}
 	--with-arch=i686 \
 %endif
 %ifarch x86_64
 	--with-arch_32=i686 \
+%endif
 %endif
 %ifarch s390 s390x
 %if 0%{?rhel} >= 7
@@ -3009,12 +3019,33 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Oct 17 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-1
+- update from the 4.8 branch
+  - GCC 4.8.2 release
+  - PRs c++/57850, c++/58633, libstdc++/58191
+
+* Thu Oct 10 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-12
+- update from the 4.8 branch
+  - PRs c++/58568, fortran/55469, fortran/57697, fortran/58469,
+	libstdc++/57465, libstdc++/57641, libstdc++/58659, target/58460,
+	tree-optimization/58539
+  - fix asm goto handling (#1017704, PR middle-end/58670)
+
+* Wed Oct  2 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-11
+- update from the 4.8 branch
+  - PRs c++/58535, libstdc++/58437, libstdc++/58569, middle-end/56791,
+	middle-end/58463, middle-end/58564, target/58330,
+	tree-optimization/56716
+  - fix s390x z10+ chunkification (#1012870, PR target/58574)
+- disable ppc{,64} -mvsx-timode by default (#1014053, PR target/58587)
+
 * Fri Sep 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.1-10
 - update from the 4.8 branch
   - PRs ada/58264, c++/58457, c++/58458, libstdc++/58358,
 	tree-optimization/58088
-- on RHEL7, configure on ppc/ppc64 with default -mcpu=power7 and
-  on s390/s390x with default -march=z10 -mtune=zEC12 (#805157)
+- on RHEL7, configure on ppc/ppc64 with default -mcpu=power7,
+  on s390/s390x with default -march=z10 -mtune=zEC12 and
+  on i?86 default to -march=x86-64 -mtune=generic (#805157)
 - on Fedora 20+ and RHEL7 default to -fdiagnostics-color=auto
   rather than -fdiagnostics-color=never, if GCC_COLORS isn't
   in the environment; to turn it off by default, set GCC_COLORS=
