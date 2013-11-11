@@ -1,9 +1,9 @@
-%global DATE 20131017
-%global SVNREV 203741
+%global DATE 20131111
+%global SVNREV 204664
 %global gcc_version 4.8.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -3019,6 +3019,26 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Nov 11 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-4
+- update from the 4.8 branch
+  - PRs plugins/52872, regression/58985, target/59034
+
+* Wed Nov  6 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-3
+- update from the 4.8 branch
+  - PRs c++/58282, c++/58979, fortran/58355, fortran/58989, libstdc++/58839,
+	libstdc++/58912, libstdc++/58952, lto/57084, middle-end/58789,
+	rtl-optimization/58079, rtl-optimization/58831, rtl/58542,
+	target/58690, target/58779, target/58792, target/58838,
+	tree-optimization/57488, tree-optimization/58805,
+	tree-optimization/58984
+- fix ICEs in get_bit_range (PR middle-end/58970)
+- fix ICEs in RTL loop unswitching (PR rtl-optimization/58997)
+
+* Sun Oct 20 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-2
+- update from the 4.8 branch
+  - PRs c++/58596, libstdc++/58800
+- power8 TImode fix (#1014053, PR target/58673)
+
 * Thu Oct 17 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-1
 - update from the 4.8 branch
   - GCC 4.8.2 release
