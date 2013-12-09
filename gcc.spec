@@ -1,9 +1,9 @@
-%global DATE 20131111
-%global SVNREV 204664
+%global DATE 20131209
+%global SVNREV 205813
 %global gcc_version 4.8.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -202,6 +202,7 @@ Patch1001: fastjar-0.97-len1.patch
 Patch1002: fastjar-0.97-filename0.patch
 Patch1003: fastjar-CVE-2010-0831.patch
 Patch1004: fastjar-man.patch
+Patch1005: fastjar-0.97-aarch64-config.patch
 
 Patch1100: isl-%{isl_version}-aarch64-config.patch
 
@@ -812,6 +813,7 @@ tar xzf %{SOURCE4}
 %patch1002 -p0 -b .fastjar-0.97-filename0~
 %patch1003 -p0 -b .fastjar-CVE-2010-0831~
 %patch1004 -p0 -b .fastjar-man~
+%patch1005 -p0 -b .fastjar-0.97-aarch64-config~
 
 %if %{bootstrap_java}
 tar xjf %{SOURCE10}
@@ -1317,9 +1319,9 @@ sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
   $FULLPATH/libgcj.spec
 %endif
 
-mv %{buildroot}%{_prefix}/lib/libgfortran.spec $FULLPATH/
+mv %{buildroot}%{_prefix}/%{_lib}/libgfortran.spec $FULLPATH/
 %if %{build_libitm}
-mv %{buildroot}%{_prefix}/lib/libitm.spec $FULLPATH/
+mv %{buildroot}%{_prefix}/%{_lib}/libitm.spec $FULLPATH/
 %endif
 
 mkdir -p %{buildroot}/%{_lib}
@@ -3019,6 +3021,28 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon Dec  9 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-5
+- update from the 4.8 branch
+  - PRs ada/59382, bootstrap/57683, c++/58162, c++/59031, c++/59032,
+	c++/59044, c++/59052, c++/59268, c++/59297, c/59280, c/59351,
+	fortran/57445, fortran/58099, fortran/58471, fortran/58771,
+	middle-end/58742, middle-end/58941, middle-end/58956,
+	middle-end/59011, middle-end/59037, middle-end/59138,
+	rtl-optimization/58726, target/50751, target/51244, target/56788,
+	target/58854, target/58864, target/59021, target/59088,
+	target/59101, target/59153, target/59163, target/59207,
+	target/59343, target/59405, tree-optimization/57517,
+	tree-optimization/58137, tree-optimization/58143,
+	tree-optimization/58653, tree-optimization/58794,
+	tree-optimization/59014, tree-optimization/59047,
+	tree-optimization/59139, tree-optimization/59164,
+	tree-optimization/59288, tree-optimization/59330,
+	tree-optimization/59334, tree-optimization/59358,
+	tree-optimization/59388
+- aarch64 gcj enablement (#1023789)
+- look for libgfortran.spec and libitm.spec in %%{_lib} rather than lib
+  subdirs (#1023789)
+
 * Mon Nov 11 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-4
 - update from the 4.8 branch
   - PRs plugins/52872, regression/58985, target/59034
