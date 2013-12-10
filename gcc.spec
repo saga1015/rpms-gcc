@@ -1314,7 +1314,7 @@ find %{buildroot} -name libgcj.a -o -name libgtkpeer.a \
 		     -o -name libgij.a -o -name libgcj_bc.a -o -name libjavamath.a \
   | xargs rm -f
 
-mv %{buildroot}%{_prefix}/lib/libgcj.spec $FULLPATH/
+mv %{buildroot}%{_prefix}/%{_lib}/libgcj.spec $FULLPATH/
 sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
   $FULLPATH/libgcj.spec
 %endif
