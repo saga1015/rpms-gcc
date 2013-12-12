@@ -1,9 +1,9 @@
-%global DATE 20131209
-%global SVNREV 205813
+%global DATE 20131212
+%global SVNREV 205936
 %global gcc_version 4.8.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 7
 %global _unpackaged_files_terminate_build 0
 %global multilib_64_archs sparc64 ppc64 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 alpha
@@ -196,7 +196,7 @@ Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
 Patch15: gcc48-color-auto.patch
-Patch16: gcc48-pr58956-revert.patch
+Patch16: gcc48-pr58956.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -756,7 +756,7 @@ package or when debugging this package.
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
 %patch15 -p0 -b .color-auto~
 %endif
-%patch16 -p0 -b .pr58956-revert~
+%patch16 -p0 -b .pr58956~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -3023,6 +3023,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Dec 12 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-7
+- update from the 4.8 branch
+  - PRs libgomp/59467, rtl-optimization/58295, target/56807,
+	testsuite/59442
+  - fix LRA coalescing for real (PR middle-end/59470)
+
 * Wed Dec 11 2013 Jakub Jelinek <jakub@redhat.com> 4.8.2-6
 - temporarily revert PR middle-end/58956 to avoid libstdc++
   miscompilation on i?86 (PR middle-end/59470)
