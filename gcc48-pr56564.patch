@@ -378,14 +378,15 @@
  extern unsigned int ix86_minimum_alignment (tree, enum machine_mode,
 --- gcc/config/i386/i386.c	(revision 199897)
 +++ gcc/config/i386/i386.c	(revision 199898)
-@@ -25375,11 +25375,12 @@ ix86_constant_alignment (tree exp, int a
+@@ -25292,12 +25292,13 @@ ix86_constant_alignment (tree exp, int a
     instead of that alignment to align the object.  */
  
  int
 -ix86_data_alignment (tree type, int align)
 +ix86_data_alignment (tree type, int align, bool opt)
  {
-   int max_align = optimize_size ? BITS_PER_WORD : MIN (256, MAX_OFILE_ALIGNMENT);
+   int max_align
+     = optimize_size ? BITS_PER_WORD : MIN (256, MAX_OFILE_ALIGNMENT);
  
 -  if (AGGREGATE_TYPE_P (type)
 +  if (opt
@@ -393,7 +394,7 @@
        && TYPE_SIZE (type)
        && TREE_CODE (TYPE_SIZE (type)) == INTEGER_CST
        && (TREE_INT_CST_LOW (TYPE_SIZE (type)) >= (unsigned) max_align
-@@ -25391,14 +25392,17 @@ ix86_data_alignment (tree type, int alig
+@@ -25309,14 +25310,17 @@ ix86_data_alignment (tree type, int alig
       to 16byte boundary.  */
    if (TARGET_64BIT)
      {
