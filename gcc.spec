@@ -1,9 +1,9 @@
-%global DATE 20140115
-%global SVNREV 206627
+%global DATE 20140120
+%global SVNREV 206854
 %global gcc_version 4.8.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 11
+%global gcc_release 13
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -197,6 +197,7 @@ Patch12: gcc48-no-add-needed.patch
 Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
 Patch15: gcc48-color-auto.patch
+Patch16: gcc48-pr28865.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -756,6 +757,7 @@ package or when debugging this package.
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
 %patch15 -p0 -b .color-auto~
 %endif
+%patch16 -p0 -b .pr28865~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -1011,7 +1013,8 @@ enablelada=,ada
 enablelgo=,go
 %endif
 CC="$CC" CFLAGS="$OPT_FLAGS" \
-	CXXFLAGS="`echo " $OPT_FLAGS " | sed 's/ -Wall / /g;s/ -fexceptions / /g'`" \
+	CXXFLAGS="`echo " $OPT_FLAGS " | sed 's/ -Wall / /g;s/ -fexceptions / /g' \
+		  | sed 's/ -Werror=format-security / -Wformat -Werror=format-security /'`" \
 	XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" GCJFLAGS="$OPT_FLAGS" \
 	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
@@ -3022,13 +3025,25 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Jan 21 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-13
+- when removing -Wall from CXXFLAGS, if -Werror=format-security
+  is present, add -Wformat to it, so that GCC builds on F21
+
+* Mon Jan 20 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-12
+- update from the 4.8 branch (#1052892)
+  - PRs c++/59838, debug/54694, fortran/34547, fortran/58410,
+	middle-end/59827, middle-end/59860, target/58139, target/59142,
+	target/59695, target/59794, target/59826, target/59839
+- fix handling of initialized vars with flexible array members
+  (#1035413, PR middle-end/28865)
+
 * Wed Jan 15 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-11
 - update from the 4.8 branch
   - fix s390x reload bug (#1052372, PR target/59803)
 
 * Tue Jan 14 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-10
 - update from the 4.8 branch (#1052892)
-  - PR ada/55946, ada/59772, c++/56060, c++/58954, c++/59255, c++/59730,
+  - PRs ada/55946, ada/59772, c++/56060, c++/58954, c++/59255, c++/59730,
 	fortran/57042, fortran/58998, fortran/59493, fortran/59612,
 	fortran/59654, ipa/59610, middle-end/59584, pch/59436,
 	rtl-optimization/54300, rtl-optimization/58668,
