@@ -1,0 +1,14 @@
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=60010
+https://bugzilla.redhat.com/show_bug.cgi?id=1058991
+
+--- a/gcc/config/host-linux.c
++++ b/gcc/config/host-linux.c
+@@ -86,6 +86,8 @@
+ # define TRY_EMPTY_VM_SPACE	0x60000000
+ #elif defined(__mc68000__)
+ # define TRY_EMPTY_VM_SPACE	0x40000000
++#elif defined(__aarch64__)
++# define TRY_EMPTY_VM_SPACE	0x1000000000
+ #elif defined(__ARM_EABI__)
+ # define TRY_EMPTY_VM_SPACE     0x60000000
+ #elif defined(__mips__) && defined(__LP64__)
