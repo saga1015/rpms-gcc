@@ -3,7 +3,7 @@
 %global gcc_version 4.8.2
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 14
+%global gcc_release 15
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -49,6 +49,11 @@
 %endif
 %global build_cloog 1
 %global build_libstdcxx_docs 1
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64p7 s390 s390x %{arm} aarch64
+%global attr_ifunc 1
+%else
+%global attr_ifunc 0
+%endif
 # If you don't have already a usable gcc-java and libgcj for your arch,
 # do on some arch which has it rpmbuild -bc --with java_tar gcc.spec
 # which creates libjava-classes-%{version}-%{release}.tar.bz2
@@ -198,7 +203,10 @@ Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
 Patch15: gcc48-color-auto.patch
 Patch16: gcc48-pr28865.patch
-Patch17: gcc48-pr60010.patch
+Patch17: gcc48-libgo-p224.patch
+Patch18: gcc48-pr60137.patch
+Patch19: gcc48-pr60010.patch
+Patch20: gcc48-pr60046.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -759,7 +767,11 @@ package or when debugging this package.
 %patch15 -p0 -b .color-auto~
 %endif
 %patch16 -p0 -b .pr28865~
-%patch17 -p0 -b .pr60010~
+%patch17 -p0 -b .libgo-p224~
+rm -f libgo/go/crypto/elliptic/p224{,_test}.go
+%patch18 -p0 -b .pr60137~
+%patch19 -p0 -b .pr60010~
+%patch20 -p0 -b .pr60046~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -1041,6 +1053,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 	--with-isl=`pwd`/isl-install --with-cloog=`pwd`/cloog-install \
 %else
 	--without-isl --without-cloog \
+%endif
+%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
+%if %{attr_ifunc}
+	--enable-gnu-indirect-function \
+%endif
 %endif
 %ifarch %{arm}
 	--disable-sjlj-exceptions \
@@ -3027,8 +3044,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Fri Jan 31 2014 Kyle McMartin <kyle@redhat.com> 4.8.2-14
+* Thu Feb 20 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-15
+- fix exception spec instantiation ICE (#1067398, PR c++/60046)
 - fix pch on aarch64 (#1058991, PR pch/60010)
+- configure with --enable-gnu-indirect-function on architectures
+  and distros that support it and don't support it by default
+  yet (#1067245)
+
+* Wed Feb 19 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-14
+- remove libgo P.224 elliptic curve (#1066539)
+- fix -mcpu=power8 ICE (#1064242, PR target/60137)
 
 * Tue Jan 21 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-13
 - when removing -Wall from CXXFLAGS, if -Werror=format-security
