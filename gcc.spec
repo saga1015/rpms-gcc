@@ -198,7 +198,7 @@ Patch13: gcc48-pr56564.patch
 Patch14: gcc48-pr56493.patch
 Patch15: gcc48-color-auto.patch
 Patch16: gcc48-pr28865.patch
-Patch17: gcc48-aarch64-define-TRY_EMPTY_VM_SPACE.patch
+Patch17: gcc48-pr60010.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -759,7 +759,7 @@ package or when debugging this package.
 %patch15 -p0 -b .color-auto~
 %endif
 %patch16 -p0 -b .pr28865~
-%patch17 -p1 -b .aarch64-pch~
+%patch17 -p0 -b .pr60010~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -3028,7 +3028,7 @@ fi
 
 %changelog
 * Fri Jan 31 2014 Kyle McMartin <kyle@redhat.com> 4.8.2-14
-- aarch64: fix cc1plus segfault using pch (#1058991), PR pch/60010
+- fix pch on aarch64 (#1058991, PR pch/60010)
 
 * Tue Jan 21 2014 Jakub Jelinek <jakub@redhat.com> 4.8.2-13
 - when removing -Wall from CXXFLAGS, if -Werror=format-security
