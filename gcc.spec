@@ -1061,6 +1061,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
 	--enable-shared --enable-threads=posix --enable-checking=release \
+	--enable-multilib \
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
 	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
 	--enable-languages=c,c++,objc,obj-c++,java,fortran${enablelada}${enablelgo},lto \
