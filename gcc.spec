@@ -1,9 +1,9 @@
-%global DATE 20140411
-%global SVNREV 209308
+%global DATE 20140422
+%global SVNREV 209656
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.10
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -3200,6 +3200,17 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue Apr 22 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-1
+- update from the 4.9 branch
+  - GCC 4.9.0 release
+  - PRs c/59073, c/60819, fortran/58085, fortran/60717, libfortran/60810,
+	middle-end/55022, middle-end/60281, middle-end/60467,
+	middle-end/60469, middle-end/60849, other/43620, other/60644,
+	target/60839, target/60847, target/60868, tree-optimization/59817,
+	tree-optimization/60453, tree-optimization/60823,
+	tree-optimization/60836, tree-optimization/60841,
+	tree-optimization/60844
+
 * Fri Apr 11 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.10
 - update from the trunk and 4.9 branch
   - GCC 4.9.0-rc1
