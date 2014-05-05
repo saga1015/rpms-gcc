@@ -1,13 +1,13 @@
-%global DATE 20140422
-%global SVNREV 209656
+%global DATE 20140505
+%global SVNREV 210058
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
-%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha
+%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha aarch64
 %global build_ada 1
 %else
 %global build_ada 0
@@ -17,7 +17,7 @@
 %else
 %global build_java 1
 %endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm}
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
 %global build_go 1
 %else
 %global build_go 0
@@ -52,7 +52,7 @@
 %else
 %global build_libcilkrts 0
 %endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm}
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
 %global build_libatomic 1
 %else
 %global build_libatomic 0
@@ -220,6 +220,7 @@ Patch12: gcc49-no-add-needed.patch
 Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
+Patch17: gcc49-aarch64-ada.patch
 
 Patch1000: fastjar-0.97-segfault.patch
 Patch1001: fastjar-0.97-len1.patch
@@ -805,6 +806,7 @@ package or when debugging this package.
 %endif
 %patch16 -p0 -b .libgo-p224~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
+%patch17 -p0 -b .aarch64-ada~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -3200,6 +3202,20 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Mon May  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-2
+- update from the 4.9 branch
+  - PRs c++/60951, c++/60980, c++/60992, fortran/60495, ipa/60911, ipa/60912,
+	libstdc++/59476, libstdc++/60497, libstdc++/60710, libstdc++/61036,
+	lto/60720, middle-end/60891, middle-end/60895, target/60909,
+	target/60941, target/61026, tree-optimization/60903,
+	tree-optimization/60930, tree-optimization/60960,
+	tree-optimization/60971
+- backport -fno-sanitize-recover and -fsanitize-undefined-trap-on-error
+  support from the trunk (PR sanitizer/60275)
+
+* Tue Apr 29 2014 Richard Henderson <rth@redhat.com>
+- enable ada, go and libatomic on aarch64
+
 * Tue Apr 22 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-1
 - update from the 4.9 branch
   - GCC 4.9.0 release
