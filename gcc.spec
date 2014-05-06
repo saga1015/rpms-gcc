@@ -1,9 +1,9 @@
-%global DATE 20140505
-%global SVNREV 210058
+%global DATE 20140506
+%global SVNREV 210097
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -12,11 +12,7 @@
 %else
 %global build_ada 0
 %endif
-%if 0%{?rhel} >= 7
 %global build_java 0
-%else
-%global build_java 1
-%endif
 %ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
 %global build_go 1
 %else
@@ -3202,6 +3198,11 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Tue May  6 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-3
+- update from the 4.9 branch
+  - PRs driver/61065, ipa/60965
+- disable gcc-java and libjava, broken by recent eclipse-ecj changes
+
 * Mon May  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-2
 - update from the 4.9 branch
   - PRs c++/60951, c++/60980, c++/60992, fortran/60495, ipa/60911, ipa/60912,
