@@ -1,9 +1,9 @@
-%global DATE 20140506
-%global SVNREV 210097
+%global DATE 20140514
+%global SVNREV 210412
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -12,7 +12,6 @@
 %else
 %global build_ada 0
 %endif
-%global build_java 0
 %ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
 %global build_go 1
 %else
@@ -65,12 +64,6 @@
 %else
 %global attr_ifunc 0
 %endif
-# If you don't have already a usable gcc-java and libgcj for your arch,
-# do on some arch which has it rpmbuild -bc --with java_tar gcc.spec
-# which creates libjava-classes-%{version}-%{release}.tar.bz2
-# With this then on the new arch do rpmbuild -ba -v --with java_bootstrap gcc.spec
-%global bootstrap_java %{?_with_java_bootstrap:%{build_java}}%{!?_with_java_bootstrap:0}
-%global build_java_tar %{?_with_java_tar:%{build_java}}%{!?_with_java_tar:0}
 %ifarch s390x
 %global multilib_32_arch s390
 %endif
@@ -100,8 +93,6 @@ Source0: gcc-%{version}-%{DATE}.tar.bz2
 Source1: ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-%{isl_version}.tar.bz2
 %global cloog_version 0.18.1
 Source2: ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-%{cloog_version}.tar.gz
-%global fastjar_ver 0.97
-Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -126,14 +117,6 @@ BuildRequires: hostname
 %endif
 # For VTA guality testing
 BuildRequires: gdb
-%if %{build_java}
-BuildRequires: /usr/share/java/eclipse-ecj.jar, zip, unzip
-%if %{bootstrap_java}
-Source10: libjava-classes-%{version}-%{release}.tar.bz2
-%else
-BuildRequires: gcc-java, libgcj
-%endif
-%endif
 # Make sure pthread.h doesn't contain __thread tokens
 # Make sure glibc supports stack protector
 # Make sure glibc supports DT_GNU_HASH
@@ -190,11 +173,8 @@ Requires: libgcc >= %{version}-%{release}
 Requires: libgomp = %{version}-%{release}
 %if !%{build_ada}
 Obsoletes: gcc-gnat < %{version}-%{release}
-Obsoletes: libgnat < %{version}-%{release}
 %endif
-Obsoletes: libmudflap
-Obsoletes: libmudflap-devel
-Obsoletes: libmudflap-static
+Obsoletes: gcc-java < %{version}-%{release}
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 AutoReq: true
@@ -217,14 +197,6 @@ Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
 Patch17: gcc49-aarch64-ada.patch
-
-Patch1000: fastjar-0.97-segfault.patch
-Patch1001: fastjar-0.97-len1.patch
-Patch1002: fastjar-0.97-filename0.patch
-Patch1003: fastjar-CVE-2010-0831.patch
-Patch1004: fastjar-man.patch
-Patch1005: fastjar-0.97-aarch64-config.patch
-Patch1006: fastjar-0.97-ppc64le-config.patch
 
 Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 
@@ -251,6 +223,15 @@ You'll need this package in order to compile C code.
 Summary: GCC version 4.9 shared support library
 Group: System Environment/Libraries
 Autoreq: false
+%if !%{build_ada}
+Obsoletes: libgnat < %{version}-%{release}
+%endif
+Obsoletes: libmudflap
+Obsoletes: libmudflap-devel
+Obsoletes: libmudflap-static
+Obsoletes: libgcj < %{version}-%{release}
+Obsoletes: libgcj-devel < %{version}-%{release}
+Obsoletes: libgcj-src < %{version}-%{release}
 
 %description -n libgcc
 This package contains GCC shared support library which is needed
@@ -555,66 +536,6 @@ Requires: libcilkrts = %{version}-%{release}
 %description -n libcilkrts-static
 This package contains the Cilk+ static runtime library.
 
-%package java
-Summary: Java support for GCC
-Group: Development/Languages
-Requires: gcc = %{version}-%{release}
-Requires: libgcj = %{version}-%{release}
-Requires: libgcj-devel = %{version}-%{release}
-Requires: /usr/share/java/eclipse-ecj.jar
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-Autoreq: true
-
-%description java
-This package adds support for compiling Java(tm) programs and
-bytecode into native code.
-
-%package -n libgcj
-Summary: Java runtime library for gcc
-Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-Requires: zip >= 2.1
-Requires: gtk2 >= 2.4.0
-Requires: glib2 >= 2.4.0
-Requires: libart_lgpl >= 2.1.0
-%if %{build_java}
-BuildRequires: gtk2-devel >= 2.4.0
-BuildRequires: glib2-devel >= 2.4.0
-BuildRequires: libart_lgpl-devel >= 2.1.0
-BuildRequires: alsa-lib-devel
-BuildRequires: libXtst-devel
-BuildRequires: libXt-devel
-%endif
-Autoreq: true
-
-%description -n libgcj
-The Java(tm) runtime library. You will need this package to run your Java
-programs compiled using the Java compiler from GNU Compiler Collection (gcj).
-
-%package -n libgcj-devel
-Summary: Libraries for Java development using GCC
-Group: Development/Languages
-Requires: libgcj%{?_isa} = %{version}-%{release}
-Requires: zlib-devel%{?_isa}
-Requires: /bin/awk
-Autoreq: false
-Autoprov: false
-
-%description -n libgcj-devel
-The Java(tm) static libraries and C header files. You will need this
-package to compile your Java programs using the GCC Java compiler (gcj).
-
-%package -n libgcj-src
-Summary: Java library sources from GCC4 preview
-Group: System Environment/Libraries
-Requires: libgcj = %{version}-%{release}
-Autoreq: true
-
-%description -n libgcj-src
-The Java(tm) runtime library sources for use in Eclipse.
-
 %package -n cpp
 Summary: The C Preprocessor
 Group: Development/Languages
@@ -851,24 +772,7 @@ EOF
 chmod 755 split-debuginfo.sh
 %endif
 
-# This testcase doesn't compile.
-rm libjava/testsuite/libjava.lang/PR35020*
-
-tar xzf %{SOURCE4}
-
-%patch1000 -p0 -b .fastjar-0.97-segfault~
-%patch1001 -p0 -b .fastjar-0.97-len1~
-%patch1002 -p0 -b .fastjar-0.97-filename0~
-%patch1003 -p0 -b .fastjar-CVE-2010-0831~
-%patch1004 -p0 -b .fastjar-man~
-%patch1005 -p0 -b .fastjar-0.97-aarch64-config~
-%patch1006 -p0 -b .fastjar-0.97-ppc64le-config~
-
 %patch1100 -p0 -b .cloog-ppc64le-config~
-
-%if %{bootstrap_java}
-tar xjf %{SOURCE10}
-%endif
 
 sed -i -e 's/4\.9\.1/4.9.0/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
@@ -927,50 +831,9 @@ rm -f gcc/testsuite/go.test/test/chan/goroutines.go
 # Undo the broken autoconf change in recent Fedora versions
 export CONFIG_SITE=NONE
 
-%if %{build_java}
-export GCJ_PROPERTIES=jdt.compiler.useSingleThread=true
-# gjar isn't usable, so even when GCC source tree no longer includes
-# fastjar, build it anyway.
-mkdir fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
-cd fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
-../configure CFLAGS="%{optflags}" --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir}
-make %{?_smp_mflags}
-export PATH=`pwd`${PATH:+:$PATH}
-cd ../../
-%endif
-
 rm -fr obj-%{gcc_target_platform}
 mkdir obj-%{gcc_target_platform}
 cd obj-%{gcc_target_platform}
-
-%if %{build_java}
-%if !%{bootstrap_java}
-# If we don't have gjavah in $PATH, try to build it with the old gij
-mkdir java_hacks
-cd java_hacks
-cp -a ../../libjava/classpath/tools/external external
-mkdir -p gnu/classpath/tools
-cp -a ../../libjava/classpath/tools/gnu/classpath/tools/{common,javah,getopt} gnu/classpath/tools/
-cp -a ../../libjava/classpath/tools/resource/gnu/classpath/tools/common/messages.properties gnu/classpath/tools/common
-cp -a ../../libjava/classpath/tools/resource/gnu/classpath/tools/getopt/messages.properties gnu/classpath/tools/getopt
-cd external/asm; for i in `find . -name \*.java`; do gcj --encoding ISO-8859-1 -C $i -I.; done; cd ../..
-for i in `find gnu -name \*.java`; do gcj -C $i -I. -Iexternal/asm/; done
-gcj -findirect-dispatch -O2 -fmain=gnu.classpath.tools.javah.Main -I. -Iexternal/asm/ `find . -name \*.class` -o gjavah.real
-cat > gjavah <<EOF
-#!/bin/sh
-export CLASSPATH=`pwd`${CLASSPATH:+:$CLASSPATH}
-exec `pwd`/gjavah.real "\$@"
-EOF
-chmod +x `pwd`/gjavah
-cat > ecj1 <<EOF
-#!/bin/sh
-exec gij -cp /usr/share/java/eclipse-ecj.jar org.eclipse.jdt.internal.compiler.batch.GCCMain "\$@"
-EOF
-chmod +x `pwd`/ecj1
-export PATH=`pwd`${PATH:+:$PATH}
-cd ..
-%endif
-%endif
 
 %if %{build_cloog}
 mkdir isl-build isl-install
@@ -1072,20 +935,9 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %endif
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
 	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
-	--enable-languages=c,c++,objc,obj-c++,java,fortran${enablelada}${enablelgo},lto \
+	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
 	--enable-plugin --enable-initfini-array \
-%if !%{build_java}
 	--disable-libgcj \
-%else
-	--enable-java-awt=gtk --disable-dssi \
-	--with-java-home=%{_prefix}/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre \
-	--enable-libgcj-multifile \
-%if !%{bootstrap_java}
-	--enable-java-maintainer-mode \
-%endif
-	--with-ecj-jar=/usr/share/java/eclipse-ecj.jar \
-	--disable-libjava-multilib \
-%endif
 %if %{build_cloog}
 	--with-isl=`pwd`/isl-install --with-cloog=`pwd`/cloog-install \
 %else
@@ -1187,7 +1039,6 @@ cd ../..
 # Copy various doc files here and there
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
-mkdir -p rpm.doc/boehm-gc rpm.doc/fastjar rpm.doc/libffi rpm.doc/libjava
 mkdir -p rpm.doc/go rpm.doc/libgo rpm.doc/libquadmath rpm.doc/libitm
 mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libgomp,libatomic,libsanitizer,libcilkrts}
 
@@ -1204,19 +1055,6 @@ done)
 (cd libobjc; for i in README*; do
 	cp -p $i ../rpm.doc/objc/$i.libobjc
 done)
-(cd boehm-gc; for i in ChangeLog*; do
-	cp -p $i ../rpm.doc/boehm-gc/$i.gc
-done)
-(cd fastjar-%{fastjar_ver}; for i in ChangeLog* README*; do
-	cp -p $i ../rpm.doc/fastjar/$i.fastjar
-done)
-(cd libffi; for i in ChangeLog* README* LICENSE; do
-	cp -p $i ../rpm.doc/libffi/$i.libffi
-done)
-(cd libjava; for i in ChangeLog* README*; do
-	cp -p $i ../rpm.doc/libjava/$i.libjava
-done)
-cp -p libjava/LIBGCJ_LICENSE rpm.doc/libjava/
 %if %{build_libquadmath}
 (cd libquadmath; for i in ChangeLog* COPYING.LIB; do
 	cp -p $i ../rpm.doc/libquadmath/$i.libquadmath
@@ -1239,25 +1077,10 @@ done)
 rm -f rpm.doc/changelogs/gcc/ChangeLog.[1-9]
 find rpm.doc -name \*ChangeLog\* | xargs bzip2 -9
 
-%if %{build_java_tar}
-find libjava -name \*.h -type f | xargs grep -l '// DO NOT EDIT THIS FILE - it is machine generated' > libjava-classes.list
-find libjava -name \*.class -type f >> libjava-classes.list
-find libjava/testsuite -name \*.jar -type f >> libjava-classes.list
-tar cf - -T libjava-classes.list | bzip2 -9 > $RPM_SOURCE_DIR/libjava-classes-%{version}-%{release}.tar.bz2
-%endif
-
 %install
 rm -fr %{buildroot}
 
 cd obj-%{gcc_target_platform}
-
-%if %{build_java}
-export GCJ_PROPERTIES=jdt.compiler.useSingleThread=true
-export PATH=`pwd`/../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}${PATH:+:$PATH}
-%if !%{bootstrap_java}
-export PATH=`pwd`/java_hacks${PATH:+:$PATH}
-%endif
-%endif
 
 TARGET_PLATFORM=%{gcc_target_platform}
 
@@ -1266,9 +1089,6 @@ make -C %{gcc_target_platform}/libstdc++-v3
 
 make prefix=%{buildroot}%{_prefix} mandir=%{buildroot}%{_mandir} \
   infodir=%{buildroot}%{_infodir} install
-%if %{build_java}
-make DESTDIR=%{buildroot} -C %{gcc_target_platform}/libjava install-src.zip
-%endif
 %if %{build_ada}
 chmod 644 %{buildroot}%{_infodir}/gnat*
 %endif
@@ -1366,18 +1186,6 @@ else
 fi
 
 find %{buildroot} -name \*.la | xargs rm -f
-%if %{build_java}
-# gcj -static doesn't work properly anyway, unless using --whole-archive
-# and saving 35MB is not bad.
-find %{buildroot} -name libgcj.a -o -name libgtkpeer.a \
-		     -o -name libgjsmalsa.a -o -name libgcj-tools.a -o -name libjvm.a \
-		     -o -name libgij.a -o -name libgcj_bc.a -o -name libjavamath.a \
-  | xargs rm -f
-
-mv %{buildroot}%{_prefix}/lib/libgcj.spec $FULLPATH/
-sed -i -e 's/lib: /&%%{static:%%eJava programs cannot be linked statically}/' \
-  $FULLPATH/libgcj.spec
-%endif
 
 mv %{buildroot}%{_prefix}/%{_lib}/libgfortran.spec $FULLPATH/
 %if %{build_libitm}
@@ -1438,13 +1246,6 @@ else
   ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_prefix}/libexec/getconf/default
 fi
 
-%if %{build_java}
-pushd ../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}
-make install DESTDIR=%{buildroot}
-popd
-
-%endif
-
 mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++*gdb.py* \
       %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
@@ -1483,11 +1284,6 @@ ln -sf ../../../libubsan.so.0.* libubsan.so
 %if %{build_libcilkrts}
 ln -sf ../../../libcilkrts.so.5.* libcilkrts.so
 %endif
-%if %{build_java}
-ln -sf ../../../libgcj.so.15.* libgcj.so
-ln -sf ../../../libgcj-tools.so.15.* libgcj-tools.so
-ln -sf ../../../libgij.so.15.* libgij.so
-%endif
 else
 ln -sf ../../../../%{_lib}/libobjc.so.4 libobjc.so
 ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
@@ -1523,15 +1319,7 @@ echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/libtsan.so.0.* | sed
 rm -f liblsan.so
 echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/liblsan.so.0.* | sed 's,^.*libl,libl,'`' )' > liblsan.so
 %endif
-%if %{build_java}
-ln -sf ../../../../%{_lib}/libgcj.so.15.* libgcj.so
-ln -sf ../../../../%{_lib}/libgcj-tools.so.15.* libgcj-tools.so
-ln -sf ../../../../%{_lib}/libgij.so.15.* libgij.so
-%endif
 fi
-%if %{build_java}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgcj_bc.so $FULLLPATH/
-%endif
 mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a $FULLLPATH/
@@ -1646,13 +1434,6 @@ rm -f libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > 64/libcilkrts.so
 %endif
-%if %{build_java}
-ln -sf ../`echo ../../../../lib/libgcj.so.15.* | sed s~/lib/~/lib64/~` 64/libgcj.so
-ln -sf ../`echo ../../../../lib/libgcj-tools.so.15.* | sed s~/lib/~/lib64/~` 64/libgcj-tools.so
-ln -sf ../`echo ../../../../lib/libgij.so.15.* | sed s~/lib/~/lib64/~` 64/libgij.so
-ln -sf lib32/libgcj_bc.so libgcj_bc.so
-ln -sf ../lib64/libgcj_bc.so 64/libgcj_bc.so
-%endif
 ln -sf lib32/libgfortran.a libgfortran.a
 ln -sf ../lib64/libgfortran.a 64/libgfortran.a
 mv -f %{buildroot}%{_prefix}/lib64/libobjc.*a 64/
@@ -1740,11 +1521,6 @@ rm -f libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > 32/libcilkrts.so
 %endif
-%if %{build_java}
-ln -sf ../`echo ../../../../lib64/libgcj.so.15.* | sed s~/../lib64/~/~` 32/libgcj.so
-ln -sf ../`echo ../../../../lib64/libgcj-tools.so.15.* | sed s~/../lib64/~/~` 32/libgcj-tools.so
-ln -sf ../`echo ../../../../lib64/libgij.so.15.* | sed s~/../lib64/~/~` 32/libgij.so
-%endif
 mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libgomp.*a 32/
 %endif
@@ -1785,10 +1561,6 @@ ln -sf lib64/libgo.a libgo.a
 ln -sf ../lib32/libgobegin.a 32/libgobegin.a
 ln -sf lib64/libgobegin.a libgobegin.a
 %endif
-%if %{build_java}
-ln -sf ../lib32/libgcj_bc.so 32/libgcj_bc.so
-ln -sf lib64/libgcj_bc.so libgcj_bc.so
-%endif
 %if %{build_ada}
 ln -sf ../lib32/adainclude 32/adainclude
 ln -sf lib64/adainclude adainclude
@@ -1821,9 +1593,6 @@ ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libc
 %if %{build_go}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgo.a 32/libgo.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgobegin.a 32/libgobegin.a
-%endif
-%if %{build_java}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgcj_bc.so 32/libgcj_bc.so
 %endif
 %if %{build_ada}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/adainclude 32/adainclude
@@ -1918,7 +1687,7 @@ cd ..
 
 # Remove binaries we will not be including, so that they don't end up in
 # gcc-debuginfo
-rm -f %{buildroot}%{_prefix}/%{_lib}/{libffi*,libiberty.a}
+rm -f %{buildroot}%{_prefix}/%{_lib}/{libffi*,libiberty.a} || :
 rm -f $FULLEPATH/install-tools/{mkheaders,fixincl}
 rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
 rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
@@ -1954,15 +1723,6 @@ rm -rf %{buildroot}%{_prefix}/lib64/go/%{gcc_version}/%{gcc_target_platform}
 %endif
 %endif
 
-%if %{build_java}
-mkdir -p %{buildroot}%{_prefix}/share/java/gcj-endorsed \
-	 %{buildroot}%{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
-chmod 755 %{buildroot}%{_prefix}/share/java/gcj-endorsed \
-	  %{buildroot}%{_prefix}/%{_lib}/gcj-%{version} \
-	  %{buildroot}%{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
-touch %{buildroot}%{_prefix}/%{_lib}/gcj-%{version}/classmap.db
-%endif
-
 rm -f %{buildroot}%{mandir}/man3/ffi*
 
 # Help plugins find out nvra.
@@ -1970,13 +1730,6 @@ echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
 %check
 cd obj-%{gcc_target_platform}
-
-%if %{build_java}
-export PATH=`pwd`/../fastjar-%{fastjar_ver}/obj-%{gcc_target_platform}${PATH:+:$PATH}
-%if !%{bootstrap_java}
-export PATH=`pwd`/java_hacks${PATH:+:$PATH}
-%endif
-%endif
 
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ \
@@ -2035,18 +1788,6 @@ if [ $1 = 0 -a -f %{_infodir}/gfortran.info.gz ]; then
     --info-dir=%{_infodir} %{_infodir}/gfortran.info.gz || :
 fi
 
-%post java
-if [ -f %{_infodir}/gcj.info.gz ]; then
-/sbin/install-info \
-  --info-dir=%{_infodir} %{_infodir}/gcj.info.gz || :
-fi
-
-%preun java
-if [ $1 = 0 -a -f %{_infodir}/gcj.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gcj.info.gz || :
-fi
-
 %post gnat
 if [ -f %{_infodir}/gnat_rm.info.gz ]; then
   /sbin/install-info \
@@ -2097,25 +1838,6 @@ end
 %post -n libobjc -p /sbin/ldconfig
 
 %postun -n libobjc -p /sbin/ldconfig
-
-%post -n libgcj
-/sbin/ldconfig
-if [ -f %{_infodir}/cp-tools.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/cp-tools.info.gz || :
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz || :
-fi
-
-%preun -n libgcj
-if [ $1 = 0 -a -f %{_infodir}/cp-tools.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/cp-tools.info.gz || :
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/fastjar.info.gz || :
-fi
-
-%postun -n libgcj -p /sbin/ldconfig
 
 %post -n libgfortran -p /sbin/ldconfig
 
@@ -2677,142 +2399,6 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.a
 %endif
 
-%if %{build_java}
-%files java
-%defattr(-,root,root,-)
-%{_prefix}/bin/gcj
-%{_prefix}/bin/gjavah
-%{_prefix}/bin/gcjh
-%{_prefix}/bin/jcf-dump
-%{_mandir}/man1/gcj.1*
-%{_mandir}/man1/jcf-dump.1*
-%{_mandir}/man1/gjavah.1*
-%{_mandir}/man1/gcjh.1*
-%{_infodir}/gcj*
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jc1
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/ecj1
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/jvgenmain
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj-tools.so
-%ifarch sparcv9 sparc64 ppc ppc64 ppc64p7
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
-%endif
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgij.so
-%ifarch sparcv9 ppc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgcj_bc.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgij.so
-%endif
-%ifarch %{multilib_64_archs}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj-tools.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgcj_bc.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgij.so
-%endif
-%doc rpm.doc/changelogs/gcc/java/ChangeLog*
-
-%files -n libgcj
-%defattr(-,root,root,-)
-%{_prefix}/bin/jv-convert
-%{_prefix}/bin/gij
-%{_prefix}/bin/gjar
-%{_prefix}/bin/fastjar
-%{_prefix}/bin/gnative2ascii
-%{_prefix}/bin/grepjar
-%{_prefix}/bin/grmic
-%{_prefix}/bin/grmid
-%{_prefix}/bin/grmiregistry
-%{_prefix}/bin/gtnameserv
-%{_prefix}/bin/gkeytool
-%{_prefix}/bin/gorbd
-%{_prefix}/bin/gserialver
-%{_prefix}/bin/gcj-dbtool
-%{_prefix}/bin/gjarsigner
-%{_mandir}/man1/fastjar.1*
-%{_mandir}/man1/grepjar.1*
-%{_mandir}/man1/gjar.1*
-%{_mandir}/man1/gjarsigner.1*
-%{_mandir}/man1/jv-convert.1*
-%{_mandir}/man1/gij.1*
-%{_mandir}/man1/gnative2ascii.1*
-%{_mandir}/man1/grmic.1*
-%{_mandir}/man1/grmiregistry.1*
-%{_mandir}/man1/gcj-dbtool.1*
-%{_mandir}/man1/gkeytool.1*
-%{_mandir}/man1/gorbd.1*
-%{_mandir}/man1/grmid.1*
-%{_mandir}/man1/gserialver.1*
-%{_mandir}/man1/gtnameserv.1*
-%{_infodir}/fastjar.info*
-%{_infodir}/cp-tools.info*
-%{_prefix}/%{_lib}/libgcj.so.*
-%{_prefix}/%{_lib}/libgcj-tools.so.*
-%{_prefix}/%{_lib}/libgcj_bc.so.*
-%{_prefix}/%{_lib}/libgij.so.*
-%dir %{_prefix}/%{_lib}/gcj-%{version}
-%{_prefix}/%{_lib}/gcj-%{version}/libgtkpeer.so
-%{_prefix}/%{_lib}/gcj-%{version}/libgjsmalsa.so
-%{_prefix}/%{_lib}/gcj-%{version}/libjawt.so
-%{_prefix}/%{_lib}/gcj-%{version}/libjvm.so
-%{_prefix}/%{_lib}/gcj-%{version}/libjavamath.so
-%dir %{_prefix}/share/java
-%{_prefix}/share/java/[^sl]*
-%{_prefix}/share/java/libgcj-%{version}.jar
-%dir %{_prefix}/%{_lib}/security
-%config(noreplace) %{_prefix}/%{_lib}/security/classpath.security
-%{_prefix}/%{_lib}/logging.properties
-%dir %{_prefix}/%{_lib}/gcj-%{version}/classmap.db.d
-%attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_prefix}/%{_lib}/gcj-%{version}/classmap.db
-
-%files -n libgcj-devel
-%defattr(-,root,root,-)
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/gcj
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jawt.h
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jawt_md.h
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jni.h
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jni_md.h
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/jvmpi.h
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj.spec
-%ifarch sparcv9 ppc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libgcj_bc.so
-%endif
-%ifarch sparc64 ppc64 ppc64p7
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libgcj_bc.so
-%endif
-%ifnarch sparcv9 sparc64 ppc ppc64 ppc64p7
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgcj_bc.so
-%endif
-%dir %{_prefix}/include/c++
-%dir %{_prefix}/include/c++/%{gcc_version}
-%{_prefix}/include/c++/%{gcc_version}/[gj]*
-%{_prefix}/include/c++/%{gcc_version}/org
-%{_prefix}/include/c++/%{gcc_version}/sun
-%{_prefix}/%{_lib}/pkgconfig/libgcj-*.pc
-%doc rpm.doc/boehm-gc/* rpm.doc/fastjar/* rpm.doc/libffi/*
-%doc rpm.doc/libjava/*
-
-%files -n libgcj-src
-%defattr(-,root,root,-)
-%dir %{_prefix}/share/java
-%{_prefix}/share/java/src*.zip
-%{_prefix}/share/java/libgcj-tools-%{version}.jar
-%endif
-
 %if %{build_ada}
 %files gnat
 %defattr(-,root,root,-)
@@ -3198,6 +2784,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed May 14 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-4
+- update from the 4.9 branch
+  - PRs c++/60019, c++/60999, c++/61083, c++/61151, driver/61106, ipa/60973,
+	libfortran/61049, libstdc++/60594, libstdc++/61023, libstdc++/61086,
+	libstdc++/61117, target/59952, target/60991, target/61055,
+	target/61060, target/61092, tree-optimization/57864,
+	tree-optimization/60902, tree-optimization/61009
+- obsolete gcc-java and libjava*, remove all traces of build_java from the
+  spec file (#1096474, #1095513)
+
 * Tue May  6 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-3
 - update from the 4.9 branch
   - PRs driver/61065, ipa/60965
