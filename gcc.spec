@@ -2793,6 +2793,7 @@ fi
 	tree-optimization/60902, tree-optimization/61009
 - obsolete gcc-java and libjava*, remove all traces of build_java from the
   spec file (#1096474, #1095513)
+- backport -fsanitize=float-divide-by-zero support from trunk
 
 * Tue May  6 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-3
 - update from the 4.9 branch
