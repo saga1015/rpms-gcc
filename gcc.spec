@@ -1,9 +1,9 @@
-%global DATE 20140518
-%global SVNREV 210582
+%global DATE 20140529
+%global SVNREV 211063
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -2784,6 +2784,16 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu May 29 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-6
+- update from the 4.9 branch
+  - PRs bootstrap/60984, c++/60189, c/60189, c/61191, fortran/60834,
+	libfortran/61310, libgcc/61152, libstdc++/61143, libstdc++/61329,
+	lto/60820, lto/61012, middle-end/58094, middle-end/61010,
+	middle-end/61045, middle-end/61252, rtl-optimization/61215,
+	rtl-optimization/61325, target/61044, target/61202, target/61208,
+	target/61231, target/61249, target/61271, tree-optimization/60979
+- backport -fsanitize=float-cast-overflow support from trunk
+
 * Sun May 18 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-5
 - update from the 4.9 branch
   - PRs debug/61013, ipa/60854, ipa/60897, ipa/61085, libfortran/61187,
