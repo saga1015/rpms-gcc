@@ -196,7 +196,6 @@ Patch12: gcc49-no-add-needed.patch
 Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
-Patch17: gcc49-aarch64-ada.patch
 
 Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 
@@ -723,7 +722,6 @@ package or when debugging this package.
 %endif
 %patch16 -p0 -b .libgo-p224~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
-%patch17 -p0 -b .aarch64-ada~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
