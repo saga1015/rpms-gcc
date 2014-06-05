@@ -3,11 +3,11 @@
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 7
+%global gcc_release 8
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
-%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha aarch64
+%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64
 %global build_ada 1
 %else
 %global build_ada 0
@@ -2782,6 +2782,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jun  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-8
+- enable ada on arm
+
 * Wed Jun  4 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-7
 - update from the 4.9 branch
   - PRs c++/61020, c++/61134, c/58942, c/61053, ipa/61160, libstdc++/60734,
