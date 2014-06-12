@@ -1,9 +1,9 @@
-%global DATE 20140604
-%global SVNREV 211244
+%global DATE 20140612
+%global SVNREV 211598
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 8
+%global gcc_release 9
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -196,6 +196,7 @@ Patch12: gcc49-no-add-needed.patch
 Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
+Patch17: gcc49-pr45078.patch
 
 Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 
@@ -722,6 +723,7 @@ package or when debugging this package.
 %endif
 %patch16 -p0 -b .libgo-p224~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
+%patch17 -p0 -b .pr45078~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2782,6 +2784,14 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jun 12 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-9
+- update from the 4.9 branch
+  - PRs c++/61343, fortran/61406, fortran/61418, ipa/61393,
+	libfortran/61173, middle-end/61456, middle-end/61486,
+	target/61300, target/61431, target/61443, tree-optimization/61452
+  - fix up jump threading (#1094975, PR tree-optimization/61289)
+- include vxworks-dummy.h in arm gcc-plugin-devel (PR plugins/45078)
+
 * Thu Jun  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-8
 - enable ada on arm
 
