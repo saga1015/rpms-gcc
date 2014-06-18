@@ -722,7 +722,7 @@ package or when debugging this package.
 %patch15 -p0 -b .color-auto~
 %endif
 %patch16 -p0 -b .libgo-p224~
-%patch16 -p1 -b .pr61545~
+%patch17 -p1 -b .pr61545~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 
 %if 0%{?_enable_debug_packages}
@@ -2784,7 +2784,10 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
-* Wed Jun 18 2014 Richard Henderson <rth@redhat.com> 4.9.0-11
+* Wed Jun 18 2014 Kyle McMartin <kyle@redhat.com> 4.9.0-11
+- Avoid applying patch 16 twice.
+
+* Wed Jun 18 2014 Richard Henderson <rth@redhat.com>
 - Import fix for target/pr61545 from the 4.9 branch.
 
 * Tue Jun 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-10
