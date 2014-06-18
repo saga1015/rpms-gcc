@@ -3,7 +3,7 @@
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 10
+%global gcc_release 11
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -196,6 +196,7 @@ Patch12: gcc49-no-add-needed.patch
 Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
+Patch17: gcc49-pr61545.patch
 
 Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 
@@ -721,6 +722,7 @@ package or when debugging this package.
 %patch15 -p0 -b .color-auto~
 %endif
 %patch16 -p0 -b .libgo-p224~
+%patch16 -p1 -b .pr61545~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 
 %if 0%{?_enable_debug_packages}
@@ -2782,6 +2784,9 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jun 18 2014 Richard Henderson <rth@redhat.com> 4.9.0-11
+- Import fix for target/pr61545 from the 4.9 branch.
+
 * Tue Jun 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-10
 - update from the 4.9 branch
   - PRs fortran/45187, ipa/61186, libstdc++/60326, libstdc++/61269,
