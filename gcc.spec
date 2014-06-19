@@ -1,9 +1,9 @@
-%global DATE 20140617
-%global SVNREV 211744
+%global DATE 20140619
+%global SVNREV 211824
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 11
+%global gcc_release 12
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -196,7 +196,6 @@ Patch12: gcc49-no-add-needed.patch
 Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
-Patch17: gcc49-pr61545.patch
 
 Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 
@@ -722,7 +721,6 @@ package or when debugging this package.
 %patch15 -p0 -b .color-auto~
 %endif
 %patch16 -p0 -b .libgo-p224~
-%patch17 -p1 -b .pr61545~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 
 %if 0%{?_enable_debug_packages}
@@ -2784,11 +2782,15 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jun 19 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-12
+- update from the 4.9 branch
+  - PRs c++/59296, c++/60605, c++/61507, debug/57519
+
 * Wed Jun 18 2014 Kyle McMartin <kyle@redhat.com> 4.9.0-11
-- Avoid applying patch 16 twice.
+- avoid applying patch 16 twice
 
 * Wed Jun 18 2014 Richard Henderson <rth@redhat.com>
-- Import fix for target/pr61545 from the 4.9 branch.
+- import fix for PR target/61545 from the 4.9 branch
 
 * Tue Jun 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-10
 - update from the 4.9 branch
