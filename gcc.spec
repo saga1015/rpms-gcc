@@ -1,9 +1,9 @@
-%global DATE 20140619
-%global SVNREV 211824
+%global DATE 20140625
+%global SVNREV 211976
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 12
+%global gcc_release 13
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -2782,6 +2782,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jun 25 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-13
+- update from the 4.9 branch
+  - PRs bootstrap/61583, c++/61556, ipa/61211, ipa/61540, libstdc++/61532,
+	target/61570
+- backport -fsanitize=bounds support from the trunk
+
 * Thu Jun 19 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-12
 - update from the 4.9 branch
   - PRs c++/59296, c++/60605, c++/61507, debug/57519
