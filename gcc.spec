@@ -1,9 +1,9 @@
-%global DATE 20140625
-%global SVNREV 211976
+%global DATE 20140702
+%global SVNREV 212237
 %global gcc_version 4.9.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 13
+%global gcc_release 14
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -196,6 +196,7 @@ Patch12: gcc49-no-add-needed.patch
 Patch14: gcc49-pr56493.patch
 Patch15: gcc49-color-auto.patch
 Patch16: gcc49-libgo-p224.patch
+Patch17: gcc49-pr61673.patch
 
 Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 
@@ -722,6 +723,7 @@ package or when debugging this package.
 %endif
 %patch16 -p0 -b .libgo-p224~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
+%patch17 -p0 -b .pr61673~
 
 %if 0%{?_enable_debug_packages}
 cat > split-debuginfo.sh <<\EOF
@@ -2782,6 +2784,18 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Wed Jul  2 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-14
+- update from the 4.9 branch
+  - OpenMP 4.0 Fortran support
+  - PRs c++/51253, c++/58704, c++/58753, c++/58781, c++/58930, c++/59867,
+	c++/60249, c++/61242, c++/61382, c++/61433, c++/61488, c++/61500,
+	c++/61537, c++/61539, c++/61566, c++/61614, c++/61647, fortran/60127,
+	fortran/60928, libgfortran/61499, middle-end/57541, target/61503,
+	target/61542, target/61586, target/61633, tree-optimization/57233,
+	tree-optimization/61299, tree-optimization/61306
+- fix combiner on s390 (#1102324, PR rtl-optimization/61673)
+- small -fsanitize=undefined fixes from the trunk
+
 * Wed Jun 25 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-13
 - update from the 4.9 branch
   - PRs bootstrap/61583, c++/61556, ipa/61211, ipa/61540, libstdc++/61532,
