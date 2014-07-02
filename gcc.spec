@@ -2794,7 +2794,7 @@ fi
 	target/61542, target/61586, target/61633, tree-optimization/57233,
 	tree-optimization/61299, tree-optimization/61306
 - fix combiner on s390 (#1102324, PR rtl-optimization/61673)
-- small -fsanitize=undefined fixes from the trunk
+- some -fsanitize=undefined fixes from the trunk
 
 * Wed Jun 25 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-13
 - update from the 4.9 branch
