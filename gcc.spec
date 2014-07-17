@@ -1,9 +1,9 @@
-%global DATE 20140716
-%global SVNREV 212670
+%global DATE 20140717
+%global SVNREV 212747
 %global gcc_version 4.9.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -2798,6 +2798,11 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
+* Thu Jul 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-2
+- update from the 4.9 branch
+  - PRs c-family/61741, rtl-optimization/61801, target/61737,
+	tree-optimization/61779
+
 * Wed Jul 16 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-1
 - update from the 4.9 branch
   - GCC 4.9.1 release
