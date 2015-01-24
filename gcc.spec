@@ -1,9 +1,9 @@
-%global DATE 20150107
-%global SVNREV 219315
-%global gcc_version 4.9.2
+%global DATE 20150123
+%global SVNREV 220063
+%global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 0.5
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -22,7 +22,7 @@
 %else
 %global build_libquadmath 0
 %endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64p7 %{arm}
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64p7 %{arm} aarch64
 %global build_libasan 1
 %else
 %global build_libasan 0
@@ -37,7 +37,7 @@
 %else
 %global build_liblsan 0
 %endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64p7 %{arm}
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64p7 %{arm} aarch64
 %global build_libubsan 1
 %else
 %global build_libubsan 0
@@ -57,7 +57,7 @@
 %else
 %global build_libitm 0
 %endif
-%global build_cloog 1
+%global build_isl 1
 %global build_libstdcxx_docs 1
 %ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
 %global attr_ifunc 1
@@ -86,13 +86,10 @@ License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2
 Group: Development/Languages
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_9-branch@%{SVNREV} gcc-%{version}-%{DATE}
+# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-5-branch@%{SVNREV} gcc-%{version}-%{DATE}
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
-%global isl_version 0.12.2
-Source1: ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-%{isl_version}.tar.bz2
-%global cloog_version 0.18.1
-Source2: ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-%{cloog_version}.tar.gz
+%global isl_version 0.14
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Need binutils with -pie support >= 2.14.90.0.4-4
@@ -139,6 +136,11 @@ BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
 %endif
+%if %{build_isl}
+BuildRequires: isl = %{isl_version}
+BuildRequires: isl-devel = %{isl_version}
+Requires: isl = %{isl_version}
+%endif
 %if %{build_libstdcxx_docs}
 BuildRequires: doxygen >= 1.7.1
 BuildRequires: graphviz, dblatex, texlive-collection-latex, docbook5-style-xsl
@@ -182,27 +184,22 @@ Requires(preun): /sbin/install-info
 AutoReq: true
 Provides: bundled(libiberty)
 
-Patch0: gcc49-hack.patch
-Patch1: gcc49-java-nomulti.patch
-Patch2: gcc49-ppc32-retaddr.patch
-Patch3: gcc49-rh330771.patch
-Patch4: gcc49-i386-libgomp.patch
-Patch5: gcc49-sparc-config-detection.patch
-Patch6: gcc49-libgomp-omp_h-multilib.patch
-Patch7: gcc49-libtool-no-rpath.patch
-Patch8: gcc49-cloog-dl.patch
-Patch9: gcc49-cloog-dl2.patch
-Patch10: gcc49-pr38757.patch
-Patch11: gcc49-libstdc++-docs.patch
-Patch12: gcc49-no-add-needed.patch
-Patch13: gcc49-color-auto.patch
-Patch14: gcc49-libgo-p224.patch
-Patch15: gcc49-aarch64-async-unw-tables.patch
-Patch16: gcc49-aarch64-unwind-opt.patch
-Patch17: gcc49-pr64336.patch
-Patch18: gcc49-pr64536.patch
-
-Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
+Patch0: gcc5-hack.patch
+Patch1: gcc5-java-nomulti.patch
+Patch2: gcc5-ppc32-retaddr.patch
+Patch3: gcc5-rh330771.patch
+Patch4: gcc5-i386-libgomp.patch
+Patch5: gcc5-sparc-config-detection.patch
+Patch6: gcc5-libgomp-omp_h-multilib.patch
+Patch7: gcc5-libtool-no-rpath.patch
+Patch8: gcc5-isl-dl.patch
+Patch10: gcc5-libstdc++-docs.patch
+Patch11: gcc5-no-add-needed.patch
+Patch12: gcc5-libgo-p224.patch
+Patch13: gcc5-aarch64-async-unw-tables.patch
+Patch14: gcc5-libsanitize-aarch64-va42.patch
+Patch15: gcc5-ppc-jit.patch
+Patch16: gcc5-pr64738.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -220,11 +217,11 @@ Patch1100: cloog-%{cloog_version}-ppc64le-config.patch
 %endif
 
 %description
-The gcc package contains the GNU Compiler Collection version 4.9.
+The gcc package contains the GNU Compiler Collection version 5.
 You'll need this package in order to compile C code.
 
 %package -n libgcc
-Summary: GCC version 4.9 shared support library
+Summary: GCC version 5 shared support library
 Group: System Environment/Libraries
 Autoreq: false
 %if !%{build_ada}
@@ -374,6 +371,33 @@ Requires(preun): /sbin/install-info
 %description -n libgomp
 This package contains GCC shared support library which is needed
 for OpenMP v3.0 support.
+
+%package gdb-plugin
+Summary: GCC plugin for GDB
+Group: Development/Debuggers
+Requires: gcc = %{version}-%{release}
+
+%description gdb-plugin
+This package contains GCC plugin for GDB C expression evaluation.
+
+%package -n libgccjit
+Summary: Library for embedding GCC inside programs and libraries
+Group: System Environment/Libraries
+Requires: gcc = %{version}-%{release}
+
+%description -n libgccjit
+This package contains shared library with GCC JIT front-end.
+
+%package -n libgccjit-devel
+Summary: Support for embedding GCC inside programs and libraries
+Group: Development/Libraries
+BuildRequires: python-sphinx
+Requires: libgccjit = %{version}-%{release}
+Requires(post): /sbin/install-info
+Requires(preun): /sbin/install-info
+
+%description -n libgccjit-devel
+This package contains header files and documentation for GCC JIT front-end.
 
 %package -n libquadmath
 Summary: GCC __float128 shared support library
@@ -620,6 +644,8 @@ Requires: libgo = %{version}-%{release}
 Requires: libgo-devel = %{version}-%{release}
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
 Autoreq: true
 
 %description go
@@ -669,7 +695,7 @@ not stable, so plugins must be rebuilt any time GCC is updated.
 %define debug_package %{nil}
 %global __debug_package 1
 %global __debug_install_post \
-   %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_find_debuginfo_opts} "%{_builddir}/gcc-%{version}-%{DATE}"\
+   PATH=%{_builddir}/gcc-%{version}-%{DATE}/dwz-wrapper/:$PATH %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} "%{_builddir}/gcc-%{version}-%{DATE}"\
     %{_builddir}/gcc-%{version}-%{DATE}/split-debuginfo.sh\
 %{nil}
 
@@ -703,7 +729,7 @@ package or when debugging this package.
 %endif
 
 %prep
-%setup -q -n gcc-%{version}-%{DATE} -a 1 -a 2
+%setup -q -n gcc-%{version}-%{DATE}
 %patch0 -p0 -b .hack~
 %patch1 -p0 -b .java-nomulti~
 %patch2 -p0 -b .ppc32-retaddr~
@@ -712,26 +738,53 @@ package or when debugging this package.
 %patch5 -p0 -b .sparc-config-detection~
 %patch6 -p0 -b .libgomp-omp_h-multilib~
 %patch7 -p0 -b .libtool-no-rpath~
-%if %{build_cloog}
-%patch8 -p0 -b .cloog-dl~
-%patch9 -p0 -b .cloog-dl2~
+%if %{build_isl}
+%patch8 -p0 -b .isl-dl~
 %endif
-%patch10 -p0 -b .pr38757~
 %if %{build_libstdcxx_docs}
-%patch11 -p0 -b .libstdc++-docs~
+%patch10 -p0 -b .libstdc++-docs~
 %endif
-%patch12 -p0 -b .no-add-needed~
-%if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
-%patch13 -p0 -b .color-auto~
-%endif
-%patch14 -p0 -b .libgo-p224~
+%patch11 -p0 -b .no-add-needed~
+%patch12 -p0 -b .libgo-p224~
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
-%patch15 -p0 -b .aarch64-async-unw-tables~
-%patch16 -p0 -b .aarch64-unwind-opt~
-%patch17 -p0 -b .pr64336~
-%patch18 -p0 -b .pr64536~
+%patch13 -p0 -b .aarch64-async-unw-tables~
+%patch14 -p0 -b .libsanitize-aarch64-va42~
+%patch15 -p0 -b .ppc-jit~
+%patch16 -p0 -b .pr64738~
 
 %if 0%{?_enable_debug_packages}
+mkdir dwz-wrapper
+if [ -f /usr/bin/dwz ]; then
+cat > dwz-wrapper/dwz <<\EOF
+#!/bin/bash
+dwz_opts=
+dwzm_opts=
+dwz_files=
+dwzm_files=
+while [ $# -gt 0 ]; do
+  case "$1" in
+  -l|-L)
+    dwz_opts="$dwz_opts $1 $2"; shift;;
+  -m|-M)
+    dwzm_opts="$dwzm_opts $1 $2"; shift;;
+  -*)
+    dwz_opts="$dwz_opts $1";;
+  *)
+    if [[ "$1" =~ (lib[0-9]*/lib(gcc[_.]|gomp|stdc|quadmath|itm|go\.so)|bin/gofmt.gcc.debug|bin/go.gcc.debug|/cgo.debug) ]]; then
+      dwz_files="$dwz_files $1"
+    else
+      dwzm_files="$dwzm_files $1"
+    fi;;
+  esac
+  shift
+done
+if [ -f /usr/bin/dwz ]; then
+  /usr/bin/dwz $dwz_opts $dwz_files
+  /usr/bin/dwz $dwz_opts $dwzm_opts $dwzm_files
+fi
+EOF
+chmod 755 dwz-wrapper/dwz
+fi
 cat > split-debuginfo.sh <<\EOF
 #!/bin/sh
 BUILDDIR="%{_builddir}/gcc-%{version}-%{DATE}"
@@ -741,7 +794,7 @@ if [ -f "${BUILDDIR}"/debugfiles.list \
   > "${BUILDDIR}"/debugfiles-base.list
   cd "${RPM_BUILD_ROOT}"
   for f in `find usr/lib/debug -name \*.debug \
-	    | egrep 'lib[0-9]*/lib(gcc|gomp|stdc|quadmath|itm)'`; do
+	    | egrep 'lib[0-9]*/lib(gcc[_.]|gomp|stdc|quadmath|itm)'`; do
     echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
     if [ -f "$f" -a ! -L "$f" ]; then
       cp -a "$f" "${BUILDDIR}"/test.debug
@@ -752,10 +805,32 @@ if [ -f "${BUILDDIR}"/debugfiles.list \
     fi
   done
   for f in `find usr/lib/debug/.build-id -type l`; do
-    ls -l "$f" | egrep -q -- '->.*lib[0-9]*/lib(gcc|gomp|stdc|quadmath|itm)' \
+    ls -l "$f" | egrep -q -- '->.*lib[0-9]*/lib(gcc[_.]|gomp|stdc|quadmath|itm)' \
       && echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
   done
-  grep -v -f "${BUILDDIR}"/debugfiles-base.list \
+  cp -a "${BUILDDIR}"/debugfiles-base.list "${BUILDDIR}"/debugfiles-remove.list
+%if %{build_go}
+  libgoso=`basename .%{_prefix}/%{_lib}/libgo.so.7.*`
+  for f in %{_prefix}/bin/go.gcc \
+	   %{_prefix}/bin/gofmt.gcc \
+	   %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cgo \
+	   %{_prefix}/%{_lib}/$libgoso ; do
+    eu-unstrip .$f usr/lib/debug$f.debug -o .$f.new
+    chmod --reference=.$f .$f.new
+    mv -f .$f.new .$f
+    rm -f usr/lib/debug$f.debug
+    echo "/usr/lib/debug$f.debug" >> "${BUILDDIR}"/debugfiles-remove.list
+  done
+  rm -f usr/lib/debug%{_prefix}/%{_lib}/libgo.so.7.debug
+  echo "/usr/lib/debug%{_prefix}/%{_lib}/libgo.so.7.debug" >> "${BUILDDIR}"/debugfiles-remove.list
+  for f in `find usr/lib/debug/.build-id -type l`; do
+    if ls -l "$f" | egrep -q -- '->.*(/bin/go.gcc|/bin/gofmt.gcc|/cgo|lib[0-9]*/libgo\.so)'; then
+      echo "/$f" >> "${BUILDDIR}"/debugfiles-remove.list
+      rm -f "$f"
+    fi
+  done
+%endif
+  grep -v -f "${BUILDDIR}"/debugfiles-remove.list \
     "${BUILDDIR}"/debugfiles.list > "${BUILDDIR}"/debugfiles.list.new
   mv -f "${BUILDDIR}"/debugfiles.list.new "${BUILDDIR}"/debugfiles.list
   for f in `LC_ALL=C sort -z -u "${BUILDDIR}"/debugsources-base.list \
@@ -778,39 +853,15 @@ EOF
 chmod 755 split-debuginfo.sh
 %endif
 
-%patch1100 -p0 -b .cloog-ppc64le-config~
-
-sed -i -e 's/4\.9\.3/4.9.2/' gcc/BASE-VER
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
-%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
-# Default to -gdwarf-4 -fno-debug-types-section rather than -gdwarf-2
-sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(4)/' gcc/common.opt
-sed -i '/flag_debug_types_section/s/Init(1)/Init(0)/' gcc/common.opt
-sed -i '/dwarf_record_gcc_switches/s/Init(0)/Init(1)/' gcc/common.opt
-sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\14./' gcc/doc/invoke.texi
-%else
-# Default to -gdwarf-3 rather than -gdwarf-2
-sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
-sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\13./' gcc/doc/invoke.texi
-sed -i 's/#define[[:blank:]]*EMIT_ENTRY_VALUE[[:blank:]].*$/#define EMIT_ENTRY_VALUE 0/' gcc/{var-tracking,dwarf2out}.c
-sed -i 's/#define[[:blank:]]*EMIT_TYPED_DWARF_STACK[[:blank:]].*$/#define EMIT_TYPED_DWARF_STACK 0/' gcc/dwarf2out.c
-sed -i 's/#define[[:blank:]]*EMIT_DEBUG_MACRO[[:blank:]].*$/#define EMIT_DEBUG_MACRO 0/' gcc/dwarf2out.c
-%endif
-
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
-
-# Hack to avoid building multilib libjava
-perl -pi -e 's/^all: all-redirect/ifeq (\$(MULTISUBDIR),)\nall: all-redirect\nelse\nall:\n\techo Multilib libjava build disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^install: install-redirect/ifeq (\$(MULTISUBDIR),)\ninstall: install-redirect\nelse\ninstall:\n\techo Multilib libjava install disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^check: check-redirect/ifeq (\$(MULTISUBDIR),)\ncheck: check-redirect\nelse\ncheck:\n\techo Multilib libjava check disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^all: all-recursive/ifeq (\$(MULTISUBDIR),)\nall: all-recursive\nelse\nall:\n\techo Multilib libjava build disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^install: install-recursive/ifeq (\$(MULTISUBDIR),)\ninstall: install-recursive\nelse\ninstall:\n\techo Multilib libjava install disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^check: check-recursive/ifeq (\$(MULTISUBDIR),)\ncheck: check-recursive\nelse\ncheck:\n\techo Multilib libjava check disabled\nendif/' libjava/Makefile.in
 
 ./contrib/gcc_update --touch
 
 LC_ALL=C sed -i -e 's/\xa0/ /' gcc/doc/options.texi
+
+sed -i -e 's/Common Driver Var(flag_report_bug)/& Init(1)/' gcc/common.opt
 
 %ifarch ppc
 if [ -d libstdc++-v3/config/abi/post/powerpc64-linux-gnu ]; then
@@ -841,49 +892,8 @@ rm -fr obj-%{gcc_target_platform}
 mkdir obj-%{gcc_target_platform}
 cd obj-%{gcc_target_platform}
 
-%if %{build_cloog}
-mkdir isl-build isl-install
-%ifarch s390 s390x
-ISL_FLAG_PIC=-fPIC
-%else
-ISL_FLAG_PIC=-fpic
-%endif
-cd isl-build
-../../isl-%{isl_version}/configure --disable-shared \
-  CC=/usr/bin/gcc CXX=/usr/bin/g++ \
-  CFLAGS="${CFLAGS:-%optflags} $ISL_FLAG_PIC" --prefix=`cd ..; pwd`/isl-install
-make %{?_smp_mflags}
-make install
-cd ..
-
-mkdir cloog-build cloog-install
-cd cloog-build
-cat >> ../../cloog-%{cloog_version}/source/isl/constraints.c << \EOF
-#include <isl/flow.h>
-static void __attribute__((used)) *s1 = (void *) isl_union_map_compute_flow;
-static void __attribute__((used)) *s2 = (void *) isl_map_dump;
-EOF
-sed -i 's|libcloog|libgcc49privatecloog|g' \
-  ../../cloog-%{cloog_version}/{,test/}Makefile.{am,in}
-isl_prefix=`cd ../isl-install; pwd` \
-../../cloog-%{cloog_version}/configure --with-isl=system \
-  --with-isl-prefix=`cd ../isl-install; pwd` \
-  CC=/usr/bin/gcc CXX=/usr/bin/g++ \
-  CFLAGS="${CFLAGS:-%optflags}" CXXFLAGS="${CXXFLAGS:-%optflags}" \
-   --prefix=`cd ..; pwd`/cloog-install
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-make %{?_smp_mflags}
-make %{?_smp_mflags} install
-cd ../cloog-install/lib
-rm libgcc49privatecloog-isl.so{,.4}
-mv libgcc49privatecloog-isl.so.4.0.0 libcloog-isl.so.4
-ln -sf libcloog-isl.so.4 libcloog-isl.so
-ln -sf libcloog-isl.so.4 libcloog.so
-cd ../..
-%endif
-
 CC=gcc
+CXX=g++
 OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mfpmath=sse/-mfpmath=sse -msse2/g'`
@@ -893,24 +903,6 @@ OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mcpu=ultrasparc/-mtune=ultrasparc/g;s/-mcp
 %endif
 %ifarch %{ix86}
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-march=i.86//g'`
-%endif
-%ifarch sparc64
-cat > gcc64 <<"EOF"
-#!/bin/sh
-exec /usr/bin/gcc -m64 "$@"
-EOF
-chmod +x gcc64
-CC=`pwd`/gcc64
-%endif
-%ifarch ppc64 ppc64le ppc64p7
-if gcc -m64 -xc -S /dev/null -o - > /dev/null 2>&1; then
-  cat > gcc64 <<"EOF"
-#!/bin/sh
-exec /usr/bin/gcc -m64 "$@"
-EOF
-  chmod +x gcc64
-  CC=`pwd`/gcc64
-fi
 %endif
 OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
 case "$OPT_FLAGS" in
@@ -927,12 +919,9 @@ enablelada=,ada
 %if %{build_go}
 enablelgo=,go
 %endif
-CC="$CC" CFLAGS="$OPT_FLAGS" \
-	CXXFLAGS="`echo " $OPT_FLAGS " | sed 's/ -Wall / /g;s/ -fexceptions / /g' \
-		  | sed 's/ -Werror=format-security / -Wformat -Werror=format-security /'`" \
-	XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" GCJFLAGS="$OPT_FLAGS" \
-	../configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
-	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
+CONFIGURE_OPTS="\
+	--prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
+	--with-bugurl=http://bugzilla.redhat.com/bugzilla \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 %ifarch ppc64le
 	--disable-multilib \
@@ -941,13 +930,15 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %endif
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
 	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
-	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
 	--enable-plugin --enable-initfini-array \
 	--disable-libgcj \
-%if %{build_cloog}
-	--with-isl=`pwd`/isl-install --with-cloog=`pwd`/cloog-install \
+%if 0%{fedora} >= 21 && 0%{fedora} <= 22
+	--with-default-libstdcxx-abi=c++98 \
+%endif
+%if %{build_isl}
+	--with-isl \
 %else
-	--without-isl --without-cloog \
+	--without-isl \
 %endif
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
 %if %{attr_ifunc}
@@ -972,12 +963,20 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %ifarch sparc sparcv9
 	--host=%{gcc_target_platform} --build=%{gcc_target_platform} --target=%{gcc_target_platform} --with-cpu=v7
 %endif
-%ifarch ppc ppc64 ppc64le ppc64p7
+%ifarch ppc ppc64 ppc64p7
 %if 0%{?rhel} >= 7
 	--with-cpu-32=power7 --with-tune-32=power7 --with-cpu-64=power7 --with-tune-64=power7 \
 %endif
 %if 0%{?rhel} == 6
 	--with-cpu-32=power4 --with-tune-32=power6 --with-cpu-64=power4 --with-tune-64=power6 \
+%endif
+%endif
+%ifarch ppc64le
+%if 0%{?rhel} >= 7
+	--with-cpu-32=power8 --with-tune-32=power8 --with-cpu-64=power8 --with-tune-64=power8 \
+%endif
+%if 0%{?fedora} > 21 && 0%{?fedora} < 24
+	--with-cpu-32=power7 --with-tune-32=power8 --with-cpu-64=power7 --with-tune-64=power8 \
 %endif
 %endif
 %ifarch ppc
@@ -1009,22 +1008,52 @@ CC="$CC" CFLAGS="$OPT_FLAGS" \
 %endif
 %endif
 %ifarch armv7hl
-	--with-cpu=cortex-a8 --with-tune=cortex-a8 --with-arch=armv7-a \
+	--with-tune=cortex-a8 --with-arch=armv7-a \
 	--with-float=hard --with-fpu=vfpv3-d16 --with-abi=aapcs-linux \
 %endif
 %ifnarch sparc sparcv9 ppc
-	--build=%{gcc_target_platform}
+	--build=%{gcc_target_platform} \
 %endif
+	"
 
-%ifarch %{arm} sparc sparcv9 sparc64
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
+CC="$CC" CXX="$CXX" CFLAGS="$OPT_FLAGS" \
+	CXXFLAGS="`echo " $OPT_FLAGS " | sed 's/ -Wall / /g;s/ -fexceptions / /g' \
+		  | sed 's/ -Werror=format-security / -Wformat -Werror=format-security /'`" \
+	XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" \
+	../configure --enable-bootstrap \
+	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
+	$CONFIGURE_OPTS
+
+%ifarch sparc sparcv9 sparc64 aarch64
+make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 %else
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
+make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
 %endif
 
-%if %{build_cloog}
-cp -a cloog-install/lib/libcloog-isl.so.4 gcc/
-%endif
+CC="`%{gcc_target_platform}/libstdc++-v3/scripts/testsuite_flags --build-cc`"
+CXX="`%{gcc_target_platform}/libstdc++-v3/scripts/testsuite_flags --build-cxx` `%{gcc_target_platform}/libstdc++-v3/scripts/testsuite_flags --build-includes`"
+
+# Build libgccjit separately, so that normal compiler binaries aren't -fpic
+# unnecessarily.
+mkdir objlibgccjit
+cd objlibgccjit
+CC="$CC" CXX="$CXX" CFLAGS="`echo $OPT_FLAGS | sed 's/-Werror=format-security//'`" \
+	CXXFLAGS="`echo " $OPT_FLAGS " | sed 's/ -Wall / /g;s/ -fexceptions / /g' \
+		  | sed 's/-Werror=format-security//'`" \
+	XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" \
+	../../configure --disable-bootstrap --enable-host-shared \
+	--enable-languages=jit $CONFIGURE_OPTS
+make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" all-gcc
+cp -a gcc/libgccjit.so* ../gcc/
+cd ../gcc/
+ln -sf xgcc %{gcc_target_platform}-gcc-%{version}
+cp -a Makefile{,.orig}
+sed -i -e '/^CHECK_TARGETS/s/$/ check-jit/' Makefile
+touch -r Makefile.orig Makefile
+rm Makefile.orig
+make jit.sphinx.html
+make jit.sphinx.install-html jit_htmldir=`pwd`/../../rpm.doc/libgccjit-devel/html
+cd ..
 
 # Make generated man pages even if Pod::Man is not new enough
 perl -pi -e 's/head3/head2/' ../contrib/texi2pod.pl
@@ -1046,9 +1075,9 @@ cd ../..
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
 mkdir -p rpm.doc/go rpm.doc/libgo rpm.doc/libquadmath rpm.doc/libitm
-mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libgomp,libatomic,libsanitizer,libcilkrts}
+mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts}
 
-for i in {gcc,gcc/cp,gcc/java,gcc/ada,libstdc++-v3,libobjc,libgomp,libatomic,libsanitizer,libcilkrts}/ChangeLog*; do
+for i in {gcc,gcc/cp,gcc/java,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts}/ChangeLog*; do
 	cp -p $i rpm.doc/changelogs/$i
 done
 
@@ -1102,10 +1131,6 @@ chmod 644 %{buildroot}%{_infodir}/gnat*
 FULLPATH=%{buildroot}%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 FULLEPATH=%{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 
-%if %{build_cloog}
-cp -a cloog-install/lib/libcloog-isl.so.4 $FULLPATH/
-%endif
-
 # fix some things
 ln -sf gcc %{buildroot}%{_prefix}/bin/cc
 rm -f %{buildroot}%{_prefix}/lib/cpp
@@ -1114,6 +1139,13 @@ ln -sf gfortran %{buildroot}%{_prefix}/bin/f95
 rm -f %{buildroot}%{_infodir}/dir
 gzip -9 %{buildroot}%{_infodir}/*.info*
 ln -sf gcc %{buildroot}%{_prefix}/bin/gnatgcc
+
+%if %{build_go}
+mv %{buildroot}%{_prefix}/bin/go{,.gcc}
+mv %{buildroot}%{_prefix}/bin/gofmt{,.gcc}
+ln -sf /etc/alternatives/go %{buildroot}%{_prefix}/bin/go
+ln -sf /etc/alternatives/gofmt %{buildroot}%{_prefix}/bin/gofmt
+%endif
 
 cxxconfig="`find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h`"
 for i in `find %{gcc_target_platform}/[36]*/libstdc++-v3/include -name c++config.h 2>/dev/null`; do
@@ -1265,6 +1297,12 @@ done
 touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc++*gdb.py
 popd
 
+rm -f $FULLEPATH/libgccjit.so
+cp -a objlibgccjit/gcc/libgccjit.so* %{buildroot}%{_prefix}/%{_lib}/
+cp -a ../gcc/jit/libgccjit*.h %{buildroot}%{_prefix}/include/
+/usr/bin/install -c -m 644 objlibgccjit/gcc/doc/libgccjit.info %{buildroot}/%{_infodir}/
+gzip -9 %{buildroot}/%{_infodir}/libgccjit.info
+
 pushd $FULLPATH
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../libobjc.so.4 libobjc.so
@@ -1272,7 +1310,7 @@ ln -sf ../../../libstdc++.so.6.*[0-9] libstdc++.so
 ln -sf ../../../libgfortran.so.3.* libgfortran.so
 ln -sf ../../../libgomp.so.1.* libgomp.so
 %if %{build_go}
-ln -sf ../../../libgo.so.5.* libgo.so
+ln -sf ../../../libgo.so.7.* libgo.so
 %endif
 %if %{build_libquadmath}
 ln -sf ../../../libquadmath.so.0.* libquadmath.so
@@ -1284,7 +1322,7 @@ ln -sf ../../../libitm.so.1.* libitm.so
 ln -sf ../../../libatomic.so.1.* libatomic.so
 %endif
 %if %{build_libasan}
-ln -sf ../../../libasan.so.1.* libasan.so
+ln -sf ../../../libasan.so.2.* libasan.so
 mv ../../../libasan_preinit.o libasan_preinit.o
 %endif
 %if %{build_libubsan}
@@ -1299,7 +1337,7 @@ ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
 ln -sf ../../../../%{_lib}/libgfortran.so.3.* libgfortran.so
 ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 %if %{build_go}
-ln -sf ../../../../%{_lib}/libgo.so.5.* libgo.so
+ln -sf ../../../../%{_lib}/libgo.so.7.* libgo.so
 %endif
 %if %{build_libquadmath}
 ln -sf ../../../../%{_lib}/libquadmath.so.0.* libquadmath.so
@@ -1311,7 +1349,7 @@ ln -sf ../../../../%{_lib}/libitm.so.1.* libitm.so
 ln -sf ../../../../%{_lib}/libatomic.so.1.* libatomic.so
 %endif
 %if %{build_libasan}
-ln -sf ../../../../%{_lib}/libasan.so.1.* libasan.so
+ln -sf ../../../../%{_lib}/libasan.so.2.* libasan.so
 mv ../../../../%{_lib}/libasan_preinit.o libasan_preinit.o
 %endif
 %if %{build_libubsan}
@@ -1375,28 +1413,28 @@ mv -f $FULLPATH/ada{include,lib} $FULLLPATH/
 pushd $FULLLPATH/adalib
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../../libgnarl-*.so libgnarl.so
-ln -sf ../../../../../libgnarl-*.so libgnarl-4.9.so
+ln -sf ../../../../../libgnarl-*.so libgnarl-5.so
 ln -sf ../../../../../libgnat-*.so libgnat.so
-ln -sf ../../../../../libgnat-*.so libgnat-4.9.so
+ln -sf ../../../../../libgnat-*.so libgnat-5.so
 else
 ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-4.9.so
+ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-5.so
 ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-4.9.so
+ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-5.so
 fi
 popd
 else
 pushd $FULLPATH/adalib
 if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../libgnarl-*.so libgnarl.so
-ln -sf ../../../../libgnarl-*.so libgnarl-4.9.so
+ln -sf ../../../../libgnarl-*.so libgnarl-5.so
 ln -sf ../../../../libgnat-*.so libgnat.so
-ln -sf ../../../../libgnat-*.so libgnat-4.9.so
+ln -sf ../../../../libgnat-*.so libgnat-5.so
 else
 ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-4.9.so
+ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-5.so
 ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-4.9.so
+ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-5.so
 fi
 popd
 fi
@@ -1409,8 +1447,8 @@ ln -sf ../`echo ../../../../lib/libgfortran.so.3.* | sed s~/lib/~/lib64/~` 64/li
 ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgomp.so
 %if %{build_go}
 rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.5.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.5.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.7.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.7.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
 %endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
@@ -1429,8 +1467,8 @@ echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libatomic.so.1.* | sed 's,
 %endif
 %if %{build_libasan}
 rm -f libasan.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libasan.so.1.* | sed 's,^.*liba,liba,'`' )' > libasan.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libasan.so.1.* | sed 's,^.*liba,liba,'`' )' > 64/libasan.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libasan.so.2.* | sed 's,^.*liba,liba,'`' )' > libasan.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libasan.so.2.* | sed 's,^.*liba,liba,'`' )' > 64/libasan.so
 mv ../../../../lib64/libasan_preinit.o 64/libasan_preinit.o
 %endif
 %if %{build_libubsan}
@@ -1496,8 +1534,8 @@ ln -sf ../`echo ../../../../lib64/libgfortran.so.3.* | sed s~/../lib64/~/~` 32/l
 ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgomp.so
 %if %{build_go}
 rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.5.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.5.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.7.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.7.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
 %endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
@@ -1516,8 +1554,8 @@ echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libatomic.so.1.* | sed 's,
 %endif
 %if %{build_libasan}
 rm -f libasan.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libasan.so.1.* | sed 's,^.*liba,liba,'`' )' > libasan.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libasan.so.1.* | sed 's,^.*liba,liba,'`' )' > 32/libasan.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libasan.so.2.* | sed 's,^.*liba,liba,'`' )' > libasan.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libasan.so.2.* | sed 's,^.*liba,liba,'`' )' > 32/libasan.so
 mv ../../../../lib/libasan_preinit.o 32/libasan_preinit.o
 %endif
 %if %{build_libubsan}
@@ -1615,11 +1653,13 @@ strip -g `find . \( -name libgfortran.a -o -name libobjc.a -o -name libgomp.a \
 		    -o -name libgcc.a -o -name libgcov.a -o -name libquadmath.a \
 		    -o -name libitm.a -o -name libgo.a -o -name libcaf\*.a \
 		    -o -name libatomic.a -o -name libasan.a -o -name libtsan.a \
-		    -o -name libubsan.a -o -name liblsan.a -o -name libcilkrts.a \) \
+		    -o -name libubsan.a -o -name liblsan.a -o -name libcilkrts.a \
+		    -o -name libcc1.a \) \
 		 -a -type f`
 popd
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.3.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libcc1.so.0.*
 %if %{build_libquadmath}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libquadmath.so.0.*
 %endif
@@ -1630,7 +1670,7 @@ chmod 755 %{buildroot}%{_prefix}/%{_lib}/libitm.so.1.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libatomic.so.1.*
 %endif
 %if %{build_libasan}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libasan.so.1.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libasan.so.2.*
 %endif
 %if %{build_libubsan}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libubsan.so.0.*
@@ -1645,7 +1685,7 @@ chmod 755 %{buildroot}%{_prefix}/%{_lib}/libtsan.so.0.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/liblsan.so.0.*
 %endif
 %if %{build_go}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.5.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.7.*
 %endif
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.4.*
 
@@ -1702,7 +1742,6 @@ rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
 rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
 rm -f %{buildroot}%{_prefix}/%{_lib}/libvtv* || :
 rm -f %{buildroot}%{_prefix}/bin/gappletviewer || :
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc-%{version} || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gfortran || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gccgo || :
 rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcj || :
@@ -1817,6 +1856,16 @@ if [ $1 = 0 -a -f %{_infodir}/gnat_rm.info.gz ]; then
     --info-dir=%{_infodir} %{_infodir}/gnat-style.info.gz || :
 fi
 
+%post go
+%{_sbindir}/update-alternatives --install \
+  %{_prefix}/bin/go go %{_prefix}/bin/go.gcc 92 \
+  --slave %{_prefix}/bin/gofmt gofmt %{_prefix}/bin/gofmt.gcc
+
+%preun go
+if [ $1 = 0 ]; then
+  %{_sbindir}/update-alternatives --remove go %{_prefix}/bin/go.gcc
+fi
+
 # Because glibc Prereq's libgcc and /sbin/ldconfig
 # comes from glibc, it might not exist yet when
 # libgcc is installed
@@ -1870,6 +1919,26 @@ if [ $1 = 0 -a -f %{_infodir}/libgomp.info.gz ]; then
 fi
 
 %postun -n libgomp -p /sbin/ldconfig
+
+%post gdb-plugin -p /sbin/ldconfig
+
+%postun gdb-plugin -p /sbin/ldconfig
+
+%post -n libgccjit -p /sbin/ldconfig
+
+%postun -n libgccjit -p /sbin/ldconfig
+
+%post -n libgccjit-devel
+if [ -f %{_infodir}/libgccjit.info.gz ]; then
+  /sbin/install-info \
+    --info-dir=%{_infodir} %{_infodir}/libgccjit.info.gz || :
+fi
+
+%preun -n libgccjit-devel
+if [ $1 = 0 -a -f %{_infodir}/libgccjit.info.gz ]; then
+  /sbin/install-info --delete \
+    --info-dir=%{_infodir} %{_infodir}/libgccjit.info.gz || :
+fi
 
 %post -n libquadmath
 /sbin/ldconfig
@@ -1936,6 +2005,7 @@ fi
 %{_prefix}/bin/c99
 %{_prefix}/bin/gcc
 %{_prefix}/bin/gcov
+%{_prefix}/bin/gcov-tool
 %{_prefix}/bin/gcc-ar
 %{_prefix}/bin/gcc-nm
 %{_prefix}/bin/gcc-ranlib
@@ -1949,6 +2019,7 @@ fi
 %{_prefix}/bin/ppc-%{_vendor}-%{_target_os}-gcc
 %endif
 %{_prefix}/bin/%{gcc_target_platform}-gcc
+%{_prefix}/bin/%{gcc_target_platform}-gcc-%{version}
 %{_mandir}/man1/gcc.1*
 %{_mandir}/man1/gcov.1*
 %{_infodir}/gcc*
@@ -1974,6 +2045,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/syslimits.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/unwind.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/omp.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/openacc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdint.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdint-gcc.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/stdalign.h
@@ -2022,6 +2094,20 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mm3dnow.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/cpuid.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/cross-stdarg.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512bwintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512dqintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512ifmaintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512ifmavlintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512vbmiintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512vbmivlintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512vlbwintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512vldqintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/avx512vlintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/clflushoptintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/clwbintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/pcommitintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xsavecintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xsavesintrin.h
 %endif
 %ifarch ia64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/ia64intrin.h
@@ -2042,9 +2128,11 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/unwind-arm-common.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_neon.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_acle.h
 %endif
 %ifarch aarch64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_neon.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/arm_acle.h
 %endif
 %ifarch sparc sparcv9 sparc64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/visintrin.h
@@ -2075,9 +2163,6 @@ fi
 %endif
 %if %{build_libasan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsanitizer.spec
-%endif
-%if %{build_cloog}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcloog-isl.so.*
 %endif
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
@@ -2370,6 +2455,13 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/omp_lib.f90
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/omp_lib.mod
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/omp_lib_kinds.mod
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/openacc.f90
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/openacc.mod
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/openacc_kinds.mod
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/openacc_lib.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/ieee_arithmetic.mod
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/ieee_exceptions.mod
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/finclude/ieee_features.mod
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/f951
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortranbegin.a
@@ -2384,6 +2476,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libcaf_single.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgfortran.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgfortran.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/finclude
 %endif
 %ifarch %{multilib_64_archs}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
@@ -2391,6 +2484,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libcaf_single.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgfortran.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgfortran.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/finclude
 %endif
 %doc rpm.doc/gfortran/*
 
@@ -2502,6 +2596,7 @@ fi
 %files -n libgomp
 %defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgomp.so.1*
+%{_prefix}/%{_lib}/libgomp-plugin-host_nonshm.so.1*
 %{_infodir}/libgomp.info*
 %doc rpm.doc/changelogs/libgomp/ChangeLog*
 
@@ -2608,7 +2703,7 @@ fi
 %if %{build_libasan}
 %files -n libasan
 %defattr(-,root,root,-)
-%{_prefix}/%{_lib}/libasan.so.1*
+%{_prefix}/%{_lib}/libasan.so.2*
 
 %files -n libasan-static
 %defattr(-,root,root,-)
@@ -2716,8 +2811,14 @@ fi
 %if %{build_go}
 %files go
 %defattr(-,root,root,-)
+%ghost %{_prefix}/bin/go
+%{_prefix}/bin/go.gcc
 %{_prefix}/bin/gccgo
+%ghost %{_prefix}/bin/gofmt
+%{_prefix}/bin/gofmt.gcc
 %{_mandir}/man1/gccgo.1*
+%{_mandir}/man1/go.1*
+%{_mandir}/man1/gofmt.1*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2725,6 +2826,7 @@ fi
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/go1
+%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cgo
 %ifarch sparcv9 ppc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libgo.so
@@ -2748,7 +2850,7 @@ fi
 
 %files -n libgo
 %defattr(-,root,root,-)
-%{_prefix}/%{_lib}/libgo.so.5*
+%{_prefix}/%{_lib}/libgo.so.7*
 %doc rpm.doc/libgo/*
 
 %files -n libgo-devel
@@ -2797,420 +2899,42 @@ fi
 %endif
 %endif
 
+%files -n libgccjit
+%defattr(-,root,root,-)
+%{_prefix}/%{_lib}/libgccjit.so.*
+%doc rpm.doc/changelogs/gcc/jit/ChangeLog*
+
+%files -n libgccjit-devel
+%defattr(-,root,root,-)
+%{_prefix}/%{_lib}/libgccjit.so
+%{_prefix}/include/libgccjit*.h
+%{_infodir}/libgccjit.info*
+%doc rpm.doc/libgccjit-devel/*
+%doc gcc/jit/docs/examples
+
 %files plugin-devel
 %defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin/gtype.state
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin/include
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
+%files gdb-plugin
+%defattr(-,root,root,-)
+%{_prefix}/%{_lib}/libcc1.so*
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin/libcc1plugin.so*
+%doc rpm.doc/changelogs/libcc1/ChangeLog*
+
 %changelog
-* Thu Jan  8 2015 Jakub Jelinek <jakub@redhat.com> 4.9.2-5
-- don't remove tablejumps in rtl_tidy_fallthru_edge (#1136939,
-  PR rtl-optimization/64536)
-
-* Wed Jan  7 2015 Jakub Jelinek <jakub@redhat.com> 4.9.2-4
-- update from the 4.9 branch
-  - PRs ada/64492, c++/38958, c++/60955, c++/63657, c++/63658, c++/64029,
-	c++/64251, c++/64297, c++/64352, c++/64487, fortran/64244,
-	libstdc++/64302, libstdc++/64303, rtl-optimization/64010,
-	target/64409, target/64507
-- backport -mskip-rax-setup support from trunk
-- fix -fsanitize=float-cast-overflow (PR sanitizer/64344)
-- fix handling of fortran components vs. cray pointers (#1134560,
-  PR fortran/62174)
-- package libcilkrts.spec (#1173905)
-
-* Wed Dec 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.2-3
-- update from the 4.9 branch
-  - PRs libstdc++/64239, sanitizer/64265, target/64200,
-	tree-optimization/63551, tree-optimization/64269
-- fix up SANITIZE_* enum values, so that -fsanitize=bool is independent
-  from -fsanitize=float-divide-by-zero and -fsanitize=enum is independent
-  from -fsanitize=float-cast-overflow (#1173185)
-- fix -fsanitize=float-cast-overflow in C (#1173185, PR sanitizer/64289)
-- fix -fsanitize=thread (PR sanitizer/64336)
-- fix up Fortran DATA error recovery (#1115207, PR fortran/61669)
-
-* Fri Dec 12 2014 Jakub Jelinek <jakub@redhat.com> 4.9.2-2
-- update from the 4.9 branch
-  - PRs ada/42978, ada/47500, bootstrap/63703, bootstrap/64213, c++/56493,
-	c++/63265, c++/63849, c/52769, c/59708, fortran/63938, ipa/63551,
-	ipa/63838, ipa/64153, libstdc++/61947, libstdc++/63497,
-	libstdc++/63840, libstdc++/64103, libstdc++/64140, libstdc++/64203,
-	middle-end/63665, middle-end/63738, middle-end/63762,
-	middle-end/64067, middle-end/64111, middle-end/64225,
-	preprocessor/60436, rtl-optimization/63475, rtl-optimization/63483,
-	rtl-optimization/64037, sanitizer/63913, target/50751, target/51244,
-	target/53976, target/55351, target/56846, target/59593, target/60111,
-	target/61535, target/63538, target/63661, target/63673, target/63783,
-	target/63947, target/64108, target/64113, target/64115,
-	testsuite/63305, tree-optimization/61686, tree-optimization/61750,
-	tree-optimization/61927, tree-optimization/62021,
-	tree-optimization/62167, tree-optimization/62238,
-	tree-optimization/63605, tree-optimization/63738,
-	tree-optimization/63841, tree-optimization/63915,
-	tree-optimization/64191
-
-* Sat Nov  1 2014 Jakub Jelinek <jakub@redhat.com> 4.9.2-1
-- update from the 4.9 branch
-  - GCC 4.9.2 release
-  - PRs sanitizer/63638, sanitizer/63697, tree-optimization/63530
-- handle REG_EQ* notes in REE (PR rtl-optimization/63659)
-- include asan/lsan sanitizer/ includes
-
-* Fri Oct 24 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-13
-- update from the 4.9 branch
-  - PRs bootstrap/63632, libfortran/63589, libstdc++/63500,
-	lto/63603, tree-optimization/63563
-- backport -f{,no-}sanitize-recover=<list> support from the trunk
-- backport var-tracking fix (#1151226, PR debug/63623)
-
-* Fri Oct 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-12
-- update from the 4.9 branch
-  - PRs ada/63225, c++/63306, c++/63405, c++/63415, c++/63437, c++/63455,
-	c/63495, debug/63342, fortran/59488, ipa/61144, ipa/62121,
-	libgfortran/63460, libgomp/61200, libstdc++/57440, libstdc++/59603,
-	libstdc++/63199, libstdc++/63449, libstdc++/63456, lto/62026,
-	regression/61510, rtl-optimization/57003, rtl-optimization/63448,
-	sanitizer/61100, sanitizer/61530, sanitizer/61547, sanitizer/61897,
-	sanitizer/62089, sanitizer/62140, target/52941, target/63428,
-	tree-optimization/61969, tree-optimization/62031,
-	tree-optimization/63302, tree-optimization/63375,
-	tree-optimization/63379, tree-optimization/63380
-  - initial -fsanitize=kernel-address support
-
-* Tue Sep 30 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-11
-- update from the 4.9 branch
-  - PRs c++/61465, c++/62219, c++/63249, inline-asm/63282, middle-end/63247,
-	plugins/63410, sanitizer/61272, target/49423, target/61407,
-	target/62218, target/63335, tree-optimization/63341
-- avoid fnsplit if there are forced labels accessed in between the partitions
-  (#1106758, PR tree-optimization/63186)
-
-* Mon Sep 22 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-10
-- update from the 4.9 branch
-  - PRs c++/62017, c++/63241, c++/63248, debug/63284, debug/63328, ipa/61654,
-	target/61853, testsuite/63292
-- fix scheduler -fcompare-debug issue (#1140872, PR debug/63285)
-
-* Fri Sep 12 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-9
-- update from the 4.9 branch
-  - PRs c++/58624, c++/61214, c++/61659, c++/62129, c++/62224, c++/62659,
-	c++/63139, c/61271, c/62294, fortran/62106, fortran/62142,
-	fortran/62214, fortran/62215, fortran/62270, ipa/60449, ipa/61986,
-	ipa/62015, libgfortran/62188, libstdc++/62264, libstdc++/63219,
-	middle-end/61776, other/62008, other/62248, rtl-optimization/61672,
-	rtl-optimization/62004, rtl-optimization/62030,
-	rtl-optimization/62079, rtl-optimization/62146, target/61641,
-	target/61996, target/62011, target/62038, target/62040, target/62111,
-	target/62195, target/62261, target/62262, target/62312, target/63209,
-	target/63223, target/63228, testsuite/56194, tree-optimization/60196,
-	tree-optimization/62075, tree-optimization/62091,
-	tree-optimization/62175, tree-optimization/63189
-- fix s390{,x} return address handling in epilogues (#1131899,
-  PR target/62662)
-
-* Fri Aug 15 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-8
-- update from the 4.9 branch
-  - PRs fortran/62076, fortran/62107, lto/62032, middle-end/62092,
-	target/61713
-- allow elements/components of allocatables in !$omp atomic
-  (PR fortran/62131)
-- require/build require >= 2.24 binutils
-
-* Thu Aug 14 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-7
-- fix up scheduler deps handling fix (PR target/62025)
-- vectorization fix (PR tree-optimization/62073)
-
-* Wed Aug 13 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-6
-- update from the 4.9 branch
-  - PRs c++/58714, c++/60872, c++/61959, c++/61994, fortran/61999,
-	libstdc++/61667, other/61962, tree-optimization/60707
-  - fix scheduler deps handling of inc with clobbers vs. mem user (#1126463,
-    PR target/62025)
-- optimize slightly aarch64 unwind info
-- backport arm vcvtf2i fix from trunk (PR target/62098)
-- backport fold_ctor_reference big-endian fix (PR middle-end/62103)
-
-* Thu Aug  7 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-5
-- update from the 4.9 branch
-  - PRs debug/61923, libstdc++/58962, libstdc++/61374, libstdc++/61390,
-	libstdc++/61946, middle-end/61455, other/61963, target/60102,
-	tree-optimization/61320, tree-optimization/61375
-
-* Fri Aug  1 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-3
-- update from the 4.9 branch
-  - PRs fortran/61780, libobjc/61920, libstdc++/60037, target/47230,
-	target/61656, target/61662, target/61794, target/61844,
-	target/61855, tree-optimization/61964
-  - fix libgfortran overflows on allocation (CVE-2014-5044)
-- backport -fsanitize=alignment support from the trunk
-
-* Thu Jul 24 2014 Dan Horák <dan[at]danny.cz> 4.9.1-2.1
-- fix a LRA inheritance bug (#1117799)
-
-* Thu Jul 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-2
-- update from the 4.9 branch
-  - PRs c-family/61741, rtl-optimization/61801, target/61737,
-	tree-optimization/61779
-
-* Wed Jul 16 2014 Jakub Jelinek <jakub@redhat.com> 4.9.1-1
-- update from the 4.9 branch
-  - GCC 4.9.1 release
-  - PRs c++/58155, c++/58636, c++/61661, fortran/41936, fortran/58883,
-	fortran/61459, libgfortran/61640, middle-end/53590,
-	middle-end/61654, target/59843, target/61062, target/61544,
-	tree-optimization/61680, tree-optimization/61681,
-	tree-optimization/61684, tree-optimization/61725
-- enable libitm on aarch64
-- emit .note.GNU-stack on aarch64 (#1119885)
-- small -fsanitize=bounds fix from the trunk
-
-* Sat Jul 12 2014 Tom Callaway <spot@fedoraproject.org> 4.9.0-15
-- fix license handling
-
-* Wed Jul  2 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-14
-- update from the 4.9 branch
-  - OpenMP 4.0 Fortran support
-  - PRs c++/51253, c++/58704, c++/58753, c++/58781, c++/58930, c++/59867,
-	c++/60249, c++/61242, c++/61382, c++/61433, c++/61488, c++/61500,
-	c++/61537, c++/61539, c++/61566, c++/61614, c++/61647, fortran/60127,
-	fortran/60928, libgfortran/61499, middle-end/57541, target/61503,
-	target/61542, target/61586, target/61633, tree-optimization/57233,
-	tree-optimization/61299, tree-optimization/61306
-- fix combiner on s390 (#1102324, PR rtl-optimization/61673)
-- some -fsanitize=undefined fixes from the trunk
-
-* Wed Jun 25 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-13
-- update from the 4.9 branch
-  - PRs bootstrap/61583, c++/61556, ipa/61211, ipa/61540, libstdc++/61532,
-	target/61570
-- backport -fsanitize=bounds support from the trunk
-
-* Thu Jun 19 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-12
-- update from the 4.9 branch
-  - PRs c++/59296, c++/60605, c++/61507, debug/57519
-
-* Wed Jun 18 2014 Kyle McMartin <kyle@redhat.com> 4.9.0-11
-- avoid applying patch 16 twice
-
-* Wed Jun 18 2014 Richard Henderson <rth@redhat.com>
-- import fix for PR target/61545 from the 4.9 branch
-
-* Tue Jun 17 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-10
-- update from the 4.9 branch
-  - PRs fortran/45187, ipa/61186, libstdc++/60326, libstdc++/61269,
-	rtl-optimization/61094, rtl-optimization/61446, target/61415,
-	target/61423, target/61483
-
-* Thu Jun 12 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-9
-- update from the 4.9 branch
-  - PRs c++/61343, fortran/61406, fortran/61418, ipa/61393,
-	libfortran/61173, middle-end/61456, middle-end/61486,
-	target/61300, target/61431, target/61443, tree-optimization/61452
-  - fix up jump threading (#1094975, PR tree-optimization/61289)
-- include vxworks-dummy.h in arm gcc-plugin-devel (PR plugins/45078)
-
-* Thu Jun  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-8
-- enable ada on arm
-
-* Wed Jun  4 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-7
-- update from the 4.9 branch
-  - PRs c++/61020, c++/61134, c/58942, c/61053, ipa/61160, libstdc++/60734,
-	libstdc++/61227, rtl-optimization/60866, rtl-optimization/60901,
-	target/61239, tree-optimization/61383
-
-* Thu May 29 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-6
-- update from the 4.9 branch
-  - PRs bootstrap/60984, c++/60189, c/60189, c/61191, fortran/60834,
-	libfortran/61310, libgcc/61152, libstdc++/61143, libstdc++/61329,
-	lto/60820, lto/61012, middle-end/58094, middle-end/61010,
-	middle-end/61045, middle-end/61252, rtl-optimization/61215,
-	rtl-optimization/61325, target/61044, target/61202, target/61208,
-	target/61231, target/61249, target/61271, tree-optimization/60979
-- backport -fsanitize=float-cast-overflow support from trunk
-
-* Sun May 18 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-5
-- update from the 4.9 branch
-  - PRs debug/61013, ipa/60854, ipa/60897, ipa/61085, libfortran/61187,
-	libgcc/61097, libstdc++/60966, lto/60981, rtl-optimization/60969,
-	target/60969, target/61193, tree-optimization/61158
-
-* Wed May 14 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-4
-- update from the 4.9 branch
-  - PRs c++/60019, c++/60999, c++/61083, c++/61151, driver/61106, ipa/60973,
-	libfortran/61049, libstdc++/60594, libstdc++/61023, libstdc++/61086,
-	libstdc++/61117, target/59952, target/60991, target/61055,
-	target/61060, target/61092, tree-optimization/57864,
-	tree-optimization/60902, tree-optimization/61009
-- obsolete gcc-java and libjava*, remove all traces of build_java from the
-  spec file (#1096474, #1095513)
-- backport -fsanitize=float-divide-by-zero support from trunk
-
-* Tue May  6 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-3
-- update from the 4.9 branch
-  - PRs driver/61065, ipa/60965
-- disable gcc-java and libjava, broken by recent eclipse-ecj changes
-
-* Mon May  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-2
-- update from the 4.9 branch
-  - PRs c++/60951, c++/60980, c++/60992, fortran/60495, ipa/60911, ipa/60912,
-	libstdc++/59476, libstdc++/60497, libstdc++/60710, libstdc++/61036,
-	lto/60720, middle-end/60891, middle-end/60895, target/60909,
-	target/60941, target/61026, tree-optimization/60903,
-	tree-optimization/60930, tree-optimization/60960,
-	tree-optimization/60971
-- backport -fno-sanitize-recover and -fsanitize-undefined-trap-on-error
-  support from the trunk (PR sanitizer/60275)
-
-* Tue Apr 29 2014 Richard Henderson <rth@redhat.com>
-- enable ada, go and libatomic on aarch64
-
-* Tue Apr 22 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-1
-- update from the 4.9 branch
-  - GCC 4.9.0 release
-  - PRs c/59073, c/60819, fortran/58085, fortran/60717, libfortran/60810,
-	middle-end/55022, middle-end/60281, middle-end/60467,
-	middle-end/60469, middle-end/60849, other/43620, other/60644,
-	target/60839, target/60847, target/60868, tree-optimization/59817,
-	tree-optimization/60453, tree-optimization/60823,
-	tree-optimization/60836, tree-optimization/60841,
-	tree-optimization/60844
-
-* Fri Apr 11 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.10
-- update from the trunk and 4.9 branch
-  - GCC 4.9.0-rc1
-  - PRs ada/54040, ada/59346, c++/52844, ipa/60761, lto/60567,
-	middle-end/60556, middle-end/60797, other/59055, testsuite/60773
-  - fix CSE with non-volatile inline asm with multiple results or
-    single result and clobbers (#1086332, PR rtl-optimization/60663)
-- enable ppc64le in the spec file
-
-* Wed Apr  9 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.9
-- update from the trunk
-  - PRs ada/60703, bootstrap/60620, bootstrap/60719, bootstrap/60743,
-	c++/21113, c++/44613, c++/44859, c++/58207, c++/59115, c++/60374,
-	c++/60573, c++/60626, c++/60642, c++/60708, c++/60713, c++/60731,
-	debug/55794, debug/60655, fortran/60191, ipa/59626, ipa/60640,
-	ipa/60659, ipa/60746, libstdc++/60270, middle-end/60706,
-	middle-end/60729, middle-end/60750, rtl-optimization/60155,
-	rtl-optimization/60604, rtl-optimization/60700,
-	rtl-optimization/60776, sanitizer/60745, target/43751, target/54083,
-	target/54407, target/60034, target/60363, target/60504, target/60602,
-	target/60609, target/60650, target/60657, target/60697, target/60704,
-	target/60735, target/60763, testsuite/60671, testsuite/60672,
-	tree-optimization/60505, tree-optimization/60656,
-	tree-optimization/60733, tree-optimization/60740,
-	tree-optimization/60766, tree-optimization/60785
-
-* Fri Mar 28 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.8
-- update from the trunk
-  - PRs c++/52369, c++/60331, c++/60375, c++/60566, c++/60574, c++/60627,
-	c++/60628, c++/60689, c/35449, c/37428, c/39525, c/50347,
-	fortran/34928, fortran/58880, fortran/60522, fortran/60677, ipa/60315,
-	ipa/60600, libstdc++/60612, libstdc++/60658, middle-end/60635,
-	middle-end/60682, other/59545, rtl-optimization/60452,
-	rtl-optimization/60501, rtl-optimization/60650, sanitizer/56781,
-	sanitizer/60636, target/60580, target/60672, target/60675,
-	target/60693, testsuite/58013
-- inliner speed fixes (PR ipa/60243)
-- fortran wrong-code fix (PR fortran/60576)
-- fix IPA-SRA with mismatched types between caller and callee
-  (PR middle-end/60647)
-- fix expansion of switch with constant index not optimized during gimple
-  passes (PR target/60648)
-
-* Mon Mar 24 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.7
-- update from the trunk
-  - PRs c++/60384, debug/60603, fortran/60599, ipa/59176, ipa/60419,
-	libstdc++/60587, libstdc++/60623, rtl-optimization/60601,
-	sanitizer/60613, target/60598, target/60610, tree-optimization/60577
-
-* Thu Mar 20 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.6
-- update from the trunk
-  - PRs ada/39172, c++/51474, c++/54250, c++/59571, c++/60305, c++/60332,
-	c++/60390, c++/60391, c++/60572, c/55383, fortran/55207,
-	fortran/60283, fortran/60543, fortran/60549, libfortran/48600,
-	libfortran/58324, libstdc++/60564, lto/59543, lto/60571,
-	middle-end/60534, middle-end/60553, middle-end/60597, other/60589,
-	rtl-optimization/56356, sanitizer/60535, sanitizer/60557,
-	sanitizer/60569, target/60039, target/60516, target/60562,
-	target/60563, target/60568, testsuite/58851, testsuite/60590,
-	tree-optimization/60559
-
-* Sat Mar 15 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.5
-- update from the trunk
-  - PRs ada/51483, ada/60411, bootstrap/58572, c++/53492, c++/58609,
-	c++/60033, c++/60254, c++/60367, c++/60383, c++/60389, c++/60393,
-	c++/60532, c/60197, debug/60438, fortran/51976, fortran/60392,
-	fortran/60447, ipa/58721, ipa/60457, libfortran/38199,
-	libfortran/60128, libgcc/59339, libgcc/60472, libgfortran/60128,
-	libstdc++/59392, libstdc++/60499, lto/60424, lto/60427, lto/60461,
-	middle-end/36282, middle-end/60418, middle-end/60445,
-	middle-end/60474, middle-end/60482, middle-end/60484,
-	middle-end/60518, rtl-optimization/57189, rtl-optimization/57320,
-	rtl-optimization/60508, target/58271, target/58595, target/59396,
-	target/60264, target/60486, target/60525, tree-optimization/59025,
-	tree-optimization/59779, tree-optimization/60429,
-	tree-optimization/60454, tree-optimization/60485,
-	tree-optimization/60502
-
-* Thu Mar  6 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.4
-- update from the trunk
-  - PRs c++/60361, c++/60409, debug/60381, testsuite/59308
-
-* Wed Mar  5 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.3
-- update from the trunk
-  - PRs bootstrap/48230, bootstrap/50927, bootstrap/52466, bootstrap/60343,
-	c++/11586, c++/14710, c++/50025, c++/54359, c++/54440, c++/55877,
-	c++/57132, c++/58170, c++/58606, c++/58610, c++/58678, c++/58835,
-	c++/58845, c++/58873, c++/59231, c++/59347, c++/60046, c++/60051,
-	c++/60052, c++/60053, c++/60064, c++/60065, c++/60108, c++/60146,
-	c++/60167, c++/60182, c++/60185, c++/60186, c++/60187, c++/60190,
-	c++/60215, c++/60216, c++/60219, c++/60222, c++/60224, c++/60225,
-	c++/60227, c++/60241, c++/60248, c++/60250, c++/60251, c++/60252,
-	c++/60253, c++/60267, c++/60272, c++/60311, c++/60312, c++/60314,
-	c++/60328, c++/60345, c++/60347, c++/60353, c++/60376, c++/60377,
-	c++/60379, c++/60415, c++/60417, c/37743, c/60195, debug/56563,
-	debug/57232, debug/59992, debug/60152, driver/60233, fortran/49397,
-	fortran/55907, fortran/59599, fortran/60231, fortran/60232,
-	fortran/60234, fortran/60236, fortran/60286, fortran/60302,
-	fortran/60341, fortran/60359, ipa/55260, ipa/58555, ipa/60150,
-	ipa/60243, ipa/60266, ipa/60306, ipa/60327, libfortran/58015,
-	libfortran/59313, libfortran/60148, libgcc/60166, libgcj/55637,
-	libjava/60261, libstdc++/58338, libstdc++/60308, lto/53808, lto/60179,
-	lto/60295, lto/60319, lto/60404, lto/60405, middle-end/58477,
-	middle-end/59223, middle-end/60147, middle-end/60175,
-	middle-end/60221, middle-end/60291, objc++/60398, objc/56870,
-	pch/60010, plugins/59335, preprocessor/58844, preprocessor/60400,
-	rtl-optimization/49847, rtl-optimization/52714,
-	rtl-optimization/58960, rtl-optimization/59535,
-	rtl-optimization/60131, rtl-optimization/60268,
-	rtl-optimization/60292, rtl-optimization/60317, sanitizer/60142,
-	target/46898, target/55426, target/57896, target/57935, target/57936,
-	target/58675, target/59222, target/59794, target/59799, target/60071,
-	target/60169, target/60193, target/60203, target/60204, target/60205,
-	target/60207, target/60280, target/60298, testsuite/60173,
-	tree-optimization/56490, tree-optimization/58028,
-	tree-optimization/60174, tree-optimization/60183,
-	tree-optimization/60276, tree-optimization/60382
-- configure with --enable-gnu-indirect-function on architectures
-  and distros that support it and don't support it by default
-  yet (#1067245)
-- remove libgo P.224 elliptic curve (#1066539)
-
-* Thu Feb 13 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.2
-- update from the trunk
-  - PRs bootstrap/59878, c++/60047, c/60101, debug/59776, fortran/52370,
-	libffi/60073, lto/59468, lto/60060, middle-end/59737,
-	middle-end/60092, rtl-optimization/60116, target/43546, target/49008,
-	target/59927, target/60137, target/60151, testsuite/58630
-- upgrade to newer cloog and isl
-
-* Tue Feb 11 2014 Jakub Jelinek <jakub@redhat.com> 4.9.0-0.1
+* Fri Jan 23 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.5
 - new package
