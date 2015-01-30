@@ -1,9 +1,9 @@
-%global DATE 20150123
-%global SVNREV 220063
+%global DATE 20150130
+%global SVNREV 220295
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.5
+%global gcc_release 0.6
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -198,8 +198,8 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
-Patch15: gcc5-ppc-jit.patch
-Patch16: gcc5-pr64738.patch
+Patch15: gcc5-pr61925.patch
+Patch16: gcc5-pr64817.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -749,8 +749,8 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
-%patch15 -p0 -b .ppc-jit~
-%patch16 -p0 -b .pr64738~
+%patch15 -p0 -b .pr61925~
+%patch16 -p0 -b .pr64817~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2936,5 +2936,27 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Jan 30 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.6
+- update from the trunk
+  - PRs ada/64349, bootstrap/64612, bootstrap/64754, c++/49508, c++/58597,
+	c++/63889, c++/64521, c++/64717, c/64709, c/64766, c/64778,
+	fortran/62044, fortran/63861, fortran/64230, fortran/64771, go/63565,
+	go/64510, go/64595, go/64738, ipa/60871, ipa/64139, ipa/64282,
+	ipa/64730, ipa/64776, ipa/64801, jit/64257, jit/64708, jit/64780,
+	libffi/64779, libffi/64799, libffi/64855, libfortran/64770,
+	libgomp/64635, libstdc++/64368, libstdc++/64798, libstdc++/64828,
+	lto/64837, middle-end/64421, middle-end/64764, middle-end/64805,
+	middle-end/64809, other/63504, rtl-optimization/61058, target/15184,
+	target/29366, target/49263, target/51244, target/52933, target/53987,
+	target/54236, target/59533, target/64345, target/64580, target/64617,
+	target/64659, target/64761, target/64795, target/64806,
+	testsuite/64712, tree-optimization/56273, tree-optimization/59124,
+	tree-optimization/64277, tree-optimization/64718,
+	tree-optimization/64746, tree-optimization/64807,
+	tree-optimization/64829, tree-optimization/64844,
+	tree-optimization/64853, ubsan/64741
+- fix up #pragma GCC target handling on x86 (PR target/61925)
+- fix up VTA compile time hog during expansion (PR debug/64817)
+
 * Fri Jan 23 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.5
 - new package
