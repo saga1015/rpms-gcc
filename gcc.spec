@@ -200,6 +200,7 @@ Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr61925.patch
 Patch16: gcc5-pr64817.patch
+Patch17: gcc5-pr64803.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -751,6 +752,7 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr61925~
 %patch16 -p0 -b .pr64817~
+%patch17 -p0 -b .pr64803~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2957,6 +2959,7 @@ fi
 	tree-optimization/64853, ubsan/64741
 - fix up #pragma GCC target handling on x86 (PR target/61925)
 - fix up VTA compile time hog during expansion (PR debug/64817)
+- __LINE__ handling fix (PR preprocessor/64803)
 
 * Fri Jan 23 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.5
 - new package
