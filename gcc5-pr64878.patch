@@ -8,8 +8,8 @@
 
 	* testsuite/gcc.dg/tree-ssa/ssa-dom-thread-8.c: New.
 
---- a/gcc/tree-ssa-threadedge.c
-+++ b/gcc/tree-ssa-threadedge.c
+--- gcc/tree-ssa-threadedge.c
++++ gcc/tree-ssa-threadedge.c
 @@ -61,6 +61,7 @@ along with GCC; see the file COPYING3.  If not see
  #include "langhooks.h"
  #include "params.h"
