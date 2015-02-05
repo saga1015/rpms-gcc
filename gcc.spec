@@ -1,9 +1,9 @@
-%global DATE 20150130
-%global SVNREV 220295
+%global DATE 20150205
+%global SVNREV 220439
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.6
+%global gcc_release 0.7
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -199,8 +199,7 @@ Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr61925.patch
-Patch16: gcc5-pr64817.patch
-Patch17: gcc5-pr64803.patch
+Patch16: gcc5-pr64878.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -751,8 +750,7 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr61925~
-%patch16 -p0 -b .pr64817~
-%patch17 -p0 -b .pr64803~
+%patch16 -p0 -b .pr64878~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2938,6 +2936,17 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Feb  5 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.7
+- update from the trunk
+  - PRs ada/64349, c++/64877, c++/64901, c/64824, c/64868, fortran/64757,
+	gcov/64123, go/64836, go/64838, ipa/61548, ipa/64686, ipa/64872,
+	jit/64810, libobjc/63765, libstdc++/64467, libstdc++/64883,
+	middle-end/61225, middle-end/62103, middle-end/64922,
+	rtl-optimization/64756, rtl-optimization/64905, target/62631,
+	target/64047, target/64159, target/64231, target/64408, target/64660,
+	target/64688, target/64851, target/64882, testsuite/64796
+- FSM jump threading fix (PR tree-optimization/64878)
+
 * Fri Jan 30 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.6
 - update from the trunk
   - PRs ada/64349, bootstrap/64612, bootstrap/64754, c++/49508, c++/58597,
