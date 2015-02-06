@@ -1,9 +1,9 @@
-%global DATE 20150205
-%global SVNREV 220439
+%global DATE 20150206
+%global SVNREV 220476
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.7
+%global gcc_release 0.8
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -200,6 +200,8 @@ Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr61925.patch
 Patch16: gcc5-pr64878.patch
+Patch17: gcc5-pr64893.patch
+Patch18: gcc5-hjl.patch 
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -751,6 +753,8 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr61925~
 %patch16 -p0 -b .pr64878~
+%patch17 -p0 -b .pr64893~
+%patch18 -p0 -b .hjl~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2936,6 +2940,12 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Feb  6 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.8
+- update from the trunk
+  - PRs fortran/60289, fortran/64943, rtl-optimization/64957, target/17306,
+	target/43264, target/58400, target/64876
+- fix aarch64 bootstrap issue (PR target/64893)
+
 * Thu Feb  5 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.7
 - update from the trunk
   - PRs ada/64349, c++/64877, c++/64901, c/64824, c/64868, fortran/64757,
