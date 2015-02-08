@@ -1281,7 +1281,7 @@ rm -f $FULLPATH/adalib/libgnarl.so* $FULLPATH/adalib/libgnat.so*
 %endif
 
 mkdir -p %{buildroot}%{_prefix}/libexec/getconf
-if gcc/xgcc -B gcc/ -E -dD -xc /dev/null | grep __LONG_MAX__.*2147483647; then
+if gcc/xgcc -B gcc/ -E -P -dD -xc /dev/null | grep __LONG_MAX__.*2147483647; then
   ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_prefix}/libexec/getconf/default
 else
   ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_prefix}/libexec/getconf/default
