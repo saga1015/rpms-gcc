@@ -1,9 +1,9 @@
-%global DATE 20150206
-%global SVNREV 220476
+%global DATE 20150208
+%global SVNREV 220517
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.8
+%global gcc_release 0.9
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -199,9 +199,7 @@ Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr61925.patch
-Patch16: gcc5-pr64878.patch
-Patch17: gcc5-pr64893.patch
-Patch18: gcc5-hjl.patch 
+Patch16: gcc5-pr64893.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -752,9 +750,7 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr61925~
-%patch16 -p0 -b .pr64878~
-%patch17 -p0 -b .pr64893~
-%patch18 -p0 -b .hjl~
+%patch16 -p0 -b .pr64893~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2940,6 +2936,13 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Sun Feb  8 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.9
+- update from the trunk
+  - PRs bootstrap/53348, bootstrap/64256, debug/2714, fortran/63205,
+	fortran/63744, ipa/64896, jit/64752, libgfortran/60956,
+	middle-end/64340, middle-end/64937, target/64205, target/64889
+- fix getconf default symlink on 32-bit arches (#1190484)
+
 * Fri Feb  6 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.8
 - update from the trunk
   - PRs fortran/60289, fortran/64943, rtl-optimization/64957, target/17306,
