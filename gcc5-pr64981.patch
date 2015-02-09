@@ -1,0 +1,45 @@
+2015-02-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/64981
+	* builtins.c (expand_builtin): Call targetm.expand_builtin
+	for BUILT_IN_MD builtins regardless of asan_intercepted_p.
+
+	* gcc.dg/asan/pr64981.c: New test.
+
+--- gcc/builtins.c.jj	2015-01-21 10:29:52.000000000 +0100
++++ gcc/builtins.c	2015-02-09 14:02:35.814716664 +0100
+@@ -5960,6 +5960,9 @@ expand_builtin (tree exp, rtx target, rt
+   machine_mode target_mode = TYPE_MODE (TREE_TYPE (exp));
+   int flags;
+ 
++  if (DECL_BUILT_IN_CLASS (fndecl) == BUILT_IN_MD)
++    return targetm.expand_builtin (exp, target, subtarget, mode, ignore);
++
+   /* When ASan is enabled, we don't want to expand some memory/string
+      builtins and rely on libsanitizer's hooks.  This allows us to avoid
+      redundant checks and be sure, that possible overflow will be detected
+@@ -5968,9 +5971,6 @@ expand_builtin (tree exp, rtx target, rt
+   if ((flag_sanitize & SANITIZE_ADDRESS) && asan_intercepted_p (fcode))
+     return expand_call (exp, target, ignore);
+ 
+-  if (DECL_BUILT_IN_CLASS (fndecl) == BUILT_IN_MD)
+-    return targetm.expand_builtin (exp, target, subtarget, mode, ignore);
+-
+   /* When not optimizing, generate calls to library functions for a certain
+      set of builtins.  */
+   if (!optimize
+--- gcc/testsuite/gcc.dg/asan/pr64981.c.jj	2015-02-09 14:05:50.252487512 +0100
++++ gcc/testsuite/gcc.dg/asan/pr64981.c	2015-02-09 14:05:34.000000000 +0100
+@@ -0,0 +1,12 @@
++/* PR sanitizer/64981 */
++/* { dg-do compile { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-fsanitize=address -march=x86-64" } */
++
++int
++main ()
++{
++  __builtin_ia32_rdtsc ();
++  return 0;
++}
++
++/* { dg-final { scan-assembler-not "__builtin_ia32_rdtsc" } } */

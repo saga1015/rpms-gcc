@@ -1,0 +1,146 @@
+2015-02-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/64979
+	* tree-stdarg.c (pass_stdarg::execute): Scan phi node args for
+	va_list escapes.
+
+	* gcc.dg/tree-ssa/stdarg-7.c: New test.
+	* gcc.c-torture/execute/pr64979.c: New test.
+
+--- gcc/tree-stdarg.c.jj	2015-01-09 21:59:44.000000000 +0100
++++ gcc/tree-stdarg.c	2015-02-09 13:14:43.880406573 +0100
+@@ -856,22 +856,23 @@ pass_stdarg::execute (function *fun)
+       /* For va_list_simple_ptr, we have to check PHI nodes too.  We treat
+ 	 them as assignments for the purpose of escape analysis.  This is
+ 	 not needed for non-simple va_list because virtual phis don't perform
+-	 any real data movement.  */
+-      if (va_list_simple_ptr)
++	 any real data movement.  Also, check PHI nodes for taking address of
++	 the va_list vars.  */
++      tree lhs, rhs;
++      use_operand_p uop;
++      ssa_op_iter soi;
++
++      for (gphi_iterator i = gsi_start_phis (bb); !gsi_end_p (i);
++	   gsi_next (&i))
+ 	{
+-	  tree lhs, rhs;
+-	  use_operand_p uop;
+-	  ssa_op_iter soi;
++	  gphi *phi = i.phi ();
++	  lhs = PHI_RESULT (phi);
+ 
+-	  for (gphi_iterator i = gsi_start_phis (bb); !gsi_end_p (i);
+-	       gsi_next (&i))
+-	    {
+-	      gphi *phi = i.phi ();
+-	      lhs = PHI_RESULT (phi);
+-
+-	      if (virtual_operand_p (lhs))
+-		continue;
++	  if (virtual_operand_p (lhs))
++	    continue;
+ 
++	  if (va_list_simple_ptr)
++	    {
+ 	      FOR_EACH_PHI_ARG (uop, phi, soi, SSA_OP_USE)
+ 		{
+ 		  rhs = USE_FROM_PTR (uop);
+@@ -894,6 +895,22 @@ pass_stdarg::execute (function *fun)
+ 		    }
+ 		}
+ 	    }
++
++	  for (unsigned j = 0; !va_list_escapes
++			       && j < gimple_phi_num_args (phi); ++j)
++	    if ((!va_list_simple_ptr
++		 || TREE_CODE (gimple_phi_arg_def (phi, j)) != SSA_NAME)
++		&& walk_tree (gimple_phi_arg_def_ptr (phi, j),
++			      find_va_list_reference, &wi, NULL))
++	      {
++		if (dump_file && (dump_flags & TDF_DETAILS))
++		  {
++		    fputs ("va_list escapes in ", dump_file);
++		    print_gimple_stmt (dump_file, phi, 0, dump_flags);
++		    fputc ('\n', dump_file);
++		  }
++		va_list_escapes = true;
++	      }
+ 	}
+ 
+       for (gimple_stmt_iterator i = gsi_start_bb (bb);
+@@ -916,8 +933,8 @@ pass_stdarg::execute (function *fun)
+ 
+ 	  if (is_gimple_assign (stmt))
+ 	    {
+-	      tree lhs = gimple_assign_lhs (stmt);
+-	      tree rhs = gimple_assign_rhs1 (stmt);
++	      lhs = gimple_assign_lhs (stmt);
++	      rhs = gimple_assign_rhs1 (stmt);
+ 
+ 	      if (va_list_simple_ptr)
+ 		{
+--- gcc/testsuite/gcc.dg/tree-ssa/stdarg-7.c.jj	2015-02-09 12:54:44.222284401 +0100
++++ gcc/testsuite/gcc.dg/tree-ssa/stdarg-7.c	2015-02-09 12:58:10.406875647 +0100
+@@ -0,0 +1,22 @@
++/* PR target/64979 */
++/* { dg-do compile } */
++/* { dg-options "-O2 -fdump-tree-stdarg" } */
++
++#include <stdarg.h>
++
++void bar (int x, va_list *ap);
++
++void
++foo (int x, ...)
++{
++  va_list ap;
++  int n;
++
++  va_start (ap, x);
++  n = va_arg (ap, int);
++  bar (x, (va_list *) ((n == 0) ? ((void *) 0) : &ap));
++  va_end (ap);
++}
++
++/* { dg-final { scan-tree-dump "foo: va_list escapes 1, needs to save all GPR units and all FPR units" "stdarg" } } */
++/* { dg-final { cleanup-tree-dump "stdarg" } } */
+--- gcc/testsuite/gcc.c-torture/execute/pr64979.c.jj	2015-02-09 12:54:01.867984625 +0100
++++ gcc/testsuite/gcc.c-torture/execute/pr64979.c	2015-02-09 13:08:17.458818847 +0100
+@@ -0,0 +1,36 @@
++/* PR target/64979 */
++
++#include <stdarg.h>
++
++void __attribute__((noinline, noclone))
++bar (int x, va_list *ap)
++{
++  if (ap)
++    {
++      int i;
++      for (i = 0; i < 10; i++)
++	if (i != va_arg (*ap, int))
++	  __builtin_abort ();
++      if (va_arg (*ap, double) != 0.5)
++	__builtin_abort ();
++    }
++}
++
++void __attribute__((noinline, noclone))
++foo (int x, ...)
++{
++  va_list ap;
++  int n;
++
++  va_start (ap, x);
++  n = va_arg (ap, int);
++  bar (x, (va_list *) ((n == 0) ? ((void *) 0) : &ap));
++  va_end (ap);
++}
++
++int
++main ()
++{
++  foo (100, 1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0.5);
++  return 0;
++}
