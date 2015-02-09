@@ -3,7 +3,7 @@
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.9
+%global gcc_release 0.10
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -200,6 +200,9 @@ Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr61925.patch
 Patch16: gcc5-pr64893.patch
+Patch17: gcc5-pr64979.patch
+Patch18: gcc5-pr64981.patch
+Patch19: gcc5-pr64858.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -751,6 +754,9 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr61925~
 %patch16 -p0 -b .pr64893~
+%patch17 -p0 -b .pr64979~
+%patch18 -p0 -b .pr64981~
+%patch19 -p0 -b .pr64858~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -1281,7 +1287,7 @@ rm -f $FULLPATH/adalib/libgnarl.so* $FULLPATH/adalib/libgnat.so*
 %endif
 
 mkdir -p %{buildroot}%{_prefix}/libexec/getconf
-if gcc/xgcc -B gcc/ -E -P -dD -xc /dev/null | grep __LONG_MAX__.*2147483647; then
+if gcc/xgcc -B gcc/ -E -P -dD -xc /dev/null | grep '__LONG_MAX__.*\(2147483647\|0x7fffffff\($\|[LU]\)\)'; then
   ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_prefix}/libexec/getconf/default
 else
   ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_prefix}/libexec/getconf/default
@@ -2936,12 +2942,17 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Mon Feb  9 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.10
+- fix getconf default symlink on 32-bit arches (#1190484)
+- fix ICF ICE (PR ipa/64858)
+- fix wrong-code bug caused by stdarg pass (PR target/64979)
+- fix -fsanitize=address target builtin handling (PR sanitizer/64981) 
+
 * Sun Feb  8 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.9
 - update from the trunk
   - PRs bootstrap/53348, bootstrap/64256, debug/2714, fortran/63205,
 	fortran/63744, ipa/64896, jit/64752, libgfortran/60956,
 	middle-end/64340, middle-end/64937, target/64205, target/64889
-- fix getconf default symlink on 32-bit arches (#1190484)
 
 * Fri Feb  6 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.8
 - update from the trunk
