@@ -1,9 +1,9 @@
-%global DATE 20150208
-%global SVNREV 220517
+%global DATE 20150210
+%global SVNREV 220591
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.10
+%global gcc_release 0.11
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -200,9 +200,10 @@ Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr61925.patch
 Patch16: gcc5-pr64893.patch
-Patch17: gcc5-pr64979.patch
-Patch18: gcc5-pr64981.patch
-Patch19: gcc5-pr64858.patch
+Patch17: gcc5-pr64984.patch
+Patch18: gcc5-pr65000.patch
+Patch19: gcc5-pr65003.patch
+Patch20: gcc5-pr65004.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -754,9 +755,10 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr61925~
 %patch16 -p0 -b .pr64893~
-%patch17 -p0 -b .pr64979~
-%patch18 -p0 -b .pr64981~
-%patch19 -p0 -b .pr64858~
+%patch17 -p0 -b .pr64984~
+%patch18 -p0 -b .pr65000~
+%patch19 -p0 -b .pr65003~
+%patch20 -p0 -b .pr65004~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2942,6 +2944,18 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Feb 10 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.11
+- update from the trunk
+  - PRs c++/64899, c++/64994, c/64856, gcov-profile/61889, ipa/63566,
+	ipa/64978, ipa/64982, libgfortran/57822, lto/64076, target/58757,
+	tree-optimization/43378, tree-optimization/54000,
+	tree-optimization/64326, tree-optimization/64909,
+	tree-optimization/64995
+- fix C++ FE ICE on internal functions (PR sanitizer/64984)
+- fix ICE due to unreachable EH region removal (PR sanitizer/65000)
+- fix -fsection-anchors alias handling (#1190243, PR middle-end/65003)
+- fix -fsanitize=vptr handling (PR sanitizer/65004)
+
 * Mon Feb  9 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.10
 - fix getconf default symlink on 32-bit arches (#1190484)
 - fix ICF ICE (PR ipa/64858)
