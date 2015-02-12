@@ -1,26 +1,22 @@
-2015-02-10  Richard Henderson  <rth@redhat.com>
+2015-02-12  Jakub Jelinek  <jakub@redhat.com>
 
 	PR sanitizer/65000
-	* tree-eh.c (mark_reachable_handlers): Mark regions mentioned in
-	__builtin_eh_copy_values as reachable.
+	* g++.dg/ubsan/pr65000.C: New test.
 
---- gcc/tree-eh.c
-+++ gcc/tree-eh.c
-@@ -3859,6 +3859,17 @@ mark_reachable_handlers (sbitmap *r_reachablep, sbitmap *lp_reachablep)
- 			      gimple_eh_dispatch_region (
-                                 as_a <geh_dispatch *> (stmt)));
- 	      break;
-+	    case GIMPLE_CALL:
-+	      if (gimple_call_builtin_p (stmt, BUILT_IN_EH_COPY_VALUES))
-+		for (int i = 0; i < 2; ++i)
-+		  {
-+		    tree rt = gimple_call_arg (stmt, i);
-+		    HOST_WIDE_INT ri = tree_to_shwi (rt);
+--- gcc/testsuite/g++.dg/ubsan/pr65000.C.jj	2015-02-12 14:23:00.908487082 +0100
++++ gcc/testsuite/g++.dg/ubsan/pr65000.C	2015-02-12 14:21:35.000000000 +0100
+@@ -0,0 +1,14 @@
++// PR sanitizer/65000
++// { dg-do compile }
++// { dg-options "-O1 -fsanitize=undefined -fno-sanitize-recover" }
 +
-+		    gcc_assert (ri = (int)ri);
-+		    bitmap_set_bit (r_reachable, ri);
-+		  }
-+	      break;
- 	    default:
- 	      break;
- 	    }
++struct B { virtual ~B () {} void foo (); };
++struct C { virtual ~C (); };
++struct A : public virtual C {};
++struct D : A { ~D () { d.foo (); } B d; };
++
++void
++bar ()
++{
++  D a;
++}

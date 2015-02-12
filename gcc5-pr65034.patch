@@ -1,0 +1,85 @@
+2015-02-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/65034
+	* stmt.c (emit_case_nodes): Use void_type_node instead of
+	NULL_TREE as LABEL_DECL type.
+
+	* decl.c (start_preparsed_function): Use void_type_node instead
+	of NULL_TREE as LABEL_DECL type.
+
+	* g++.dg/ipa/pr65034.C: New test.
+
+--- gcc/stmt.c.jj	2015-01-15 23:39:17.000000000 +0100
++++ gcc/stmt.c	2015-02-12 10:11:44.688737296 +0100
+@@ -1722,7 +1722,7 @@ emit_case_nodes (rtx index, case_node_pt
+ 
+ 	      tree test_label
+ 		= build_decl (curr_insn_location (),
+-			      LABEL_DECL, NULL_TREE, NULL_TREE);
++			      LABEL_DECL, NULL_TREE, void_type_node);
+ 
+               /* The default label could be reached either through the right
+                  subtree or the left subtree. Divide the probability
+@@ -1881,7 +1881,7 @@ emit_case_nodes (rtx index, case_node_pt
+ 		 Branch to a label where we will handle it later.  */
+ 
+ 	      test_label = build_decl (curr_insn_location (),
+-				       LABEL_DECL, NULL_TREE, NULL_TREE);
++				       LABEL_DECL, NULL_TREE, void_type_node);
+               probability = conditional_probability (
+                   node->right->subtree_prob + default_prob/2,
+                   subtree_prob + default_prob);
+--- gcc/cp/decl.c.jj	2015-02-06 12:34:08.000000000 +0100
++++ gcc/cp/decl.c	2015-02-12 10:10:03.694397766 +0100
+@@ -13703,7 +13703,7 @@ start_preparsed_function (tree decl1, tr
+ 	  && targetm.cxx.cdtor_returns_this ()))
+     {
+       cdtor_label = build_decl (input_location, 
+-				LABEL_DECL, NULL_TREE, NULL_TREE);
++				LABEL_DECL, NULL_TREE, void_type_node);
+       DECL_CONTEXT (cdtor_label) = current_function_decl;
+     }
+ 
+--- gcc/testsuite/g++.dg/ipa/pr65034.C.jj	2015-02-12 10:26:17.814382354 +0100
++++ gcc/testsuite/g++.dg/ipa/pr65034.C	2015-02-12 10:25:25.000000000 +0100
+@@ -0,0 +1,40 @@
++// PR ipa/65034
++// { dg-do compile }
++// { dg-options "-g -O2" }
++
++enum B { C };
++enum D { E };
++struct A { A (B, D) { } };
++struct F { unsigned g, h, i, j; } a;
++
++void
++foo (unsigned x, unsigned y)
++{
++  switch (x)
++    {
++    case 6:
++      a.i = y;
++      break;
++    case 7:
++      a.j = y;
++      break;
++    default:
++      A (C, E);
++    }
++}
++
++void
++bar (unsigned x, unsigned y)
++{
++  switch (x)
++    {
++    case 6:
++      a.i = y;
++      break;
++    case 7:
++      a.j = y;
++      break;
++    default:
++      A (C, E);
++    }
++}

@@ -1,9 +1,9 @@
-%global DATE 20150210
-%global SVNREV 220591
+%global DATE 20150212
+%global SVNREV 220650
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.11
+%global gcc_release 0.12
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -198,12 +198,9 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
-Patch15: gcc5-pr61925.patch
-Patch16: gcc5-pr64893.patch
-Patch17: gcc5-pr64984.patch
-Patch18: gcc5-pr65000.patch
-Patch19: gcc5-pr65003.patch
-Patch20: gcc5-pr65004.patch
+Patch15: gcc5-pr64884.patch
+Patch16: gcc5-pr65000.patch
+Patch17: gcc5-pr65034.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -753,12 +750,9 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
-%patch15 -p0 -b .pr61925~
-%patch16 -p0 -b .pr64893~
-%patch17 -p0 -b .pr64984~
-%patch18 -p0 -b .pr65000~
-%patch19 -p0 -b .pr65003~
-%patch20 -p0 -b .pr65004~
+%patch15 -p0 -b .pr64884~
+%patch16 -p0 -b .pr65000~
+%patch17 -p0 -b .pr65034~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2944,6 +2938,12 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Feb 12 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.12
+- update from the trunk
+  - PRs ipa/64813, ipa/65005, lto/65015, sanitizer/65000, sanitizer/65019,
+	target/63347, target/64661, testsuite/64930, tree-optimization/65014
+- fix ARM ICF ICE (PR ipa/65034)
+
 * Tue Feb 10 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.11
 - update from the trunk
   - PRs c++/64899, c++/64994, c/64856, gcov-profile/61889, ipa/63566,
