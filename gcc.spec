@@ -2932,7 +2932,7 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
-* Sat Feb 13 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.13
+* Sat Feb 14 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.13
 - update from the trunk
   - PRs bootstrap/65060, c++/60211, c++/60894, c++/64884, c++/64898,
 	c++/64956, c++/64959, c++/64970, c++/65051, c++/65054, c/65040,
