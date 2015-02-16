@@ -1,9 +1,9 @@
-%global DATE 20150214
-%global SVNREV 220707
+%global DATE 20150216
+%global SVNREV 220728
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.13
+%global gcc_release 0.14
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -198,6 +198,10 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
+Patch15: gcc5-pr32219-revert.patch
+Patch16: gcc5-pr65074-test.patch
+rm -f gcc/testsuite/gcc.target/i386/pr32219-*.c
+rm -f gcc/testsuite/gcc.dg/visibility-2{2,3}.c
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -747,6 +751,8 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
+%patch15 -p0 -b .pr32219-revert~
+%patch16 -p0 -b .pr65074-test~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2932,6 +2938,11 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Mon Feb 16 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.14
+- update from the trunk
+  - PRs c/64768, testsuite/64850
+- temporarily revert PR rtl/32219 change
+
 * Sat Feb 14 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.13
 - update from the trunk
   - PRs bootstrap/65060, c++/60211, c++/60894, c++/64884, c++/64898,
