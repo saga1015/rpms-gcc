@@ -200,8 +200,6 @@ Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr32219-revert.patch
 Patch16: gcc5-pr65074-test.patch
-rm -f gcc/testsuite/gcc.target/i386/pr32219-*.c
-rm -f gcc/testsuite/gcc.dg/visibility-2{2,3}.c
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -753,6 +751,8 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr32219-revert~
 %patch16 -p0 -b .pr65074-test~
+rm -f gcc/testsuite/gcc.target/i386/pr32219-*.c
+rm -f gcc/testsuite/gcc.dg/visibility-2{2,3}.c
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
