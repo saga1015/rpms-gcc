@@ -45,7 +45,7 @@ Revert:
  	 optimizing and when not doing toplevel reoder.  */
 --- gcc/varasm.c	(revision 220674)
 +++ gcc/varasm.c	(revision 220673)
-@@ -6802,96 +6802,97 @@ resolution_local_p (enum ld_plugin_symbo
+@@ -6802,97 +6802,97 @@ resolution_local_p (enum ld_plugin_symbo
  	  || resolution == LDPR_RESOLVED_EXEC);
  }
  
@@ -121,7 +121,8 @@ Revert:
 -  bool defined_locally = false;
 -  if (symtab_node *node = symtab_node::get (exp))
 -    {
--      if (node->definition || node->in_other_partition)
+-      if ((node->definition && !DECL_EXTERNAL (node->decl))
+-	  || node->in_other_partition)
 -	{
 -	  defined_locally = true;
 -	  resolved_locally = (weak_dominate && !shlib);
