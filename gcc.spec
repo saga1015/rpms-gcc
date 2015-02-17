@@ -2940,7 +2940,7 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
-* Tue Feb 16 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.15
+* Tue Feb 17 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.15
 - update from the trunk
   - PRs bootstrap/48009, c++/65075, c++/65080, c/65066, ipa/64963, ipa/65059,
 	target/53348, target/65058, tree-optimization/63593,
