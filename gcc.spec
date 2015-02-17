@@ -1,9 +1,9 @@
-%global DATE 20150216
-%global SVNREV 220728
+%global DATE 20150217
+%global SVNREV 220752
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.14
+%global gcc_release 0.15
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -200,6 +200,7 @@ Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr32219-revert.patch
 Patch16: gcc5-pr65074-test.patch
+Patch17: gcc5-pr65087.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -753,6 +754,7 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch16 -p0 -b .pr65074-test~
 rm -f gcc/testsuite/gcc.target/i386/pr32219-*.c
 rm -f gcc/testsuite/gcc.dg/visibility-2{2,3}.c
+%patch17 -p0 -b .pr65087~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2938,6 +2940,12 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Feb 16 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.15
+- update from the trunk
+  - PRs bootstrap/48009, c++/65075, c++/65080, c/65066, ipa/64963, ipa/65059,
+	target/53348, target/65058, tree-optimization/63593,
+	tree-optimization/65077
+
 * Mon Feb 16 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.14
 - update from the trunk
   - PRs c/64768, testsuite/64850
