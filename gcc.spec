@@ -79,7 +79,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}
+Release: %{gcc_release}%{?dist}.1
 # libgcc, libgfortran, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -2940,6 +2940,10 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Sat Feb 21 2015 Till Maas <opensource@till.name> - 5.0.0-0.15.1
+- Rebuilt for Fedora 23 Change
+  https://fedoraproject.org/wiki/Changes/Harden_all_packages_with_position-independent_code
+
 * Tue Feb 17 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.15
 - update from the trunk
   - PRs bootstrap/48009, c++/65075, c++/65080, c/65066, ipa/64963, ipa/65059,
