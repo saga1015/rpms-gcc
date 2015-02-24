@@ -1,9 +1,9 @@
-%global DATE 20150217
-%global SVNREV 220752
+%global DATE 20150224
+%global SVNREV 220934
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.15
+%global gcc_release 0.16
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -79,7 +79,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}.1
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -198,9 +198,7 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
-Patch15: gcc5-pr32219-revert.patch
-Patch16: gcc5-pr65074-test.patch
-Patch17: gcc5-pr65087.patch
+Patch15: gcc5-arm-fnsect.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -750,11 +748,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
-%patch15 -p0 -b .pr32219-revert~
-%patch16 -p0 -b .pr65074-test~
-rm -f gcc/testsuite/gcc.target/i386/pr32219-*.c
-rm -f gcc/testsuite/gcc.dg/visibility-2{2,3}.c
-%patch17 -p0 -b .pr65087~
+%patch15 -p0 -b .arm-fnsect~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2940,9 +2934,18 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
-* Sat Feb 21 2015 Till Maas <opensource@till.name> - 5.0.0-0.15.1
-- Rebuilt for Fedora 23 Change
-  https://fedoraproject.org/wiki/Changes/Harden_all_packages_with_position-independent_code
+* Tue Feb 24 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.16
+- update from the trunk
+  - PRs ada/65100, ada/65156, bootstrap/63888, debug/58123, fortran/61960,
+	fortran/63427, fortran/64980, gcov-profile/64634, ipa/65087,
+	libstdc++/58357, libstdc++/64695, libstdc++/65085, lto/65012,
+	middle-end/65074, sanitizer/65081, target/63892, target/64172,
+	target/64452, target/64793, target/65064, target/65109, target/65153,
+	target/65163, target/65172, target/65181, testsuite/64158,
+	testsuite/65093, testsuite/65107, testsuite/65116, testsuite/65126,
+	tree-optimization/62217, tree-optimization/65063,
+	tree-optimization/65136, tree-optimization/65170
+- fix arm_function_in_section_p
 
 * Tue Feb 17 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.15
 - update from the trunk
