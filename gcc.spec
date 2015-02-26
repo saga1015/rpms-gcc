@@ -2938,7 +2938,7 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
- * Thu Feb 26 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.17
+* Thu Feb 26 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.17
 - update from the trunk
   - PRs c++/65202, c++/65209, debug/46102, debug/58315, ipa/65008,
 	libgomp/64625, lto/64374, rtl-optimization/65123, target/47230,
