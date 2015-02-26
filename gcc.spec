@@ -1,9 +1,9 @@
-%global DATE 20150224
-%global SVNREV 220934
+%global DATE 20150226
+%global SVNREV 221028
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.16
+%global gcc_release 0.17
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -199,6 +199,8 @@ Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-arm-fnsect.patch
+Patch16: gcc5-pr65215.patch
+Patch17: gcc5-pr65216.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -749,6 +751,8 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .arm-fnsect~
+%patch16 -p0 -b .pr65215~
+%patch17 -p0 -b .pr65216~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2934,6 +2938,17 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Feb 26 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.17
+- update from the trunk
+  - PRs c++/65202, c++/65209, debug/46102, debug/58315, ipa/65008,
+	libgomp/64625, lto/64374, rtl-optimization/65123, target/47230,
+	target/61142, target/64212, target/64997, target/65117, target/65161,
+	target/65167, target/65171, target/65196, target/65217,
+	tree-optimization/61917, tree-optimization/65048
+- fix bswap load optimization on big-endian (#1194704,
+  PR tree-optimization/65215)
+- fix reassociation (PR tree-optimization/65216)
+
 * Tue Feb 24 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.16
 - update from the trunk
   - PRs ada/65100, ada/65156, bootstrap/63888, debug/58123, fortran/61960,

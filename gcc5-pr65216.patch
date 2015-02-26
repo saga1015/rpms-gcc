@@ -1,0 +1,56 @@
+2015-02-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/65216
+	* tree-ssa-reassoc.c (rewrite_expr_tree): Force creation of
+	new stmt and new SSA_NAME for lhs whenever the arguments have
+	changed and weren't just swapped.  Fix comment typo.
+
+	* gcc.c-torture/execute/pr65216.c: New test.
+
+--- gcc/tree-ssa-reassoc.c.jj	2015-02-14 09:21:56.000000000 +0100
++++ gcc/tree-ssa-reassoc.c	2015-02-26 13:03:24.308614169 +0100
+@@ -3532,7 +3532,7 @@ rewrite_expr_tree (gimple stmt, unsigned
+ 
+   /* The final recursion case for this function is that you have
+      exactly two operations left.
+-     If we had one exactly one op in the entire list to start with, we
++     If we had exactly one op in the entire list to start with, we
+      would have never called this function, and the tail recursion
+      rewrites them one at a time.  */
+   if (opindex + 2 == ops.length ())
+@@ -3553,7 +3553,11 @@ rewrite_expr_tree (gimple stmt, unsigned
+ 	      print_gimple_stmt (dump_file, stmt, 0, 0);
+ 	    }
+ 
+-	  if (changed)
++	  /* Even when changed is false, reassociation could have e.g. removed
++	     some redundant operations, so unless we are just swapping the
++	     arguments or unless there is no change at all (then we just
++	     return lhs), force creation of a new SSA_NAME.  */
++	  if (changed || ((rhs1 != oe2->op || rhs2 != oe1->op) && opindex))
+ 	    {
+ 	      gimple insert_point = find_insert_point (stmt, oe1->op, oe2->op);
+ 	      lhs = make_ssa_name (TREE_TYPE (lhs));
+--- gcc/testsuite/gcc.c-torture/execute/pr65216.c.jj	2015-02-26 13:05:12.199816826 +0100
++++ gcc/testsuite/gcc.c-torture/execute/pr65216.c	2015-02-26 13:04:53.000000000 +0100
+@@ -0,0 +1,20 @@
++/* PR tree-optimization/65216 */
++
++int a, b = 62, e;
++volatile int c, d;
++
++int
++main ()
++{
++  int f = 0;
++  for (a = 0; a < 2; a++)
++    {
++      b &= (8 ^ f) & 1;
++      for (e = 0; e < 6; e++)
++	if (c)
++	  f = d;
++    }
++  if (b != 0)
++    __builtin_abort ();
++  return 0;
++}
