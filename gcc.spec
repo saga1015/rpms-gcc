@@ -3,7 +3,7 @@
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.17
+%global gcc_release 0.18
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -201,6 +201,12 @@ Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-arm-fnsect.patch
 Patch16: gcc5-pr65215.patch
 Patch17: gcc5-pr65216.patch
+Patch18: gcc5-pr64367.patch
+Patch19: gcc5-pr65032.patch
+Patch20: gcc5-pr65040.patch
+Patch21: gcc5-pr65048-test.patch
+Patch22: gcc5-pr65220.patch
+Patch23: gcc5-pr65228.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -753,6 +759,12 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch15 -p0 -b .arm-fnsect~
 %patch16 -p0 -b .pr65215~
 %patch17 -p0 -b .pr65216~
+%patch18 -p0 -b .pr64367~
+%patch19 -p0 -b .pr65032~
+%patch20 -p0 -b .pr65040~
+%patch21 -p0 -b .pr65048-test~
+%patch22 -p0 -b .pr65220~
+%patch23 -p0 -b .pr65228~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2938,6 +2950,13 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Feb 27 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.18
+- fix compilation of stdexcept with clang (PR libstdc++-v3/64367)
+- fix scratch handling in LRA rematerialization (PR target/65032)   
+- remove -Wformat-signedness from -Wformat=2 (PR c/65040)
+- improve VLA allocation on i?86/x86_64 (PR rtl-optimization/65220)
+- fix C FE ICE (PR c/65228)
+
 * Thu Feb 26 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.17
 - update from the trunk
   - PRs c++/65202, c++/65209, debug/46102, debug/58315, ipa/65008,

@@ -1,0 +1,203 @@
+2015-02-27  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/65032
+	* lra-remat.c (update_scratch_ops): New.
+	(do_remat): Call it.
+	* lra.c (lra_register_new_scratch_op): New. Take code from ...
+	(remove_scratches): ... here.
+	* lra-int.h (lra_register_new_scratch_op): New prototype.
+
+	* g++.dg/pr65032.C: New.
+
+--- gcc/lra-int.h	(revision 221061)
++++ gcc/lra-int.h	(revision 221062)
+@@ -321,6 +321,7 @@ extern void lra_create_copy (int, int, i
+ extern lra_copy_t lra_get_copy (int);
+ extern bool lra_former_scratch_p (int);
+ extern bool lra_former_scratch_operand_p (rtx_insn *, int);
++extern void lra_register_new_scratch_op (rtx_insn *, int);
+ 
+ extern int lra_new_regno_start;
+ extern int lra_constraint_new_regno_start;
+--- gcc/lra.c	(revision 221061)
++++ gcc/lra.c	(revision 221062)
+@@ -1907,6 +1907,24 @@ lra_former_scratch_operand_p (rtx_insn *
+ 		       INSN_UID (insn) * MAX_RECOG_OPERANDS + nop) != 0;
+ }
+ 
++/* Register operand NOP in INSN as a former scratch.  It will be
++   changed to scratch back, if it is necessary, at the LRA end.  */
++void
++lra_register_new_scratch_op (rtx_insn *insn, int nop)
++{
++  lra_insn_recog_data_t id = lra_get_insn_recog_data (insn);
++  rtx op = *id->operand_loc[nop];
++  sloc_t loc = XNEW (struct sloc);
++  lra_assert (REG_P (op));
++  loc->insn = insn;
++  loc->nop = nop;
++  scratches.safe_push (loc);
++  bitmap_set_bit (&scratch_bitmap, REGNO (op));
++  bitmap_set_bit (&scratch_operand_bitmap,
++		  INSN_UID (insn) * MAX_RECOG_OPERANDS + nop);
++  add_reg_note (insn, REG_UNUSED, op);
++}
++
+ /* Change scratches onto pseudos and save their location.  */
+ static void
+ remove_scratches (void)
+@@ -1916,7 +1934,6 @@ remove_scratches (void)
+   basic_block bb;
+   rtx_insn *insn;
+   rtx reg;
+-  sloc_t loc;
+   lra_insn_recog_data_t id;
+   struct lra_static_insn_data *static_id;
+ 
+@@ -1938,15 +1955,7 @@ remove_scratches (void)
+ 	      *id->operand_loc[i] = reg
+ 		= lra_create_new_reg (static_id->operand[i].mode,
+ 				      *id->operand_loc[i], ALL_REGS, NULL);
+-	      add_reg_note (insn, REG_UNUSED, reg);
+-	      lra_update_dup (id, i);
+-	      loc = XNEW (struct sloc);
+-	      loc->insn = insn;
+-	      loc->nop = i;
+-	      scratches.safe_push (loc);
+-	      bitmap_set_bit (&scratch_bitmap, REGNO (*id->operand_loc[i]));
+-	      bitmap_set_bit (&scratch_operand_bitmap,
+-			      INSN_UID (insn) * MAX_RECOG_OPERANDS + i);
++	      lra_register_new_scratch_op (insn, i);
+ 	      if (lra_dump_file != NULL)
+ 		fprintf (lra_dump_file,
+ 			 "Removing SCRATCH in insn #%u (nop %d)\n",
+--- gcc/lra-remat.c	(revision 221061)
++++ gcc/lra-remat.c	(revision 221062)
+@@ -1044,6 +1044,29 @@ get_hard_regs (struct lra_insn_reg *reg,
+   return hard_regno;
+ }
+ 
++/* Make copy of and register scratch pseudos in rematerialized insn
++   REMAT_INSN.  */
++static void
++update_scratch_ops (rtx_insn *remat_insn)
++{
++  lra_insn_recog_data_t id = lra_get_insn_recog_data (remat_insn);
++  struct lra_static_insn_data *static_id = id->insn_static_data;
++  for (int i = 0; i < static_id->n_operands; i++)
++    {
++      rtx *loc = id->operand_loc[i];
++      if (! REG_P (*loc))
++	continue;
++      int regno = REGNO (*loc);
++      if (! lra_former_scratch_p (regno))
++	continue;
++      *loc = lra_create_new_reg (GET_MODE (*loc), *loc,
++				 lra_get_allocno_class (regno),
++				 "scratch pseudo copy");
++      lra_register_new_scratch_op (remat_insn, i);
++    }
++  
++}
++
+ /* Insert rematerialization insns using the data-flow data calculated
+    earlier.  */
+ static bool
+@@ -1193,6 +1216,7 @@ do_remat (void)
+ 	      HOST_WIDE_INT sp_offset_change = cand_sp_offset - id->sp_offset;
+ 	      if (sp_offset_change != 0)
+ 		change_sp_offset (remat_insn, sp_offset_change);
++	      update_scratch_ops (remat_insn);
+ 	      lra_process_new_insns (insn, remat_insn, NULL,
+ 				     "Inserting rematerialization insn");
+ 	      lra_set_insn_deleted (insn);
+--- gcc/testsuite/g++.dg/pr65032.C	(revision 0)
++++ gcc/testsuite/g++.dg/pr65032.C	(revision 221062)
+@@ -0,0 +1,87 @@
++// { dg-do compile { target i?86-*-* x86_64-*-* } }
++// { dg-options "-Os -std=c++11 -fPIC -fstack-protector-strong -fomit-frame-pointer" }
++
++#pragma GCC visibility push(hidden)
++#pragma GCC visibility push(default)
++extern "C" {
++  typedef int int64_t __attribute__ ((__mode__ (__DI__)));
++}
++enum class nsresult;
++#pragma GCC visibility pop
++class A
++{
++  float mRawPtr;
++
++ public:
++  A (float *);
++};
++class B
++{
++ public:
++  B (int64_t, int, int);
++};
++typedef struct
++{
++  int channels;
++} vorbis_info;
++template <typename _Key> class C
++{
++ public:
++  typedef int size_type;
++  size_type erase (_Key &);
++};
++
++template <typename _Key> class D
++{
++ public:
++  typedef _Key key_type;
++  typedef C<key_type> _Rep_type;
++  _Rep_type _M_t;
++  typename _Rep_type::size_type
++    erase (key_type p1)
++  {
++    return _M_t.erase (p1);
++  }
++};
++
++class F
++{
++ public:
++  vorbis_info mInfo;
++  D<int *> mVorbisPacketSamples;
++  void ValidateVorbisPacketSamples (int *);
++  int64_t Time (int64_t);
++};
++class G
++{
++  nsresult DecodeVorbis (int *);
++  F *mVorbisState;
++  int64_t mDecodedAudioFrames;
++};
++int fn1 (float ***);
++void fn2 (int);
++void
++F::ValidateVorbisPacketSamples (int *p1)
++{
++  mVorbisPacketSamples.erase (p1);
++}
++
++nsresult
++G::DecodeVorbis (int *p1)
++{
++  float **a;
++  int b;
++  long long c;
++  while ((b = fn1 (&a)))
++    {
++      mVorbisState->ValidateVorbisPacketSamples (p1);
++      A (new float);
++      for (; mVorbisState->mInfo.channels;)
++	{
++	}
++      int64_t d = mVorbisState->Time (c - b);
++      (B (d, b, mVorbisState->mInfo.channels));
++      mDecodedAudioFrames -= b;
++      fn2 (b);
++    }
++}

@@ -1,0 +1,17 @@
+2015-02-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++-v3/64367
+	* include/std/stdexcept (std::__sso_string::_M_bytes): Use
+	sizeof(__str) instead of sizeof(_M_s).
+
+--- libstdc++-v3/include/std/stdexcept
++++ libstdc++-v3/include/std/stdexcept
+@@ -80,7 +80,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ 
+     union {
+       __str _M_s;
+-      char _M_bytes[sizeof(_M_s)];
++      char _M_bytes[sizeof(__str)];
+     };
+ 
+     __sso_string() _GLIBCXX_USE_NOEXCEPT;

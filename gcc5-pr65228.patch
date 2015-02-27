@@ -1,0 +1,35 @@
+2015-02-27  Marek Polacek  <polacek@redhat.com>
+
+	PR c/65228
+c/
+	* c-decl.c (start_decl): Return NULL_TREE if decl is an error node.
+testsuite/
+	* gcc.dg/pr65228.c: New test.
+
+--- gcc/c/c-decl.c	(revision 221055)
++++ gcc/c/c-decl.c	(revision 221056)
+@@ -4460,8 +4460,8 @@ start_decl (struct c_declarator *declara
+   decl = grokdeclarator (declarator, declspecs,
+ 			 NORMAL, initialized, NULL, &attributes, &expr, NULL,
+ 			 deprecated_state);
+-  if (!decl)
+-    return 0;
++  if (!decl || decl == error_mark_node)
++    return NULL_TREE;
+ 
+   if (expr)
+     add_stmt (fold_convert (void_type_node, expr));
+--- gcc/testsuite/gcc.dg/pr65228.c	(revision 0)
++++ gcc/testsuite/gcc.dg/pr65228.c	(revision 221056)
+@@ -0,0 +1,11 @@
++/* PR c/65228 */
++/* { dg-do compile } */
++/* { dg-options "" } */
++
++__auto_type a = b; /* { dg-error "undeclared" } */
++
++void
++f (void)
++{
++  __auto_type c = d; /* { dg-error "undeclared" } */
++}
