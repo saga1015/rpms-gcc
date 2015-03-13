@@ -1,9 +1,9 @@
-%global DATE 20150226
-%global SVNREV 221028
+%global DATE 20150313
+%global SVNREV 221424
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.18
+%global gcc_release 0.19
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -198,15 +198,9 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
-Patch15: gcc5-arm-fnsect.patch
-Patch16: gcc5-pr65215.patch
-Patch17: gcc5-pr65216.patch
-Patch18: gcc5-pr64367.patch
-Patch19: gcc5-pr65032.patch
-Patch20: gcc5-pr65040.patch
-Patch21: gcc5-pr65048-test.patch
-Patch22: gcc5-pr65220.patch
-Patch23: gcc5-pr65228.patch
+Patch15: gcc5-pr65369.patch
+Patch16: gcc5-pr65401.patch
+Patch17: gcc5-pr65418.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -756,15 +750,9 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
-%patch15 -p0 -b .arm-fnsect~
-%patch16 -p0 -b .pr65215~
-%patch17 -p0 -b .pr65216~
-%patch18 -p0 -b .pr64367~
-%patch19 -p0 -b .pr65032~
-%patch20 -p0 -b .pr65040~
-%patch21 -p0 -b .pr65048-test~
-%patch22 -p0 -b .pr65220~
-%patch23 -p0 -b .pr65228~
+%patch15 -p0 -b .pr65369~
+%patch16 -p0 -b .pr65401~
+%patch17 -p0 -b .pr65418~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -2950,6 +2938,33 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Mar 13 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.19
+- update from the trunk
+  - PRs ada/65259, ada/65319, bootstrap/25672, bootstrap/65150, c++/64227,
+	c++/64398, c++/64665, c++/64834, c++/65127, c++/65295, c++/65323,
+	c++/65333, c++/65339, c++/65370, c/35330, c/65120, fortran/60898,
+	fortran/65024, ipa/64693, ipa/64988, ipa/65130, ipa/65232, ipa/65236,
+	ipa/65237, ipa/65245, ipa/65263, ipa/65270, ipa/65282, ipa/65287,
+	ipa/65302, ipa/65316, ipa/65318, ipa/65334, libfortran/65200,
+	libgcc/64885, libstdc++/64367, libstdc++/64441, libstdc++/64797,
+	libstdc++/65246, libstdc++/65279, lto/65193, lto/65276, lto/65316,
+	lto/65361, middle-end/44563, middle-end/63155, middle-end/63175,
+	middle-end/64928, middle-end/65233, middle-end/65270,
+	middle-end/65315, other/65384, rtl-optimization/64895,
+	rtl-optimization/65067, rtl-optimization/65235,
+	rtl-optimization/65321, sanitizer/63958, sanitizer/65280,
+	sanitizer/65367, target/58158, target/59828, target/62247,
+	target/62251, target/64317, target/64331, target/64342, target/64600,
+	target/65038, target/65044, target/65103, target/65121, target/65138,
+	target/65183, target/65184, target/65192, target/65242, target/65249,
+	target/65261, target/65286, target/65296, target/65368,
+	tree-optimization/63743, tree-optimization/65241,
+	tree-optimization/65310, tree-optimization/65355,
+	tree-optimization/65388
+- fix vectorization of unaligned loads on powerpc (PR tree-optimization/65369)
+- fix combiner on big-endian targets (PR rtl-optimization/65401)
+- fix reassoc bit test optimization (PR tree-optimization/65418)
+
 * Fri Feb 27 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.18
 - fix compilation of stdexcept with clang (PR libstdc++-v3/64367)
 - fix scratch handling in LRA rematerialization (PR target/65032)   
