@@ -1,9 +1,9 @@
-%global DATE 20150313
-%global SVNREV 221424
+%global DATE 20150316
+%global SVNREV 221461
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.19
+%global gcc_release 0.20
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -198,9 +198,6 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
-Patch15: gcc5-pr65369.patch
-Patch16: gcc5-pr65401.patch
-Patch17: gcc5-pr65418.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -750,9 +747,6 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
-%patch15 -p0 -b .pr65369~
-%patch16 -p0 -b .pr65401~
-%patch17 -p0 -b .pr65418~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -1026,7 +1020,7 @@ CC="$CC" CXX="$CXX" CFLAGS="$OPT_FLAGS" \
 	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
 	$CONFIGURE_OPTS
 
-%ifarch sparc sparcv9 sparc64 aarch64
+%ifarch sparc sparcv9 sparc64 %{arm}
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 %else
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
@@ -2938,6 +2932,11 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Mon Mar 16 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.20
+- update from the trunk
+  - PRs fortran/61138, middle-end/65409, middle-end/65414, middle-end/65431,
+	sanitizer/64820, target/63150
+
 * Fri Mar 13 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.19
 - update from the trunk
   - PRs ada/65259, ada/65319, bootstrap/25672, bootstrap/65150, c++/64227,
