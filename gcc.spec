@@ -1,9 +1,9 @@
-%global DATE 20150316
-%global SVNREV 221461
+%global DATE 20150319
+%global SVNREV 221517
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.20
+%global gcc_release 0.21
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -56,6 +56,11 @@
 %global build_libitm 1
 %else
 %global build_libitm 0
+%endif
+%ifarch %{ix86} x86_64
+%global build_libmpx 1
+%else
+%global build_libmpx 0
 %endif
 %global build_isl 1
 %global build_libstdcxx_docs 1
@@ -562,6 +567,24 @@ Requires: libcilkrts = %{version}-%{release}
 %description -n libcilkrts-static
 This package contains the Cilk+ static runtime library.
 
+%package -n libmpx
+Summary: The Memory Protection Extensions runtime libraries
+Group: System Environment/Libraries
+Requires(post): /sbin/install-info
+Requires(preun): /sbin/install-info
+
+%description -n libmpx
+This package contains the Memory Protection Extensions runtime libraries
+which is used for -fcheck-pointer-bounds -mmpx instrumented programs.
+
+%package -n libmpx-static
+Summary: The Memory Protection Extensions static libraries
+Group: Development/Libraries
+Requires: libmpx = %{version}-%{release}
+
+%description -n libmpx-static
+This package contains the Memory Protection Extensions static runtime libraries.
+
 %package -n cpp
 Summary: The C Preprocessor
 Group: Development/Languages
@@ -936,6 +959,11 @@ CONFIGURE_OPTS="\
 %else
 	--without-isl \
 %endif
+%if %{build_libmpx}
+	--enable-libmpx \
+%else
+	--disable-libmpx \
+%endif
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
 %if %{attr_ifunc}
 	--enable-gnu-indirect-function \
@@ -1071,9 +1099,9 @@ cd ../..
 cd ..
 mkdir -p rpm.doc/gfortran rpm.doc/objc
 mkdir -p rpm.doc/go rpm.doc/libgo rpm.doc/libquadmath rpm.doc/libitm
-mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts}
+mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/java,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts,libmpx}
 
-for i in {gcc,gcc/cp,gcc/java,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts}/ChangeLog*; do
+for i in {gcc,gcc/cp,gcc/java,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts,libmpx}/ChangeLog*; do
 	cp -p $i rpm.doc/changelogs/$i
 done
 
@@ -1231,6 +1259,9 @@ mv %{buildroot}%{_prefix}/%{_lib}/libsanitizer.spec $FULLPATH/
 %if %{build_libcilkrts}
 mv %{buildroot}%{_prefix}/%{_lib}/libcilkrts.spec $FULLPATH/
 %endif
+%if %{build_libmpx}
+mv %{buildroot}%{_prefix}/%{_lib}/libmpx.spec $FULLPATH/
+%endif
 
 mkdir -p %{buildroot}/%{_lib}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgcc_s.so.1 %{buildroot}/%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
@@ -1327,6 +1358,10 @@ ln -sf ../../../libubsan.so.0.* libubsan.so
 %if %{build_libcilkrts}
 ln -sf ../../../libcilkrts.so.5.* libcilkrts.so
 %endif
+%if %{build_libmpx}
+ln -sf ../../../libmpx.so.0.* libmpx.so
+ln -sf ../../../libmpxwrappers.so.0.* libmpxwrappers.so
+%endif
 else
 ln -sf ../../../../%{_lib}/libobjc.so.4 libobjc.so
 ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
@@ -1353,6 +1388,10 @@ ln -sf ../../../../%{_lib}/libubsan.so.0.* libubsan.so
 %endif
 %if %{build_libcilkrts}
 ln -sf ../../../../%{_lib}/libcilkrts.so.5.* libcilkrts.so
+%endif
+%if %{build_libmpx}
+ln -sf ../../../../%{_lib}/libmpx.so.0.* libmpx.so
+ln -sf ../../../../%{_lib}/libmpxwrappers.so.0.* libmpxwrappers.so
 %endif
 %if %{build_libtsan}
 rm -f libtsan.so
@@ -1385,6 +1424,10 @@ mv -f %{buildroot}%{_prefix}/%{_lib}/libubsan.*a $FULLLPATH/
 %endif
 %if %{build_libcilkrts}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libcilkrts.*a $FULLLPATH/
+%endif
+%if %{build_libmpx}
+mv -f %{buildroot}%{_prefix}/%{_lib}/libmpx.*a $FULLLPATH/
+mv -f %{buildroot}%{_prefix}/%{_lib}/libmpxwrappers.*a $FULLLPATH/
 %endif
 %if %{build_libtsan}
 mv -f %{buildroot}%{_prefix}/%{_lib}/libtsan.*a $FULLLPATH/
@@ -1477,6 +1520,14 @@ rm -f libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > 64/libcilkrts.so
 %endif
+%if %{build_libmpx}
+rm -f libmpx.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmpx.so.0.* | sed 's,^.*libm,libm,'`' )' > libmpx.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmpx.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmpx.so
+rm -f libmpxwrappers.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libmpxwrappers.so.0.* | sed 's,^.*libm,libm,'`' )' > libmpxwrappers.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libmpxwrappers.so.0.* | sed 's,^.*libm,libm,'`' )' > 64/libmpxwrappers.so
+%endif
 ln -sf lib32/libgfortran.a libgfortran.a
 ln -sf ../lib64/libgfortran.a 64/libgfortran.a
 mv -f %{buildroot}%{_prefix}/lib64/libobjc.*a 64/
@@ -1508,6 +1559,12 @@ ln -sf ../lib64/libubsan.a 64/libubsan.a
 %if %{build_libcilkrts}
 ln -sf lib32/libcilkrts.a libcilkrts.a
 ln -sf ../lib64/libcilkrts.a 64/libcilkrts.a
+%endif
+%if %{build_libmpx}
+ln -sf lib32/libmpx.a libmpx.a
+ln -sf ../lib64/libmpx.a 64/libmpx.a
+ln -sf lib32/libmpxwrappers.a libmpxwrappers.a
+ln -sf ../lib64/libmpxwrappers.a 64/libmpxwrappers.a
 %endif
 %if %{build_go}
 ln -sf lib32/libgo.a libgo.a
@@ -1564,6 +1621,14 @@ rm -f libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > libcilkrts.so
 echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > 32/libcilkrts.so
 %endif
+%if %{build_libmpx}
+rm -f libmpx.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmpx.so.0.* | sed 's,^.*libm,libm,'`' )' > libmpx.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmpx.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmpx.so
+rm -f libmpxwrappers.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmpxwrappers.so.0.* | sed 's,^.*libm,libm,'`' )' > libmpxwrappers.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmpxwrappers.so.0.* | sed 's,^.*libm,libm,'`' )' > 32/libmpxwrappers.so
+%endif
 mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
 mv -f %{buildroot}%{_prefix}/lib/libgomp.*a 32/
 %endif
@@ -1597,6 +1662,12 @@ ln -sf lib64/libubsan.a libubsan.a
 %if %{build_libcilkrts}
 ln -sf ../lib32/libcilkrts.a 32/libcilkrts.a
 ln -sf lib64/libcilkrts.a libcilkrts.a
+%endif
+%if %{build_libmpx}
+ln -sf ../lib32/libmpx.a 32/libmpx.a
+ln -sf lib64/libmpx.a libmpx.a
+ln -sf ../lib32/libmpxwrappers.a 32/libmpxwrappers.a
+ln -sf lib64/libmpxwrappers.a libmpxwrappers.a
 %endif
 %if %{build_go}
 ln -sf ../lib32/libgo.a 32/libgo.a
@@ -1633,6 +1704,10 @@ ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libu
 %if %{build_libcilkrts}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libcilkrts.a 32/libcilkrts.a
 %endif
+%if %{build_libmpx}
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmpx.a 32/libmpx.a
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libmpxwrappers.a 32/libmpxwrappers.a
+%endif
 %if %{build_go}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgo.a 32/libgo.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgobegin.a 32/libgobegin.a
@@ -1650,7 +1725,7 @@ strip -g `find . \( -name libgfortran.a -o -name libobjc.a -o -name libgomp.a \
 		    -o -name libitm.a -o -name libgo.a -o -name libcaf\*.a \
 		    -o -name libatomic.a -o -name libasan.a -o -name libtsan.a \
 		    -o -name libubsan.a -o -name liblsan.a -o -name libcilkrts.a \
-		    -o -name libcc1.a \) \
+		    -o -name libmpx.a -o -name libmpxwrappers.a -o -name libcc1.a \) \
 		 -a -type f`
 popd
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.3.*
@@ -1673,6 +1748,10 @@ chmod 755 %{buildroot}%{_prefix}/%{_lib}/libubsan.so.0.*
 %endif
 %if %{build_libcilkrts}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libcilkrts.so.5.*
+%endif
+%if %{build_libmpx}
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmpx.so.0.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmpxwrappers.so.0.*
 %endif
 %if %{build_libtsan}
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libtsan.so.0.*
@@ -1990,6 +2069,10 @@ fi
 
 %postun -n libcilkrts -p /sbin/ldconfig
 
+%post -n libmpx -p /sbin/ldconfig
+
+%postun -n libmpx -p /sbin/ldconfig
+
 %post -n libgo -p /sbin/ldconfig
 
 %postun -n libgo -p /sbin/ldconfig
@@ -2142,6 +2225,9 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/cilk
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcilkrts.spec
 %endif
+%if %{build_libmpx}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpx.spec
+%endif
 %if %{build_libasan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/sanitizer
 %endif
@@ -2194,6 +2280,12 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libcilkrts.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libcilkrts.so
 %endif
+%if %{build_libmpx}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmpx.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmpx.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmpxwrappers.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libmpxwrappers.so
+%endif
 %endif
 %ifarch %{multilib_64_archs}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
@@ -2229,6 +2321,12 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libcilkrts.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libcilkrts.so
 %endif
+%if %{build_libmpx}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmpx.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmpx.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmpxwrappers.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libmpxwrappers.so
+%endif
 %endif
 %ifarch sparcv9 sparc64 ppc ppc64 ppc64p7
 %if %{build_libquadmath}
@@ -2256,6 +2354,12 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcilkrts.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcilkrts.so
 %endif
+%if %{build_libmpx}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpx.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpx.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpxwrappers.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpxwrappers.so
+%endif
 %if %{build_libtsan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libtsan.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libtsan.so
@@ -2277,6 +2381,10 @@ fi
 %endif
 %if %{build_libcilkrts}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcilkrts.so
+%endif
+%if %{build_libmpx}
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpx.so
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpxwrappers.so
 %endif
 %if %{build_libtsan}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libtsan.so
@@ -2804,6 +2912,34 @@ fi
 %doc rpm.doc/changelogs/libcilkrts/ChangeLog* libcilkrts/README
 %endif
 
+%if %{build_libmpx}
+%files -n libmpx
+%defattr(-,root,root,-)
+%{_prefix}/%{_lib}/libmpx.so.0*
+%{_prefix}/%{_lib}/libmpxwrappers.so.0*
+
+%files -n libmpx-static
+%defattr(-,root,root,-)
+%dir %{_prefix}/lib/gcc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmpx.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libmpxwrappers.a
+%endif
+%ifarch sparc64 ppc64 ppc64p7
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmpx.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libmpxwrappers.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64 ppc64p7
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpx.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmpxwrappers.a
+%endif
+%doc rpm.doc/changelogs/libmpx/ChangeLog*
+%endif
+
 %if %{build_go}
 %files go
 %defattr(-,root,root,-)
@@ -2932,6 +3068,15 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Mar 19 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.21
+- update from the trunk
+  - PRs c++/52659, c++/59686, c++/59816, c++/64626, c++/65046, c++/65061,
+	c++/65327, c++/65340, fortran/59198, fortran/64432, ipa/65432,
+	ipa/65439, libgfortran/64432, libstdc++/13631, middle-end/64491,
+	sanitizer/64265, sanitizer/65400, target/65078, target/65222,
+	testsuite/64032, tree-optimization/65427, tree-optimization/65450
+- add libmpx and libmpx-static subpackages on x86
+
 * Mon Mar 16 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.20
 - update from the trunk
   - PRs fortran/61138, middle-end/65409, middle-end/65414, middle-end/65431,
