@@ -1,9 +1,9 @@
-%global DATE 20150319
-%global SVNREV 221517
+%global DATE 20150407
+%global SVNREV 221903
 %global gcc_version 5.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.21
+%global gcc_release 0.22
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -115,6 +115,7 @@ BuildRequires: glibc-static
 BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, sharutils
 BuildRequires: texinfo, texinfo-tex, /usr/bin/pod2man
 BuildRequires: systemtap-sdt-devel >= 1.3
+BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
 %if %{build_go}
 BuildRequires: hostname
 %endif
@@ -332,7 +333,6 @@ Requires: libgfortran = %{version}-%{release}
 Requires: libquadmath = %{version}-%{release}
 Requires: libquadmath-devel = %{version}-%{release}
 %endif
-BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 Autoreq: true
@@ -926,8 +926,8 @@ OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-march=i.86//g'`
 OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
 case "$OPT_FLAGS" in
   *-fasynchronous-unwind-tables*)
-    sed -i -e 's/-fno-exceptions /-fno-exceptions -fno-asynchronous-unwind-tables/' \
-      ../gcc/Makefile.in
+    sed -i -e 's/-fno-exceptions /-fno-exceptions -fno-asynchronous-unwind-tables /' \
+      ../libgcc/Makefile.in
     ;;
 esac
 enablelgo=
@@ -3068,6 +3068,41 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Apr  7 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.22
+- update from the trunk
+  - PRs ada/65451, ada/65490, bootstrap/65522, bootstrap/65537, c++/42328,
+	c++/48324, c++/48453, c++/54987, c++/56100, c++/58923, c++/59329,
+	c++/59988, c++/60067, c++/60130, c++/61670, c++/61971, c++/64085,
+	c++/65072, c++/65154, c++/65390, c++/65398, c++/65498, c++/65509,
+	c++/65513, c++/65525, c++/65554, c++/65556, c++/65558, c++/65625,
+	c++/65642, c++/65646, c/65586, debug/65678, driver/65444,
+	fortran/55901, fortran/57456, fortran/63230, fortran/64787,
+	fortran/64952, fortran/65532, fortran/65548, fortran/65597, go/65462,
+	ipa/65076, ipa/65380, ipa/65465, ipa/65475, ipa/65478, ipa/65502,
+	ipa/65521, ipa/65557, ipa/65588, ipa/65600, ipa/65610, ipa/65654,
+	ipa/65655, ipa/65665, libffi/65567, libgfortran/59513,
+	libgfortran/65541, libgfortran/65563, libgfortran/65596,
+	libgomp/64972, libstdc++/33394, libstdc++/58038, libstdc++/60421,
+	libstdc++/62259, libstdc++/64967, libstdc++/65033, libstdc++/65147,
+	libstdc++/65420, libstdc++/65499, libstdc++/65500, libstdc++/65543,
+	libstdc++/65630, lto/65515, lto/65536, middle-end/64715,
+	middle-end/65517, middle-end/65519, middle-end/65555,
+	middle-end/65595, middle-end/65626, middle-end/65680, plugins/61176,
+	preprocessor/61977, preprocessor/65238, rtl-optimization/60851,
+	rtl-optimization/63491, rtl-optimization/64317,
+	rtl-optimization/64366, sanitizer/59009, sanitizer/65583,
+	target/58945, target/65052, target/65240, target/65248, target/65351,
+	target/65407, target/65489, target/65495, target/65504, target/65505,
+	target/65508, target/65523, target/65531, target/65561, target/65569,
+	target/65576, target/65593, target/65602, target/65614, target/65624,
+	target/65647, target/65648, testsuite/63175, testsuite/65506,
+	testsuite/65526, testsuite/65594, tree-optimization/62630,
+	tree-optimization/64715, tree-optimization/65177,
+	tree-optimization/65458, tree-optimization/65494,
+	tree-optimization/65518, tree-optimization/65533,
+	tree-optimization/65538, tree-optimization/65551,
+	tree-optimization/65660
+
 * Thu Mar 19 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.21
 - update from the trunk
   - PRs c++/52659, c++/59686, c++/59816, c++/64626, c++/65046, c++/65061,
