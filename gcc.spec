@@ -1,9 +1,9 @@
-%global DATE 20150407
-%global SVNREV 221903
-%global gcc_version 5.0.0
+%global DATE 20150413
+%global SVNREV 222046
+%global gcc_version 5.0.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.22
+%global gcc_release 0.1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -943,7 +943,7 @@ CONFIGURE_OPTS="\
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 %ifarch ppc64le
-	--disable-multilib \
+	--enable-targets=powerpcle-linux --disable-multilib \
 %else
 	--enable-multilib \
 %endif
@@ -3068,6 +3068,17 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Mon Apr 13 2015 Jakub Jelinek <jakub@redhat.com> 5.0.1-0.1
+- update from the trunk and 5 branch
+  - update to GCC 5.1-RC1
+  - PRs c++/65690, c++/65736, fortran/56674, fortran/56852, fortran/58813,
+	fortran/59016, fortran/59024, ipa/65540, ipa/65722, ipa/65743,
+	jit/65691, middle-end/65554, pch/65550, rtl-optimization/65693,
+	target/55143, target/65671, target/65676, target/65693, target/65694,
+	target/65710, target/65729, tree-optimization/65709,
+	tree-optimization/65735, tree-optimization/65747
+- add --enable-targets=powerpcle-linux on ppc64le (#1205236)
+
 * Tue Apr  7 2015 Jakub Jelinek <jakub@redhat.com> 5.0.0-0.22
 - update from the trunk
   - PRs ada/65451, ada/65490, bootstrap/65522, bootstrap/65537, c++/42328,
