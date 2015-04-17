@@ -1,9 +1,9 @@
-%global DATE 20150413
-%global SVNREV 222046
+%global DATE 20150417
+%global SVNREV 222191
 %global gcc_version 5.0.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.1
+%global gcc_release 0.2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -3068,6 +3068,11 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Apr 17 2015 Jakub Jelinek <jakub@redhat.com> 5.0.1-0.2
+- update from the 5 branch
+  - PRs bootstrap/62077, bootstrap/65763, debug/65771, ipa/65765,
+	libstdc++/65754, rtl-optimization/65761, target/65780, target/65787
+
 * Mon Apr 13 2015 Jakub Jelinek <jakub@redhat.com> 5.0.1-0.1
 - update from the trunk and 5 branch
   - update to GCC 5.1-RC1
