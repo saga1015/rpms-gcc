@@ -1,9 +1,9 @@
-%global DATE 20150417
-%global SVNREV 222191
-%global gcc_version 5.0.1
+%global DATE 20150422
+%global SVNREV 222331
+%global gcc_version 5.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.2
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -204,7 +204,8 @@ Patch11: gcc5-no-add-needed.patch
 Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
-Patch15: gcc5-pr65787.patch
+Patch15: gcc5-pr65689.patch
+Patch16: gcc5-pr65780.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -771,7 +772,8 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
-%patch15 -p0 -b .pr65787~
+%patch15 -p0 -b .pr65689~
+%patch16 -p0 -b .pr65780~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3070,6 +3072,15 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Apr 22 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-1
+- update from the 5 branch
+  - GCC 5.1 release
+  - PRs debug/65807, testsuite/65767
+- improve handling of asm constraints that don't accept REG nor MEM
+  at -O0 (PR target/65689)
+- improve common handling in non-pic code on s390{,x}, aarch64 and
+  arm (PR target/65780)
+
 * Fri Apr 17 2015 Jakub Jelinek <jakub@redhat.com> 5.0.1-0.2
 - update from the 5 branch
   - PRs bootstrap/62077, bootstrap/65763, debug/65771, ipa/65765,
