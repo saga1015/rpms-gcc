@@ -1,9 +1,9 @@
-%global DATE 20150422
-%global SVNREV 222331
+%global DATE 20150606
+%global SVNREV 224186
 %global gcc_version 5.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -205,7 +205,7 @@ Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr65689.patch
-Patch16: gcc5-pr65780.patch
+Patch16: gcc5-pr65956.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -773,7 +773,13 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr65689~
-%patch16 -p0 -b .pr65780~
+%patch16 -p0 -b .pr65956~
+%ifarch %{arm}
+# Workaround PR65956, undo the overalignment optimization
+# on ARM because it has broken backend.
+sed -i -e 's/align != TYPE_ALIGN/align < TYPE_ALIGN/' gcc/tree-sra.c
+%endif
+sed -i -e 's/ -Wl,-z,nodlopen//g' gcc/ada/gcc-interface/Makefile.in
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -1052,7 +1058,7 @@ CC="$CC" CXX="$CXX" CFLAGS="$OPT_FLAGS" \
 	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
 	$CONFIGURE_OPTS
 
-%ifarch sparc sparcv9 sparc64 %{arm}
+%ifarch sparc sparcv9 sparc64
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 %else
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
@@ -3072,6 +3078,37 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Sat Jun  6 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-2
+- update from the 5 branch
+  - PRs c++/51747, c++/59012, c++/59766, c++/65695, c++/65721, c++/65727,
+	c++/65858, c++/65876, c++/65896, c++/65942, c++/66007, c++/66211,
+	c++/66320, c++/66405, debug/65549, fortran/40958, fortran/60780,
+	fortran/64925, fortran/65429, fortran/65903, fortran/65976,
+	fortran/66039, fortran/66040, fortran/66043, fortran/66044,
+	fortran/66045, fortran/66052, fortran/66057, fortran/66106,
+	fortran/66257, fortran/66347, fortran/66377, fortran/66380, ipa/65873,
+	libstdc++/65352, libstdc++/65839, libstdc++/65883, libstdc++/66017,
+	lto/65559, middle-end/36043, middle-end/64729, middle-end/66133,
+	middle-end/66199, middle-end/66221, middle-end/66251, middle-end/66345,
+	rtl-optimization/30967, rtl-optimization/65805, sanitizer/64839,
+	sanitizer/66190, target/58744, target/64579, target/65408,
+	target/65456, target/65849, target/65895, target/65955, target/65979,
+	target/65990, target/66015, target/66047, target/66140, target/66148,
+	target/66174, target/66215, target/66224, tree-optimization/62031,
+	tree-optimization/63551, tree-optimization/65875,
+	tree-optimization/65984, tree-optimization/66123,
+	tree-optimization/66233, tree-optimization/66251,
+	tree-optimization/66272, tree-optimization/66280
+  - allow -Wno-narrowing to suppress C++11 narrowing errors (#1227603,
+    PR c++/65801)
+  - fix debug/vector operator= bug (#1223182)
+  - fix DCE loop handling (#1220043, PR tree-optimization/66101)
+  - handle NULL in libgo runtime_funcname_go (#1212472, PR go/66016)
+- work around ARM backend issues with overaligned scalars (#1217224,
+  PR target/65956)
+- drop -Wl,-z,nodlopen from libgnat shared libraries, they aren't
+  using executable stack anymore (#1211957)
+
 * Wed Apr 22 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-1
 - update from the 5 branch
   - GCC 5.1 release
