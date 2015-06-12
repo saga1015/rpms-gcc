@@ -1,9 +1,9 @@
-%global DATE 20150606
-%global SVNREV 224186
+%global DATE 20150612
+%global SVNREV 224409
 %global gcc_version 5.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -3078,6 +3078,16 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Jun 12 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-3
+- update from the 5 branch
+  - PRs bootstrap/66252, bootstrap/66319, c++/66383, c++/66387,
+	fortran/66245, libstdc++/66327, libstdc++/66354,
+	rtl-optimization/66444, target/66275, target/66473, target/66474
+  - fix TLS related ICE on i?86-linux (#1212265, PR target/66470)
+  - fix a libstdc++ codecvt_utf16 bug (#1228882, PR libstdc++/66417)
+  - fix a libstdc++ wstring_convert bug (#1228884, PR libstdc++/66441)
+  - fix C++ ICE with statement expressions (#1228916, PR c++/66445)
+
 * Sat Jun  6 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-2
 - update from the 5 branch
   - PRs c++/51747, c++/59012, c++/59766, c++/65695, c++/65721, c++/65727,
