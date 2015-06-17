@@ -84,7 +84,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}
+Release: %{gcc_release}%{?dist}.1
 # libgcc, libgfortran, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -3078,6 +3078,9 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.1.1-3.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Fri Jun 12 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-3
 - update from the 5 branch
   - PRs bootstrap/66252, bootstrap/66319, c++/66383, c++/66387,
