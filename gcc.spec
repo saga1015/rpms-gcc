@@ -1,9 +1,9 @@
-%global DATE 20150612
-%global SVNREV 224409
+%global DATE 20150618
+%global SVNREV 224595
 %global gcc_version 5.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -84,7 +84,7 @@
 Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}.1
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -3078,8 +3078,13 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
-* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.1.1-3.1
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+* Thu Jun 18 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-4
+- update from the 5 branch
+  - fix C++ ICE in build_ctor_subob_ref (#1232679, #1233030, #1233068,
+    PR c++/66536)
+  - PRs c++/58063, c++/65719, c++/66289, c++/66450, c++/66571, fortran/66385,
+	libstdc++/66030, libstdc++/66464, middle-end/66429, target/65527,
+	target/66258, testsuite/65944
 
 * Fri Jun 12 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-3
 - update from the 5 branch
