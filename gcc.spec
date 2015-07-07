@@ -1,9 +1,9 @@
-%global DATE 20150618
-%global SVNREV 224595
+%global DATE 20150707
+%global SVNREV 225505
 %global gcc_version 5.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -205,7 +205,6 @@ Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr65689.patch
-Patch16: gcc5-pr65956.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -773,12 +772,6 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr65689~
-%patch16 -p0 -b .pr65956~
-%ifarch %{arm}
-# Workaround PR65956, undo the overalignment optimization
-# on ARM because it has broken backend.
-sed -i -e 's/align != TYPE_ALIGN/align < TYPE_ALIGN/' gcc/tree-sra.c
-%endif
 sed -i -e 's/ -Wl,-z,nodlopen//g' gcc/ada/gcc-interface/Makefile.in
 
 %if 0%{?_enable_debug_packages}
@@ -962,7 +955,7 @@ CONFIGURE_OPTS="\
 	--enable-plugin --enable-initfini-array \
 	--disable-libgcj \
 %if 0%{fedora} >= 21 && 0%{fedora} <= 22
-	--with-default-libstdcxx-abi=c++98 \
+	--with-default-libstdcxx-abi=gcc4-compatible \
 %endif
 %if %{build_isl}
 	--with-isl \
@@ -2195,6 +2188,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/clflushoptintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/clwbintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/pcommitintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mwaitxintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xsavecintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/xsavesintrin.h
 %endif
@@ -2230,6 +2224,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/s390intrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/htmintrin.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/htmxlintrin.h
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/vecintrin.h
 %endif
 %if %{build_libcilkrts}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/cilk
@@ -3078,6 +3073,19 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Jul  7 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-5
+- update from the 5 branch
+  - PRs bootstrap/63740, c++/65750, c++/65843, c++/65879, c++/65880,
+	c++/65882, c++/65919, c++/65945, c++/65973, c++/66001, c++/66067,
+	c++/66216, c++/66501, c++/66515, c++/66585, c++/66647, c++/66743,
+	debug/66301, fortran/66549, jit/66539, jit/66546, jit/66628,
+	jit/66700, libstdc++/65393, libstdc++/66055, middle-end/66413,
+	middle-end/66633, middle-end/66702, target/37072, target/52482,
+	target/63408, target/64833, target/65711, target/65914, target/66114,
+	target/66136, target/66200, target/66412, target/66509, target/66563,
+	target/66611, testsuite/66667, tree-optimization/66119,
+	tree-optimization/66375, tree-optimization/66422
+
 * Thu Jun 18 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-4
 - update from the 5 branch
   - fix C++ ICE in build_ctor_subob_ref (#1232679, #1233030, #1233068,
