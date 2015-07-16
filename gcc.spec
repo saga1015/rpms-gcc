@@ -1,9 +1,9 @@
-%global DATE 20150707
-%global SVNREV 225505
-%global gcc_version 5.1.1
+%global DATE 20150716
+%global SVNREV 225895
+%global gcc_version 5.2.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -3073,6 +3073,14 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Jul 16 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-1
+- update from the 5 branch
+  - GCC 5.2 release
+  - PRs c++/66748, ipa/66896, libfortran/66861, libgomp/65099, libgomp/65742,
+	middle-end/43341, middle-end/66332, middle-end/66820,
+	rtl-optimization/66782, rtl/66556, target/66523, target/66780,
+	target/66840, tree-optimization/66794, tree-optimization/66823
+
 * Tue Jul  7 2015 Jakub Jelinek <jakub@redhat.com> 5.1.1-5
 - update from the 5 branch
   - PRs bootstrap/63740, c++/65750, c++/65843, c++/65879, c++/65880,
