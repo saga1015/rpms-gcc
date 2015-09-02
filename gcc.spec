@@ -1,9 +1,9 @@
-%global DATE 20150716
-%global SVNREV 225895
+%global DATE 20150902
+%global SVNREV 227412
 %global gcc_version 5.2.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
@@ -3073,6 +3073,25 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Sep  2 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-2
+- update from the 5 branch
+  - PRs c++/65195, c++/65734, c++/65974, c++/66260, c++/66336, c++/66533,
+	c++/66596, c++/66619, c++/66649, c++/66857, c++/66919, c++/66923,
+	c++/66957, c++/67021, c++/67104, c++/67130, c++/67131, c++/67161,
+	c++/67244, debug/66691, fortran/56520, fortran/64921, fortran/64986,
+	fortran/66035, fortran/66545, fortran/66724, fortran/66725,
+	fortran/66864, fortran/66929, fortran/66942, ipa/66566, ipa/66760,
+	libfortran/66936, libgfortran/66650, libgomp/66761, libgomp/67303,
+	libstdc++/67015, libstdc++/67362, middle-end/66134, middle-end/66567,
+	middle-end/66568, middle-end/67005, middle-end/pr66581,
+	rtl-optimization/58066, rtl-optimization/66838,
+	rtl-optimization/66891, rtl-optimization/67028, sanitizer/66908,
+	target/58066, target/65697, target/66048, target/66569, target/66648,
+	target/66703, target/66731, target/66814, target/66866, target/66891,
+	target/66922, target/66930, target/66956, target/67002, target/67049,
+	target/67060, target/67127, target/67211, tree-optimization/66828,
+	tree-optimization/66948
+
 * Thu Jul 16 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-1
 - update from the 5 branch
   - GCC 5.2 release
