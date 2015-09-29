@@ -1,11 +1,14 @@
-%global DATE 20150902
-%global SVNREV 227412
+%global DATE 20150929
+%global SVNREV 228235
 %global gcc_version 5.2.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
+# Hardening slows the compiler way too much (e.g. on arm it doesn't manage
+# to build within timeout anymore).
+%global _hardened_build 0
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64
 %global build_ada 1
@@ -1406,6 +1409,7 @@ echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/liblsan.so.0.* | sed
 %endif
 fi
 mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
+mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++fs.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a $FULLLPATH/
 mv -f %{buildroot}%{_prefix}/%{_lib}/libobjc.*a .
@@ -1537,6 +1541,8 @@ mv -f %{buildroot}%{_prefix}/lib64/libobjc.*a 64/
 mv -f %{buildroot}%{_prefix}/lib64/libgomp.*a 64/
 ln -sf lib32/libstdc++.a libstdc++.a
 ln -sf ../lib64/libstdc++.a 64/libstdc++.a
+ln -sf lib32/libstdc++fs.a libstdc++fs.a
+ln -sf ../lib64/libstdc++fs.a 64/libstdc++fs.a
 ln -sf lib32/libsupc++.a libsupc++.a
 ln -sf ../lib64/libsupc++.a 64/libsupc++.a
 %if %{build_libquadmath}
@@ -1640,6 +1646,8 @@ ln -sf ../lib32/libgfortran.a 32/libgfortran.a
 ln -sf lib64/libgfortran.a libgfortran.a
 ln -sf ../lib32/libstdc++.a 32/libstdc++.a
 ln -sf lib64/libstdc++.a libstdc++.a
+ln -sf ../lib32/libstdc++fs.a 32/libstdc++fs.a
+ln -sf lib64/libstdc++fs.a libstdc++fs.a
 ln -sf ../lib32/libsupc++.a 32/libsupc++.a
 ln -sf lib64/libsupc++.a libsupc++.a
 %if %{build_libquadmath}
@@ -1688,6 +1696,7 @@ ln -sf lib64/adalib adalib
 %ifarch %{multilib_64_archs}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libgfortran.a 32/libgfortran.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++.a 32/libstdc++.a
+ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libstdc++fs.a 32/libstdc++fs.a
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libsupc++.a 32/libsupc++.a
 %if %{build_libquadmath}
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/libquadmath.a 32/libquadmath.a
@@ -2439,12 +2448,14 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libstdc++.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libstdc++fs.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/64/libsupc++.a
 %endif
 %ifarch %{multilib_64_archs}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libstdc++.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libstdc++fs.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libsupc++.a
 %endif
 %ifarch sparcv9 ppc %{multilib_64_archs}
@@ -2452,6 +2463,7 @@ fi
 %endif
 %ifarch sparcv9 sparc64 ppc ppc64 ppc64p7
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
 %endif
 %doc rpm.doc/changelogs/gcc/cp/ChangeLog*
@@ -2480,6 +2492,17 @@ fi
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
 %ifnarch sparcv9 ppc %{multilib_64_archs}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.so
+%endif
+%ifarch sparcv9 ppc
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib32/libstdc++fs.a
+%endif
+%ifarch sparc64 ppc64 ppc64p7
+%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/lib64/libstdc++fs.a
+%endif
+%ifnarch sparcv9 sparc64 ppc ppc64 ppc64p7
+%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++fs.a
 %endif
 %doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README*
 
@@ -3073,6 +3096,23 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Sep 29 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-3
+- update from the 5 branch
+  - PRs c++/67369, c++/67504, c++/67511, c++/67514, c++/67522, c++/67523,
+	c/67495, c/67500, c/67501, c/67502, fortran/67429, fortran/67525,
+	fortran/67526, fortran/67614, fortran/67615, ipa/66705, libgomp/67141,
+	libstdc++/62258, libstdc++/66855, libstdc++/66998, libstdc++/67374,
+	middle-end/67222, middle-end/67271, middle-end/67401,
+	middle-end/67442, middle-end/67452, middle-end/67512, middle-end/67517,
+	middle-end/67521, middle-end/67619, rtl-optimization/66790,
+	sanitizer/64906, sanitizer/67258, target/67061, target/67143,
+	target/67378, target/67391, target/67439, target/67506, target/67573,
+	target/67657, tree-optimization/66793, tree-optimization/66917,
+	tree-optimization/66952, tree-optimization/67055,
+	tree-optimization/67121, tree-optimization/67470
+- disable hardening, it makes the compiler significantly slower
+- put libstdc++fs.a into libstdc++-devel
+
 * Wed Sep  2 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-2
 - update from the 5 branch
   - PRs c++/65195, c++/65734, c++/65974, c++/66260, c++/66336, c++/66533,
