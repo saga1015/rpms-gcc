@@ -8,7 +8,7 @@
 %global _performance_build 1
 # Hardening slows the compiler way too much (e.g. on arm it doesn't manage
 # to build within timeout anymore).
-%global _hardened_build 0
+%undefine _hardened_build
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64
 %global build_ada 1
