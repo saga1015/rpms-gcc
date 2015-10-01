@@ -1869,10 +1869,19 @@ cd obj-%{gcc_target_platform}
 # run the tests.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ \
 %if 0%{?fedora} >= 20
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" || :
-%else
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
+%if 0%{?fedora} >= 23
+# Hack: the arm builders are too slow and we regularly time out, as the
+# build doesn't finish in 24 hours.  This happens only on F23+ though.
+%ifnarch %{arm}
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" \
 %endif
+%else
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" \
+%endif
+%else
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" \
+%endif
+     || :
 echo ====================TESTING=========================
 ( LC_ALL=C ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
