@@ -1867,11 +1867,11 @@ echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 cd obj-%{gcc_target_platform}
 
 # run the tests.
+# Hack: the arm builders are too slow and we regularly time out, as the
+# build doesn't finish in 24 hours.  This happens only on F23+ though.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ \
 %if 0%{?fedora} >= 20
 %if 0%{?fedora} >= 23
-# Hack: the arm builders are too slow and we regularly time out, as the
-# build doesn't finish in 24 hours.  This happens only on F23+ though.
 %ifnarch %{arm}
      RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" \
 %endif
