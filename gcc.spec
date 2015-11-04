@@ -1,13 +1,12 @@
-%global DATE 20150929
-%global SVNREV 228235
+%global DATE 20151104
+%global SVNREV 229753
 %global gcc_version 5.2.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
-# Hardening slows the compiler way too much (e.g. on arm it doesn't manage
-# to build within timeout anymore).
+# Hardening slows the compiler way too much.
 %undefine _hardened_build
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
 %ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64
@@ -1864,24 +1863,21 @@ rm -f %{buildroot}%{mandir}/man3/ffi*
 echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
 %check
+%ifarch %{arm}
+# libgnat has changed incompatibly on ARM, temporarily disable acats
+# testsuite, until a new gcc is installed in the buildroots.
+mv gcc/testsuite/ada/acats/run_acats{,.orig}
+ln -sf /bin/false gcc/testsuite/ada/acats/run_acats
+%endif
 cd obj-%{gcc_target_platform}
 
 # run the tests.
-# Hack: the arm builders are too slow and we regularly time out, as the
-# build doesn't finish in 24 hours.  This happens only on F23+ though.
 make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ \
 %if 0%{?fedora} >= 20
-%if 0%{?fedora} >= 23
-%ifnarch %{arm}
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" \
-%endif
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" || :
 %else
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" \
+     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
 %endif
-%else
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" \
-%endif
-     || :
 echo ====================TESTING=========================
 ( LC_ALL=C ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
 echo ====================TESTING END=====================
@@ -3105,6 +3101,25 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Nov  4 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-4
+- update from the 5 branch
+  - PRs c++/51048, c++/66583, c++/67557, c/67730, fortran/36192,
+	fortran/51993, fortran/58754, fortran/59678, fortran/65841,
+	fortran/66079, fortran/66979, fortran/67177, fortran/67616,
+	fortran/67721, fortran/67802, fortran/67805, fortran/67818,
+	fortran/67885, fortran/67900, fortran/67939, fortran/67977,
+	fortran/67987, fortran/68019, fortran/68054, fortran/68055,
+	fortran/68108, fortran/68154, ipa/66424, libffi/65441,
+	libstdc++/65049, libstdc++/65142, libstdc++/65913, libstdc++/67173,
+	libstdc++/67707, libstdc++/67747, lto/67699, middle-end/66311,
+	middle-end/67563, middle-end/67989, middle-end/68079,
+	rtl-optimization/67029, rtl-optimization/67736, target/66697,
+	target/66912, target/67281, target/67716, target/67849, target/67850,
+	target/67929, target/67940, target/67967, target/68015, target/68018,
+	target/68102, tree-optimization/67690, tree-optimization/67769,
+	tree-optimization/67794, tree-optimization/67821
+- temporarily disable acats testsuite on arm
+
 * Tue Sep 29 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-3
 - update from the 5 branch
   - PRs c++/67369, c++/67504, c++/67511, c++/67514, c++/67522, c++/67523,
