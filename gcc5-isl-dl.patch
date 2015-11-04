@@ -1,6 +1,6 @@
---- gcc/Makefile.in.jj	2012-12-13 17:09:20.000000000 +0100
-+++ gcc/Makefile.in	2012-12-14 11:45:22.585670055 +0100
-@@ -1006,7 +1006,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
+--- gcc/Makefile.in.jj	2015-06-06 10:00:25.000000000 +0200
++++ gcc/Makefile.in	2015-11-04 14:56:02.643536437 +0100
+@@ -1013,7 +1013,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
  # and the system's installed libraries.
  LIBS = @LIBS@ libcommon.a $(CPPLIB) $(LIBINTL) $(LIBICONV) $(LIBBACKTRACE) \
  	$(LIBIBERTY) $(LIBDECNUMBER) $(HOST_LIBS)
@@ -9,7 +9,7 @@
  	$(ZLIB)
  # Any system libraries needed just for GNAT.
  SYSLIBS = @GNAT_LIBEXC@
-@@ -2050,6 +2050,15 @@ $(out_object_file): $(out_file)
+@@ -2058,6 +2058,15 @@ $(out_object_file): $(out_file)
  $(common_out_object_file): $(common_out_file)
  	$(COMPILE) $<
  	$(POSTCOMPILE)
@@ -25,9 +25,9 @@
  #
  # Generate header and source files from the machine description,
  # and compile them.
---- gcc/graphite-poly.h.jj	2012-12-13 11:31:27.000000000 +0100
-+++ gcc/graphite-poly.h	2012-12-14 13:41:41.970800726 +0100
-@@ -22,6 +22,478 @@ along with GCC; see the file COPYING3.
+--- gcc/graphite-poly.h.jj	2015-11-04 14:15:36.000000000 +0100
++++ gcc/graphite-poly.h	2015-11-04 14:59:46.066375844 +0100
+@@ -22,6 +22,489 @@ along with GCC; see the file COPYING3.
  #ifndef GCC_GRAPHITE_POLY_H
  #define GCC_GRAPHITE_POLY_H
  
@@ -39,12 +39,19 @@
 +#include <isl/ast.h>
 +#include <isl/ast_build.h>
 +#include <isl/val_gmp.h>
++#include <isl/constraint.h>
 +#include <dlfcn.h>
 +#ifdef HAVE_ISL_SCHED_CONSTRAINTS_COMPUTE_SCHEDULE
 +#define DYNSYM_ZERO_DISTANCE DYNSYM (isl_band_member_is_coincident)
 +#else
 +#define DYNSYM_ZERO_DISTANCE DYNSYM (isl_band_member_is_zero_distance)
 +#endif
++#ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
++#define DYNSYM_SCHEDULE_FUSE DYNSYM (isl_options_set_schedule_serialize_sccs)
++#else
++#define DYNSYM_SCHEDULE_FUSE DYNSYM (isl_options_set_schedule_fuse)
++#endif
++
 +#define DYNSYMS \
 +  DYNSYM (isl_aff_add_coefficient_si); \
 +  DYNSYM (isl_aff_free); \
@@ -108,7 +115,7 @@
 +  DYNSYM (isl_map_set_tuple_id); \
 +  DYNSYM (isl_map_universe); \
 +  DYNSYM (isl_options_set_on_error); \
-+  DYNSYM (isl_options_set_schedule_fuse); \
++  DYNSYM_SCHEDULE_FUSE; \
 +  DYNSYM (isl_options_set_schedule_max_constant_term); \
 +  DYNSYM (isl_options_set_schedule_maximize_band_depth); \
 +  DYNSYM (isl_printer_free); \
@@ -343,7 +350,11 @@
 +#define isl_map_set_tuple_id (*isl_pointers__.p_isl_map_set_tuple_id)
 +#define isl_map_universe (*isl_pointers__.p_isl_map_universe)
 +#define isl_options_set_on_error (*isl_pointers__.p_isl_options_set_on_error)
++#ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
++#define isl_options_set_schedule_serialize_sccs (*isl_pointers__.p_isl_options_set_schedule_serialize_sccs)
++#else
 +#define isl_options_set_schedule_fuse (*isl_pointers__.p_isl_options_set_schedule_fuse)
++#endif
 +#define isl_options_set_schedule_max_constant_term (*isl_pointers__.p_isl_options_set_schedule_max_constant_term)
 +#define isl_options_set_schedule_maximize_band_depth (*isl_pointers__.p_isl_options_set_schedule_maximize_band_depth)
 +#define isl_printer_free (*isl_pointers__.p_isl_printer_free)
@@ -503,12 +514,12 @@
 +#define isl_val_neg (*isl_pointers__.p_isl_val_neg)
 +#define isl_val_sub (*isl_pointers__.p_isl_val_sub)
 +
- typedef struct poly_dr *poly_dr_p;
- 
- typedef struct poly_bb *poly_bb_p;
---- gcc/graphite.c.jj	2012-12-13 11:31:00.000000000 +0100
-+++ gcc/graphite.c	2012-12-14 13:40:44.155136961 +0100
-@@ -90,6 +90,34 @@ along with GCC; see the file COPYING3.
+ #ifndef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
+ # define isl_stat int
+ # define isl_stat_ok 0
+--- gcc/graphite.c.jj	2015-11-04 14:15:32.000000000 +0100
++++ gcc/graphite.c	2015-11-04 14:56:02.645536409 +0100
+@@ -91,6 +91,34 @@ along with GCC; see the file COPYING3.
  #include "graphite-isl-ast-to-gimple.h"
  #include "graphite-sese-to-poly.h"
  
@@ -543,7 +554,7 @@
  /* Print global statistics to FILE.  */
  
  static void
-@@ -285,6 +313,15 @@ graphite_transform_loops (void)
+@@ -286,6 +314,15 @@ graphite_transform_loops (void)
    if (parallelized_function_p (cfun->decl))
      return;
  
