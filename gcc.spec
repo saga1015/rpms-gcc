@@ -3,7 +3,7 @@
 %global gcc_version 5.2.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -1863,12 +1863,6 @@ rm -f %{buildroot}%{mandir}/man3/ffi*
 echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
 %check
-%ifarch %{arm}
-# libgnat has changed incompatibly on ARM, temporarily disable acats
-# testsuite, until a new gcc is installed in the buildroots.
-mv gcc/testsuite/ada/acats/run_acats{,.orig}
-ln -sf /bin/false gcc/testsuite/ada/acats/run_acats
-%endif
 cd obj-%{gcc_target_platform}
 
 # run the tests.
@@ -3101,6 +3095,9 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Nov  6 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-5
+- reenable acats testsuite on arm
+
 * Wed Nov  4 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-4
 - update from the 5 branch
   - PRs c++/51048, c++/66583, c++/67557, c/67730, fortran/36192,
