@@ -1,9 +1,9 @@
-%global DATE 20151104
-%global SVNREV 229753
-%global gcc_version 5.2.1
+%global DATE 20151207
+%global SVNREV 231358
+%global gcc_version 5.3.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -3095,6 +3095,35 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Mon Dec  7 2015 Jakub Jelinek <jakub@redhat.com> 5.3.1-1
+- update from the 5 branch
+  - GCC 5.3 release
+  - PRs ada/49940, ada/49944, ada/56274, ada/60164, ada/68169, ada/68564,
+	bootstrap/66085, c++/67337, c++/67354, c++/67409, c++/67813,
+	c++/67941, c++/68087, c++/68422, c++/68508, c/66098, c/66711, c/68337,
+	debug/66432, debug/66728, fortran/47266, fortran/50201, fortran/58027,
+	fortran/60993, fortran/61819, fortran/61830, fortran/65751,
+	fortran/66465, fortran/67171, fortran/67460, fortran/67803,
+	fortran/67933, fortran/68053, fortran/68151, fortran/68153,
+	fortran/68196, fortran/68218, fortran/68224, fortran/68318,
+	fortran/68319, ipa/65908, ipa/67056, ipa/67280, ipa/67783, ipa/68057,
+	ipa/68220, ipa/pr67600, libffi/65726, libgfortran/65089,
+	libstdc++/56158, libstdc++/56383, libstdc++/67440, libstdc++/68190,
+	libstdc++/68448, lto/61313, middle-end/56956, middle-end/67443,
+	middle-end/67662, middle-end/68067, middle-end/68221,
+	middle-end/68339, preprocessor/60736, rtl-opt/67609,
+	rtl-optimization/67037, rtl-optimization/67226,
+	rtl-optimization/67954, rtl-optimization/68106,
+	rtl-optimization/68185, rtl-optimization/68194,
+	rtl-optimization/68249, rtl-optimization/68250,
+	rtl-optimization/68321, rtl-optimization/68328,
+	rtl-optimization/68376, target/57845, target/67265, target/67770,
+	target/67808, target/68059, target/68129, target/68143, target/68277,
+	target/68363, target/68408, target/68416, target/68483,
+	tree-optimization/68017, tree-optimization/68157,
+	tree-optimization/68238, tree-optimization/68552,
+	tree-optimization/68671, tree-optimization/68680
+
 * Fri Nov  6 2015 Jakub Jelinek <jakub@redhat.com> 5.2.1-5
 - reenable acats testsuite on arm
 
