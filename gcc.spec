@@ -3,7 +3,7 @@
 %global gcc_version 5.3.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -207,6 +207,7 @@ Patch12: gcc5-libgo-p224.patch
 Patch13: gcc5-aarch64-async-unw-tables.patch
 Patch14: gcc5-libsanitize-aarch64-va42.patch
 Patch15: gcc5-pr65689.patch
+Patch16: gcc5-rh1279639.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -774,6 +775,7 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .aarch64-async-unw-tables~
 %patch14 -p0 -b .libsanitize-aarch64-va42~
 %patch15 -p0 -b .pr65689~
+%patch16 -p0 -b .rh1279639~
 sed -i -e 's/ -Wl,-z,nodlopen//g' gcc/ada/gcc-interface/Makefile.in
 
 %if 0%{?_enable_debug_packages}
@@ -3095,6 +3097,9 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Dec  8 2015 Jakub Jelinek <jakub@redhat.com> 5.3.1-2
+- work around doxygen 1.8.10 bugs (#1279639)
+
 * Mon Dec  7 2015 Jakub Jelinek <jakub@redhat.com> 5.3.1-1
 - update from the 5 branch
   - GCC 5.3 release
