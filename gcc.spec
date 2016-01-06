@@ -736,7 +736,6 @@ Debug information is useful when developing applications that use this
 package or when debugging this package.
 
 %files debuginfo -f debugfiles.list
-%defattr(-,root,root)
 
 %package base-debuginfo
 Summary: Debug information for libraries from package %{name}
@@ -750,7 +749,6 @@ Debug information is useful when developing applications that use this
 package or when debugging this package.
 
 %files base-debuginfo -f debugfiles-base.list
-%defattr(-,root,root)
 %endif
 
 %prep
@@ -2094,7 +2092,6 @@ fi
 %postun -n libgo -p /sbin/ldconfig
 
 %files -f %{name}.lang
-%defattr(-,root,root,-)
 %{_prefix}/bin/cc
 %{_prefix}/bin/c89
 %{_prefix}/bin/c99
@@ -2418,7 +2415,6 @@ fi
 %license gcc/COPYING* COPYING.RUNTIME
 
 %files -n cpp -f cpplib.lang
-%defattr(-,root,root,-)
 %{_prefix}/lib/cpp
 %{_prefix}/bin/cpp
 %{_mandir}/man1/cpp.1*
@@ -2429,14 +2425,12 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cc1
 
 %files -n libgcc
-%defattr(-,root,root,-)
 /%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
 /%{_lib}/libgcc_s.so.1
 %{!?_licensedir:%global license %%doc}
 %license gcc/COPYING* COPYING.RUNTIME
 
 %files c++
-%defattr(-,root,root,-)
 %{_prefix}/bin/%{gcc_target_platform}-*++
 %{_prefix}/bin/g++
 %{_prefix}/bin/c++
@@ -2473,7 +2467,6 @@ fi
 %doc rpm.doc/changelogs/gcc/cp/ChangeLog*
 
 %files -n libstdc++
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libstdc++.so.6*
 %dir %{_datadir}/gdb
 %dir %{_datadir}/gdb/auto-load
@@ -2485,7 +2478,6 @@ fi
 %{_prefix}/share/gcc-%{gcc_version}/python/libstdcxx
 
 %files -n libstdc++-devel
-%defattr(-,root,root,-)
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{gcc_version}
 %{_prefix}/include/c++/%{gcc_version}/[^gjos]*
@@ -2511,7 +2503,6 @@ fi
 %doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README*
 
 %files -n libstdc++-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2532,13 +2523,11 @@ fi
 
 %if %{build_libstdcxx_docs}
 %files -n libstdc++-docs
-%defattr(-,root,root)
 %{_mandir}/man3/*
 %doc rpm.doc/libstdc++-v3/html
 %endif
 
 %files objc
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2564,18 +2553,15 @@ fi
 %doc libobjc/THREADS* rpm.doc/changelogs/libobjc/ChangeLog*
 
 %files objc++
-%defattr(-,root,root,-)
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cc1objplus
 
 %files -n libobjc
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libobjc.so.4*
 
 %files gfortran
-%defattr(-,root,root,-)
 %{_prefix}/bin/gfortran
 %{_prefix}/bin/f95
 %{_mandir}/man1/gfortran.1*
@@ -2626,11 +2612,9 @@ fi
 %doc rpm.doc/gfortran/*
 
 %files -n libgfortran
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgfortran.so.3*
 
 %files -n libgfortran-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2648,7 +2632,6 @@ fi
 
 %if %{build_ada}
 %files gnat
-%defattr(-,root,root,-)
 %{_prefix}/bin/gnat
 %{_prefix}/bin/gnat[^i]*
 %{_infodir}/gnat*
@@ -2676,12 +2659,10 @@ fi
 %doc rpm.doc/changelogs/gcc/ada/ChangeLog*
 
 %files -n libgnat
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgnat-*.so
 %{_prefix}/%{_lib}/libgnarl-*.so
 
 %files -n libgnat-devel
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2707,7 +2688,6 @@ fi
 %endif
 
 %files -n libgnat-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2731,7 +2711,6 @@ fi
 %endif
 
 %files -n libgomp
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgomp.so.1*
 %{_prefix}/%{_lib}/libgomp-plugin-host_nonshm.so.1*
 %{_infodir}/libgomp.info*
@@ -2739,14 +2718,12 @@ fi
 
 %if %{build_libquadmath}
 %files -n libquadmath
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libquadmath.so.0*
 %{_infodir}/libquadmath.info*
 %{!?_licensedir:%global license %%doc}
 %license rpm.doc/libquadmath/COPYING*
 
 %files -n libquadmath-devel
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2759,7 +2736,6 @@ fi
 %doc rpm.doc/libquadmath/ChangeLog*
 
 %files -n libquadmath-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2778,12 +2754,10 @@ fi
 
 %if %{build_libitm}
 %files -n libitm
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libitm.so.1*
 %{_infodir}/libitm.info*
 
 %files -n libitm-devel
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2796,7 +2770,6 @@ fi
 %doc rpm.doc/libitm/ChangeLog*
 
 %files -n libitm-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2815,11 +2788,9 @@ fi
 
 %if %{build_libatomic}
 %files -n libatomic
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libatomic.so.1*
 
 %files -n libatomic-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2839,11 +2810,9 @@ fi
 
 %if %{build_libasan}
 %files -n libasan
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libasan.so.2*
 
 %files -n libasan-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2865,11 +2834,9 @@ fi
 
 %if %{build_libubsan}
 %files -n libubsan
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libubsan.so.0*
 
 %files -n libubsan-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2891,11 +2858,9 @@ fi
 
 %if %{build_libtsan}
 %files -n libtsan
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libtsan.so.0*
 
 %files -n libtsan-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2907,11 +2872,9 @@ fi
 
 %if %{build_liblsan}
 %files -n liblsan
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/liblsan.so.0*
 
 %files -n liblsan-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2923,11 +2886,9 @@ fi
 
 %if %{build_libcilkrts}
 %files -n libcilkrts
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libcilkrts.so.5*
 
 %files -n libcilkrts-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2947,12 +2908,10 @@ fi
 
 %if %{build_libmpx}
 %files -n libmpx
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libmpx.so.0*
 %{_prefix}/%{_lib}/libmpxwrappers.so.0*
 
 %files -n libmpx-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -2975,7 +2934,6 @@ fi
 
 %if %{build_go}
 %files go
-%defattr(-,root,root,-)
 %ghost %{_prefix}/bin/go
 %{_prefix}/bin/go.gcc
 %{_prefix}/bin/gccgo
@@ -3014,12 +2972,10 @@ fi
 %doc rpm.doc/go/*
 
 %files -n libgo
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgo.so.7*
 %doc rpm.doc/libgo/*
 
 %files -n libgo-devel
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -3047,7 +3003,6 @@ fi
 %endif
 
 %files -n libgo-static
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -3065,12 +3020,10 @@ fi
 %endif
 
 %files -n libgccjit
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgccjit.so.*
 %doc rpm.doc/changelogs/gcc/jit/ChangeLog*
 
 %files -n libgccjit-devel
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgccjit.so
 %{_prefix}/include/libgccjit*.h
 %{_infodir}/libgccjit.info*
@@ -3078,7 +3031,6 @@ fi
 %doc gcc/jit/docs/examples
 
 %files plugin-devel
-%defattr(-,root,root,-)
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -3091,7 +3043,6 @@ fi
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %files gdb-plugin
-%defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libcc1.so*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
