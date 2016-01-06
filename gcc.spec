@@ -3,7 +3,7 @@
 %global gcc_version 5.3.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -1170,6 +1170,9 @@ ln -sf gfortran %{buildroot}%{_prefix}/bin/f95
 rm -f %{buildroot}%{_infodir}/dir
 gzip -9 %{buildroot}%{_infodir}/*.info*
 ln -sf gcc %{buildroot}%{_prefix}/bin/gnatgcc
+
+# Own %%{_fmoddir}
+mkdir -p %{buildroot}%{_fmoddir}
 
 %if %{build_go}
 mv %{buildroot}%{_prefix}/bin/go{,.gcc}
@@ -2619,6 +2622,7 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/libgfortran.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/32/finclude
 %endif
+%dir %{_fmoddir}
 %doc rpm.doc/gfortran/*
 
 %files -n libgfortran
@@ -3097,6 +3101,9 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Jan  5 2016 Orion Poplawski <orion@cora.nwra.com> 5.3.1-3
+- Make gcc-gfortran own %%{_fmoddir} (#1113564)
+
 * Tue Dec  8 2015 Jakub Jelinek <jakub@redhat.com> 5.3.1-2
 - work around doxygen 1.8.10 bugs (#1279639)
 
