@@ -956,7 +956,7 @@ CONFIGURE_OPTS="\
 	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
 	--enable-plugin --enable-initfini-array \
 	--disable-libgcj \
-%if 0%{fedora} >= 21 && 0%{fedora} <= 22
+%if 0%{?fedora} >= 21 && 0%{?fedora} <= 22
 	--with-default-libstdcxx-abi=gcc4-compatible \
 %endif
 %if %{build_isl}
