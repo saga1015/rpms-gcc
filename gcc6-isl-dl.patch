@@ -25,31 +25,26 @@
  #
  # Generate header and source files from the machine description,
  # and compile them.
---- gcc/graphite-poly.h.jj	2015-11-04 14:15:36.000000000 +0100
-+++ gcc/graphite-poly.h	2015-11-04 14:59:46.066375844 +0100
-@@ -22,6 +22,489 @@ along with GCC; see the file COPYING3.
- #ifndef GCC_GRAPHITE_POLY_H
- #define GCC_GRAPHITE_POLY_H
- 
-+#include <isl/aff.h>
-+#include <isl/schedule.h>
-+#include <isl/ilp.h>
-+#include <isl/flow.h>
-+#include <isl/options.h>
-+#include <isl/ast.h>
-+#include <isl/ast_build.h>
-+#include <isl/val_gmp.h>
-+#include <isl/constraint.h>
+--- gcc/graphite.h.jj	2016-01-27 12:44:06.000000000 +0100
++++ gcc/graphite.h	2016-01-27 13:26:38.309876856 +0100
+@@ -36,6 +36,7 @@ along with GCC; see the file COPYING3.
+ #include <isl/ilp.h>
+ #include <isl/schedule.h>
+ #include <isl/ast_build.h>
 +#include <dlfcn.h>
-+#ifdef HAVE_ISL_SCHED_CONSTRAINTS_COMPUTE_SCHEDULE
-+#define DYNSYM_ZERO_DISTANCE DYNSYM (isl_band_member_is_coincident)
-+#else
-+#define DYNSYM_ZERO_DISTANCE DYNSYM (isl_band_member_is_zero_distance)
-+#endif
+ 
+ #ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
+ /* isl 0.15 or later.  */
+@@ -47,6 +48,494 @@ along with GCC; see the file COPYING3.
+ # define isl_stat_ok 0
+ #endif
+ 
 +#ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
 +#define DYNSYM_SCHEDULE_FUSE DYNSYM (isl_options_set_schedule_serialize_sccs)
++#define DYNSYM_SET_YAML_STYLE DYNSYM (isl_printer_set_yaml_style);
 +#else
 +#define DYNSYM_SCHEDULE_FUSE DYNSYM (isl_options_set_schedule_fuse)
++#define DYNSYM_SET_YAML_STYLE
 +#endif
 +
 +#define DYNSYMS \
@@ -67,7 +62,6 @@
 +  DYNSYM (isl_band_list_get_band); \
 +  DYNSYM (isl_band_list_get_ctx); \
 +  DYNSYM (isl_band_list_n_band); \
-+  DYNSYM_ZERO_DISTANCE; \
 +  DYNSYM (isl_band_n_member); \
 +  DYNSYM (isl_basic_map_add_constraint); \
 +  DYNSYM (isl_basic_map_project_out); \
@@ -116,6 +110,7 @@
 +  DYNSYM (isl_map_universe); \
 +  DYNSYM (isl_options_set_on_error); \
 +  DYNSYM_SCHEDULE_FUSE; \
++  DYNSYM_SET_YAML_STYLE \
 +  DYNSYM (isl_options_set_schedule_max_constant_term); \
 +  DYNSYM (isl_options_set_schedule_maximize_band_depth); \
 +  DYNSYM (isl_printer_free); \
@@ -273,7 +268,18 @@
 +  DYNSYM (isl_val_int_from_ui); \
 +  DYNSYM (isl_val_mul); \
 +  DYNSYM (isl_val_neg); \
-+  DYNSYM (isl_val_sub);
++  DYNSYM (isl_val_sub); \
++  DYNSYM (isl_printer_print_union_map); \
++  DYNSYM (isl_pw_aff_get_ctx); \
++  DYNSYM (isl_val_is_int); \
++  DYNSYM (isl_ctx_get_max_operations); \
++  DYNSYM (isl_ctx_set_max_operations); \
++  DYNSYM (isl_ctx_last_error); \
++  DYNSYM (isl_ctx_reset_operations); \
++  DYNSYM (isl_map_coalesce); \
++  DYNSYM (isl_printer_print_schedule); \
++  DYNSYM (isl_set_set_dim_id); \
++  DYNSYM (isl_union_map_coalesce);
 +
 +extern struct isl_pointers_s__
 +{
@@ -298,11 +304,6 @@
 +#define isl_band_list_get_band (*isl_pointers__.p_isl_band_list_get_band)
 +#define isl_band_list_get_ctx (*isl_pointers__.p_isl_band_list_get_ctx)
 +#define isl_band_list_n_band (*isl_pointers__.p_isl_band_list_n_band)
-+#ifdef HAVE_ISL_SCHED_CONSTRAINTS_COMPUTE_SCHEDULE
-+#define isl_band_member_is_coincident (*isl_pointers__.p_isl_band_member_is_coincident)
-+#else
-+#define isl_band_member_is_zero_distance (*isl_pointers__.p_isl_band_member_is_zero_distance)
-+#endif
 +#define isl_band_n_member (*isl_pointers__.p_isl_band_n_member)
 +#define isl_basic_map_add_constraint (*isl_pointers__.p_isl_basic_map_add_constraint)
 +#define isl_basic_map_project_out (*isl_pointers__.p_isl_basic_map_project_out)
@@ -352,6 +353,7 @@
 +#define isl_options_set_on_error (*isl_pointers__.p_isl_options_set_on_error)
 +#ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
 +#define isl_options_set_schedule_serialize_sccs (*isl_pointers__.p_isl_options_set_schedule_serialize_sccs)
++#define isl_printer_set_yaml_style (*isl_pointers__.p_isl_printer_set_yaml_style)
 +#else
 +#define isl_options_set_schedule_fuse (*isl_pointers__.p_isl_options_set_schedule_fuse)
 +#endif
@@ -513,15 +515,26 @@
 +#define isl_val_mul (*isl_pointers__.p_isl_val_mul)
 +#define isl_val_neg (*isl_pointers__.p_isl_val_neg)
 +#define isl_val_sub (*isl_pointers__.p_isl_val_sub)
++#define isl_printer_print_union_map (*isl_pointers__.p_isl_printer_print_union_map)
++#define isl_pw_aff_get_ctx (*isl_pointers__.p_isl_pw_aff_get_ctx)
++#define isl_val_is_int (*isl_pointers__.p_isl_val_is_int)
++#define isl_ctx_get_max_operations (*isl_pointers__.p_isl_ctx_get_max_operations)
++#define isl_ctx_set_max_operations (*isl_pointers__.p_isl_ctx_set_max_operations)
++#define isl_ctx_last_error (*isl_pointers__.p_isl_ctx_last_error)
++#define isl_ctx_reset_operations (*isl_pointers__.p_isl_ctx_reset_operations)
++#define isl_map_coalesce (*isl_pointers__.p_isl_map_coalesce)
++#define isl_printer_print_schedule (*isl_pointers__.p_isl_printer_print_schedule)
++#define isl_set_set_dim_id (*isl_pointers__.p_isl_set_set_dim_id)
++#define isl_union_map_coalesce (*isl_pointers__.p_isl_union_map_coalesce)
 +
- #ifndef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
- # define isl_stat int
- # define isl_stat_ok 0
+ typedef struct poly_dr *poly_dr_p;
+ 
+ typedef struct poly_bb *poly_bb_p;
 --- gcc/graphite.c.jj	2015-11-04 14:15:32.000000000 +0100
 +++ gcc/graphite.c	2015-11-04 14:56:02.645536409 +0100
-@@ -91,6 +91,34 @@ along with GCC; see the file COPYING3.
- #include "graphite-isl-ast-to-gimple.h"
- #include "graphite-sese-to-poly.h"
+@@ -54,6 +54,34 @@ along with GCC; see the file COPYING3.
+ #include "tree-cfgcleanup.h"
+ #include "graphite.h"
  
 +__typeof (isl_pointers__) isl_pointers__;
 +
@@ -554,7 +567,7 @@
  /* Print global statistics to FILE.  */
  
  static void
-@@ -286,6 +314,15 @@ graphite_transform_loops (void)
+@@ -298,6 +326,15 @@ graphite_transform_loops (void)
    if (parallelized_function_p (cfun->decl))
      return;
  
