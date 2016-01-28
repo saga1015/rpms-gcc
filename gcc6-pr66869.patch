@@ -1,0 +1,44 @@
+2016-01-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/66869
+	* decl.c (wrapup_globals_for_namespace): Warn about unused static
+	function declarations.
+
+	* g++.dg/warn/Wunused-function2.C: New test.
+
+--- gcc/cp/decl.c.jj	2016-01-25 09:31:01.000000000 +0100
++++ gcc/cp/decl.c	2016-01-28 13:14:10.783286136 +0100
+@@ -879,6 +879,24 @@ wrapup_globals_for_namespace (tree name_
+   tree *vec = statics->address ();
+   int len = statics->length ();
+ 
++  if (warn_unused_function)
++    {
++      tree decl;
++      unsigned int i;
++      FOR_EACH_VEC_SAFE_ELT (statics, i, decl)
++	if (TREE_CODE (decl) == FUNCTION_DECL
++	    && DECL_INITIAL (decl) == 0
++	    && DECL_EXTERNAL (decl)
++	    && !TREE_PUBLIC (decl)
++	    && !DECL_ARTIFICIAL (decl)
++	    && !TREE_NO_WARNING (decl))
++	  {
++	    warning (OPT_Wunused_function,
++		     "%q+F declared %<static%> but never defined", decl);
++	    TREE_NO_WARNING (decl) = 1;
++	  }
++    }
++
+   /* Write out any globals that need to be output.  */
+   return wrapup_global_declarations (vec, len);
+ }
+--- gcc/testsuite/g++.dg/warn/Wunused-function2.C.jj	2016-01-28 13:40:10.201053364 +0100
++++ gcc/testsuite/g++.dg/warn/Wunused-function2.C	2016-01-28 13:41:43.006788487 +0100
+@@ -0,0 +1,6 @@
++// PR debug/66869
++// { dg-do compile }
++// { dg-options "-Wunused-function" }
++
++static void test (void); // { dg-warning "'void test..' declared 'static' but never defined" }
++int i;
