@@ -1,9 +1,9 @@
-%global DATE 20160128
-%global SVNREV 232948
+%global DATE 20160129
+%global SVNREV 232999
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.6
+%global gcc_release 0.7
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -119,7 +119,7 @@ BuildRequires: texinfo, texinfo-tex, /usr/bin/pod2man
 BuildRequires: systemtap-sdt-devel >= 1.3
 BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
 %if %{build_go}
-BuildRequires: hostname
+BuildRequires: hostname, procps
 %endif
 # For VTA guality testing
 BuildRequires: gdb
@@ -206,8 +206,8 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr66869.patch
-Patch15: gcc6-pr69126-revert.patch
+Patch14: gcc6-pr69546.patch
+Patch15: gcc6-pr69558.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -772,8 +772,8 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr66869~
-%patch15 -p0 -b .pr69126-revert~
+%patch14 -p0 -b .pr69546~
+%patch15 -p0 -b .pr69558~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3066,6 +3066,17 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Jan 29 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.7
+- update from the trunk
+  - PRs c++/69462, c++/69509, c++/69516, debug/69518, libstdc++/69506,
+	middle-end/69537, other/69006, pch/68176, target/17381, target/65604,
+	target/66137, target/68400, target/69299, target/69459, target/69530,
+	target/69551, tree-optimization/69378, tree-optimization/69547
+- buildrequire procps for go testing
+- fix __uint128_t division (PR tree-optimization/69546)
+- restore old behavior of _Pragma GCC diagnostics in macros
+  (PR preprocessor/69543, PR c/69558)
+
 * Thu Jan 28 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.6
 - update from the trunk
   - PRs ada/69488, c++/24208, c++/67407, c++/69317, c++/69379, c++/69496,

@@ -1,0 +1,69 @@
+2016-01-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/69546
+	* wide-int.cc (wi::divmod_internal): For unsigned division
+	where both operands fit into uhwi, if o1 is 1 and o0 has
+	msb set, if divident_prec is larger than bits per hwi,
+	clear another quotient word and return 2 instead of 1.
+
+	* gcc.dg/torture/pr69546.c: New test.
+
+--- gcc/wide-int.cc.jj	2016-01-26 11:46:39.000000000 +0100
++++ gcc/wide-int.cc	2016-01-29 11:59:33.348852003 +0100
+@@ -1788,15 +1788,25 @@ wi::divmod_internal (HOST_WIDE_INT *quot
+     {
+       unsigned HOST_WIDE_INT o0 = dividend.to_uhwi ();
+       unsigned HOST_WIDE_INT o1 = divisor.to_uhwi ();
++      unsigned int quotient_len = 1;
+ 
+       if (quotient)
+-	quotient[0] = o0 / o1;
++	{
++	  quotient[0] = o0 / o1;
++	  if (o1 == 1
++	      && (HOST_WIDE_INT) o0 < 0
++	      && dividend_prec > HOST_BITS_PER_WIDE_INT)
++	    {
++	      quotient[1] = 0;
++	      quotient_len = 2;
++	    }
++	}
+       if (remainder)
+ 	{
+ 	  remainder[0] = o0 % o1;
+ 	  *remainder_len = 1;
+ 	}
+-      return 1;
++      return quotient_len;
+     }
+ 
+   /* Make the divisor and dividend positive and remember what we
+--- gcc/testsuite/gcc.dg/torture/pr69546.c.jj	2016-01-29 12:06:03.148516651 +0100
++++ gcc/testsuite/gcc.dg/torture/pr69546.c	2016-01-29 12:08:17.847672967 +0100
+@@ -0,0 +1,26 @@
++/* PR tree-optimization/69546 */
++/* { dg-do run { target int128 } } */
++
++unsigned __int128 __attribute__ ((noinline, noclone))
++foo (unsigned long long x)
++{
++  unsigned __int128 y = ~0ULL;
++  x >>= 63;
++  return y / (x | 1);
++}
++
++unsigned __int128 __attribute__ ((noinline, noclone))
++bar (unsigned long long x)
++{
++  unsigned __int128 y = ~33ULL;
++  x >>= 63;
++  return y / (x | 1);
++}
++
++int
++main ()
++{
++  if (foo (1) != ~0ULL || bar (17) != ~33ULL)
++    __builtin_abort ();
++  return 0;
++}
