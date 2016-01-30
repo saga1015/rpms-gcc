@@ -213,6 +213,8 @@ Patch15: gcc6-pr69558.patch
 # target triple.
 %ifnarch %{arm}
 %global _gnu %{nil}
+%else
+%global _gnu -gnueabi
 %endif
 %ifarch sparcv9
 %global gcc_target_platform sparc64-%{_vendor}-%{_target_os}
