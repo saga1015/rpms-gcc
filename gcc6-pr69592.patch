@@ -1,0 +1,154 @@
+2016-02-01  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/69592
+	* rtlanal.c (nonzero_bits_binary_arith_p): New inline function.
+	(cached_nonzero_bits): Use it instead of ARITHMETIC_P.
+	(num_sign_bit_copies_binary_arith_p): New inline function.
+	(cached_num_sign_bit_copies): Use it instead of ARITHMETIC_P.
+
+	* gcc.dg/pr69592.c: New test.
+
+--- gcc/rtlanal.c.jj	2016-01-21 21:27:57.000000000 +0100
++++ gcc/rtlanal.c	2016-02-01 18:53:06.130934333 +0100
+@@ -4163,6 +4163,36 @@ num_sign_bit_copies (const_rtx x, machin
+   return cached_num_sign_bit_copies (x, mode, NULL_RTX, VOIDmode, 0);
+ }
+ 
++/* Return true if nonzero_bits1 might recurse into both operands
++   of X.  */
++
++static inline bool
++nonzero_bits_binary_arith_p (const_rtx x)
++{
++  if (!ARITHMETIC_P (x))
++    return false;
++  switch (GET_CODE (x))
++    {
++    case AND:
++    case XOR:
++    case IOR:
++    case UMIN:
++    case UMAX:
++    case SMIN:
++    case SMAX:
++    case PLUS:
++    case MINUS:
++    case MULT:
++    case DIV:
++    case UDIV:
++    case MOD:
++    case UMOD:
++      return true;
++    default:
++      return false;
++    }
++}
++
+ /* The function cached_nonzero_bits is a wrapper around nonzero_bits1.
+    It avoids exponential behavior in nonzero_bits1 when X has
+    identical subexpressions on the first or the second level.  */
+@@ -4179,7 +4209,7 @@ cached_nonzero_bits (const_rtx x, machin
+      nonzero_bits1 on X with the subexpressions as KNOWN_X and the
+      precomputed value for the subexpression as KNOWN_RET.  */
+ 
+-  if (ARITHMETIC_P (x))
++  if (nonzero_bits_binary_arith_p (x))
+     {
+       rtx x0 = XEXP (x, 0);
+       rtx x1 = XEXP (x, 1);
+@@ -4191,13 +4221,13 @@ cached_nonzero_bits (const_rtx x, machin
+ 						   known_mode, known_ret));
+ 
+       /* Check the second level.  */
+-      if (ARITHMETIC_P (x0)
++      if (nonzero_bits_binary_arith_p (x0)
+ 	  && (x1 == XEXP (x0, 0) || x1 == XEXP (x0, 1)))
+ 	return nonzero_bits1 (x, mode, x1, mode,
+ 			      cached_nonzero_bits (x1, mode, known_x,
+ 						   known_mode, known_ret));
+ 
+-      if (ARITHMETIC_P (x1)
++      if (nonzero_bits_binary_arith_p (x1)
+ 	  && (x0 == XEXP (x1, 0) || x0 == XEXP (x1, 1)))
+ 	return nonzero_bits1 (x, mode, x0, mode,
+ 			      cached_nonzero_bits (x0, mode, known_x,
+@@ -4672,6 +4702,33 @@ nonzero_bits1 (const_rtx x, machine_mode
+ #undef cached_num_sign_bit_copies
+ 
+ 
++/* Return true if num_sign_bit_copies1 might recurse into both operands
++   of X.  */
++
++static inline bool
++num_sign_bit_copies_binary_arith_p (const_rtx x)
++{
++  if (!ARITHMETIC_P (x))
++    return false;
++  switch (GET_CODE (x))
++    {
++    case IOR:
++    case AND:
++    case XOR:
++    case SMIN:
++    case SMAX:
++    case UMIN:
++    case UMAX:
++    case PLUS:
++    case MINUS:
++    case MULT:
++      return true;
++    default:
++      return false;
++    }
++}
++
++
+ /* The function cached_num_sign_bit_copies is a wrapper around
+    num_sign_bit_copies1.  It avoids exponential behavior in
+    num_sign_bit_copies1 when X has identical subexpressions on the
+@@ -4689,7 +4746,7 @@ cached_num_sign_bit_copies (const_rtx x,
+      num_sign_bit_copies1 on X with the subexpressions as KNOWN_X and
+      the precomputed value for the subexpression as KNOWN_RET.  */
+ 
+-  if (ARITHMETIC_P (x))
++  if (num_sign_bit_copies_binary_arith_p (x))
+     {
+       rtx x0 = XEXP (x, 0);
+       rtx x1 = XEXP (x, 1);
+@@ -4703,7 +4760,7 @@ cached_num_sign_bit_copies (const_rtx x,
+ 							    known_ret));
+ 
+       /* Check the second level.  */
+-      if (ARITHMETIC_P (x0)
++      if (num_sign_bit_copies_binary_arith_p (x0)
+ 	  && (x1 == XEXP (x0, 0) || x1 == XEXP (x0, 1)))
+ 	return
+ 	  num_sign_bit_copies1 (x, mode, x1, mode,
+@@ -4711,7 +4768,7 @@ cached_num_sign_bit_copies (const_rtx x,
+ 							    known_mode,
+ 							    known_ret));
+ 
+-      if (ARITHMETIC_P (x1)
++      if (num_sign_bit_copies_binary_arith_p (x1)
+ 	  && (x0 == XEXP (x1, 0) || x0 == XEXP (x1, 1)))
+ 	return
+ 	  num_sign_bit_copies1 (x, mode, x0, mode,
+--- gcc/testsuite/gcc.dg/pr69592.c.jj	2016-02-01 19:02:23.122251761 +0100
++++ gcc/testsuite/gcc.dg/pr69592.c	2016-02-01 19:00:30.000000000 +0100
+@@ -0,0 +1,16 @@
++/* PR rtl-optimization/69592 */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++
++unsigned int
++foo (unsigned int a, unsigned int *b, unsigned int c)
++{
++  unsigned int d;
++#define A(n) d = a + b[n]; if (d < a) c++; a = d;
++#define B(n) A(n##0) A(n##1) A(n##2) A(n##3) A(n##4) A(n##5) A(n##6) A(n##7) A(n##8) A(n##9)
++#define C(n) B(n##0) B(n##1) B(n##2) B(n##3) B(n##4) B(n##5) B(n##6) B(n##7) B(n##8) B(n##9)
++#define D(n) C(n##0) C(n##1) C(n##2) C(n##3) C(n##4) C(n##5) C(n##6) C(n##7) C(n##8) C(n##9)
++#define E(n) D(n##0) D(n##1) D(n##2) D(n##3) D(n##4) D(n##5) D(n##6) D(n##7) D(n##8) D(n##9)
++  C(1) C(2) C(3) C(4) C(5) C(6)
++  return d + c;
++}
