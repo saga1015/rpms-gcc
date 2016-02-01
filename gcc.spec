@@ -1,9 +1,9 @@
-%global DATE 20160129
-%global SVNREV 232999
+%global DATE 20160201
+%global SVNREV 233038
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.7
+%global gcc_release 0.8
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,8 +206,7 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr69546.patch
-Patch15: gcc6-pr69558.patch
+Patch14: gcc6-pr69558.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -774,8 +773,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr69546~
-%patch15 -p0 -b .pr69558~
+%patch14 -p0 -b .pr69558~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3068,6 +3066,13 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Mon Feb  1 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.8
+- update from the trunk
+  - PRs c++/68490, c++/68763, c++/69009, debug/68244, fortran/66707,
+	fortran/67564, fortran/69566, libstdc++/69581, rtl-opt/69535,
+	rtl-optimization/69570, target/65546, target/68741, testsuite/69584,
+	tree-optimization/69579
+
 * Fri Jan 29 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.7
 - update from the trunk
   - PRs c++/69462, c++/69509, c++/69516, debug/69518, libstdc++/69506,
