@@ -1,0 +1,163 @@
+2016-02-03  Jakub Jelinek  <jakub@redhat.com>
+	    Patrick Palka  <ppalka@gcc.gnu.org>
+
+	PR ipa/69241
+	PR c++/69649
+	* gimplify.c (gimplify_modify_expr): Set lhs even for noreturn
+	calls if the return type is TREE_ADDRESSABLE.
+	* cgraphunit.c (cgraph_node::expand_thunk): Likewise.
+	* ipa-split.c (split_function): Fix doubled "we" in comment.
+	Use void return type for the split part even if
+	!split_point->split_part_set_retval.
+
+	* g++.dg/ipa/pr69241-1.C: New test.
+	* g++.dg/ipa/pr69241-2.C: New test.
+	* g++.dg/ipa/pr69241-3.C: New test.
+	* g++.dg/ipa/pr69649.C: New test.
+
+--- gcc/gimplify.c.jj	2016-02-02 20:42:00.000000000 +0100
++++ gcc/gimplify.c	2016-02-03 11:04:06.400757668 +0100
+@@ -4828,7 +4828,8 @@ gimplify_modify_expr (tree *expr_p, gimp
+ 	    }
+ 	}
+       notice_special_calls (call_stmt);
+-      if (!gimple_call_noreturn_p (call_stmt))
++      if (!gimple_call_noreturn_p (call_stmt)
++	  || TREE_ADDRESSABLE (TREE_TYPE (*to_p)))
+ 	gimple_call_set_lhs (call_stmt, *to_p);
+       assign = call_stmt;
+     }
+--- gcc/cgraphunit.c.jj	2016-01-20 10:55:15.000000000 +0100
++++ gcc/cgraphunit.c	2016-02-03 11:04:41.034279370 +0100
+@@ -1703,7 +1703,8 @@ cgraph_node::expand_thunk (bool output_a
+       bsi = gsi_start_bb (bb);
+ 
+       /* Build call to the function being thunked.  */
+-      if (!VOID_TYPE_P (restype) && !alias_is_noreturn)
++      if (!VOID_TYPE_P (restype)
++	  && (!alias_is_noreturn || TREE_ADDRESSABLE (restype)))
+ 	{
+ 	  if (DECL_BY_REFERENCE (resdecl))
+ 	    {
+@@ -1770,7 +1771,7 @@ cgraph_node::expand_thunk (bool output_a
+ 	      || DECL_BY_REFERENCE (resdecl)))
+         gimple_call_set_return_slot_opt (call, true);
+ 
+-      if (restmp && !alias_is_noreturn)
++      if (restmp)
+ 	{
+           gimple_call_set_lhs (call, restmp);
+ 	  gcc_assert (useless_type_conversion_p (TREE_TYPE (restmp),
+--- gcc/ipa-split.c.jj	2016-01-04 14:55:52.000000000 +0100
++++ gcc/ipa-split.c	2016-02-03 13:01:45.905136051 +0100
+@@ -1254,7 +1254,7 @@ split_function (basic_block return_bb, s
+       else
+ 	main_part_return_p = true;
+     }
+-  /* The main part also returns if we we split on a fallthru edge
++  /* The main part also returns if we split on a fallthru edge
+      and the split part returns.  */
+   if (split_part_return_p)
+     FOR_EACH_EDGE (e, ei, split_point->entry_bb->preds)
+@@ -1364,8 +1364,9 @@ split_function (basic_block return_bb, s
+   /* Now create the actual clone.  */
+   cgraph_edge::rebuild_edges ();
+   node = cur_node->create_version_clone_with_body
+-    (vNULL, NULL, args_to_skip, !split_part_return_p, split_point->split_bbs,
+-     split_point->entry_bb, "part");
++    (vNULL, NULL, args_to_skip,
++     !split_part_return_p || !split_point->split_part_set_retval,
++     split_point->split_bbs, split_point->entry_bb, "part");
+ 
+   node->split_part = true;
+ 
+--- gcc/testsuite/g++.dg/ipa/pr69241-1.C.jj	2016-02-03 10:56:10.624328263 +0100
++++ gcc/testsuite/g++.dg/ipa/pr69241-1.C	2016-02-03 11:01:18.600075039 +0100
+@@ -0,0 +1,12 @@
++// PR ipa/69241
++// { dg-do compile }
++// { dg-options "-O2" }
++
++struct R { R (const R &) {} };
++__attribute__ ((noreturn)) R bar ();
++
++R
++foo ()
++{
++  bar ();
++}
+--- gcc/testsuite/g++.dg/ipa/pr69241-2.C.jj	2016-02-03 10:56:07.996364556 +0100
++++ gcc/testsuite/g++.dg/ipa/pr69241-2.C	2016-02-03 11:01:42.958738639 +0100
+@@ -0,0 +1,18 @@
++// PR ipa/69241
++// { dg-do compile }
++// { dg-options "-O2" }
++
++__attribute__((noreturn)) void foo (int);
++struct R { R (const R &) {} };
++
++R
++bar ()
++{
++  foo (0);
++}
++
++R
++baz ()
++{
++  foo (0);
++}
+--- gcc/testsuite/g++.dg/ipa/pr69241-3.C.jj	2016-02-03 11:00:39.840610317 +0100
++++ gcc/testsuite/g++.dg/ipa/pr69241-3.C	2016-02-03 11:01:02.044303678 +0100
+@@ -0,0 +1,12 @@
++// PR ipa/69241
++// { dg-do compile }
++// { dg-options "-O2" }
++
++struct R { int x[100]; };
++__attribute__ ((noreturn)) R bar ();
++
++void
++foo ()
++{
++  bar ();
++}
+--- gcc/testsuite/g++.dg/ipa/pr69649.C.jj	2016-02-03 13:19:00.850845887 +0100
++++ gcc/testsuite/g++.dg/ipa/pr69649.C	2016-02-03 13:18:43.000000000 +0100
+@@ -0,0 +1,36 @@
++// PR c++/69649
++// { dg-do compile }
++// { dg-options "-O2" }
++
++struct A { virtual void m1 (); };
++struct C : A { void m1 () { m1 (); } };
++template <class T> struct B
++{
++  T *t;
++  B (T *x) : t (x) { if (t) t->m1 (); }
++  B (const B &);
++};
++struct D : public C {};
++struct F : public D
++{
++  virtual B<D> m2 ();
++  virtual B<D> m3 ();
++  int m4 ();
++};
++struct G : F
++{
++  B<D> m2 ();
++  B<D> m3 ();
++};
++B<D> G::m2 ()
++{
++  if (m4 () == 0)
++    return this;
++  return 0;
++}
++B<D> G::m3 ()
++{
++  if (m4 () == 0)
++    return this;
++  return 0;
++}

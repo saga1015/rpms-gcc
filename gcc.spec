@@ -1,9 +1,9 @@
-%global DATE 20160201
-%global SVNREV 233052
+%global DATE 20160205
+%global SVNREV 233185
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.9
+%global gcc_release 0.10
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,8 +206,11 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr69558.patch
-Patch15: gcc6-pr69592.patch
+Patch14: gcc6-pr65932-cse-revert.patch
+Patch15: gcc6-pr69241.patch
+Patch16: gcc6-pr69628.patch
+Patch17: gcc6-pr69658.patch
+Patch18: gcc6-pr69691.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -774,8 +777,11 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr69558~
-%patch15 -p0 -b .pr69592~
+%patch14 -p0 -b .pr65932-cse-revert~
+%patch15 -p0 -b .pr69241~
+%patch16 -p0 -b .pr69628~
+%patch17 -p0 -b .pr69658~
+%patch18 -p0 -b .pr69691~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -835,7 +841,7 @@ if [ -f "${BUILDDIR}"/debugfiles.list \
   done
   cp -a "${BUILDDIR}"/debugfiles-base.list "${BUILDDIR}"/debugfiles-remove.list
 %if %{build_go}
-  libgoso=`basename .%{_prefix}/%{_lib}/libgo.so.8.*`
+  libgoso=`basename .%{_prefix}/%{_lib}/libgo.so.9.*`
   for f in %{_prefix}/bin/go.gcc \
 	   %{_prefix}/bin/gofmt.gcc \
 	   %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/cgo \
@@ -846,8 +852,8 @@ if [ -f "${BUILDDIR}"/debugfiles.list \
     rm -f usr/lib/debug$f.debug
     echo "/usr/lib/debug$f.debug" >> "${BUILDDIR}"/debugfiles-remove.list
   done
-  rm -f usr/lib/debug%{_prefix}/%{_lib}/libgo.so.8.debug
-  echo "/usr/lib/debug%{_prefix}/%{_lib}/libgo.so.8.debug" >> "${BUILDDIR}"/debugfiles-remove.list
+  rm -f usr/lib/debug%{_prefix}/%{_lib}/libgo.so.9.debug
+  echo "/usr/lib/debug%{_prefix}/%{_lib}/libgo.so.9.debug" >> "${BUILDDIR}"/debugfiles-remove.list
   for f in `find usr/lib/debug/.build-id -type l`; do
     if ls -l "$f" | egrep -q -- '->.*(/bin/go.gcc|/bin/gofmt.gcc|/cgo|lib[0-9]*/libgo\.so)'; then
       echo "/$f" >> "${BUILDDIR}"/debugfiles-remove.list
@@ -1339,7 +1345,7 @@ ln -sf ../../../libstdc++.so.6.*[0-9] libstdc++.so
 ln -sf ../../../libgfortran.so.3.* libgfortran.so
 ln -sf ../../../libgomp.so.1.* libgomp.so
 %if %{build_go}
-ln -sf ../../../libgo.so.8.* libgo.so
+ln -sf ../../../libgo.so.9.* libgo.so
 %endif
 %if %{build_libquadmath}
 ln -sf ../../../libquadmath.so.0.* libquadmath.so
@@ -1370,7 +1376,7 @@ ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
 ln -sf ../../../../%{_lib}/libgfortran.so.3.* libgfortran.so
 ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
 %if %{build_go}
-ln -sf ../../../../%{_lib}/libgo.so.8.* libgo.so
+ln -sf ../../../../%{_lib}/libgo.so.9.* libgo.so
 %endif
 %if %{build_libquadmath}
 ln -sf ../../../../%{_lib}/libquadmath.so.0.* libquadmath.so
@@ -1491,8 +1497,8 @@ ln -sf ../`echo ../../../../lib/libgfortran.so.3.* | sed s~/lib/~/lib64/~` 64/li
 ln -sf ../`echo ../../../../lib/libgomp.so.1.* | sed s~/lib/~/lib64/~` 64/libgomp.so
 %if %{build_go}
 rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.8.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.8.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib/libgo.so.9.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib/libgo.so.9.* | sed 's,^.*libg,libg,'`' )' > 64/libgo.so
 %endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
@@ -1598,8 +1604,8 @@ ln -sf ../`echo ../../../../lib64/libgfortran.so.3.* | sed s~/../lib64/~/~` 32/l
 ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgomp.so
 %if %{build_go}
 rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.8.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.8.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
+echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.9.* | sed 's,^.*libg,libg,'`' )' > libgo.so
+echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.9.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
 %endif
 %if %{build_libquadmath}
 rm -f libquadmath.so
@@ -1780,7 +1786,7 @@ chmod 755 %{buildroot}%{_prefix}/%{_lib}/libtsan.so.0.*
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/liblsan.so.0.*
 %endif
 %if %{build_go}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.8.*
+chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.9.*
 %endif
 chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.4.*
 
@@ -2982,7 +2988,7 @@ fi
 %doc rpm.doc/go/*
 
 %files -n libgo
-%{_prefix}/%{_lib}/libgo.so.8*
+%{_prefix}/%{_lib}/libgo.so.9*
 %doc rpm.doc/libgo/*
 
 %files -n libgo-devel
@@ -3068,6 +3074,24 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Feb  5 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.10
+- update from the trunk
+  - PRs bootstrap/69611, bootstrap/69677, c++/68948, c++/69056, c++/69251,
+	c++/69253, c++/69277, c++/69290, c++/69349, c/69627, c/69669,
+	fortran/67451, fortran/69368, fortran/69418, libstdc++/69626,
+	middle-end/68542, rtl-opt/67609, rtl-optimization/64682,
+	rtl-optimization/69567, rtl-optimization/69577, sanitizer/69276,
+	target/65932, target/67032, target/67714, target/68124, target/68662,
+	target/69118, target/69369, target/69454, target/69461, target/69548,
+	target/69619, target/69625, target/69644, target/69667, target/69677,
+	testsuite/65940, tree-optimization/69580, tree-optimization/69595,
+	tree-optimization/69606
+  - Go 1.6rc1
+- fix various C++ ICEs in assign_temp (PR ipa/69241, PR c++/69649)
+- fix character constant error recovery (PR c++/69628)
+- fix invalid diagnostics on C++ array initializers (PR c++/69658)
+- fix RA subreg handling (PR rtl-optimization/69691)
+
 * Mon Feb  1 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.9
 - update from the trunk
   - PRs middle-end/69556, tree-optimization/67921, tree-optimization/69574
