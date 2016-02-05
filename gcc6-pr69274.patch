@@ -1,0 +1,22 @@
+2016-02-05   Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/69274
+	* ira.c (ira_setup_alts): Do not change recog_data.operand
+	order.
+
+--- gcc/ira.c	(revision 231814)
++++ gcc/ira.c	(working copy)
+@@ -1888,10 +1888,11 @@ ira_setup_alts (rtx_insn *insn, HARD_REG
+ 	}
+       if (commutative < 0)
+ 	break;
+-      if (curr_swapped)
+-	break;
++      /* Swap forth and back to avoid changing recog_data.  */
+       std::swap (recog_data.operand[commutative],
+ 		 recog_data.operand[commutative + 1]);
++      if (curr_swapped)
++	break;
+     }
+ }
+ 

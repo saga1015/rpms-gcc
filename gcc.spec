@@ -211,6 +211,7 @@ Patch15: gcc6-pr69241.patch
 Patch16: gcc6-pr69628.patch
 Patch17: gcc6-pr69658.patch
 Patch18: gcc6-pr69691.patch
+Patch19: gcc6-pr69274.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -782,6 +783,7 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch16 -p0 -b .pr69628~
 %patch17 -p0 -b .pr69658~
 %patch18 -p0 -b .pr69691~
+%patch19 -p0 -b .pr69274~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3091,6 +3093,7 @@ fi
 - fix character constant error recovery (PR c++/69628)
 - fix invalid diagnostics on C++ array initializers (PR c++/69658)
 - fix RA subreg handling (PR rtl-optimization/69691)
+- fix up 435.gromacs performance regression (PR rtl-optimization/69274)
 
 * Mon Feb  1 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.9
 - update from the trunk
