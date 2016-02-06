@@ -1057,7 +1057,7 @@ CC="$CC" CXX="$CXX" CFLAGS="$OPT_FLAGS" \
 	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
 	$CONFIGURE_OPTS
 
-%ifarch sparc sparcv9 sparc64
+%ifarch sparc sparcv9 sparc64 ppc64
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 %else
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
