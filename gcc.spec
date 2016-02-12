@@ -1,9 +1,9 @@
-%global DATE 20160205
-%global SVNREV 233185
+%global DATE 20160212
+%global SVNREV 233372
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.10
+%global gcc_release 0.11
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -208,10 +208,9 @@ Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
 Patch14: gcc6-pr65932-cse-revert.patch
 Patch15: gcc6-pr69241.patch
-Patch16: gcc6-pr69628.patch
-Patch17: gcc6-pr69658.patch
-Patch18: gcc6-pr69691.patch
-Patch19: gcc6-pr69274.patch
+Patch16: gcc6-pr69658.patch
+Patch17: gcc6-pr10200-revert.patch
+Patch18: gcc6-pr68672.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -780,10 +779,9 @@ rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch13 -p0 -b .libsanitize-aarch64-va42~
 %patch14 -p0 -b .pr65932-cse-revert~
 %patch15 -p0 -b .pr69241~
-%patch16 -p0 -b .pr69628~
-%patch17 -p0 -b .pr69658~
-%patch18 -p0 -b .pr69691~
-%patch19 -p0 -b .pr69274~
+%patch16 -p0 -b .pr69658~
+%patch17 -p0 -b .pr10200~
+%patch18 -p0 -b .pr68672~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -1057,7 +1055,7 @@ CC="$CC" CXX="$CXX" CFLAGS="$OPT_FLAGS" \
 	--enable-languages=c,c++,objc,obj-c++,fortran${enablelada}${enablelgo},lto \
 	$CONFIGURE_OPTS
 
-%ifarch sparc sparcv9 sparc64 ppc64
+%ifarch sparc sparcv9 sparc64
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" bootstrap
 %else
 make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
@@ -3076,6 +3074,25 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Feb 12 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.11
+- update from the trunk
+  - PRs c++/10200, c++/59627, c++/67835, c++/68726, c++/68926, c++/69098,
+	c++/69139, c++/69283, c++/69631, c++/69657, c++/69662, c++/69688,
+	c/69522, c/69643, c/69768, fortran/50555, fortran/66089,
+	fortran/69296, go/68562, ipa/69239, libstdc++/48891, lto/69707,
+	middle-end/66726, other/69722, plugins/69758, preprocessor/69664,
+	rtl-optimization/68730, rtl-optimization/69291,
+	rtl-optimization/69737, target/60410, target/65313, target/65867,
+	target/68273, target/68404, target/68532, target/69148, target/69634,
+	target/69713, tree-opt/69282, tree-optimization/65917,
+	tree-optimization/68021, tree-optimization/68541,
+	tree-optimization/69209, tree-optimization/69599,
+	tree-optimization/69652, tree-optimization/69715,
+	tree-optimization/69719, tree-optimization/69726
+- temporarily revert PR c++/10200 fix
+- fix -fpartial-inlining with clobber or debug stmts in return_bb
+  (PR ipa/68672)
+
 * Fri Feb  5 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.10
 - update from the trunk
   - PRs bootstrap/69611, bootstrap/69677, c++/68948, c++/69056, c++/69251,
