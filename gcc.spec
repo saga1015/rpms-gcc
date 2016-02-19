@@ -3,13 +3,13 @@
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.11
+%global gcc_release 0.11.1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
 %undefine _hardened_build
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
-%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64
+%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64 s390x
 %global build_ada 1
 %else
 %global build_ada 0
@@ -96,6 +96,7 @@ Group: Development/Languages
 # svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-6-branch@%{SVNREV} gcc-%{version}-%{DATE}
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
+Source1: gcc-gnat-6.0.0-0.7.s390x.tar.bz2
 %global isl_version 0.14
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -138,8 +139,10 @@ BuildRequires: glibc >= 2.3.90-35
 BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.so
 %endif
 %if %{build_ada}
+%ifnarch s390x
 # Ada requires Ada to build
 BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
+%endif
 %endif
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
@@ -914,6 +917,12 @@ fi
 # This test causes fork failures, because it spawns way too many threads
 rm -f gcc/testsuite/go.test/test/chan/goroutines.go
 
+%ifarch s390x
+tar xjf %SOURCE1
+ln -sf /usr/lib/gcc/*/*/* usr/lib/gcc/*/*/
+ln -sf /usr/libexec/gcc/*/*/* usr/libexec/gcc/*/*/
+%endif
+
 %build
 
 # Undo the broken autoconf change in recent Fedora versions
@@ -925,6 +934,12 @@ cd obj-%{gcc_target_platform}
 
 CC=gcc
 CXX=g++
+%ifarch s390x
+  CC=`pwd`/../usr/bin/gcc
+  export PATH=`pwd`/../usr/bin:$PATH
+  export LD_LIBRARY_PATH=`pwd`/../usr/lib64
+%endif
+
 OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mfpmath=sse/-mfpmath=sse -msse2/g'`
