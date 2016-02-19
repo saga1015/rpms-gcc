@@ -1,15 +1,15 @@
-%global DATE 20160212
-%global SVNREV 233372
+%global DATE 20160219
+%global SVNREV 233570
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.11.1
+%global gcc_release 0.12
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
 %undefine _hardened_build
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
-%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha %{arm} aarch64 s390x
+%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha s390x %{arm} aarch64
 %global build_ada 1
 %else
 %global build_ada 0
@@ -96,7 +96,6 @@ Group: Development/Languages
 # svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-6-branch@%{SVNREV} gcc-%{version}-%{DATE}
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
 Source0: gcc-%{version}-%{DATE}.tar.bz2
-Source1: gcc-gnat-6.0.0-0.7.s390x.tar.bz2
 %global isl_version 0.14
 URL: http://gcc.gnu.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -139,10 +138,8 @@ BuildRequires: glibc >= 2.3.90-35
 BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.so
 %endif
 %if %{build_ada}
-%ifnarch s390x
 # Ada requires Ada to build
 BuildRequires: gcc-gnat >= 3.1, libgnat >= 3.1
-%endif
 %endif
 %ifarch ia64
 BuildRequires: libunwind >= 0.98
@@ -209,11 +206,6 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr65932-cse-revert.patch
-Patch15: gcc6-pr69241.patch
-Patch16: gcc6-pr69658.patch
-Patch17: gcc6-pr10200-revert.patch
-Patch18: gcc6-pr68672.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -780,11 +772,6 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr65932-cse-revert~
-%patch15 -p0 -b .pr69241~
-%patch16 -p0 -b .pr69658~
-%patch17 -p0 -b .pr10200~
-%patch18 -p0 -b .pr68672~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -917,12 +904,6 @@ fi
 # This test causes fork failures, because it spawns way too many threads
 rm -f gcc/testsuite/go.test/test/chan/goroutines.go
 
-%ifarch s390x
-tar xjf %SOURCE1
-ln -sf /usr/lib/gcc/*/*/* usr/lib/gcc/*/*/
-ln -sf /usr/libexec/gcc/*/*/* usr/libexec/gcc/*/*/
-%endif
-
 %build
 
 # Undo the broken autoconf change in recent Fedora versions
@@ -934,12 +915,6 @@ cd obj-%{gcc_target_platform}
 
 CC=gcc
 CXX=g++
-%ifarch s390x
-  CC=`pwd`/../usr/bin/gcc
-  export PATH=`pwd`/../usr/bin:$PATH
-  export LD_LIBRARY_PATH=`pwd`/../usr/lib64
-%endif
-
 OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mfpmath=sse/-mfpmath=sse -msse2/g'`
@@ -3089,6 +3064,26 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Feb 19 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.12
+- update from the trunk
+  - PRs bootstrap/69816, c++/65985, c++/67767, c++/68585, c++/68679,
+	c++/68890, c++/69753, c++/69797, c++/69842, c++/69850, c++/69851,
+	c/64748, c/69835, driver/69265, driver/69453, driver/69779,
+	fortran/60526, fortran/68746, fortran/69742, libgfortran/69651,
+	libgfortran/69668, libstdc++/69794, lto/67709, lto/69655,
+	middle-end/69553, middle-end/69801, middle-end/69838,
+	middle-end/69854, other/69554, rtl-optimization/69609,
+	rtl-optimization/69648, rtl-optimization/69752,
+	rtl-optimization/69764, rtl-optimization/69771, sanitizer/69863,
+	target/48344, target/62254, target/64345, target/67260, target/67636,
+	target/68973, target/69161, target/69532, target/69610, target/69671,
+	target/69729, target/69820, testsuite/68580, testsuite/68886,
+	testsuite/69573, testsuite/69586, tree-optimization/69586,
+	tree-optimization/69714, tree-optimization/69776,
+	tree-optimization/69783, tree-optimization/69802,
+	tree-optimization/69820
+- enable Ada on s390x
+
 * Fri Feb 12 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.11
 - update from the trunk
   - PRs c++/10200, c++/59627, c++/67835, c++/68726, c++/68926, c++/69098,
