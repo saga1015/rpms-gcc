@@ -1,0 +1,66 @@
+2016-02-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/69947
+	* dwarf2out.c (prune_unused_types_walk_loc_descr): Handle
+	all other ops that have dw_val_class_die_ref operands,
+	and DW_OP_GNU_entry_value.
+
+	* gcc.dg/guality/pr69947.c: New test.
+
+--- gcc/dwarf2out.c.jj	2016-02-25 17:04:11.465781368 +0100
++++ gcc/dwarf2out.c	2016-02-25 17:41:26.785371399 +0100
+@@ -25641,11 +25641,29 @@ prune_unused_types_walk_loc_descr (dw_lo
+   for (; loc != NULL; loc = loc->dw_loc_next)
+     switch (loc->dw_loc_opc)
+       {
++      case DW_OP_GNU_implicit_pointer:
++      case DW_OP_GNU_convert:
++      case DW_OP_GNU_reinterpret:
++	if (loc->dw_loc_oprnd1.val_class == dw_val_class_die_ref)
++	  prune_unused_types_mark (loc->dw_loc_oprnd1.v.val_die_ref.die, 1);
++	break;
+       case DW_OP_call2:
+       case DW_OP_call4:
+       case DW_OP_call_ref:
++      case DW_OP_GNU_const_type:
++      case DW_OP_GNU_parameter_ref:
++	gcc_assert (loc->dw_loc_oprnd1.val_class == dw_val_class_die_ref);
+ 	prune_unused_types_mark (loc->dw_loc_oprnd1.v.val_die_ref.die, 1);
+ 	break;
++      case DW_OP_GNU_regval_type:
++      case DW_OP_GNU_deref_type:
++	gcc_assert (loc->dw_loc_oprnd2.val_class == dw_val_class_die_ref);
++	prune_unused_types_mark (loc->dw_loc_oprnd2.v.val_die_ref.die, 1);
++	break;
++      case DW_OP_GNU_entry_value:
++	gcc_assert (loc->dw_loc_oprnd1.val_class == dw_val_class_loc);
++	prune_unused_types_walk_loc_descr (loc->dw_loc_oprnd1.v.val_loc);
++	break;
+       default:
+ 	break;
+       }
+--- gcc/testsuite/gcc.dg/guality/pr69947.c.jj	2016-02-25 17:22:13.729098931 +0100
++++ gcc/testsuite/gcc.dg/guality/pr69947.c	2016-02-25 17:22:13.729098931 +0100
+@@ -0,0 +1,22 @@
++/* PR debug/69947 */
++/* { dg-do run } */
++/* { dg-options "-g" } */
++
++#include "../nop.h"
++
++static const char *c = "foobar";
++
++__attribute__((noinline, noclone)) void
++foo (void)
++{
++  static const char a[] = "abcdefg";
++  const char *b = a;		/* { dg-final { gdb-test 14 "c\[2\]" "'o'" } } */
++  asm (NOP : : : "memory");	/* { dg-final { gdb-test 14 "b\[4\]" "'e'" } } */
++}
++
++int
++main ()
++{
++  foo ();
++  return 0;
++}

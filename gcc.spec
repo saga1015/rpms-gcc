@@ -1,9 +1,9 @@
-%global DATE 20160219
-%global SVNREV 233570
+%global DATE 20160227
+%global SVNREV 233778
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.12
+%global gcc_release 0.13
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,6 +206,7 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
+Patch14: gcc6-pr69947.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -772,6 +773,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
+%patch14 -p0 -b .pr69947~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3064,6 +3066,28 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Sat Feb 27 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.13
+- update from the trunk
+  - PRs c++/15766, c++/67364, c++/68049, c++/69323, c++/69736, c++/69743,
+	c++/69826, c++/69865, c++/69889, c++/69902, c++/69912, c++/69922,
+	c++/69958, c/28901, c/51147, c/69759, c/69819, c/69900, c/69911,
+	c/69918, debug/61033, debug/69705, driver/68463, driver/69805,
+	fortran/52531, fortran/57365, fortran/61156, fortran/69423, hsa/69568,
+	ipa/37448, ipa/69630, libgfortran/69456, libstdc++/69881,
+	libstdc++/69893, libstdc++/69939, middle-end/68963, middle-end/69760,
+	middle-end/69780, middle-end/69909, middle-end/69915,
+	middle-end/69919, middle-end/69920, objc/69844, preprocessor/69558,
+	rtl-optimization/69886, rtl-optimization/69891,
+	rtl-optimization/69896, target/54089, target/61397, target/69613,
+	target/69709, target/69806, target/69810, target/69875, target/69885,
+	target/69888, target/69894, target/69895, target/69946, target/69969,
+	tree-optimization/15826, tree-optimization/48795,
+	tree-optimization/69551, tree-optimization/69666,
+	tree-optimization/69740, tree-optimization/69882,
+	tree-optimization/69907
+- make sure DW_TAG_dwarf_procedure referenced from DW_OP_GNU_implicit_pointer
+  is not pruned as "unused" (PR debug/69947)
+
 * Fri Feb 19 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.12
 - update from the trunk
   - PRs bootstrap/69816, c++/65985, c++/67767, c++/68585, c++/68679,
