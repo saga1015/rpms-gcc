@@ -1,9 +1,9 @@
-%global DATE 20160227
-%global SVNREV 233778
+%global DATE 20160302
+%global SVNREV 233890
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.13
+%global gcc_release 0.14
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -3066,6 +3066,19 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Mar  2 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.14
+- update from the trunk
+  - PRs ada/70017, c++/51489, c++/69795, c++/69961, c++/69995, c++/70036,
+	c/69796, c/69974, fortran/47674, fortran/56007, fortran/60126,
+	fortran/68147, fortran/69910, middle-end/70022, middle-end/70025,
+	preprocessor/69985, rtl-optimization/70007, target/69706,
+	target/70011, target/70027, target/70033, tree-optimization/68621,
+	tree-optimization/69720, tree-optimization/69956,
+	tree-optimization/69980, tree-optimization/69983,
+	tree-optimization/69987, tree-optimization/69989,
+	tree-optimization/69994, tree-optimization/69999,
+	tree-optimization/70005
+
 * Sat Feb 27 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.13
 - update from the trunk
   - PRs c++/15766, c++/67364, c++/68049, c++/69323, c++/69736, c++/69743,
