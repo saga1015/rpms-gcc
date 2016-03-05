@@ -1,9 +1,9 @@
-%global DATE 20160302
-%global SVNREV 233890
+%global DATE 20160305
+%global SVNREV 234005
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.14
+%global gcc_release 0.15
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,7 +206,6 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr69947.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -773,7 +772,6 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr69947~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3066,6 +3064,18 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Sat Mar  5 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.15
+- update from the trunk
+  - PRs c++/51406, c++/66786, c++/67164, c++/69203, c++/70035, c++/70054,
+	c++/70067, c++/70084, c/67854, c/68187, c/69798, c/69824, c/69973,
+	ipa/69990, libffi/70024, libgomp/69555, middle-end/67278,
+	middle-end/70050, rtl-opt/67145, rtl-optimization/57676,
+	rtl-optimization/69052, rtl-optimization/69904,
+	rtl-optimization/69941, rtl-optimization/69942, target/67278,
+	target/70004, target/70014, target/70021, target/70028, target/70059,
+	target/70062, testsuite/69766, tree-optimization/55936,
+	tree-optimization/68659, tree-optimization/70043
+
 * Wed Mar  2 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.14
 - update from the trunk
   - PRs ada/70017, c++/51489, c++/69795, c++/69961, c++/69995, c++/70036,
