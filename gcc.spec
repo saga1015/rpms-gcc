@@ -1,9 +1,9 @@
-%global DATE 20160305
-%global SVNREV 234005
+%global DATE 20160311
+%global SVNREV 234148
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.15
+%global gcc_release 0.16
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,6 +206,7 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
+Patch14: gcc6-pr70001.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -772,6 +773,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
+%patch14 -p0 -b .pr70001~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3064,6 +3066,21 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Fri Mar 11 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.15
+- update from the trunk
+  - PRs c++/62096, c++/70001, c++/70105, c++/70135, c++/70153, c/68473,
+	c/70085, c/70143, lto/69589, middle-end/69916, rtl-opt/70061,
+	rtl-optimization/19705, rtl-optimization/47992,
+	rtl-optimization/69195, rtl-optimization/70174, target/62281,
+	target/70002, target/70044, target/70049, target/70064, target/70086,
+	target/70110, target/70113, target/70160, target/70168,
+	testsuite/68915, testsuite/70009, testsuite/70109,
+	tree-optimization/70013, tree-optimization/70115,
+	tree-optimization/70116, tree-optimization/70127,
+	tree-optimization/70128, tree-optimization/70138,
+	tree-optimization/70152, tree-optimization/70169,
+	tree-optimization/70177
+
 * Sat Mar  5 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.15
 - update from the trunk
   - PRs c++/51406, c++/66786, c++/67164, c++/69203, c++/70035, c++/70054,
