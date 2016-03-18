@@ -3,13 +3,13 @@
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.16
+%global gcc_release 0.17
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
 %undefine _hardened_build
 %global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
-%ifarch %{ix86} x86_64 ia64 ppc ppc64 ppc64p7 alpha s390x %{arm} aarch64
+%ifarch %{ix86} x86_64 ia64 ppc %{power64} alpha s390x %{arm} aarch64
 %global build_ada 1
 %else
 %global build_ada 0
@@ -3066,7 +3066,10 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
-* Fri Mar 11 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.15
+* Fri Mar 18 2016 Peter Robinson <pbrobinson@fedoraproject.org> 6.0.0-0.17
+- Enable gnat on ppc64le
+
+* Fri Mar 11 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.16
 - update from the trunk
   - PRs c++/62096, c++/70001, c++/70105, c++/70135, c++/70153, c/68473,
 	c/70085, c/70143, lto/69589, middle-end/69916, rtl-opt/70061,
