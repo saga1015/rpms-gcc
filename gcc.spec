@@ -1,9 +1,9 @@
-%global DATE 20160311
-%global SVNREV 234148
+%global DATE 20160323
+%global SVNREV 234421
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.17
+%global gcc_release 0.18
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -3066,8 +3066,36 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Mar 23 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.18
+- update from the trunk
+  - PRs bootstrap/69513, c++/53792, c++/58281, c++/70095, c++/70096,
+	c++/70106, c++/70139, c++/70141, c++/70144, c++/70147, c++/70194,
+	c++/70204, c++/70205, c++/70209, c++/70218, c++/70259, c++/70267,
+	c++/70272, c++/70273, c++/70285, c++/70295, c/69407, c/69993, c/70093,
+	c/70264, c/70280, c/70281, debug/70271, driver/70132, driver/70192,
+	fortran/45076, fortran/69043, fortran/69520, fortran/69524,
+	fortran/70031, hsa/70234, hsa/70337, ipa/70161, ipa/70269, ipa/70306,
+	libfortran/69799, libgcc/70363, lto/70187, lto/70258,
+	middle-end/68215, middle-end/70199, middle-end/70219,
+	middle-end/70239, middle-end/70240, middle-end/70251,
+	middle-end/70326, middle-end/70333, rtl-optimization/63384,
+	rtl-optimization/69032, rtl-optimization/69102,
+	rtl-optimization/69307, rtl-optimization/70222,
+	rtl-optimization/70224, rtl-optimization/70263,
+	rtl-optimization/70278, target/38239, target/64411, target/66660,
+	target/69614, target/70048, target/70083, target/70098, target/70123,
+	target/70131, target/70162, target/70188, target/70232, target/70245,
+	target/70261, target/70293, target/70296, target/70300, target/70302,
+	target/70321, target/70325, target/70327, target/70329,
+	tree-optimization/56365, tree-optimization/64058,
+	tree-optimization/68714, tree-optimization/68715,
+	tree-optimization/68809, tree-optimization/70045,
+	tree-optimization/70190, tree-optimization/70252,
+	tree-optimization/70288, tree-optimization/70310,
+	tree-optimization/70317, tree-optimization/70354
+
 * Fri Mar 18 2016 Peter Robinson <pbrobinson@fedoraproject.org> 6.0.0-0.17
-- Enable gnat on ppc64le
+- enable gnat on ppc64le
 
 * Fri Mar 11 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.16
 - update from the trunk
