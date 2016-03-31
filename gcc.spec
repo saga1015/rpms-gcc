@@ -1,9 +1,9 @@
-%global DATE 20160323
-%global SVNREV 234421
+%global DATE 20160331
+%global SVNREV 234619
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.18
+%global gcc_release 0.19
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,7 +206,7 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr70001.patch
+Patch14: gcc6-pr70404.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -773,7 +773,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr70001~
+%patch14 -p0 -b .pr70404~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3066,6 +3066,22 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Mar 31 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.19
+- update from the trunk
+  - PRs c++/62212, c++/64266, c++/69315, c++/69884, c++/70323, c++/70332,
+	c++/70344, c++/70347, c++/70353, c++/70376, c++/70386, c++/70422,
+	c++/70430, fortran/70397, ipa/12392, ipa/70283, ipa/70366,
+	libgfortran/70235, libgomp/69414, libstdc++/69945, lto/69650,
+	middle-end/69845, middle-end/70355, middle-end/70370,
+	middle-end/70424, middle-end/70450, rtl-optimization/68695,
+	rtl-optimization/70429, rtl-optimization/70460, target/63890,
+	target/69917, target/70052, target/70120, target/70290, target/70319,
+	target/70381, target/70406, target/70421, testsuite/64177,
+	testsuite/70356, tree-optimization/59124, tree-optimization/69042,
+	tree-optimization/70372, tree-optimization/70396,
+	tree-optimization/70405
+- fix s390x ICE (PR target/70404)
+
 * Wed Mar 23 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.18
 - update from the trunk
   - PRs bootstrap/69513, c++/53792, c++/58281, c++/70095, c++/70096,
