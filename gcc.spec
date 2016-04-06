@@ -1,9 +1,9 @@
-%global DATE 20160331
-%global SVNREV 234619
+%global DATE 20160406
+%global SVNREV 234789
 %global gcc_version 6.0.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.19
+%global gcc_release 0.20
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -14,7 +14,7 @@
 %else
 %global build_ada 0
 %endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64 %{mips}
 %global build_go 1
 %else
 %global build_go 0
@@ -49,7 +49,7 @@
 %else
 %global build_libcilkrts 0
 %endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64 %{mips}
 %global build_libatomic 1
 %else
 %global build_libatomic 0
@@ -66,7 +66,7 @@
 %endif
 %global build_isl 1
 %global build_libstdcxx_docs 1
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64 %{mips}
 %global attr_ifunc 1
 %else
 %global attr_ifunc 0
@@ -206,7 +206,6 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr70404.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -773,7 +772,6 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr70404~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -947,12 +945,18 @@ CONFIGURE_OPTS="\
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 %ifarch ppc64le
-	--enable-targets=powerpcle-linux --disable-multilib \
+	--enable-targets=powerpcle-linux \
+%endif
+%ifarch ppc64le %{mips}
+	--disable-multilib \
 %else
 	--enable-multilib \
 %endif
 	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
-	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
+	--enable-gnu-unique-object --enable-linker-build-id \
+%ifnarch %{mips}
+	--with-linker-hash-style=gnu \
+%endif
 	--enable-plugin --enable-initfini-array \
 	--disable-libgcj \
 %if 0%{?fedora} >= 21 && 0%{?fedora} <= 22
@@ -1033,6 +1037,12 @@ CONFIGURE_OPTS="\
 %ifarch armv7hl
 	--with-tune=cortex-a8 --with-arch=armv7-a \
 	--with-float=hard --with-fpu=vfpv3-d16 --with-abi=aapcs-linux \
+%endif
+%ifarch mips mipsel
+	--with-arch=mips32r2 --with-fp-32=xx \
+%endif
+%ifarch mips64 mips64el
+	--with-arch=mips64r2 --with-abi=64 \
 %endif
 %ifnarch sparc sparcv9 ppc
 	--build=%{gcc_target_platform} \
@@ -1235,13 +1245,15 @@ ln -f %{buildroot}%{_prefix}/bin/%{gcc_target_platform}-gcc \
   %{buildroot}%{_prefix}/bin/ppc-%{_vendor}-%{_target_os}-gcc
 %endif
 
+FULLLSUBDIR=
 %ifarch sparcv9 ppc
-FULLLPATH=$FULLPATH/lib32
+FULLLSUBDIR=lib32
 %endif
 %ifarch sparc64 ppc64 ppc64p7
-FULLLPATH=$FULLPATH/lib64
+FULLLSUBDIR=lib64
 %endif
-if [ -n "$FULLLPATH" ]; then
+if [ -n "$FULLLSUBDIR" ]; then
+  FULLLPATH=$FULLPATH/$FULLLSUBDIR
   mkdir -p $FULLLPATH
 else
   FULLLPATH=$FULLPATH
@@ -1735,6 +1747,29 @@ ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/adai
 ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_version}/adalib 32/adalib
 %endif
 %endif
+%endif
+
+# If we are building a debug package then copy all of the static archives
+# into the debug directory to keep them as unstripped copies.
+%if 0%{?_enable_debug_packages}
+for d in . $FULLLSUBDIR; do
+  mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/$d
+  for f in `find $d -maxdepth 1 -a \
+		\( -name libasan.a -o -name libatomic.a \
+		-o -name libcaf_single.a -o -name libcilkrts.a \
+		-o -name libgcc.a -o -name libgcc_eh.a \
+		-o -name libgcov.a -o -name libgfortran.a \
+		-o -name libgo.a -o -name libgobegin.a \
+		-o -name libgolibbegin.a -o -name libgomp.a \
+		-o -name libitm.a -o -name liblsan.a \
+		-o -name libmpx.a -o -name libmpxwrappers.a \
+		-o -name libnetgo.a -o -name libobjc.a \
+		-o -name libquadmath.a -o -name libstdc++.a \
+		-o -name libstdc++fs.a -o -name libsupc++.a \
+		-o -name libtsan.a -o -name libubsan.a \) -a -type f`; do
+    cp -a $f $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/$d/
+  done
+done
 %endif
 
 # Strip debug info from Fortran/ObjC/Java static libraries
@@ -3066,6 +3101,24 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Apr  6 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.20
+- update from the trunk
+  - PRs bootstrap/70173, c++/67376, c++/67394, c++/68475, c++/70170,
+	c++/70172, c++/70228, c++/70336, c++/70393, c++/70449, c++/70452,
+	c++/70481, c++/70488, c++/70512, c/70297, c/70307, fortran/65795,
+	fortran/67538, hsa/70391, hsa/70399, hsa/70402, ipa/66223, ipa/68881,
+	libstdc++/70437, libstdc++/70503, libstdc++/70554, middle-end/70307,
+	middle-end/70457, middle-end/70499, middle-end/70550,
+	rtl-optimization/70461, rtl-optimization/70467,
+	rtl-optimization/70484, rtl-optimization/70542, target/67172,
+	target/67391, target/69890, target/70292, target/70416, target/70439,
+	target/70442, target/70453, target/70496, target/70510, target/70525,
+	testsuite/70364, tree-optimization/70509, tree-optimization/70526
+- include unstripped *.a libraries in gcc-debuginfo package
+
+* Wed Apr  6 2016 Michal Toman <mtoman@fedoraproject.org>
+- add support for MIPS
+
 * Thu Mar 31 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.19
 - update from the trunk
   - PRs c++/62212, c++/64266, c++/69315, c++/69884, c++/70323, c++/70332,
