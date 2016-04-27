@@ -1,9 +1,9 @@
-%global DATE 20160406
-%global SVNREV 234789
-%global gcc_version 6.0.0
+%global DATE 20160427
+%global SVNREV 235510
+%global gcc_version 6.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 0.20
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -3101,6 +3101,36 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Apr 27 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-1
+- update from the trunk and 6 branch
+  - GCC 6.1 release
+  - PRs bootstrap/70704, c++/66543, c++/68206, c++/68530, c++/68722,
+	c++/69066, c++/69517, c++/69687, c++/70019, c++/70029, c++/70492,
+	c++/70494, c++/70501, c++/70505, c++/70522, c++/70528, c++/70543,
+	c++/70571, c++/70588, c++/70590, c++/70594, c++/70610, c++/70615,
+	c++/70622, c++/70627, c++/70634, c++/70635, c++/70639, c++/70641,
+	c++/70648, c++/70675, c++/70685, c++/70690, c/70436, c/70651, c/70671,
+	debug/70628, fortran/58000, fortran/67039, fortran/68566,
+	fortran/70592, ipa/70348, ipa/70785, libgfortran/70684, lto/70289,
+	middle-end/70533, middle-end/70534, middle-end/70535,
+	middle-end/70593, middle-end/70633, middle-end/70643,
+	middle-end/70680, middle-end/70747, preprocessor/61817,
+	preprocessor/69391, preprocessor/69650, rtl-optimization/64886,
+	rtl-optimization/66669, rtl-optimization/68749,
+	rtl-optimization/70398, rtl-optimization/70574,
+	rtl-optimization/70596, rtl-optimization/70681, sanitizer/70541,
+	sanitizer/70573, sanitizer/70624, sanitizer/70712, target/64971,
+	target/70117, target/70133, target/70566, target/70630, target/70640,
+	target/70662, target/70669, target/70674, target/70711, target/70728,
+	target/70750, testsuite/64039, testsuite/68242, testsuite/70553,
+	testsuite/70581, tree-optimization/68644, tree-optimization/68756,
+	tree-optimization/68953, tree-optimization/70130,
+	tree-optimization/70373, tree-optimization/70586,
+	tree-optimization/70602, tree-optimization/70614,
+	tree-optimization/70623, tree-optimization/70724,
+	tree-optimization/70725, tree-optimization/70726,
+	tree-optimization/70780
+
 * Wed Apr  6 2016 Jakub Jelinek <jakub@redhat.com> 6.0.0-0.20
 - update from the trunk
   - PRs bootstrap/70173, c++/67376, c++/67394, c++/68475, c++/70170,
