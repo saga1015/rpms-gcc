@@ -1,9 +1,9 @@
-%global DATE 20160427
-%global SVNREV 235510
+%global DATE 20160510
+%global SVNREV 236095
 %global gcc_version 6.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -2449,7 +2449,6 @@ fi
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/liblsan.so
 %endif
 %endif
-%dir %{_prefix}/libexec/getconf
 %{_prefix}/libexec/getconf/default
 %doc gcc/README* rpm.doc/changelogs/gcc/ChangeLog* 
 %{!?_licensedir:%global license %%doc}
@@ -3101,6 +3100,14 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue May 10 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-2
+- update from the 6 branch
+  - PRs ada/70759, ada/70786, ada/70900, ada/70969, c++/70540, debug/70935,
+	java/70839, middle-end/70626, sanitizer/70342, sanitizer/70875,
+	target/60290, target/70858, tree-optimization/70916,
+	tree-optimization/70956
+- don't own %{_prefix}/libexec/getconf directory, as glibc owns it (#1333616)
+
 * Wed Apr 27 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-1
 - update from the trunk and 6 branch
   - GCC 6.1 release
