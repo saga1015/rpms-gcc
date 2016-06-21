@@ -1,0 +1,150 @@
+2016-06-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/71559
+	* config/i386/i386.c (ix86_fp_cmp_code_to_pcmp_immediate): Fix up
+	returned values and add UN*/LTGT/*ORDERED cases with values matching
+	D operand modifier on vcmp for AVX.
+
+	* gcc.target/i386/sse2-pr71559.c: New test.
+	* gcc.target/i386/avx-pr71559.c: New test.
+	* gcc.target/i386/avx512f-pr71559.c: New test.
+
+--- gcc/config/i386/i386.c.jj	2016-06-20 10:36:29.489994876 +0200
++++ gcc/config/i386/i386.c	2016-06-20 12:07:37.311006144 +0200
+@@ -23622,17 +23622,33 @@ ix86_fp_cmp_code_to_pcmp_immediate (enum
+   switch (code)
+     {
+     case EQ:
+-      return 0x08;
++      return 0x00;
+     case NE:
+       return 0x04;
+     case GT:
+-      return 0x16;
++      return 0x0e;
+     case LE:
+-      return 0x1a;
++      return 0x02;
+     case GE:
+-      return 0x15;
++      return 0x0d;
+     case LT:
+-      return 0x19;
++      return 0x01;
++    case UNLE:
++      return 0x0a;
++    case UNLT:
++      return 0x09;
++    case UNGE:
++      return 0x05;
++    case UNGT:
++      return 0x06;
++    case UNEQ:
++      return 0x18;
++    case LTGT:
++      return 0x0c;
++    case ORDERED:
++      return 0x07;
++    case UNORDERED:
++      return 0x03;
+     default:
+       gcc_unreachable ();
+     }
+--- gcc/testsuite/gcc.target/i386/sse2-pr71559.c.jj	2016-06-20 12:10:27.621795187 +0200
++++ gcc/testsuite/gcc.target/i386/sse2-pr71559.c	2016-06-20 12:14:44.821457893 +0200
+@@ -0,0 +1,73 @@
++/* PR target/71559 */
++/* { dg-do run { target sse2 } } */
++/* { dg-options "-O2 -ftree-vectorize -msse2" } */
++
++#ifndef PR71559_TEST
++#include "sse2-check.h"
++#define PR71559_TEST sse2_test
++#endif
++
++#define N 16
++float a[N] = { 5.0f, -3.0f, 1.0f, __builtin_nanf (""), 9.0f, 7.0f, -3.0f, -9.0f,
++               -3.0f, -5.0f, -9.0f, __builtin_nanf (""), 0.5f, -0.5f, 0.0f, 0.0f };
++float b[N] = { -5.0f, 3.0f, 1.0f, 7.0f, 8.0f, 8.0f, -3.0f, __builtin_nanf (""),
++               -4.0f, -4.0f, -9.0f, __builtin_nanf (""), 0.0f, 0.0f, 0.0f, __builtin_nanf ("") };
++int c[N], d[N];
++
++#define FN(name, op) \
++void					\
++name (void)				\
++{					\
++  int i;				\
++  for (i = 0; i < N; i++)		\
++    c[i] = (op || d[i] > 37) ? 5 : 32;	\
++}
++FN (eq, a[i] == b[i])
++FN (ne, a[i] != b[i])
++FN (gt, a[i] > b[i])
++FN (ge, a[i] >= b[i])
++FN (lt, a[i] < b[i])
++FN (le, a[i] <= b[i])
++FN (unle, !__builtin_isgreater (a[i], b[i]))
++FN (unlt, !__builtin_isgreaterequal (a[i], b[i]))
++FN (unge, !__builtin_isless (a[i], b[i]))
++FN (ungt, !__builtin_islessequal (a[i], b[i]))
++FN (uneq, !__builtin_islessgreater (a[i], b[i]))
++FN (ordered, !__builtin_isunordered (a[i], b[i]))
++FN (unordered, __builtin_isunordered (a[i], b[i]))
++
++#define TEST(name, GT, LT, EQ, UO) \
++  name ();				\
++  for (i = 0; i < N; i++)		\
++    {					\
++      int v;				\
++      switch (i % 4)			\
++	{				\
++	case 0: v = GT ? 5 : 32; break;	\
++	case 1: v = LT ? 5 : 32; break;	\
++	case 2: v = EQ ? 5 : 32; break;	\
++	case 3: v = UO ? 5 : 32; break;	\
++	}				\
++      if (c[i] != v)			\
++	__builtin_abort ();		\
++    }
++
++void
++PR71559_TEST (void)
++{
++  int i;
++  asm volatile ("" : : "g" (a), "g" (b), "g" (c), "g" (d) : "memory");
++  TEST (eq, 0, 0, 1, 0)
++  TEST (ne, 1, 1, 0, 1)
++  TEST (gt, 1, 0, 0, 0)
++  TEST (ge, 1, 0, 1, 0)
++  TEST (lt, 0, 1, 0, 0)
++  TEST (le, 0, 1, 1, 0)
++  TEST (unle, 0, 1, 1, 1)
++  TEST (unlt, 0, 1, 0, 1)
++  TEST (unge, 1, 0, 1, 1)
++  TEST (ungt, 1, 0, 0, 1)
++  TEST (uneq, 0, 0, 1, 1)
++  TEST (ordered, 1, 1, 1, 0)
++  TEST (unordered, 0, 0, 0, 1)
++}
+--- gcc/testsuite/gcc.target/i386/avx-pr71559.c.jj	2016-06-20 12:10:44.028582301 +0200
++++ gcc/testsuite/gcc.target/i386/avx-pr71559.c	2016-06-20 12:14:32.627616114 +0200
+@@ -0,0 +1,8 @@
++/* PR target/71559 */
++/* { dg-do run { target avx } } */
++/* { dg-options "-O2 -ftree-vectorize -mavx" } */
++
++#include "avx-check.h"
++#define PR71559_TEST avx_test
++
++#include "sse2-pr71559.c"
+--- gcc/testsuite/gcc.target/i386/avx512f-pr71559.c.jj	2016-06-20 12:11:32.812949299 +0200
++++ gcc/testsuite/gcc.target/i386/avx512f-pr71559.c	2016-06-20 12:14:51.070376810 +0200
+@@ -0,0 +1,8 @@
++/* PR target/71559 */
++/* { dg-do run { target avx512f } } */
++/* { dg-options "-O2 -ftree-vectorize -mavx512f" } */
++
++#include "avx512f-check.h"
++#define PR71559_TEST avx512f_test
++
++#include "sse2-pr71559.c"

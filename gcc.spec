@@ -1,9 +1,9 @@
-%global DATE 20160510
-%global SVNREV 236095
+%global DATE 20160621
+%global SVNREV 237634
 %global gcc_version 6.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -206,6 +206,7 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
+Patch14: gcc6-pr71559.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -772,6 +773,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
+%patch14 -p0 -b .pr71559~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3100,6 +3102,35 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Tue Jun 21 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-3
+- update from the 6 branch
+  - PRs ada/71317, ada/71358, bootstrap/71071, c++/60095, c++/69515,
+	c++/69872, c++/70466, c++/70498, c++/70572, c++/70584, c++/70735,
+	c++/70847, c++/70972, c++/71100, c++/71105, c++/71147, c++/71166,
+	c++/71173, c++/71184, c++/71210, c++/71227, c++/71257, c++/71306,
+	c++/71330, c++/71349, c++/71372, c++/71393, c++/71442, c++/71448,
+	c++/71516, c++/71528, c/68657, c/71171, c/71381, debug/71057,
+	fortran/56226, fortran/60751, fortran/66461, fortran/69603,
+	fortran/69659, fortran/70855, fortran/70856, fortran/71047,
+	fortran/71156, fortran/71204, hsa/70857, ipa/70646, ipa/70760,
+	libffi/65567, libgcc/70720, libgfortran/68115, libstdc++/69703,
+	libstdc++/70609, libstdc++/70762, libstdc++/71004, libstdc++/71005,
+	libstdc++/71036, libstdc++/71037, libstdc++/71038, libstdc++/71049,
+	libstdc++/71545, middle-end/70877, middle-end/70931, middle-end/70941,
+	middle-end/71002, middle-end/71279, middle-end/71371,
+	middle-end/71373, middle-end/71387, middle-end/71494,
+	middle-end/71529, middle-end/71581, sanitizer/71160, sanitizer/71498,
+	target/60751, target/67310, target/70809, target/70830, target/70860,
+	target/70915, target/70947, target/70957, target/70963, target/71056,
+	target/71103, target/71145, target/71161, target/71186, target/71201,
+	target/71379, target/71389, target/71554, tree-optimization/69067,
+	tree-optimization/69068, tree-optimization/70876,
+	tree-optimization/70884, tree-optimization/71006,
+	tree-optimization/71031, tree-optimization/71259,
+	tree-optimization/71405, tree-optimization/71505,
+	tree-optimization/71588
+- fix AVX512F floating point vector comparison handling (PR target/71559)
+
 * Tue May 10 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-2
 - update from the 6 branch
   - PRs ada/70759, ada/70786, ada/70900, ada/70969, c++/70540, debug/70935,
