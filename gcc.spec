@@ -1,9 +1,9 @@
-%global DATE 20160621
-%global SVNREV 237634
+%global DATE 20160721
+%global SVNREV 238592
 %global gcc_version 6.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 4
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -371,14 +371,14 @@ Requires: libquadmath-static = %{version}-%{release}
 This package contains static Fortran libraries.
 
 %package -n libgomp
-Summary: GCC OpenMP v3.0 shared support library
+Summary: GCC OpenMP v4.5 shared support library
 Group: System Environment/Libraries
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 
 %description -n libgomp
 This package contains GCC shared support library which is needed
-for OpenMP v3.0 support.
+for OpenMP v4.5 support.
 
 %package gdb-plugin
 Summary: GCC plugin for GDB
@@ -3102,6 +3102,26 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Jul 21 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-4
+- update from the 6 branch
+  - PRs c++/54430, c++/67565, c++/67579, c++/70781, c++/70822, c++/70824,
+	c++/70869, c++/71054, c++/71092, c++/71117, c++/71214, c++/71495,
+	c++/71511, c++/71513, c++/71604, c++/71711, c++/71718, c++/71739,
+	c++/71814, c++/71822, c++/71828, c++/71835, c++/71843, c++/71871,
+	c++/71896, c++/71909, c++/71941, c/71685, debug/71855, driver/71651,
+	fortran/70673, fortran/71623, fortran/71687, fortran/71688,
+	fortran/71704, fortran/71705, fortran/71717, fortran/71764,
+	fortran/71783, ipa/71624, libstdc++/71313, libstdc++/71320,
+	libstdc++/71856, middle-end/64516, middle-end/71423, middle-end/71606,
+	middle-end/71626, middle-end/71693, middle-end/71758,
+	middle-end/71874, rtl-optimization/71634, rtl-optimization/71916,
+	target/30417, target/50739, target/71493, target/71656, target/71670,
+	target/71698, target/71720, target/71733, target/71763, target/71805,
+	target/71806, tree-optimization/71264, tree-optimization/71452,
+	tree-optimization/71518, tree-optimization/71521,
+	tree-optimization/71522, tree-optimization/71647,
+	tree-optimization/71823
+
 * Tue Jun 21 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-3
 - update from the 6 branch
   - PRs ada/71317, ada/71358, bootstrap/71071, c++/60095, c++/69515,
