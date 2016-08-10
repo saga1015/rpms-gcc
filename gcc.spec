@@ -1,9 +1,9 @@
-%global DATE 20160721
-%global SVNREV 238592
+%global DATE 20160810
+%global SVNREV 239320
 %global gcc_version 6.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 4
+%global gcc_release 5
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -1335,6 +1335,8 @@ for i in `find . -name \*.py`; do
 done
 touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc++*gdb.py
 popd
+%py_byte_compile %{__python3} %{buildroot}%{_prefix}/share/gcc-%{gcc_version}/python/
+%py_byte_compile %{__python3} %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
 
 rm -f $FULLEPATH/libgccjit.so
 cp -a objlibgccjit/gcc/libgccjit.so* %{buildroot}%{_prefix}/%{_lib}/
@@ -2513,6 +2515,7 @@ fi
 %dir %{_datadir}/gdb/auto-load/%{_prefix}
 %dir %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
 %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc*gdb.py*
+%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/__pycache__
 %dir %{_prefix}/share/gcc-%{gcc_version}
 %dir %{_prefix}/share/gcc-%{gcc_version}/python
 %{_prefix}/share/gcc-%{gcc_version}/python/libstdcxx
@@ -3100,6 +3103,19 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Aug 10 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-5
+- update from the 6 branch
+  - PRs c++/52746, c++/55922, c++/63151, c++/68724, c++/69223, c++/70709,
+	c++/70778, c++/71350, c++/71576, c++/71630, c++/71728, c++/71738,
+	c++/71748, c++/71833, c++/71913, c++/72415, c++/72457, c++/72800,
+	c/7652, fortran/70040, fortran/70524, fortran/70842, fortran/71795,
+	fortran/71807, fortran/71883, ipa/68273, ipa/71981, libstdc++/70940,
+	libstdc++/71964, rtl-optimization/71976, sanitizer/71953,
+	target/70677, target/71151, target/71216, target/71869, target/72103,
+	target/72767, target/72802, target/72805, tree-optimization/71881,
+	tree-optimization/72824
+- add python3 bytecode for libstdc++ gdb extensions (#1204355)
+
 * Thu Jul 21 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-4
 - update from the 6 branch
   - PRs c++/54430, c++/67565, c++/67579, c++/70781, c++/70822, c++/70824,
