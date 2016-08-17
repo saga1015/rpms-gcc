@@ -1,0 +1,107 @@
+2016-08-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/77259
+	* tree-ssa-pre.c (eliminate_dom_walker::before_dom_children): If
+	turning a call into __builtin_unreachable-like noreturn call, adjust
+	gimple_call_set_fntype.
+	* tree-cfgcleanup.c (fixup_noreturn_call): Remove lhs also if
+	gimple_call_fntype has void return type.
+
+	* g++.dg/ipa/devirt-52.C: New test.
+
+--- gcc/tree-ssa-pre.c.jj	2016-08-16 13:22:49.095671219 +0200
++++ gcc/tree-ssa-pre.c	2016-08-17 10:24:42.498730917 +0200
+@@ -4543,6 +4543,15 @@ eliminate_dom_walker::before_dom_childre
+ 				       lang_hooks.decl_printable_name (fn, 2));
+ 		    }
+ 		  gimple_call_set_fndecl (call_stmt, fn);
++		  /* If changing the call to __builtin_unreachable
++		     or similar noreturn function, adjust gimple_call_fntype
++		     too.  */
++		  if (gimple_call_noreturn_p (call_stmt)
++		      && VOID_TYPE_P (TREE_TYPE (TREE_TYPE (fn)))
++		      && TYPE_ARG_TYPES (TREE_TYPE (fn))
++		      && (TREE_VALUE (TYPE_ARG_TYPES (TREE_TYPE (fn)))
++			  == void_type_node))
++		    gimple_call_set_fntype (call_stmt, TREE_TYPE (fn));
+ 		  maybe_remove_unused_call_args (cfun, call_stmt);
+ 		  gimple_set_modified (stmt, true);
+ 		}
+--- gcc/tree-cfgcleanup.c.jj	2016-08-09 09:41:14.000000000 +0200
++++ gcc/tree-cfgcleanup.c	2016-08-17 10:36:24.198791289 +0200
+@@ -602,9 +602,14 @@ fixup_noreturn_call (gimple *stmt)
+   /* If there is an LHS, remove it, but only if its type has fixed size.
+      The LHS will need to be recreated during RTL expansion and creating
+      temporaries of variable-sized types is not supported.  Also don't
+-     do this with TREE_ADDRESSABLE types, as assign_temp will abort.  */
++     do this with TREE_ADDRESSABLE types, as assign_temp will abort.
++     Drop LHS regardless of TREE_ADDRESSABLE, if the function call
++     has been changed into a call that does not return a value, like
++     __builtin_unreachable or __cxa_pure_virtual.  */
+   tree lhs = gimple_call_lhs (stmt);
+-  if (should_remove_lhs_p (lhs))
++  if (lhs
++      && (should_remove_lhs_p (lhs)
++	  || VOID_TYPE_P (TREE_TYPE (gimple_call_fntype (stmt)))))
+     {
+       gimple_call_set_lhs (stmt, NULL_TREE);
+ 
+--- gcc/testsuite/g++.dg/ipa/devirt-52.C.jj	2016-08-17 10:23:39.775528901 +0200
++++ gcc/testsuite/g++.dg/ipa/devirt-52.C	2016-08-17 10:23:39.775528901 +0200
+@@ -0,0 +1,56 @@
++// PR middle-end/77259
++// { dg-do compile { target c++11 } }
++// { dg-options "-O2" }
++
++template <typename, typename = int> class A;
++template <typename, typename> struct A
++{
++  A (A &&);
++};
++template <typename S, typename T, typename U>
++A<S> operator+(S *, const A<T, U> &);
++template <typename S, typename T, typename U>
++void operator+(const A<T, U> &, S *);
++struct B
++{
++  template <typename V> B (V);
++};
++template <typename V> V foo (B) {}
++class C;
++template <typename> struct D
++{
++  C *operator->() { return d; }
++  C *d;
++};
++struct C
++{
++  virtual A<int> bar ();
++};
++struct E
++{
++  ~E ();
++  virtual A<char> bar (const B &) const;
++};
++template <typename> struct F : E
++{
++};
++template <typename W> struct F<D<W>> : E
++{
++  A<char> bar (const B &) const try
++    {
++      D<W> a = baz ();
++    }
++  catch (int)
++    {
++    }
++  D<W> baz () const
++  {
++    D<C> b = foo<D<C>>(0);
++    "" + b->bar () + "";
++  }
++};
++struct G : F<D<int>>
++{
++  G (int);
++};
++void test () { G (0); }

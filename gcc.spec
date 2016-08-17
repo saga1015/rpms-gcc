@@ -1,9 +1,9 @@
-%global DATE 20160810
-%global SVNREV 239320
+%global DATE 20160817
+%global SVNREV 239541
 %global gcc_version 6.1.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 5
+%global gcc_release 6
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -207,6 +207,7 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
+Patch14: gcc6-pr77259.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -773,6 +774,7 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
+%patch14 -p0 -b .pr77259~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -1336,8 +1338,12 @@ for i in `find . -name \*.py`; do
 done
 touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc++*gdb.py
 popd
-%py_byte_compile %{__python3} %{buildroot}%{_prefix}/share/gcc-%{gcc_version}/python/
-%py_byte_compile %{__python3} %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
+for f in `find %{buildroot}%{_prefix}/share/gcc-%{gcc_version}/python/ \
+	       %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/ -name \*.py`; do
+  r=${f/$RPM_BUILD_ROOT/}
+  %{__python3} -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
+  %{__python3} -O -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
+done
 
 rm -f $FULLEPATH/libgccjit.so
 cp -a objlibgccjit/gcc/libgccjit.so* %{buildroot}%{_prefix}/%{_lib}/
@@ -3104,6 +3110,17 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Wed Aug 17 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-6
+- update from the 6 branch
+  - PRs c++/71972, c++/72868, c++/73456, c/67410, c/71512, c/72816,
+	debug/71906, driver/72765, fortran/71123, fortran/71936,
+	fortran/72698, libgfortran/71123, libgfortran/73142, sanitizer/71042,
+	target/72819, target/72843, target/72853, target/76342,
+	testsuite/77034, tree-optimization/71083, tree-optimization/73434
+- fix devirtualization ICE (#1367212, PR middle-end/77259)
+- build python3 bytecode manually to avoid python3-devel bugs (#1204355,
+  #1366516)
+
 * Wed Aug 10 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-5
 - update from the 6 branch
   - PRs c++/52746, c++/55922, c++/63151, c++/68724, c++/69223, c++/70709,
