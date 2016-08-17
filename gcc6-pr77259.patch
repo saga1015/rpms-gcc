@@ -29,7 +29,7 @@
  		}
 --- gcc/tree-cfgcleanup.c.jj	2016-08-09 09:41:14.000000000 +0200
 +++ gcc/tree-cfgcleanup.c	2016-08-17 10:36:24.198791289 +0200
-@@ -602,9 +602,14 @@ fixup_noreturn_call (gimple *stmt)
+@@ -602,10 +602,15 @@ fixup_noreturn_call (gimple *stmt)
    /* If there is an LHS, remove it, but only if its type has fixed size.
       The LHS will need to be recreated during RTL expansion and creating
       temporaries of variable-sized types is not supported.  Also don't
@@ -39,9 +39,11 @@
 +     has been changed into a call that does not return a value, like
 +     __builtin_unreachable or __cxa_pure_virtual.  */
    tree lhs = gimple_call_lhs (stmt);
--  if (should_remove_lhs_p (lhs))
+-  if (lhs && TREE_CODE (TYPE_SIZE_UNIT (TREE_TYPE (lhs))) == INTEGER_CST
+-      && !TREE_ADDRESSABLE (TREE_TYPE (lhs)))
 +  if (lhs
-+      && (should_remove_lhs_p (lhs)
++      && ((TREE_CODE (TYPE_SIZE_UNIT (TREE_TYPE (lhs))) == INTEGER_CST
++	   && !TREE_ADDRESSABLE (TREE_TYPE (lhs)))
 +	  || VOID_TYPE_P (TREE_TYPE (gimple_call_fntype (stmt)))))
      {
        gimple_call_set_lhs (stmt, NULL_TREE);
