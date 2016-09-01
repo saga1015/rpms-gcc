@@ -1,9 +1,9 @@
-%global DATE 20160817
-%global SVNREV 239541
-%global gcc_version 6.1.1
+%global DATE 20160901
+%global SVNREV 239935
+%global gcc_version 6.2.1
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 1
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -207,7 +207,6 @@ Patch10: gcc6-no-add-needed.patch
 Patch11: gcc6-libgo-p224.patch
 Patch12: gcc6-aarch64-async-unw-tables.patch
 Patch13: gcc6-libsanitize-aarch64-va42.patch
-Patch14: gcc6-pr77259.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -774,7 +773,6 @@ package or when debugging this package.
 rm -f libgo/go/crypto/elliptic/p224{,_test}.go
 %patch12 -p0 -b .aarch64-async-unw-tables~
 %patch13 -p0 -b .libsanitize-aarch64-va42~
-%patch14 -p0 -b .pr77259~
 
 %if 0%{?_enable_debug_packages}
 mkdir dwz-wrapper
@@ -3110,6 +3108,19 @@ fi
 %doc rpm.doc/changelogs/libcc1/ChangeLog*
 
 %changelog
+* Thu Sep  1 2016 Jakub Jelinek <jakub@redhat.com> 6.2.1-1
+- update from the 6 branch
+  - GCC 6.2 release
+  - PRs bootstrap/77279, debug/77363, fortran/69281, fortran/71014,
+	fortran/72744, fortran/77352, fortran/77358, fortran/77374,
+	libstdc++/77334, libstdc++/77395, lto/70955, middle-end/70895,
+	middle-end/71700, middle-end/77377, target/71338, target/71910,
+	target/72863, target/72867, target/77270, target/77281, target/77403,
+	tree-optimization/62171, tree-optimization/68542,
+	tree-optimization/71077, tree-optimization/72851,
+	tree-optimization/72866, tree-optimization/76490,
+	tree-optimization/76783
+
 * Wed Aug 17 2016 Jakub Jelinek <jakub@redhat.com> 6.1.1-6
 - update from the 6 branch
   - PRs c++/71972, c++/72868, c++/73456, c/67410, c/71512, c/72816,
