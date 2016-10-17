@@ -118,7 +118,7 @@ BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, sharutils
 BuildRequires: texinfo, texinfo-tex, /usr/bin/pod2man
 BuildRequires: systemtap-sdt-devel >= 1.3
 BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
-BuildRequires: python2-devel, python3-devel
+BuildRequires: python2-devel
 %if %{build_go}
 BuildRequires: hostname, procps
 %endif
@@ -1339,8 +1339,6 @@ popd
 for f in `find %{buildroot}%{_prefix}/share/gcc-%{gcc_version}/python/ \
 	       %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/ -name \*.py`; do
   r=${f/$RPM_BUILD_ROOT/}
-  %{__python3} -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
-  %{__python3} -O -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
 done
 
 rm -f $FULLEPATH/libgccjit.so
@@ -2520,7 +2518,6 @@ fi
 %dir %{_datadir}/gdb/auto-load/%{_prefix}
 %dir %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
 %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc*gdb.py*
-%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/__pycache__
 %dir %{_prefix}/share/gcc-%{gcc_version}
 %dir %{_prefix}/share/gcc-%{gcc_version}/python
 %{_prefix}/share/gcc-%{gcc_version}/python/libstdcxx
